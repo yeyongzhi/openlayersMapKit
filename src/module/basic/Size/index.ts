@@ -1,0 +1,128 @@
+
+import { isDefined, isNumber } from '../../../utils/index';
+import { warn_, error_, getPackageMessage } from '../../../utils/index'
+
+
+const PACKAGE_NAME = 'Size';
+const createMessage = getPackageMessage(PACKAGE_NAME);
+
+/**
+ * 尺寸类
+ * @class
+ * @classdesc 用于存储、使用尺寸信息
+ * @author Aurora
+ * @version 1.0.0
+ * @createDate 2025/06/30
+ * @updateDate 2025/06/30
+ */
+
+export default class Size {
+
+    /**
+     * @type {number[]}
+     * @example [20, 15]
+     * @private
+     */
+    private _size: number[] = [];
+
+    constructor(width: number, height: number) {
+        if(!isNumber(width) || !isNumber(height)) {
+            error_(createMessage("constructor", "初始化参数有误"))
+        }
+        this._size = [width, height];
+    }
+
+    private _isInitialized(method: string): boolean {
+        if (!isDefined(this._size)) {
+            warn_(createMessage(method, "未正确实例化"))
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 获取size
+     * @returns {number[] | undefined} size
+     */
+    getSize(): number[] | undefined {
+        if(!this._isInitialized("getSize")) return undefined
+        return this._size
+    }
+
+    /**
+     * 设置size
+     * @param {number[]} size
+     */
+    setSize(size: number[]): void {
+        if(!this._isInitialized("setSize")) return;
+        if(!isNumber(size[0]) || !isNumber(size[1])) {
+            warn_(createMessage("setSize", "参数格式有误"))
+            return undefined
+        }
+        this._size = size
+    }
+
+    /**
+     * 获取Size的width
+     * @returns {number | undefined} width
+     */
+    getWidth(): number | undefined {
+        if(!this._isInitialized("getWidth")) return undefined
+        return this._size[0]
+    }
+
+    /**
+     * 获取Size的height
+     * @returns {number} height
+     */
+    getHeight(): number | undefined {
+        if(!this._isInitialized("getHeight")) return undefined
+        return this._size[1]
+    }
+
+    /**
+     * 设置Size的width
+     * @param {number} width
+     */
+    setWidth(width: number): void {
+        if(!this._isInitialized("setWidth")) return;
+        if(!isNumber(width)) {
+            warn_(createMessage("setWidth", "参数格式有误"))
+            return;
+        }
+        this._size[0] = width;
+    }
+
+    /**
+     * 设置Size的height
+     * @param {number} height
+     */
+    setHeight(height: number): void {
+        if(!this._isInitialized("setHeight")) return;
+        if(!isNumber(height)) {
+            warn_(createMessage("setHeight", "参数格式有误"))
+            return;
+        }
+        this._size[1] = height;
+    }
+
+    /**
+     * 判断两个尺寸是否相等
+     * @param {Size} size 
+     * @returns {boolean} 判断结果
+     */
+    equals(size: Size): boolean | undefined {
+        if(!this._isInitialized("equals")) return;
+        return this._size[0] === size._size[0] && this._size[1] === size._size[1]
+    }
+
+    /**
+     * 以字符串的形式输出尺寸
+     * @returns {string} sizeStr
+     */
+    toString(): string {
+        if(!this._isInitialized("toString")) return ""
+        return `[${this._size[0]}, ${this._size[1]}]`
+    }
+
+}
