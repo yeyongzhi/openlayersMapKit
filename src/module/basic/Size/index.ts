@@ -23,7 +23,7 @@ export default class Size {
      * @example [20, 15]
      * @private
      */
-    private _size: number[] = [];
+    _size: number[] = [];
 
     constructor(width: number, height: number) {
         if(!isNumber(width) || !isNumber(height)) {
