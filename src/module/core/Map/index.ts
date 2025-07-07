@@ -3,10 +3,7 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import OlPackage from '../../../source/index'
 import  type { MapContainerType, MapOptionsType, BaseLayerIdType, OlMapInstanceType } from '../../../utils/index';
 import { Lnglat } from '../../basic/index';
-
 import BaseLayer from '../../layer/BaseLayer/index'
-
-console.log(OlPackage)
 
 const PACKAGE_NAME = 'Map';
 const createMessage = getPackageMessage(PACKAGE_NAME);

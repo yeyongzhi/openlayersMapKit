@@ -31,7 +31,6 @@ export default class GaodeLayer extends BaseLayer {
     constructor(type: GaodeLayerTypeEnum, options?: BaseTileLayerOptions ) {
         super('Gaode', options);
         let _options = options || {};
-        console.log(OlLayer.Tile)
         this.gaodeType = type;
         this._layer = new OlLayer.Tile({
             source: new OlSource.XYZ({

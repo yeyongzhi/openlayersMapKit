@@ -1,6 +1,7 @@
-import { BaseLayerType, BaseLayerIdType, BaseLayerOptions, BaseTileLayerOptions, isDefined } from "../../../utils/index";
+import { BaseLayerType, BaseLayerIdType, BaseLayerOptions, BaseTileLayerOptions, isDefined, isBoolean, isObject, isNumber } from "../../../utils/index";
 import OlPackage, { OlLayer } from '../../../source/index'
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { warn_, error_, getPackageMessage, isVaildOpacity } from '../../../utils/index'
+import type { BaseTileLayerEventType, PropertiesType } from '../../../utils/index'
 
 let PACKAGE_NAME = 'BaseLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -99,20 +100,13 @@ export default class BaseLayer {
     }
 
     _initLayerEvent() {
-        // 初始化事件
+        // 图层属性变化事件，用于监听图层属性变化
         this._layer.on([
-            "change:opacity",
-            "change:visible",
-            "change:extent",
-            "change:minZoom",
-            "change:maxZoom",
-            "change:minResolution",
-            "change:maxResolution",
-            "change:zIndex",
             "propertychange"
-        ], (e: any) => {
-            // 图层属性变化事件，用于监听图层属性变化
-            console.log(e)
+        ], (e: BaseTileLayerEventType) => {
+            if(e.key === 'opacity') {
+                this.opacity = this.getOpacity() as number
+            }
         })
     }
 
@@ -120,4 +114,133 @@ export default class BaseLayer {
         if (!this._isInitialized('getId')) return undefined;
         return this.id;
     }
+
+    /**
+     * 设置图层透明度
+     * @param {number} opacity 透明度，0~1
+     */
+    setOpacity(opacity: number): void {
+        if (!this._isInitialized('setOpacity')) return;
+        if (!isDefined(opacity)) {
+            warn_(createMessage('setOpacity', '透明度不能为空'));
+            return;
+        }
+        if (!isVaildOpacity(opacity)) {
+            warn_(createMessage('setOpacity', '透明度必须为0~1的数字'));
+            return;
+        }
+        this._layer.setOpacity(opacity);
+    }
+
+    /**
+     * 获取图层透明度
+     * @returns {number} 透明度，0~1
+     */
+    getOpacity(): number | undefined {
+        if (!this._isInitialized('getOpacity')) return undefined;
+        return this._layer.getOpacity();
+    }
+
+    /**
+     * 设置图层可见性
+     * @param {boolean} visible 可见性，true/false
+     */
+    setVisible(visible: boolean): void {
+        if (!this._isInitialized('setVisible')) return;
+        if (!isDefined(visible)) {
+            warn_(createMessage('setVisible', '可见性不能为空'));
+            return;
+        }
+        if(isBoolean(visible)) {
+            warn_(createMessage('setVisible', '可见性必须为boolean类型'));
+            return;
+        }
+        this._layer.setVisible(visible);
+    }
+
+    /**
+     * 获取图层可见性
+     * @returns {boolean} 可见性，true/false
+     */
+    getVisible(): boolean | undefined {
+        if (!this._isInitialized('getVisible')) return undefined;
+        return this._layer.getVisible();
+    }
+
+    setExtent(): void {
+        
+    }
+
+    getExtent(): void {
+        
+    }
+
+    setMinZoom(): void {
+        
+    }
+
+    getMinZoom(): void {
+        
+    }
+
+    setMaxZoom(): void {
+        
+    }
+
+    getMaxZoom(): void {
+        
+    }
+
+    setMinResolution(): void {
+        
+    }
+
+    getMinResolution(): void {
+        
+    }
+
+    setMaxResolution(): void {
+        
+    }
+
+    getMaxResolution(): void {
+        
+    }
+
+    setZIndex(zIndex: number): void {
+        if (!this._isInitialized('setZIndex')) return;
+        if (!isDefined(zIndex)) {
+            warn_(createMessage('setZIndex', 'zIndex不能为空'));
+            return;
+        }
+        if(!isNumber(zIndex)) {
+            warn_(createMessage('setZIndex', 'zIndex必须为number类型'));
+            return;
+        }
+        this._layer.setZIndex(zIndex);
+    }
+
+    getZIndex(): number | undefined {
+        if (!this._isInitialized('getZIndex')) return undefined;
+        return this._layer.getZIndex();
+    }
+
+    setProperties(properties: PropertiesType): void {
+        if (!this._isInitialized('setProperties')) return;
+        if (!isDefined(properties)) {
+            warn_(createMessage('setProperties', '属性不能为空'));
+            return;
+        }
+        if(isObject(properties)) {
+            warn_(createMessage('setProperties', '属性必须为object类型'));
+            return;          
+        }
+        this._layer.setProperties(properties);
+    }
+
+    getProperties(): void {
+        if (!this._isInitialized('getProperties')) return;
+        return this._layer.getProperties();
+    }
+
 }
