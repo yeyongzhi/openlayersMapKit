@@ -1,5 +1,7 @@
+console.log(window.ol)
+
 console.log(window.OMap);
 
-const size = new OMap.Size(100, 100);
+const map = new OMap.Map("map_container")
 
-console.log(size)
+const layer = new OMap.GaodeLayer("vec")
