@@ -1,8 +1,10 @@
+const COLOR_RGB_STRING_REGEX = /^rgb\(\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*\)$/
+
 function isFunction<T extends Function>(value: T | any): value is T {
     return typeof value === 'function';
 }
 
-function isArray<T>(value: any): boolean {
+function isArray(value: any): boolean {
     return Array.isArray(value);
 }
 
@@ -26,6 +28,10 @@ function isBoolean(value: boolean | any): boolean {
     return typeof value === 'boolean';
 }
 
+function isObject(value: any): boolean {
+    return Object.prototype.toString.call(value) === '[object Object]'
+}
+
 function isIdType(value: string | number): boolean {
     return isString(value) || isNumber(value);
 }
@@ -38,4 +44,43 @@ function isArrayLength2(value: any) {
     return isArray(value) && value.length === 2
 }
 
-export { isFunction, isArray, isNumber, isNaN, isString, isEmptyString, isBoolean, isIdType, isCoordinatesType, isArrayLength2 }
+function isVaildColorRGB(value: any) {
+    return isArray(value) && value.length === 3 && value.every((item: any) => isNumber(item) && item >= 0 && item <= 255);
+}
+
+function isVaildColorRGBString(value: any) {
+    return isString(value) && COLOR_RGB_STRING_REGEX.test(value);
+}
+
+function isVaildOpacity(value: any) {
+    return isNumber(value) && value >= 0 && value <= 1;
+}
+
+function isVaildColorHex(value: any) {
+    let _value = value.replace("#", "");
+    return isString(value) && value.startsWith("#") && (_value.length === 6 || _value.length === 3);
+}
+
+function isVaildColorHexWithAlpha(value: any) {
+    let _value = value.replace("#", "");
+    return isString(value) && value.startsWith("#") && (_value.length === 8);
+}
+
+export {
+    isFunction,
+    isArray,
+    isNumber,
+    isNaN,
+    isString,
+    isEmptyString,
+    isBoolean,
+    isObject,
+    isIdType,
+    isCoordinatesType,
+    isArrayLength2,
+    isVaildColorRGB,
+    isVaildColorRGBString,
+    isVaildOpacity,
+    isVaildColorHex,
+    isVaildColorHexWithAlpha
+}

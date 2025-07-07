@@ -12,7 +12,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Extent {
-    private _extent: number[] = [];
+    _extent: number[] = [];
 
     constructor(minX: number, minY: number, maxX: number, maxY: number) {
         if(!isNumber(minX) || !isNumber(minY) || !isNumber(maxX) || !isNumber(maxY)) {

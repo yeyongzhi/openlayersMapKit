@@ -19,7 +19,7 @@ export default class Lnglat {
      * @example [119.26, 28.73]
      * @private
      */
-    private _lnglat: LnglatType;
+    _lnglat: LnglatType;
 
     constructor(lng: number, lat: number) {
         if (!isNumber(lng) || !isNumber(lat)) {

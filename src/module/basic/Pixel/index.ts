@@ -13,13 +13,14 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @createDate 2025/06/30
  * @updateDate 2025/06/30
  */
+
 export default class Pixel {
     /**
      * @type {number[]}
      * @example [100, 200]
      * @private
      */
-    private _pixel: number[] = [];
+    _pixel: number[] = [];
 
     constructor(x: number, y: number) {
         if (!isNumber(x) || !isNumber(y)) {
