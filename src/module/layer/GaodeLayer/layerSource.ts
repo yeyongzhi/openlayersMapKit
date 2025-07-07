@@ -1,10 +1,6 @@
-interface GaodeLayerType {
-    vec: string[];
-    img: string[];
-    road: string[];
-}
+import type { GaodeLayerTypeEnum } from './index'
 
-export const GaodeLayerTypeUrls: GaodeLayerType = {
+export const GaodeLayerTypeUrls: Record<GaodeLayerTypeEnum, Array<string>> = {
     vec: [
         "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
         "https://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",

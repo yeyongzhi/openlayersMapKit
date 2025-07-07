@@ -1,57 +1,57 @@
-var y = Object.defineProperty;
-var w = (r, t, i) => t in r ? y(r, t, { enumerable: !0, configurable: !0, writable: !0, value: i }) : r[t] = i;
-var h = (r, t, i) => w(r, typeof t != "symbol" ? t + "" : t, i);
-import * as m from "ol";
-import "ol/proj";
+var O = Object.defineProperty;
+var N = (r, t, i) => t in r ? O(r, t, { enumerable: !0, configurable: !0, writable: !0, value: i }) : r[t] = i;
+var o = (r, t, i) => N(r, typeof t != "symbol" ? t + "" : t, i);
+import * as z from "ol";
+import * as B from "ol/layer";
 function s(r) {
   return r != null;
 }
 function l(r) {
   console.warn("omap warn", r);
 }
-function u(r) {
+function c(r) {
   throw new Error(`omap error ${r}`);
 }
-function f(r) {
+function h(r) {
   return (t, i) => `📦${r}【${t}】: ${i}`;
 }
-const x = /^rgb\(\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*\)$/;
-function z(r) {
+const q = /^rgb\(\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*\)$/;
+function C(r) {
   return Array.isArray(r);
 }
-function o(r) {
+function a(r) {
   return typeof r == "number";
 }
 function E(r) {
   return typeof r == "string";
 }
-function v(r) {
+function Z(r) {
   return r === "";
 }
-function k(r) {
+function H(r) {
   return Object.prototype.toString.call(r) === "[object Object]";
 }
-function L(r) {
-  return z(r) && r.length === 2 && o(r[0]) && o(r[1]);
+function U(r) {
+  return C(r) && r.length === 2 && a(r[0]) && a(r[1]);
 }
-function C(r) {
-  return z(r) && r.length === 3 && r.every((t) => o(t) && t >= 0 && t <= 255);
+function A(r) {
+  return C(r) && r.length === 3 && r.every((t) => a(t) && t >= 0 && t <= 255);
 }
-function G(r) {
-  return E(r) && x.test(r);
+function W(r) {
+  return E(r) && q.test(r);
+}
+function x(r) {
+  return a(r) && r >= 0 && r <= 1;
 }
 function b(r) {
-  return o(r) && r >= 0 && r <= 1;
-}
-function B(r) {
   let t = r.replace("#", "");
   return E(r) && r.startsWith("#") && (t.length === 6 || t.length === 3);
 }
-function S(r) {
+function Y(r) {
   let t = r.replace("#", "");
   return E(r) && r.startsWith("#") && t.length === 8;
 }
-function F(r) {
+function g(r) {
   if (r.charAt(0) !== "#")
     return console.error("Hex color code must start with #"), [0, 0, 0];
   if (r = r.slice(1), r.length === 3)
@@ -61,34 +61,34 @@ function F(r) {
   const t = parseInt(r.slice(0, 2), 16), i = parseInt(r.slice(2, 4), 16), e = parseInt(r.slice(4, 6), 16);
   return [t, i, e];
 }
-function $(r) {
+function D(r) {
   const t = /rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/, i = r.match(t);
   if (i)
     return [parseInt(i[1], 10), parseInt(i[2], 10), parseInt(i[3], 10)];
   throw new Error("Invalid RGB format");
 }
-function R(r) {
+function V(r) {
   const t = /rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([0-9.]+)\s*\)/, i = r.match(t);
   if (i)
     return [parseInt(i[1], 10), parseInt(i[2], 10), parseInt(i[3], 10)];
   throw new Error("Invalid RGB format");
 }
-function P(r) {
+function j(r) {
   return (parseInt(r, 16) / 255).toPrecision(2);
 }
-const q = "Size", g = f(q);
-class T {
+const K = "Size", _ = h(K);
+class at {
   constructor(t, i) {
     /**
      * @type {number[]}
      * @example [20, 15]
      * @private
      */
-    h(this, "_size", []);
-    (!o(t) || !o(i)) && u(g("constructor", "初始化参数有误")), this._size = [t, i];
+    o(this, "_size", []);
+    (!a(t) || !a(i)) && c(_("constructor", "初始化参数有误")), this._size = [t, i];
   }
   _isInitialized(t) {
-    return s(this._size) ? !0 : (l(g(t, "未正确实例化")), !1);
+    return s(this._size) ? !0 : (l(_(t, "未正确实例化")), !1);
   }
   /**
    * 获取size
@@ -104,8 +104,8 @@ class T {
    */
   setSize(t) {
     if (this._isInitialized("setSize")) {
-      if (!o(t[0]) || !o(t[1])) {
-        l(g("setSize", "参数格式有误"));
+      if (!a(t[0]) || !a(t[1])) {
+        l(_("setSize", "参数格式有误"));
         return;
       }
       this._size = t;
@@ -133,8 +133,8 @@ class T {
    */
   setWidth(t) {
     if (this._isInitialized("setWidth")) {
-      if (!o(t)) {
-        l(g("setWidth", "参数格式有误"));
+      if (!a(t)) {
+        l(_("setWidth", "参数格式有误"));
         return;
       }
       this._size[0] = t;
@@ -146,8 +146,8 @@ class T {
    */
   setHeight(t) {
     if (this._isInitialized("setHeight")) {
-      if (!o(t)) {
-        l(g("setHeight", "参数格式有误"));
+      if (!a(t)) {
+        l(_("setHeight", "参数格式有误"));
         return;
       }
       this._size[1] = t;
@@ -170,19 +170,19 @@ class T {
     return this._isInitialized("toString") ? `[${this._size[0]}, ${this._size[1]}]` : "";
   }
 }
-const M = "Pixel", c = f(M);
-class K {
+const X = "Pixel", d = h(X);
+class lt {
   constructor(t, i) {
     /**
      * @type {number[]}
      * @example [100, 200]
      * @private
      */
-    h(this, "_pixel", []);
-    (!o(t) || !o(i)) && u(c("constructor", "初始化参数有误")), this._pixel = [t, i];
+    o(this, "_pixel", []);
+    (!a(t) || !a(i)) && c(d("constructor", "初始化参数有误")), this._pixel = [t, i];
   }
   _isInitialized(t) {
-    return s(this._pixel) ? !0 : (l(c(t, "未正确实例化")), !1);
+    return s(this._pixel) ? !0 : (l(d(t, "未正确实例化")), !1);
   }
   /**
    * 获取像素坐标
@@ -198,8 +198,8 @@ class K {
    */
   setPixel(t) {
     if (this._isInitialized("setPixel")) {
-      if (!o(t[0]) || !o(t[1])) {
-        l(c("setPixel", "参数格式有误"));
+      if (!a(t[0]) || !a(t[1])) {
+        l(d("setPixel", "参数格式有误"));
         return;
       }
       this._pixel = t;
@@ -227,8 +227,8 @@ class K {
    */
   setX(t) {
     if (this._isInitialized("setX")) {
-      if (!o(t)) {
-        l(c("setX", "参数格式有误"));
+      if (!a(t)) {
+        l(d("setX", "参数格式有误"));
         return;
       }
       this._pixel[0] = t;
@@ -240,8 +240,8 @@ class K {
    */
   setY(t) {
     if (this._isInitialized("setY")) {
-      if (!o(t)) {
-        l(c("setY", "参数格式有误"));
+      if (!a(t)) {
+        l(d("setY", "参数格式有误"));
         return;
       }
       this._pixel[1] = t;
@@ -255,7 +255,7 @@ class K {
   equals(t) {
     if (!this._isInitialized("equals")) return;
     if (!s(t)) {
-      l(c("equals", "参数未正确实例化"));
+      l(d("equals", "参数未正确实例化"));
       return;
     }
     const i = t.getPixel();
@@ -270,8 +270,8 @@ class K {
     return this._isInitialized("toString") ? `[${this._pixel[0]}, ${this._pixel[1]}]` : "";
   }
 }
-const H = "Lnglat", d = f(H);
-class a {
+const J = "Lnglat", F = h(J);
+class u {
   constructor(t, i) {
     /**
      * 经纬度数组
@@ -279,11 +279,11 @@ class a {
      * @example [119.26, 28.73]
      * @private
      */
-    h(this, "_lnglat");
-    (!o(t) || !o(i)) && u(d("constructor", "传入经纬度格式错误")), this._lnglat = [t, i];
+    o(this, "_lnglat");
+    (!a(t) || !a(i)) && c(F("constructor", "传入经纬度格式错误")), this._lnglat = [t, i];
   }
   _isInitialized(t) {
-    return !s(this._lnglat) || s(this._lnglat) && this._lnglat.length !== 2 ? (l(d(t, "经纬度未正确初始化")), !1) : !0;
+    return !s(this._lnglat) || s(this._lnglat) && this._lnglat.length !== 2 ? (l(F(t, "经纬度未正确初始化")), !1) : !0;
   }
   /**
    * 设置经度
@@ -291,8 +291,8 @@ class a {
    */
   setLng(t) {
     if (this._isInitialized("setLng")) {
-      if (!o(t)) {
-        l(d("setLng", "传入经度格式有误"));
+      if (!a(t)) {
+        l(F("setLng", "传入经度格式有误"));
         return;
       }
       this._lnglat[0] = t;
@@ -304,8 +304,8 @@ class a {
    */
   setLat(t) {
     if (this._isInitialized("setLat")) {
-      if (!o(t)) {
-        l(d("setLat", "传入纬度格式有误"));
+      if (!a(t)) {
+        l(F("setLat", "传入纬度格式有误"));
         return;
       }
       this._lnglat[1] = t;
@@ -334,8 +334,8 @@ class a {
    */
   equals(t) {
     if (!this._isInitialized("equals")) return;
-    if (!(t instanceof a)) {
-      l(d("equals", "传入经纬度格式错误，必须为Lnglat类型"));
+    if (!(t instanceof u)) {
+      l(F("equals", "传入经纬度格式错误，必须为Lnglat类型"));
       return;
     }
     const i = t.getLng() !== void 0 && t.getLat() !== void 0 ? [t.getLng(), t.getLat()] : void 0;
@@ -357,10 +357,10 @@ class a {
    */
   toString(t) {
     var i, e;
-    return !this._isInitialized("toString") || !L(this._lnglat) ? "" : `[${(i = this._lnglat[0]) == null ? void 0 : i.toFixed(t)}, ${(e = this._lnglat[1]) == null ? void 0 : e.toFixed(t)}]`;
+    return !this._isInitialized("toString") || !U(this._lnglat) ? "" : `[${(i = this._lnglat[0]) == null ? void 0 : i.toFixed(t)}, ${(e = this._lnglat[1]) == null ? void 0 : e.toFixed(t)}]`;
   }
 }
-const D = {
+const $ = {
   aliceblue: "#F0F8FF",
   antiquewhite: "#FAEBD7",
   aqua: "#00FFFF",
@@ -501,10 +501,10 @@ const D = {
   whitesmoke: "#F5F5F5",
   yellow: "#FFFF00",
   yellowgreen: "#9ACD32"
-}, W = "Color", p = f(W);
-class X {
+}, Q = "Color", y = h(Q);
+class ut {
   constructor(t) {
-    h(this, "_color", "");
+    o(this, "_color", "");
     this._initColor(t);
   }
   /**
@@ -513,28 +513,28 @@ class X {
    */
   _initColor(t) {
     const i = () => {
-      u(p("constructor", "初始化参数有误"));
+      c(y("constructor", "初始化参数有误"));
     };
-    if (z(t)) {
+    if (C(t)) {
       let e = t;
       if (e.length === 3) {
-        if (!C(t)) {
+        if (!A(t)) {
           i();
           return;
         }
         this._color = `rgb(${e[0]}, ${e[1]}, ${e[2]})`;
       } else if (e.length === 4) {
-        if (!C(e.slice(0, 3)) || !b(e[3])) {
+        if (!A(e.slice(0, 3)) || !x(e[3])) {
           i();
           return;
         }
         this._color = `rgba(${e[0]}, ${e[1]}, ${e[2]}, ${e[3]})`;
       } else if (e.length === 2) {
-        if (!B(e[0]) || !b(e[1])) {
+        if (!b(e[0]) || !x(e[1])) {
           i();
           return;
         }
-        let n = F(t[0]);
+        let n = g(t[0]);
         if (!s(n)) {
           i();
           return;
@@ -545,27 +545,27 @@ class X {
         return;
       }
     }
-    if (k(t)) {
+    if (H(t)) {
       let e = t;
       if (!s(e.color) && !(s(e.r) && s(e.g) && s(e.b))) {
         i();
         return;
       }
       if (s(e.color)) {
-        if (B(e.color)) {
-          let n = F(e.color);
+        if (b(e.color)) {
+          let n = g(e.color);
           if (!s(n)) {
             i();
             return;
           }
           this._color = s(e.alpha) || s(e.opacity) ? `rgba(${n[0]}, ${n[1]}, ${n[2]}, ${e.alpha || e.opacity})` : `rgb(${n[0]}, ${n[1]}, ${n[2]})`;
         }
-        if (G(e.color)) {
-          let n = $(e.color).join(", ");
+        if (W(e.color)) {
+          let n = D(e.color).join(", ");
           this._color = s(e.alpha) || s(e.opacity) ? `rgba(${n}, ${e.alpha || e.opacity})` : `rgb(${n})`;
         }
       } else if (s(e.r) && s(e.g) && s(e.b)) {
-        if (!C([e.r, e.g, e.b])) {
+        if (!A([e.r, e.g, e.b])) {
           i();
           return;
         }
@@ -576,24 +576,24 @@ class X {
       }
     }
     if (E(t)) {
-      if (v(t)) {
+      if (Z(t)) {
         i();
         return;
       }
-      if (B(t)) {
-        let e = F(t);
+      if (b(t)) {
+        let e = g(t);
         if (!s(e)) {
           i();
           return;
         }
         this._color = `rgb(${e[0]}, ${e[1]}, ${e[2]})`;
-      } else if (S(t)) {
-        let e = F(t.slice(0, 7));
+      } else if (Y(t)) {
+        let e = g(t.slice(0, 7));
         if (!s(e)) {
           i();
           return;
         }
-        let n = P(t.slice(6));
+        let n = j(t.slice(6));
         this._color = `rgba(${e[0]}, ${e[1]}, ${e[2]}, ${n})`;
       } else
         this._color = t;
@@ -610,44 +610,44 @@ class X {
    * @param alpha {number} 透明度，范围0-1
    */
   withAlpha(t) {
-    if (!b(t)) {
-      u(p("withAlpha", "透明度参数有误"));
+    if (!x(t)) {
+      c(y("withAlpha", "透明度参数有误"));
       return;
     }
     if (this._color.startsWith("rgb") && !this._color.startsWith("rgba"))
-      this._initColor([...$(this._color), t]);
+      this._initColor([...D(this._color), t]);
     else if (this._color.startsWith("rgba"))
-      this._initColor([...R(this._color), t]);
+      this._initColor([...V(this._color), t]);
     else {
-      if (!s(D[this._color])) {
-        u(p("withAlpha", "颜色值有误"));
+      if (!s($[this._color])) {
+        c(y("withAlpha", "颜色值有误"));
         return;
       }
-      let i = F(D[this._color]);
+      let i = g($[this._color]);
       if (!s(i)) {
-        u(p("withAlpha", "颜色值有误"));
+        c(y("withAlpha", "颜色值有误"));
         return;
       }
       this._initColor([...i, t]);
     }
   }
 }
-const j = "Extent", _ = f(j);
-class A {
+const tt = "Extent", p = h(tt);
+class m {
   constructor(t, i, e, n) {
-    h(this, "_extent", []);
-    if (!o(t) || !o(i) || !o(e) || !o(n)) {
-      u(_("constructor", "初始化参数有误，必须为经纬度数值"));
+    o(this, "_extent", []);
+    if (!a(t) || !a(i) || !a(e) || !a(n)) {
+      c(p("constructor", "初始化参数有误，必须为经纬度数值"));
       return;
     }
     if (e < t || n < i) {
-      u(_("constructor", "初始化参数有误"));
+      c(p("constructor", "初始化参数有误"));
       return;
     }
     this._extent = [t, i, e, n];
   }
   _isInitialized(t) {
-    return !s(this._extent) || this._extent.length !== 4 ? (l(_(t, "未正确实例化")), !1) : !0;
+    return !s(this._extent) || this._extent.length !== 4 ? (l(p(t, "未正确实例化")), !1) : !0;
   }
   /**
    * 获取边界范围Extent的左上方位置
@@ -655,7 +655,7 @@ class A {
    */
   getTopLeft() {
     if (this._isInitialized("getTopLeft"))
-      return new a(this._extent[0], this._extent[3]);
+      return new u(this._extent[0], this._extent[3]);
   }
   /**
    * 获取边界范围Extent的右上方位置
@@ -663,7 +663,7 @@ class A {
    */
   getTopRight() {
     if (this._isInitialized("getTopRight"))
-      return new a(this._extent[2], this._extent[3]);
+      return new u(this._extent[2], this._extent[3]);
   }
   /**
    * 获取边界范围Extent的左下角位置
@@ -671,7 +671,7 @@ class A {
    */
   getBottomLeft() {
     if (this._isInitialized("getBottomLeft"))
-      return new a(this._extent[0], this._extent[1]);
+      return new u(this._extent[0], this._extent[1]);
   }
   /**
    * 获取边界范围Extent的右下角位置
@@ -679,7 +679,7 @@ class A {
    */
   getBottomRight() {
     if (this._isInitialized("getBottomRight"))
-      return new a(this._extent[2], this._extent[1]);
+      return new u(this._extent[2], this._extent[1]);
   }
   /**
    * 获取边界范围Extent的中心点位置
@@ -687,7 +687,7 @@ class A {
    */
   getCenter() {
     if (this._isInitialized("getCenter"))
-      return new a(
+      return new u(
         (this._extent[0] + this._extent[2]) / 2,
         (this._extent[1] + this._extent[3]) / 2
       );
@@ -711,8 +711,8 @@ class A {
    * @return 判断结果
    */
   static containsCoordinate(t, i) {
-    if (!(t instanceof A) || !(i instanceof a)) {
-      l(_("containsCoordinate", "参数格式错误，必须为Extent类型和Lnglat类型"));
+    if (!(t instanceof m) || !(i instanceof u)) {
+      l(p("containsCoordinate", "参数格式错误，必须为Extent类型和Lnglat类型"));
       return;
     }
     if (!t._isInitialized("containsCoordinate") || !s(i.toArray())) return;
@@ -726,42 +726,174 @@ class A {
    * @return 判断结果
    */
   static containsExtent(t, i) {
-    if (!(t instanceof A) || !(i instanceof A)) {
-      l(_("containsExtent", "参数格式错误，必须为Extent"));
+    if (!(t instanceof m) || !(i instanceof m)) {
+      l(p("containsExtent", "参数格式错误，必须为Extent"));
       return;
     }
     if (!(!t._isInitialized("containsExtent") || !i._isInitialized("containsExtent")))
       return t._extent[0] <= i._extent[0] && i._extent[2] <= t._extent[2] && t._extent[1] <= i._extent[1] && i._extent[3] <= t._extent[3];
   }
 }
-const O = {
+const et = z.source;
+console.log(z);
+const it = "Map", f = h(it), rt = {
   center: [120.2, 30.3],
   // 中心点坐标
   zoom: 8
 };
-class Y {
+class ct {
   constructor(t, i) {
-    h(this, "_map", null);
-    h(this, "_view", null);
-    let e = i || O;
-    const n = new m.View({
-      center: e.center instanceof a ? e.center._lnglat : e.center,
+    o(this, "_map", null);
+    o(this, "_view", null);
+    o(this, "layers", []);
+    let e = i || rt;
+    const n = new z.View({
+      center: e.center instanceof u ? e.center._lnglat : e.center,
       // 中心点坐标
-      zoom: e.zoom,
-      projection: "EPSG:4326"
-      // 坐标系
-    }), I = new m.Map({
+      zoom: e.zoom
+    }), P = new z.Map({
       target: t,
       view: n
     });
-    this._view = n, this._map = I;
+    this._view = n, this._map = P;
+  }
+  _isInitialized(t) {
+    return !s(this._map) || !s(this._view) ? (l(f(t, "未正确实例化")), !1) : !0;
+  }
+  addLayer(t) {
+    if (!this._isInitialized("addLayer")) return;
+    if (!s(t)) {
+      l(f("addLayer", "图层对象不能为空"));
+      return;
+    }
+    const i = t.getId();
+    if (!s(i)) {
+      l(f("addLayer", "图层id不能为空"));
+      return;
+    }
+    if (this.getLayerById(i)) {
+      l(f("addLayer", "图层已存在"));
+      return;
+    }
+    this.layers.push(t), this._map.addLayer(t._layer);
+  }
+  addLayers(t) {
+  }
+  getLayerById(t) {
+    if (!s(t)) {
+      l(f("getLayerById", "图层id不能为空"));
+      return;
+    }
+    return this.layers.find((e) => s(e.getId()) && e.getId() === t);
+  }
+}
+let I = "BaseLayer", w = h(I);
+const L = 1, v = !0, R = 0, k = 22, T = 0, G = 1 / 0, S = 1, M = {};
+class st {
+  // 图层属性，用于存储图层相关信息
+  constructor(t, i) {
+    /**
+     * 图层类型
+     */
+    o(this, "type", null);
+    /**
+     * 图层实例（ol）
+     */
+    o(this, "_layer");
+    // 底层图层对象，由子类实现具体的图层类型
+    /**
+     * 图层id，每个图层的唯一主键，用于区分图层
+     */
+    o(this, "id", null);
+    /**
+     * 图层名称，用于显示在图层控制栏中
+     */
+    o(this, "name", "");
+    o(this, "className", "");
+    // 图层样式类名，用于自定义图层样式，默认无
+    o(this, "opacity", L);
+    // 图层透明度，默认1
+    o(this, "visible", v);
+    // 图层是否可见，默认true
+    o(this, "extent", []);
+    // 图层范围，默认全局
+    o(this, "minZoom", R);
+    // 最小缩放级别，默认0
+    o(this, "maxZoom", k);
+    // 最大缩放级别，默认22
+    o(this, "minResolution", T);
+    // 最小分辨率，默认0r
+    o(this, "maxResolution", G);
+    // 最大分辨率，默认Infinity
+    o(this, "zIndex", S);
+    // 图层层级，默认0
+    o(this, "properties", M);
+    let e = i || {};
+    this.type = t, I = `${t}Layer`, w = h(I), e.id && (this.id = e.id), this.name = e.name || "", this.className = e.className || "", this.opacity = e.opacity || L, this.visible = e.visible || v, this.extent = e.extent || null, this.minZoom = e.minZoom || R, this.maxZoom = e.maxZoom || k, this.minResolution = e.minResolution || T, this.maxResolution = e.maxResolution || G, this.zIndex = e.zIndex || S, this.properties = e.properties || M;
+  }
+  _isInitialized(t) {
+    return s(this._layer) ? !0 : (l(w(t, "未正确实例化")), !1);
+  }
+  _initLayerEvent() {
+    this._layer.on([
+      "change:opacity",
+      "change:visible",
+      "change:extent",
+      "change:minZoom",
+      "change:maxZoom",
+      "change:minResolution",
+      "change:maxResolution",
+      "change:zIndex",
+      "propertychange"
+    ], (t) => {
+      console.log(t);
+    });
+  }
+  getId() {
+    if (this._isInitialized("getId"))
+      return this.id;
+  }
+}
+const nt = {
+  vec: [
+    "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+    "https://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+    "https://webrd03.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+    "https://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
+  ],
+  img: [
+    "http://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+    "http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+    "http://webst03.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+    "http://webst04.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
+  ],
+  road: [
+    "http://webst01.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
+    "http://webst02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
+    "http://webst03.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
+    "http://webst04is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8"
+  ]
+};
+class ht extends st {
+  constructor(i, e) {
+    super("Gaode", e);
+    /**
+     * 图层类型
+     */
+    o(this, "gaodeType", null);
+    console.log(B.Tile), this.gaodeType = i, this._layer = new B.Tile({
+      source: new et.XYZ({
+        urls: nt[this.gaodeType]
+      })
+    }), this._initLayerEvent();
   }
 }
 export {
-  X as Color,
-  A as Extent,
-  a as Lnglat,
-  Y as Map,
-  K as Pixel,
-  T as Size
+  ut as Color,
+  m as Extent,
+  ht as GaodeLayer,
+  u as Lnglat,
+  ct as Map,
+  lt as Pixel,
+  at as Size
 };
