@@ -3,34 +3,33 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { BaseTileLayerOptions } from '../../../utils/index'
 import OlPackage, { OlLayer, OlSource } from '../../../source/index'
 import BaseLayer from '../BaseLayer'
-
-import { GaodeLayerTypeUrls } from './layerSource'
+import { TdtLayerTypeUrls } from './layerSource'
 
 /**
- * 高德地图类
+ * 天地图服务类
  * @class
- * @classdesc 快捷使用高德地图相关的开发地图服务
+ * @classdesc 快捷使用天地图相关的开发地图服务
  * @author Aurora
  * @version 1.0.0
- * @createDate 2025/7/5
- * @updateDate 2025/7/6
+ * @createDate 2025/7/8
+ * @updateDate 2025/7/8
  */
 
-export type GaodeLayerTypeEnum = 'vec' | 'img' | 'road'
+export type TdtLayerTypeEnum = 'vec' | 'img' | 'ter'
 
 export default class GaodeLayer extends BaseLayer {
     /**
      * 图层类型
      */
-    gaodeType: GaodeLayerTypeEnum | null = null;
+    tdtType: TdtLayerTypeEnum | null = null;
 
-    constructor(type: GaodeLayerTypeEnum, options?: BaseTileLayerOptions ) {
-        super('Gaode', options);
+    constructor(type: TdtLayerTypeEnum, options?: BaseTileLayerOptions ) {
+        super('Tdt', options);
         let _options = options || {};
-        this.gaodeType = type;
+        this.tdtType = type;
         this._layer = new OlLayer.Tile({
             source: new OlSource.XYZ({
-                urls: GaodeLayerTypeUrls[this.gaodeType]
+                urls: TdtLayerTypeUrls[this.tdtType]
             })
         })
         this._initLayerEvent()
