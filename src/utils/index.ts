@@ -3,3 +3,5 @@ export * from './message'
 export * from './dataType'
 export * from './type'
 export * from './transform'
+
+export * from './omapType'

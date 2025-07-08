@@ -1,6 +1,5 @@
 /**
  * 核心类
  */
-import Map from './Map/index';
-
-export { Map }
+export { default as Map } from "./Map/index";
+export { default as Projection } from "./Projection/index";

@@ -9,17 +9,17 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @class Lnglat
  * @classdesc 经纬度
  * @author yyz
- * @CreateDate 2022/08/07
- * @LastUpdateDate 2023/02/15
+ * @CreateDate 2025/06/30
+ * @LastUpdateDate 2025/06/30
  */
 export default class Lnglat {
     /**
      * 经纬度数组
-     * @type {LnglatType}
+     * @type {number[]}
      * @example [119.26, 28.73]
      * @private
      */
-    _lnglat: LnglatType;
+    _lnglat: number[];
 
     constructor(lng: number, lat: number) {
         if (!isNumber(lng) || !isNumber(lat)) {

@@ -1,8 +1,9 @@
-import { isDefined, isNumber } from '../../../utils/index';
+import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import OlPackage from '../../../source/index'
-import  type { MapContainerType, MapOptionsType, BaseLayerIdType, OlMapInstanceType } from '../../../utils/index';
-import { Lnglat } from '../../basic/index';
+import type { MapContainerType, BaseLayerIdType, OlMapInstanceType, OlMapOptionsFinalType, OlProjInstanceType } from '../../../utils/index';
+import { Lnglat, Extent } from '../../basic/index';
+import { Projection } from '../index'
 import BaseLayer from '../../layer/BaseLayer/index'
 
 const PACKAGE_NAME = 'Map';
@@ -18,14 +19,15 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/7/7
  */
 
-const defaultOptions: MapOptionsType = {
-    center: [120.2, 30.3], // 中心点坐标
-    zoom: 8, // 初始缩放级别
-    layers: [], // 图层
-    controls: [], // 控件
-    interactions: [], // 交互
-    overlays: [], // 覆盖物
-}
+// const defaultOptions: MapOptionsType = {
+//     center: [120.2, 30.3], // 中心点坐标
+//     zoom: 8, // 初始缩放级别
+//     layers: [], // 图层
+//     controls: [], // 控件
+//     interactions: [], // 交互
+//     overlays: [], // 覆盖物
+// }
+
 
 export default class Map {
 
@@ -33,12 +35,24 @@ export default class Map {
     _view: InstanceType<typeof OlPackage.View> | null = null;
     layers: Array<BaseLayer> = [];
 
-    constructor(element: MapContainerType, options?: MapOptionsType) {
-        let _options = options || defaultOptions;
-        const view = new OlPackage.View({
-            center: (_options.center instanceof Lnglat) ? _options.center._lnglat : _options.center, // 中心点坐标
-            zoom: _options.zoom,
-        })
+    constructor(element: MapContainerType, options: OlMapOptionsFinalType) {
+        let _options = options
+        const view_options = _options.view
+        if(!isDefined(view_options)) {
+            error_(createMessage('constructor', 'view参数不能为空'));
+            return;
+        }
+        let proj: Projection | string = view_options.projection || new Projection('EPSG:3857'); // 默认为3857
+        if(isString(proj)) {
+            proj = new Projection(proj as string)
+        }
+        const view_params = {
+            ...view_options,
+            center: (view_options.center instanceof Lnglat) ? view_options.center._lnglat : view_options.center, // 中心点坐标
+            extent: (view_options.extent instanceof Extent)? view_options.extent._extent : view_options.extent,
+            projection: (proj as Projection)._projection as OlProjInstanceType
+        }
+        const view = new OlPackage.View(view_params)
         const map = new OlPackage.Map({
             target: element,
             view
@@ -57,17 +71,17 @@ export default class Map {
 
     addLayer(layer: BaseLayer) {
         if (!this._isInitialized('addLayer')) return;
-        if(!isDefined(layer)) {
+        if (!isDefined(layer)) {
             warn_(createMessage('addLayer', '图层对象不能为空'));
             return;
         }
         const layerId = layer.getId();
-        if(!isDefined(layerId)) {
+        if (!isDefined(layerId)) {
             warn_(createMessage('addLayer', '图层id不能为空'));
             return;
         }
         let isExist = this.getLayerById(layerId)
-        if(isExist) {
+        if (isExist) {
             warn_(createMessage('addLayer', '图层已存在'));
             return;
         }
@@ -76,11 +90,11 @@ export default class Map {
     }
 
     addLayers(layers: Array<BaseLayer>) {
-        
+
     }
 
     getLayerById(id: BaseLayerIdType) {
-        if(!isDefined(id)) {
+        if (!isDefined(id)) {
             warn_(createMessage('getLayerById', '图层id不能为空'));
             return undefined;
         }

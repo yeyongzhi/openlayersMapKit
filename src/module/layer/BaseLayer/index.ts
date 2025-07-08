@@ -175,36 +175,76 @@ export default class BaseLayer {
         
     }
 
-    setMinZoom(): void {
-        
+    setMinZoom(minZoom: number): void {
+        if(!this._isInitialized('setMinZoom')) return;
+        if (!isDefined(minZoom)) {
+            warn_(createMessage('setMinZoom', 'minZoom不能为空'));
+            return;
+        }
+        if(!isNumber(minZoom)) {
+            warn_(createMessage('setMinZoom', 'minZoom必须为number类型'));
+            return;
+        }
+        this._layer.setMinZoom(minZoom);
     }
 
-    getMinZoom(): void {
-        
+    getMinZoom(): number | undefined {
+        if(!this._isInitialized('getMinZoom')) return;
+        return this._layer.getMinZoom();
     }
 
-    setMaxZoom(): void {
-        
+    setMaxZoom(maxZoom: number): void {
+        if (!this._isInitialized('setMaxZoom')) return;
+        if (!isDefined(maxZoom)) {
+            warn_(createMessage('setMaxZoom', 'maxZoom不能为空'));
+            return;
+        }
+        if(!isNumber(maxZoom)) {
+            warn_(createMessage('setMaxZoom', 'maxZoom必须为number类型'));
+            return;
+        }
+        this._layer.setMaxZoom(maxZoom);
     }
 
-    getMaxZoom(): void {
-        
+    getMaxZoom(): number | undefined {
+        if (!this._isInitialized('getMaxZoom')) return;
+        return this._layer.getMaxZoom();
     }
 
-    setMinResolution(): void {
-        
+    setMinResolution(minResolution: number): void {
+        if (!this._isInitialized('setMinResolution')) return;
+        if (!isDefined(minResolution)) {
+            warn_(createMessage('setMinResolution', 'minResolution不能为空'));
+            return;
+        }
+        if(!isNumber(minResolution)) {
+            warn_(createMessage('setMinResolution', 'minResolution必须为number类型'));
+            return;
+        }
+        this._layer.setMinResolution(minResolution);
     }
 
-    getMinResolution(): void {
-        
+    getMinResolution(): number | undefined {
+        if (!this._isInitialized('getMinResolution')) return;
+        return this._layer.getMinResolution();
     }
 
-    setMaxResolution(): void {
-        
+    setMaxResolution(maxResolution: number): void {
+        if (!this._isInitialized('setMaxResolution')) return;
+        if (!isDefined(maxResolution)) {
+            warn_(createMessage('setMaxResolution','maxResolution不能为空'));
+            return;
+        }
+        if(!isNumber(maxResolution)) {
+            warn_(createMessage('setMaxResolution','maxResolution必须为number类型'));
+            return;
+        }
+        this._layer.setMaxResolution(maxResolution);
     }
 
-    getMaxResolution(): void {
-        
+    getMaxResolution(): number | undefined  {
+        if (!this._isInitialized('getMaxResolution')) return;
+        return this._layer.getMaxResolution();
     }
 
     setZIndex(zIndex: number): void {
@@ -238,7 +278,7 @@ export default class BaseLayer {
         this._layer.setProperties(properties);
     }
 
-    getProperties(): void {
+    getProperties(): PropertiesType | undefined {
         if (!this._isInitialized('getProperties')) return;
         return this._layer.getProperties();
     }

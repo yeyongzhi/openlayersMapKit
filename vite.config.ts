@@ -15,7 +15,8 @@ export default defineConfig({
         globals: {
           ol: 'ol',
           'ol/layer': 'ol.layer',
-          'ol/source': 'ol.source'
+          'ol/source': 'ol.source',
+          'ol/proj': 'ol.proj',
         }
       },
       plugins: []
