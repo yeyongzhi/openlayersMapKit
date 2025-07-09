@@ -9,6 +9,7 @@ export type ManualOmit<T, K extends keyof any> = {
 
 // 投影相关类型
 export * from './olType/projection'
+export * from './olType/layer'
 
 export type EmptyArray = [];
 

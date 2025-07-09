@@ -1,24 +1,24 @@
-import type { TdtLayerTypeEnum } from './index'
+import type { TdtLayerTypeEnum, TdtLayerProjTypeEnum } from './index'
+import { MapToken } from '../../util/index'
 
-const commonUrlTemplate = `http://t${index}.tianditu.com/DataServer?T=${this.tdtType}&tk=${this.tk}&x={x}&y={y}&l={z}`
+const commonUrlTemplate = `http://t{0-7}.tianditu.com/DataServer?T={T}&tk={tk}&x={x}&y={y}&l={z}`
 
 export const TdtLayerTypeUrls: Record<TdtLayerTypeEnum, Array<string>> = {
-    vec: [
-        "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
-        "https://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
-        "https://webrd03.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
-        "https://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
-    ],
-    img: [
-        "http://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
-        "http://webst02.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
-        "http://webst03.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
-        "http://webst04.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
-    ],
-    ter: [
-        "http://webst01.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
-        "http://webst02.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
-        "http://webst03.is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8",
-        "http://webst04is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8"
-    ]
+    vec: [],
+    img: [],
+    ter: []
+}
+
+export const createTdtLayerTypeUrls = (type: TdtLayerTypeEnum, proj: TdtLayerProjTypeEnum) => {
+    let t: string[] = []
+    if(type === 'vec') {
+        t = ['vec', 'cva']
+    } else if(type === 'img') {
+        t = ['img', 'cia']
+    } else if(type === 'ter') {
+        t = ['ter', 'cta']
+    }
+    return t.map(item => {
+        commonUrlTemplate.replace('{T}', item + proj).replace('{tk}', MapToken.tdt as string)
+    })
 }

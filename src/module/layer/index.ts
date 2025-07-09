@@ -3,3 +3,5 @@
  */
 
 export { default as GaodeLayer } from "./GaodeLayer/index";
+export { default as TdtLayer } from "./TdtLayer/index";
+export { default as LayerGroup } from "./LayerGroup/index";

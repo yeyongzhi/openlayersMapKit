@@ -2,6 +2,7 @@ import { BaseLayerType, BaseLayerIdType, BaseLayerOptions, BaseTileLayerOptions,
 import OlPackage, { OlLayer } from '../../../source/index'
 import { warn_, error_, getPackageMessage, isVaildOpacity } from '../../../utils/index'
 import type { BaseTileLayerEventType, PropertiesType } from '../../../utils/index'
+import { LayerGroup } from '../index'
 
 let PACKAGE_NAME = 'BaseLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -48,7 +49,7 @@ export default class BaseLayer {
     /**
      * 图层实例（ol）
      */
-    _layer: any; // 底层图层对象，由子类实现具体的图层类型
+    _layer: any | LayerGroup; // 底层图层对象，由子类实现具体的图层类型
     /**
      * 图层id，每个图层的唯一主键，用于区分图层
      */

@@ -17,6 +17,7 @@ export default defineConfig({
           'ol/layer': 'ol.layer',
           'ol/source': 'ol.source',
           'ol/proj': 'ol.proj',
+          'ol/util': 'ol.util',
         }
       },
       plugins: []
