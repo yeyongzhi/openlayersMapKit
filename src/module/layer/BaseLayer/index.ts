@@ -1,8 +1,8 @@
-import { BaseLayerType, BaseLayerIdType, BaseLayerOptions, BaseTileLayerOptions, isDefined, isBoolean, isObject, isNumber } from "../../../utils/index";
+import { BaseLayerType, BaseLayerIdType, isDefined, isBoolean, isObject, isNumber } from "../../../utils/index";
 import OlPackage, { OlLayer } from '../../../source/index'
 import { warn_, error_, getPackageMessage, isVaildOpacity } from '../../../utils/index'
-import type { BaseTileLayerEventType, PropertiesType } from '../../../utils/index'
-import { LayerGroup } from '../index'
+import type { BaseLayerOptionsType, PropertiesType, BaseLayerEventType, IdType } from '../../../utils/index'
+import { LayerGroup, Extent } from '../../../index'
 
 let PACKAGE_NAME = 'BaseLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -61,16 +61,18 @@ export default class BaseLayer {
     className: string = ''; // 图层样式类名，用于自定义图层样式，默认无
     opacity: number = DEFAULT_LAYER_OPACITY; // 图层透明度，默认1
     visible: boolean = DEFAULT_LAYER_VISIBLE; // 图层是否可见，默认true
-    extent: Array<number> | null = []; // 图层范围，默认全局
+    extent: Extent | null = null; // 图层范围，默认全局
     minZoom: number = DEFAULT_LAYER_MIN_ZOOM; // 最小缩放级别，默认0
     maxZoom: number = DEFAULT_LAYER_MAX_ZOOM; // 最大缩放级别，默认22
     minResolution: number = DEFAULT_LAYER_MIN_RESOLUTION; // 最小分辨率，默认0r
     maxResolution: number = DEFAULT_LAYER_MAX_RESOLUTION; // 最大分辨率，默认Infinity
     zIndex: number = DEFAULT_LAYER_ZINDEX; // 图层层级，默认0
-    properties: Record<string, any> = DEFAULT_LAYER_PROPERTIES; // 图层属性，用于存储图层相关信息
+    properties: PropertiesType = DEFAULT_LAYER_PROPERTIES; // 图层属性，用于存储图层相关信息
 
-    constructor(type: BaseLayerType, options?: BaseTileLayerOptions) {
-        let _options: BaseTileLayerOptions = options || {};
+    #groupId: IdType = null; // 图层所属组ID，默认null
+
+    constructor(type: BaseLayerType, options?: BaseLayerOptionsType) {
+        let _options: BaseLayerOptionsType = options || {};
         this.type = type
         PACKAGE_NAME = `${type}Layer`; // 动态更新包名
         createMessage = getPackageMessage(PACKAGE_NAME);
@@ -104,8 +106,8 @@ export default class BaseLayer {
         // 图层属性变化事件，用于监听图层属性变化
         this._layer.on([
             "propertychange"
-        ], (e: BaseTileLayerEventType) => {
-            if(e.key === 'opacity') {
+        ], (e: BaseLayerEventType) => {
+            if (e.key === 'opacity') {
                 this.opacity = this.getOpacity() as number
             }
         })
@@ -152,7 +154,7 @@ export default class BaseLayer {
             warn_(createMessage('setVisible', '可见性不能为空'));
             return;
         }
-        if(isBoolean(visible)) {
+        if (isBoolean(visible)) {
             warn_(createMessage('setVisible', '可见性必须为boolean类型'));
             return;
         }
@@ -169,20 +171,20 @@ export default class BaseLayer {
     }
 
     setExtent(): void {
-        
+
     }
 
     getExtent(): void {
-        
+
     }
 
     setMinZoom(minZoom: number): void {
-        if(!this._isInitialized('setMinZoom')) return;
+        if (!this._isInitialized('setMinZoom')) return;
         if (!isDefined(minZoom)) {
             warn_(createMessage('setMinZoom', 'minZoom不能为空'));
             return;
         }
-        if(!isNumber(minZoom)) {
+        if (!isNumber(minZoom)) {
             warn_(createMessage('setMinZoom', 'minZoom必须为number类型'));
             return;
         }
@@ -190,7 +192,7 @@ export default class BaseLayer {
     }
 
     getMinZoom(): number | undefined {
-        if(!this._isInitialized('getMinZoom')) return;
+        if (!this._isInitialized('getMinZoom')) return;
         return this._layer.getMinZoom();
     }
 
@@ -200,7 +202,7 @@ export default class BaseLayer {
             warn_(createMessage('setMaxZoom', 'maxZoom不能为空'));
             return;
         }
-        if(!isNumber(maxZoom)) {
+        if (!isNumber(maxZoom)) {
             warn_(createMessage('setMaxZoom', 'maxZoom必须为number类型'));
             return;
         }
@@ -218,7 +220,7 @@ export default class BaseLayer {
             warn_(createMessage('setMinResolution', 'minResolution不能为空'));
             return;
         }
-        if(!isNumber(minResolution)) {
+        if (!isNumber(minResolution)) {
             warn_(createMessage('setMinResolution', 'minResolution必须为number类型'));
             return;
         }
@@ -233,17 +235,17 @@ export default class BaseLayer {
     setMaxResolution(maxResolution: number): void {
         if (!this._isInitialized('setMaxResolution')) return;
         if (!isDefined(maxResolution)) {
-            warn_(createMessage('setMaxResolution','maxResolution不能为空'));
+            warn_(createMessage('setMaxResolution', 'maxResolution不能为空'));
             return;
         }
-        if(!isNumber(maxResolution)) {
-            warn_(createMessage('setMaxResolution','maxResolution必须为number类型'));
+        if (!isNumber(maxResolution)) {
+            warn_(createMessage('setMaxResolution', 'maxResolution必须为number类型'));
             return;
         }
         this._layer.setMaxResolution(maxResolution);
     }
 
-    getMaxResolution(): number | undefined  {
+    getMaxResolution(): number | undefined {
         if (!this._isInitialized('getMaxResolution')) return;
         return this._layer.getMaxResolution();
     }
@@ -254,7 +256,7 @@ export default class BaseLayer {
             warn_(createMessage('setZIndex', 'zIndex不能为空'));
             return;
         }
-        if(!isNumber(zIndex)) {
+        if (!isNumber(zIndex)) {
             warn_(createMessage('setZIndex', 'zIndex必须为number类型'));
             return;
         }
@@ -272,9 +274,9 @@ export default class BaseLayer {
             warn_(createMessage('setProperties', '属性不能为空'));
             return;
         }
-        if(isObject(properties)) {
+        if (isObject(properties)) {
             warn_(createMessage('setProperties', '属性必须为object类型'));
-            return;          
+            return;
         }
         this._layer.setProperties(properties);
     }
@@ -282,6 +284,16 @@ export default class BaseLayer {
     getProperties(): PropertiesType | undefined {
         if (!this._isInitialized('getProperties')) return;
         return this._layer.getProperties();
+    }
+
+    getGroupId() {
+        if (!this._isInitialized('getGroupId')) return;
+        return this.#groupId;
+    }
+
+    // TODO
+    setGroupId(newId: number | string) {
+        this.#groupId = newId;
     }
 
 }

@@ -2,6 +2,8 @@ import { Lnglat, Extent, Projection } from "../index";
 import OlPackage, { OlLayer, OlSource } from '../source/index'
 import { OlProjInstanceType } from './olType/projection'
 
+export type IdType = number | string | null
+
 /** 工具类 */
 export type ManualOmit<T, K extends keyof any> = {
     [P in keyof T as P extends K ? never : P]: T[P];
@@ -10,6 +12,7 @@ export type ManualOmit<T, K extends keyof any> = {
 // 投影相关类型
 export * from './olType/projection'
 export * from './olType/layer'
+export * from './olType/source'
 
 export type EmptyArray = [];
 
@@ -61,28 +64,3 @@ export type CustomerOlMapOptionsType = {
     view: OlViewOptionsFinalType;
 };
 export type OlMapOptionsFinalType = OlMapOptionsOmitType & CustomerOlMapOptionsType;
-
-/** -------------------------------- */
-
-
-/** Layer */
-export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt'
-export type BaseLayerIdType = number | string | null | undefined
-export type BaseLayerOptions = {
-    id?: BaseLayerIdType; // 图层id，用于区分图层，默认使用uuid
-    name?: string; // 图层名称，用于显示在图层控制栏中，默认使用图层id
-}
-
-export type OlTileLayerOptions = ConstructorParameters<typeof OlLayer.Tile>[0];
-// 确保 OlTileLayerOptions 是静态已知类型，直接继承它
-export type BaseTileLayerOptions = OlTileLayerOptions & BaseLayerOptions
-export type BaseTileLayerEventType = {
-    key: string;
-    oldValue?: number | string | boolean;
-    target: ConstructorParameters<typeof OlLayer.Tile>[0];
-    type: string;
-}
-
-/** -------------------------------- */
-
-export type OlXYZSourceOptions = ConstructorParameters<typeof OlSource.XYZ>[0];

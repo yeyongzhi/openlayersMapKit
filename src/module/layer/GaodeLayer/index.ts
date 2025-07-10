@@ -1,6 +1,6 @@
 import { isDefined, isNumber } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { BaseTileLayerOptions } from '../../../utils/index'
+import type { BaseLayerOptionsType } from '../../../utils/index'
 import OlPackage, { OlLayer, OlSource } from '../../../source/index'
 import BaseLayer from '../BaseLayer'
 
@@ -24,7 +24,7 @@ export default class GaodeLayer extends BaseLayer {
      */
     gaodeType: GaodeLayerTypeEnum | null = null;
 
-    constructor(type: GaodeLayerTypeEnum, options?: BaseTileLayerOptions ) {
+    constructor(type: GaodeLayerTypeEnum, options?: BaseLayerOptionsType ) {
         super('Gaode', options);
         let _options = options || {};
         this.gaodeType = type;

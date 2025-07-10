@@ -1,9 +1,9 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import OlPackage from '../../../source/index'
-import type { MapContainerType, BaseLayerIdType, OlMapInstanceType, OlMapOptionsFinalType, OlProjInstanceType } from '../../../utils/index';
+import type { MapContainerType, BaseLayerIdType, OlMapInstanceType, OlMapOptionsFinalType, OlProjInstanceType, IdType } from '../../../utils/index';
 import { Lnglat, Extent } from '../../basic/index';
-import { Projection } from '../index'
+import { Projection, LayerGroup } from '../../../index'
 import BaseLayer from '../../layer/BaseLayer/index'
 
 const PACKAGE_NAME = 'Map';
@@ -28,6 +28,12 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 //     overlays: [], // 覆盖物
 // }
 
+interface MapLayersItemType {
+    type: 'BaseLayer' | 'LayerGroup';
+    layer: BaseLayer;
+    groupId?: IdType;
+}
+
 
 export default class Map {
 
@@ -38,18 +44,18 @@ export default class Map {
     constructor(element: MapContainerType, options: OlMapOptionsFinalType) {
         let _options = options
         const view_options = _options.view
-        if(!isDefined(view_options)) {
+        if (!isDefined(view_options)) {
             error_(createMessage('constructor', 'view参数不能为空'));
             return;
         }
         let proj: Projection | string = view_options.projection || new Projection('EPSG:3857'); // 默认为3857
-        if(isString(proj)) {
+        if (isString(proj)) {
             proj = new Projection(proj as string)
         }
         const view_params = {
             ...view_options,
             center: (view_options.center instanceof Lnglat) ? view_options.center._lnglat : view_options.center, // 中心点坐标
-            extent: (view_options.extent instanceof Extent)? view_options.extent._extent : view_options.extent,
+            extent: (view_options.extent instanceof Extent) ? view_options.extent._extent : view_options.extent,
             projection: (proj as Projection)._projection as OlProjInstanceType
         }
         const view = new OlPackage.View(view_params)
@@ -69,21 +75,27 @@ export default class Map {
         return true;
     }
 
-    addLayer(layer: BaseLayer) {
+    addLayer(layer: BaseLayer | LayerGroup) {
         if (!this._isInitialized('addLayer')) return;
         if (!isDefined(layer)) {
             warn_(createMessage('addLayer', '图层对象不能为空'));
             return;
         }
-        const layerId = layer.getId();
-        if (!isDefined(layerId)) {
-            warn_(createMessage('addLayer', '图层id不能为空'));
-            return;
+        if (layer instanceof LayerGroup) {
+            let groudId = layer.getId()
+            layer.getAll().forEach((item) => {
+                this.layers.push(item);
+                (this._map as OlMapInstanceType).addLayer(item._layer);
+            })
+            return false
         }
-        let isExist = this.getLayerById(layerId)
-        if (isExist) {
-            warn_(createMessage('addLayer', '图层已存在'));
-            return;
+        const layerId = layer.getId();
+        if (isDefined(layerId)) {
+            let isExist = this.getLayerById(layerId)
+            if (isExist) {
+                warn_(createMessage('addLayer', '图层已存在'));
+                return;
+            }
         }
         this.layers.push(layer);
         (this._map as OlMapInstanceType).addLayer(layer._layer); // 添加图层到地图中
@@ -93,13 +105,25 @@ export default class Map {
 
     }
 
-    getLayerById(id: BaseLayerIdType) {
+    getLayerById(id: BaseLayerIdType): BaseLayer | undefined {
         if (!isDefined(id)) {
             warn_(createMessage('getLayerById', '图层id不能为空'));
             return undefined;
         }
-        const layer = this.layers.find(layer => {
-            return isDefined(layer.getId()) && layer.getId() === id
+        let layer: BaseLayer | undefined = undefined;
+        this.layers.forEach((item) => {
+            if(item instanceof LayerGroup) {
+                (item as LayerGroup).getAll().forEach((layerItem) => {
+                    if(isDefined(layerItem.getId()) && layerItem.getId() === id) {
+                        layer = layerItem
+                    }
+                })
+            }
+            if(item instanceof BaseLayer) {
+                if(isDefined((item as BaseLayer).getId()) && (item as BaseLayer).getId() === id) {
+                    layer = item
+                }
+            }
         });
         return layer
     }

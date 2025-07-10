@@ -1,9 +1,9 @@
 import { isDefined, isNumber } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { BaseTileLayerOptions } from '../../../utils/index'
+import type { BaseLayerOptionsType } from '../../../utils/index'
 import OlPackage, { OlLayer, OlSource } from '../../../source/index'
 import BaseLayer from '../BaseLayer'
-import LayerGroup from '../LayerGroup';
+import TileLayer from '../TileLayer/index'
 import { TdtLayerTypeUrls } from './layerSource'
 import { MapToken } from '../../util/index'
 
@@ -20,20 +20,20 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/7/8
  */
 
-export type TdtLayerTypeEnum = 'vec' | 'img' | 'ter'
+export type TdtLayerTypeEnum = 'vec' | 'img' | 'ter' | 'cva' | 'cia' | 'cta'
 /**
  * w: 球面墨卡托投影
  * c: 经纬度投影
  */
 export type TdtLayerProjTypeEnum = 'w' | 'c'
 
-export default class GaodeLayer extends BaseLayer {
+export default class TdtLayer extends BaseLayer {
     /**
      * 图层类型
      */
     tdtType: TdtLayerTypeEnum | null = null;
 
-    constructor(type: TdtLayerTypeEnum, options?: BaseTileLayerOptions) {
+    constructor(type: TdtLayerTypeEnum, options?: BaseLayerOptionsType) {
         super('Tdt', options);
         if (!isDefined(MapToken.tdt)) {
             error_(createMessage('constructor', '缺少天地图key，请提前申明'))
@@ -45,9 +45,12 @@ export default class GaodeLayer extends BaseLayer {
         }
         let _options = options || {};
         this.tdtType = type;
-        this._layer = new LayerGroup([
-            // TODO
-        ])
+        this._layer = new OlLayer.Tile({
+            // TODO 这里不一定是XYZ
+            source: new OlSource.XYZ({
+                url: TdtLayerTypeUrls[type]
+            })
+        })
         this._initLayerEvent()
     }
 }

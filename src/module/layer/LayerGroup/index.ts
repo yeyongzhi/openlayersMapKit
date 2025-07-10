@@ -1,6 +1,6 @@
 import { isDefined, isNumber } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlAllLayerInstanceType } from '../../../utils/index'
+import type { OlAllLayerInstanceType, IdType } from '../../../utils/index'
 import BaseLayer from '../BaseLayer'
 
 let PACKAGE_NAME = 'LayerGroup';
@@ -18,14 +18,22 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class LayerGroup {
 
+    id: IdType = null;
     layers: BaseLayer[] = []
 
-    constructor(layers: BaseLayer[]) {
+    constructor(id: IdType, layers: BaseLayer[]) {
         if(!isDefined(layers)) {
             error_(createMessage('constructor', '参数不能为空'));
             return;
         }
-        this.layers = layers;
+        let _layers = layers
+        if(isDefined(id)) {
+            this.id = id;
+            _layers.forEach(l => {
+                l.setGroupId(id as number | string)
+            })
+        }
+        this.layers = _layers;
     }
 
     add(layer: BaseLayer): void {
@@ -66,6 +74,14 @@ export default class LayerGroup {
 
     clear() {
         this.layers = [];
+    }
+
+    getAll() {
+        return this.layers;
+    }
+
+    getId() {
+        return this.id;
     }
 
 }
