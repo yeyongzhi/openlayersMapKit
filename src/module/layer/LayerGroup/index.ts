@@ -13,7 +13,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/9
- * @updateDate 2025/7/9
+ * @updateDate 2025/7/11
  */
 
 export default class LayerGroup {
@@ -21,17 +21,34 @@ export default class LayerGroup {
     id: IdType = null;
     layers: BaseLayer[] = []
 
-    constructor(id: IdType, layers: BaseLayer[]) {
-        if(!isDefined(layers)) {
+    constructor(layers: BaseLayer[]);
+    constructor(id: IdType, layers: BaseLayer[]);
+
+    constructor(idOrLayers: IdType | BaseLayer[], layers?: BaseLayer[]) {
+        if(!isDefined(idOrLayers)) {
             error_(createMessage('constructor', '参数不能为空'));
             return;
         }
-        let _layers = layers
-        if(isDefined(id)) {
-            this.id = id;
-            _layers.forEach(l => {
-                l.setGroupId(id as number | string)
-            })
+        let _layers: BaseLayer[];
+        let id: IdType = null;
+
+        // 判断第一个参数是 id 还是 layers
+        if (Array.isArray(idOrLayers)) {
+            _layers = idOrLayers;
+        } else {
+            id = idOrLayers as IdType;
+            if (!isDefined(layers)) {
+                error_(createMessage('constructor', 'layers 参数不能为空'));
+                return;
+            }
+            _layers = layers as BaseLayer[];
+        }
+
+        if (isDefined(id)) {
+            this.id = (id as IdType);
+            // _layers.forEach(l => {
+            //     l.setGroupId(id);
+            // });
         }
         this.layers = _layers;
     }

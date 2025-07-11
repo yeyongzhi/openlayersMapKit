@@ -22,14 +22,14 @@ export type BaseLayerOptionsType = {
     className?: string;
     opacity?: number;
     visible?: boolean;
-    extent?: Extent | undefined;
-    zIndex?: number | undefined;
-    minResolution?: number | undefined;
-    maxResolution?: number | undefined;
-    minZoom?: number | undefined;
-    maxZoom?: number | undefined;
+    extent?: Extent;
+    zIndex?: number;
+    minResolution?: number;
+    maxResolution?: number;
+    minZoom?: number;
+    maxZoom?: number;
     background?: Color | undefined;
-    properties?: Record<string, any> | undefined;
+    properties?: Record<string, any>;
 }
 
 export type BaseLayerEventType = {

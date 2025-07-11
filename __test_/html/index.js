@@ -18,12 +18,14 @@ console.log(layer)
 
 // map.addLayer(layer)
 
-const tlayer1 = new OMap.TdtLayer('vec')
-const tlayer2 = new OMap.TdtLayer('cva')
-console.log(tlayer2)
-console.log(tlayer2.getGroupId())
 const layerGroup = new OMap.LayerGroup('tdt-vec', [
-    tlayer1,
-    tlayer2
+    new OMap.TdtLayer('vec', { opacity: 1, proj: 'w' }),
+    new OMap.TdtLayer('cva', { opacity: 1, proj: 'w' })
 ])
+
+setTimeout(() => {
+    map.zoomIn()
+}, 3000)
+
+console.log(layerGroup)
 map.addLayer(layerGroup)

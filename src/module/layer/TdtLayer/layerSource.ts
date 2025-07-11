@@ -11,3 +11,8 @@ export const TdtLayerTypeUrls: Record<TdtLayerTypeEnum, string> = {
     cia: `http://t{0-7}.tianditu.com/DataServer?T=cia_w&tk=4774ca01d665a06c9e494ca5f29dba10&x={x}&y={y}&l={z}`,
     cta: `http://t{0-7}.tianditu.com/DataServer?T=cta_w&tk=4774ca01d665a06c9e494ca5f29dba10&x={x}&y={y}&l={z}`,
 }
+
+export function getTdtServiceUrl(type: TdtLayerTypeEnum, proj: TdtLayerProjTypeEnum) {
+
+    return commonUrlTemplate.replace(/\{T\}/g, type + '_' + proj).replace(/\{tk\}/g, MapToken.tdt as string)
+}

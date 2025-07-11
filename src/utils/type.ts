@@ -10,9 +10,11 @@ export type ManualOmit<T, K extends keyof any> = {
 };
 
 // 投影相关类型
+export * from './olType/basic'
 export * from './olType/projection'
 export * from './olType/layer'
 export * from './olType/source'
+export * from './olType/event'
 
 export type EmptyArray = [];
 
@@ -32,6 +34,7 @@ export type ColorType = string | Array<number | string> | ColorObjectType;
 export type PropertiesType = Record<string, any>
 
 /** View */
+export type OlViewInstanceType = InstanceType<typeof OlPackage.View>
 export type OlViewOptionsType = ConstructorParameters<typeof OlPackage.View>[0];
 type OlViewOptionsTypeKeysToOmit = 'center' | 'extent' | 'projection';
 type OlViewOptionsOmitType = ManualOmit<OlViewOptionsType, OlViewOptionsTypeKeysToOmit>;
