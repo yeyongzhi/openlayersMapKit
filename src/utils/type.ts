@@ -9,12 +9,12 @@ export type ManualOmit<T, K extends keyof any> = {
     [P in keyof T as P extends K ? never : P]: T[P];
 };
 
-// 投影相关类型
 export * from './olType/basic'
 export * from './olType/projection'
 export * from './olType/layer'
 export * from './olType/source'
 export * from './olType/event'
+export * from './olType/map'
 
 export type EmptyArray = [];
 

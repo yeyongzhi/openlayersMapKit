@@ -1,11 +1,26 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import OlPackage from '../../../source/index'
-import type { MapContainerType, BaseLayerIdType, OlMapInstanceType, OlMapOptionsFinalType, OlProjInstanceType, OlViewInstanceType, IdType, OlCoordinateType } from '../../../utils/index';
+import type {
+    MapContainerType,
+    BaseLayerIdType,
+    OlMapInstanceType,
+    OlMapOptionsFinalType,
+    OlProjInstanceType,
+    OlViewInstanceType,
+    IdType,
+    OlCoordinateType,
+    OMapEventType,
+    OMapEventCallBack,
+    OlMapOnEventType,
+    OlViewOnEventType
+} from '../../../utils/index';
 import { Lnglat, Extent } from '../../basic/index';
 import { Projection, LayerGroup } from '../../../index'
 import BaseLayer from '../../layer/BaseLayer/index'
-import { Event } from '../../../index'
+import Event from '../../../module/util/Event/index'
+
+import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
 
 const PACKAGE_NAME = 'Map';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -41,6 +56,7 @@ export default class Map {
     _map: OlMapInstanceType | null = null;
     _view: OlViewInstanceType | null = null;
     layers: Array<BaseLayer> = [];
+    events: Event | null = null;
 
     constructor(element: MapContainerType, options: OlMapOptionsFinalType) {
         let _options = options
@@ -66,6 +82,7 @@ export default class Map {
         });
         this._view = view;
         this._map = map;
+        this.events = new Event<Record<OMapEventType, unknown[]>>(this);
     }
 
     private _isInitialized(method: string): boolean {
@@ -109,6 +126,49 @@ export default class Map {
             return;
         }
         (this._view as OlViewInstanceType).setZoom(zoom)
+    }
+
+    getResolution(): number | undefined {
+        if (!this._isInitialized('getResolution')) return;
+        return (this._view as OlViewInstanceType).getResolution();
+    }
+
+    setResolution(resolution: number): void {
+        if (!this._isInitialized('setResolution')) return;
+        if (!isDefined(resolution)) {
+            warn_(createMessage('setResolution', '参数resolution不能为空'));
+            return;
+        }
+        if (!isNumber(resolution)) {
+            warn_(createMessage('setResolution', '参数resolution必须为number类型'));
+            return;
+        }
+        (this._view as OlViewInstanceType).setResolution(resolution)
+    }
+
+    getRotation(): number | undefined {
+        if (!this._isInitialized('getRotation')) return;
+        return (this._view as OlViewInstanceType).getRotation();
+    }
+
+    setRotation(rotation: number): void {
+        if (!this._isInitialized('setRotation')) return;
+        if (!isDefined(rotation)) {
+            warn_(createMessage('setRotation', '参数rotation不能为空'));
+            return;
+        }
+        if (!isNumber(rotation)) {
+            warn_(createMessage('setRotation', '参数rotation必须为number类型'));
+            return;
+        }
+        (this._view as OlViewInstanceType).setRotation(rotation)
+    }
+
+    getExtent(): Extent | undefined {
+        if (!this._isInitialized('getExtent')) return;
+        let _extent = (this._view as OlViewInstanceType).calculateExtent()
+        let [minX, minY, maxX, maxY] = _extent
+        return new Extent(minX, minY, maxX, maxY)
     }
 
     zoomIn(delta: number = 1): void {
@@ -168,13 +228,13 @@ export default class Map {
         }
         let layer: BaseLayer | undefined = undefined;
         this.layers.forEach((item) => {
-            if (item instanceof LayerGroup) {
-                (item as LayerGroup).getAll().forEach((layerItem) => {
-                    if (isDefined(layerItem.getId()) && layerItem.getId() === id) {
-                        layer = layerItem
-                    }
-                })
-            }
+            // if (item instanceof LayerGroup) {
+            //     (item as LayerGroup).getAll().forEach((layerItem) => {
+            //         if (isDefined(layerItem.getId()) && layerItem.getId() === id) {
+            //             layer = layerItem
+            //         }
+            //     })
+            // }
             if (item instanceof BaseLayer) {
                 if (isDefined((item as BaseLayer).getId()) && (item as BaseLayer).getId() === id) {
                     layer = item
@@ -184,17 +244,71 @@ export default class Map {
         return layer
     }
 
-    removeLayer() { }
+    removeLayer(layer: BaseLayer) {
+        if (!this._isInitialized('removeLayer')) return;
+        let index = this.layers.indexOf(layer);
+        if (index !== -1) {
+            this.layers.splice(index, 1);
+            (this._map as OlMapInstanceType).removeLayer(layer._layer);
+        }
+    }
 
-    removeLayers() { }
+    removeLayers(layers: BaseLayer[]) {
+        if (!this._isInitialized('removeLayers')) return;
+        this.layers.forEach((l, index) => {
+            if (layers.includes(l)) {
+                this.layers.splice(index, 1);
+                (this._map as OlMapInstanceType).removeLayer(l._layer);
+            }
+        })
+    }
 
-    removeLayerById() { }
+    removeLayerById(id: number | string) {
+        if (!this._isInitialized('removeLayerById')) return;
+        if (!isDefined(id)) {
+            warn_(createMessage('removeLayerById', '图层id不能为空'));
+            return undefined;
+        }
+        let layer = this.getLayerById(id)
+        if (!isDefined(layer)) {
+            warn_(createMessage('removeLayerById', `找不到id为${id}(${isString(id) ? 'string' : 'number'})的图层`));
+            return false;
+        }
+        this.removeLayer(layer)
+    }
 
-    getAllLayers() { }
+    getAllLayers(): BaseLayer[] {
+        if (!this._isInitialized('getAllLayers')) return [];
+        return this.layers
+    }
 
     // 事件管理
-    on() {
-
+    on(type: OMapEventType, callback: () => void): number | string | undefined {
+        if (!this._isInitialized('on')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', '参数不能为空'));
+            return;
+        }
+        let isMapTarget = MapEventTypeIsMap(type)
+        const target = (isMapTarget) ? this._map : this._view;
+        let list = (this.events as Event).get(type)
+        console.log(list)
+        // 初次注册ol原生事件
+        if (!isDefined(list) || list.length === 0) {
+            if (isMapTarget) {
+                (target as OlMapInstanceType).on(type.replace('map:', '') as unknown as OlMapOnEventType, (e) => {
+                    console.log(e);
+                    (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
+                });
+            } else {
+                (target as OlViewInstanceType).on(type.replace('view:', '') as unknown as OlViewOnEventType, (e) => {
+                    console.log(e);
+                    (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
+                });
+            }
+        }
+        const id = (this.events as Event).on(type, callback)
+        return id
     }
 
     un() {
@@ -203,6 +317,21 @@ export default class Map {
 
     once() {
 
+    }
+
+    getProperties(): Record<string, any> | undefined {
+        if (!this._isInitialized('getProperties')) return;
+        return (this._map as OlMapInstanceType).getProperties()
+    }
+
+    // 属性管理
+    setProperties(properties: Record<string, any>): void {
+        if (!this._isInitialized('setProperties')) return;
+        if(!isDefined(properties)) {
+            warn_(createMessage('setProperties', '参数不能为空'));
+            return;
+        }
+        (this._map as OlMapInstanceType).setProperties(properties)
     }
 
 }

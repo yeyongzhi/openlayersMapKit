@@ -2,6 +2,9 @@ import { defineConfig } from 'vite'
 import path from 'path'
 
 export default defineConfig({
+  define: {
+    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
+  },
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),

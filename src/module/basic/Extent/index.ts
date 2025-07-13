@@ -91,9 +91,9 @@ export default class Extent {
      * 以字符串的形式输出边界范围
      * @return {string} 边界范围（字符串）
      */
-    toString(): string | undefined {
+    toString(place?: number): string | undefined {
         if (!this._isInitialized('toString')) return undefined;
-        return `[${this._extent[0]}, ${this._extent[1]}, ${this._extent[2]}, ${this._extent[3]}]`;
+        return `[${this._extent[0].toFixed(place)}, ${this._extent[1].toFixed(place)}, ${this._extent[2].toFixed(place)}, ${this._extent[3].toFixed(place)}]`;
     }
 
     /**

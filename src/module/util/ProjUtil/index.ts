@@ -30,4 +30,18 @@ export default class ProjUtil {
         return new Lnglat(result[0], result[1])
     }
 
+    static toLonLat(coordinate: Lnglat | number[], projection?: OMapProjType): Lnglat | undefined {
+        if(!isDefined(coordinate)) {
+            warn_(createMessage('toLonLat', 'coordinate参数不能为空'));
+            return undefined;
+        }
+        let _coords = coordinate as number[];
+        if(coordinate instanceof Lnglat) {
+            _coords = coordinate._lnglat;
+        }
+        let _proj: Projection = isDefined(projection) ? (isString(projection) ? new Projection(projection as string) : (projection as Projection)) : new Projection('EPSG:3857');
+        let result: number[] = OlProj.toLonLat(_coords, ((_proj as Projection)._projection as OlProjInstanceType))
+        return new Lnglat(result[0], result[1])
+    }
+
 }

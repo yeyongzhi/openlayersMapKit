@@ -1,0 +1,64 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100dvw;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+}
+
+.map_container {
+    width: 75%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+}
+
+.handle_container {
+    width: 25%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+h3 {
+    margin: 10px 0;
+}
+
+h5 {
+    margin: 5px 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+button {
+    background-color: #0000fe;
+    padding: 5px 15px;
+}
+
+.border {
+    width: 100%;
+    height: 2px;
+    background-color: #0000fe;
+}
+
+.border_text {
+    color: #0000fe;
+    height: 20px;
+    line-height: 20px;
+    display: inline-flex;
+    align-items: center;
+}

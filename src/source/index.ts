@@ -4,6 +4,8 @@ import * as OlLayer from "ol/layer";
 import * as OlSource from 'ol/source';
 import * as OlProj from 'ol/proj';
 import * as OlUtil from 'ol/util';
+import * as OlEvent from 'ol/MapBrowserEvent';
 
 export default OlPackage;
 export { OlLayer, OlSource, OlProj, OlUtil }
+
