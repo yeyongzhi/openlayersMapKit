@@ -1,7 +1,7 @@
-// console.log(window.ol)
+console.log(window.ol)
 console.log(window.OMap);
 
-OMap.MapToken.tdt = '4774ca01d665a06c9e494ca5f29dba10'
+let map = null
 
 let clickLnglat = null
 let mapCenter = null
@@ -18,27 +18,23 @@ function initDom() {
 }
 
 function initMap() {
-    const map = new OMap.Map("map_container", {
+    map = new OMap.Map("map_container", {
         view: {
             center: OMap.ProjUtil.fromLonLat([120.2, 30.3]),
             zoom: 8,
         }
     })
 
-    const layer = new OMap.GaodeLayer("vec", { id: "gaode_vec" })
-    map.addLayer(layer)
+    const point = new OMap.Point([120.2, 30.3], { name: '测试点' })
+    console.log(point)
 
-    setTimeout(() => {
-        map.setProperties({
-            name: 'test'
-        })
-    }, 3000)
 
-    map.on('map:propertychange', (e) => {
-        console.log(e)
+    map.once('map:rendercomplete', (e) => {
+        alert('地图渲染完成')
     })
 
-    return false;
+    const layer = new OMap.GaodeLayer("vec", { id: "gaode_vec" })
+    map.addLayer(layer)
 
     map.on('map:singleclick', (e) => {
         // clickLnglat.innerText = e.coordinate.toString(2)
@@ -66,9 +62,17 @@ function initMap() {
     }, 3000)
 }
 
+function initVectorLayer() {
+    const vlayer = new OMap.VectorLayer()
+    const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+    map.addLayer(vlayer)
+    vlayer.addFeature(p)
+}
+
 function init() {
     initDom()
     initMap()
+    initVectorLayer()
 }
 
 init()

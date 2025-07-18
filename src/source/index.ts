@@ -1,11 +1,12 @@
 import * as OlPackage from 'ol'
 import * as OlLayer from "ol/layer";
-// import * as OlBaseTileLayer from "ol/layer/BaseTile";
 import * as OlSource from 'ol/source';
 import * as OlProj from 'ol/proj';
 import * as OlUtil from 'ol/util';
-import * as OlEvent from 'ol/MapBrowserEvent';
+import Feature from 'ol/Feature';
+import * as OlGeometry from 'ol/geom';
+import * as OlStyle from 'ol/style'
 
 export default OlPackage;
-export { OlLayer, OlSource, OlProj, OlUtil }
+export { OlLayer, OlSource, OlProj, OlUtil, Feature as OlFeature, OlGeometry, OlStyle }
 

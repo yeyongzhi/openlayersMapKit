@@ -2,7 +2,8 @@ import { BaseLayerType, BaseLayerIdType, isDefined, isBoolean, isObject, isNumbe
 import OlPackage, { OlLayer } from '../../../source/index'
 import { warn_, error_, getPackageMessage, isVaildOpacity } from '../../../utils/index'
 import type { BaseLayerOptionsType, PropertiesType, BaseLayerEventType, IdType } from '../../../utils/index'
-import { LayerGroup, Extent } from '../../../index'
+import { LayerGroup, Extent, VectorLayer } from '../../../index'
+import type { OlAllLayerInstanceType } from './type'
 
 let PACKAGE_NAME = 'BaseLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -40,7 +41,17 @@ const baseLayerBasicProperties = [
     "properties",
 ]
 
-export default class BaseLayer {
+interface BaseLayerLike {
+    _layer?: OlAllLayerInstanceType;
+}
+
+interface BaseLayerInitialized {
+    _layer: OlAllLayerInstanceType;
+}
+
+
+export default class BaseLayer implements BaseLayerLike {
+
 
     /**
      * 图层类型
@@ -49,7 +60,7 @@ export default class BaseLayer {
     /**
      * 图层实例（ol）
      */
-    _layer: any | LayerGroup; // 底层图层对象，由子类实现具体的图层类型
+    _layer?: OlAllLayerInstanceType; // 底层图层对象，由子类实现具体的图层类型
     /**
      * 图层id，每个图层的唯一主键，用于区分图层
      */
@@ -94,7 +105,7 @@ export default class BaseLayer {
         this.properties = _options.properties || DEFAULT_LAYER_PROPERTIES;
     }
 
-    private _isInitialized(method: string): boolean {
+    protected _isInitialized(method: string): this is BaseLayerInitialized & this {
         if (!isDefined(this._layer)) {
             warn_(createMessage(method, '未正确实例化'));
             return false;
@@ -102,11 +113,12 @@ export default class BaseLayer {
         return true;
     }
 
-    _initLayerEvent() {
+    _initLayerEvent(): void {
+        if (!this._isInitialized('setOpacity')) return;
         // 图层属性变化事件，用于监听图层属性变化
         this._layer.on([
             "propertychange"
-        ], (e: BaseLayerEventType) => {
+        ], (e: any) => {
             if (e.key === 'opacity') {
                 this.opacity = this.getOpacity() as number
             }

@@ -40,6 +40,7 @@ export type OMapEventTarget = {
     newValue?: any;
     pixel?: Pixel;
     coordinate?: Lnglat;
+    key?: string;
 }
 
 export type OMapEventCallBack = (event: OMapEventTarget) => void

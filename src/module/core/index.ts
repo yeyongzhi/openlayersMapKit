@@ -3,3 +3,4 @@
  */
 export { default as Map } from "./Map/index";
 export { default as Projection } from "./Projection/index";
+export * from "./Feature/index";

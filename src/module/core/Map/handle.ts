@@ -1,5 +1,5 @@
 import { Pixel, Lnglat, Map } from '../../../index'
-import type { OMapEventType, OMapEventTarget, OlCoordinateType } from '../../../utils/index'
+import { type OMapEventType, type OMapEventTarget, type OlCoordinateType, isDefined } from '../../../utils/index'
 
 export function MapEventTypeIsMap(type: OMapEventType): boolean {
     return type.startsWith('map:')
@@ -17,6 +17,12 @@ export function handleMapOnCallBack(target: unknown, type: OMapEventType, e: any
             if (e.pixel) result.pixel = new Pixel(...(e.pixel as OlCoordinateType))
             if (e.coordinate) result.coordinate = new Lnglat(...(e.coordinate as OlCoordinateType))
                 break;
+        case 'map:propertychange':
+            result.key = e.key
+            result.oldValue = e.oldValue
+            let newValObj = (target as Map).getProperties()
+            result.newValue = isDefined<Record<string, any>>(newValObj) ? newValObj[(e.key as string)] : undefined
+            break;
         case 'view:change:resolution':
             if(e.oldValue) result.oldValue = e.oldValue
             result.newValue = e.newValue || (target as Map).getResolution()

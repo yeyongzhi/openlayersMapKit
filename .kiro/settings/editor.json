@@ -1,0 +1,30 @@
+{
+  "typescript": {
+    "suggest": {
+      "enabled": true,
+      "autoImports": true,
+      "includeCompletionsForModuleExports": true,
+      "includeCompletionsWithSnippetText": true
+    },
+    "preferences": {
+      "includePackageJsonAutoImports": "auto"
+    }
+  },
+  "editor": {
+    "quickSuggestions": {
+      "other": true,
+      "comments": false,
+      "strings": true
+    },
+    "suggestOnTriggerCharacters": true,
+    "acceptSuggestionOnEnter": "on",
+    "tabCompletion": "on",
+    "wordBasedSuggestions": true,
+    "parameterHints": {
+      "enabled": true,
+      "cycle": true
+    },
+    "suggestSelection": "first",
+    "snippetSuggestions": "top"
+  }
+}

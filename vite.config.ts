@@ -21,6 +21,8 @@ export default defineConfig({
           'ol/source': 'ol.source',
           'ol/proj': 'ol.proj',
           'ol/util': 'ol.util',
+          'ol/Feature': 'ol.Feature',
+          'ol/geom': 'ol.geom',
         }
       },
       plugins: []

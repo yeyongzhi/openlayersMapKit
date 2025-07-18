@@ -8,6 +8,11 @@ function isArray(value: any): boolean {
     return Array.isArray(value);
 }
 
+function isEmptyArray<T>(value: T): boolean {
+    return Array.isArray(value) && value.length === 0;
+
+}
+
 function isNumber(value: number | any): value is number {
     return typeof value === 'number';
 }
@@ -69,6 +74,7 @@ function isVaildColorHexWithAlpha(value: any) {
 export {
     isFunction,
     isArray,
+    isEmptyArray,
     isNumber,
     isNaN,
     isString,
