@@ -1,6 +1,7 @@
 import type { BaseLayerOptionsType, ManualOmit } from '../../../utils/type'
 import { OlSource, OlLayer } from '../../../source/index'
-import { Map } from '../../../index'
+import { Map, Style } from '../../../index'
+import type { OMapStyleLike } from '../../basic/Style/type'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 
 
@@ -13,7 +14,7 @@ export type BaseVectorLayerOptionsType = {
     source?: OMapVectorSourceOptionsFinalType;
     map?: Map;
     declutter?: boolean | string | number;
-    style?: any; // TODO
+    style?: OMapStyleLike;
     updateWhileAnimating?: boolean;
     updateWhileInteracting?: boolean;
 }

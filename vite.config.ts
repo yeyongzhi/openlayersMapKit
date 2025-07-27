@@ -23,6 +23,7 @@ export default defineConfig({
           'ol/util': 'ol.util',
           'ol/Feature': 'ol.Feature',
           'ol/geom': 'ol.geom',
+          'ol/style': 'ol.style',
         }
       },
       plugins: []

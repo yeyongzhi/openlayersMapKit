@@ -4,7 +4,13 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { OMapStyleLike, OMapStyleOptionsType, OlStyleInstanceType } from './type'
 import { OMapStrokeStyleDefaultOptions } from './type'
 import { OlStyle } from '../../../source/index'
-import { getOlFillSingleStyle, getOlStrokeSingleStyle } from './handle'
+import { 
+    getOlFillSingleStyle,
+    getOlStrokeSingleStyle,
+    getOlCircleSingleStyle,
+    getOlIconSingleStyle,
+    getOlRegularShapeSingleStyle
+} from './handle'
 
 const PACKAGE_NAME = 'Style';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -16,7 +22,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/15
- * @updateDate 2025/7/16
+ * @updateDate 2025/7/22
  */
 
 export default class Style {
@@ -24,15 +30,28 @@ export default class Style {
     _style?: OlStyleInstanceType;
 
     constructor(options: OMapStyleOptionsType) {
-        const { fill, stroke, image, text } = options
+        const { fill, stroke, text, circle, icon, regularShape } = options
+        let _image
+        if(circle) {
+            _image = getOlCircleSingleStyle(circle)
+        } else if(icon) {
+            _image = getOlIconSingleStyle(icon)
+        } else if(regularShape) {
+            _image = getOlRegularShapeSingleStyle(regularShape)
+        }
         this._style = new OlStyle.Style({
             fill: getOlFillSingleStyle(fill),
-            stroke: getOlStrokeSingleStyle(stroke)
+            stroke: getOlStrokeSingleStyle(stroke),
+            image: _image,
         })
     }
 
     private _isInitialized(method: string) {
         
+    }
+
+    getStyle(): OlStyleInstanceType | undefined {
+        return this._style
     }
 
 }

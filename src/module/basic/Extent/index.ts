@@ -34,6 +34,11 @@ export default class Extent {
         return true;
     }
 
+    getExtent(): number[] | undefined {
+        if (!this._isInitialized('getTopLeft')) return;
+        return this._extent
+    }
+
     /**
      * 获取边界范围Extent的左上方位置
      * @return {Lnglat} 左上方位置

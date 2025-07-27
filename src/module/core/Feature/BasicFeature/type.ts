@@ -1,4 +1,4 @@
-import { OlFeature, OlGeometry } from '../../../../source/index'
+import { OlFeature, OlGeometry, RenderFeature } from '../../../../source/index'
 import type { OMapPointGeometryCoordinatesType } from '../Point/type'
 import type { OMapLineStringGeometryCoordinatesType } from '../LineString/type'
 import type { OMapPolygonGeometryCoordinatesType } from '../Polygon/type'
@@ -13,7 +13,9 @@ export interface BasicFeatureInitialized {
     _geometry: OlGeomInstanceType
 }
 
+export type OlRenderFeatureInstanceType = InstanceType<typeof RenderFeature>
 export type OlFeatureInstanceType = InstanceType<typeof OlFeature>
+export type OlFeatureLike = OlRenderFeatureInstanceType | OlFeatureInstanceType
 export type OlFeatureOptionsType = {
     geometry: OlGeomType,
     properties?: Record<string, any>

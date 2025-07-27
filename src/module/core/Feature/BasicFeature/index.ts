@@ -118,4 +118,8 @@ export default class BasicFeature implements BasicFeatureLike {
         return this.id
     }
 
+    getType() {
+        return this.type
+    }
+
 }

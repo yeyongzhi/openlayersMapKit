@@ -1,16 +1,18 @@
-import { isArray, isDefined, isEmptyArray, isFunction, isString, isNumber } from '../../../utils/index';
+import { isArray, isDefined, isEmptyArray, isFunction, isString, isNumber, isCoordinatesType } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import type { OlCoordinateType } from '../../../utils/index'
 import type {
     OMapVectorLayerOptionsFinalType,
     OMapVectorSourceOptionsFinalType,
     OlVectorLayerInstanceType,
     OlVectorSourceInstanceType
 } from './type'
-import type { OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
-import { OlLayer, OlSource } from '../../../source/index'
+import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
+import type { OlStyleInstanceType } from '../../basic/Style/type'
+import { OlLayer, OlSource, OlUtil } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
-import { Extent, Projection } from '../../../index'
+import { Extent, Lnglat, Projection, Style } from '../../../index'
 
 let PACKAGE_NAME = 'VectorLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -22,7 +24,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/7/16
+ * @updateDate 2025/7/23
  */
 
 export default class VectorLayer extends BaseLayer {
@@ -38,8 +40,24 @@ export default class VectorLayer extends BaseLayer {
                 return f.getFeature() as OlFeatureInstanceType
             }) : []
         }
+        let _style: OlStyleInstanceType | Array<OlStyleInstanceType> | ((feature: OlFeatureLike, resolution: number) => (OlStyleInstanceType | undefined)) | undefined = undefined
+        if(isDefined(options.style)) {
+            if(options.style instanceof Style) {
+                _style = options.style.getStyle()
+            } else if(isArray(options.style) && (options.style as Style[]).every(s => s instanceof Style)) {
+                _style = (options.style as Style[]).map(s => (s.getStyle() as OlStyleInstanceType))
+            } else if(isFunction(options.style)) {
+                _style = (feature: OlFeatureLike, resolution: number) => {
+                    let uid = OlUtil.getUid(feature)
+                    let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+                    let style = (options.style as Function)(index !== - 1 ? this.features[index] : null, resolution)
+                    return style ? style.getStyle() : undefined
+                }
+            }
+        }
         this._layer = new OlLayer.Vector({
-            source: new OlSource.Vector(_sourceParams)
+            source: new OlSource.Vector(_sourceParams),
+            style: _style
         })
         this._initLayerEvent()
     }
@@ -52,7 +70,8 @@ export default class VectorLayer extends BaseLayer {
         return true;
     }
 
-    getFeatures(): BaseFeature[] {
+    getFeatures(): BaseFeature[] | undefined {
+        if (!this._isInitializedLayer('getFeatures')) return;
         return this.features
     }
 
@@ -153,15 +172,40 @@ export default class VectorLayer extends BaseLayer {
             warn_(createMessage('forEachFeatureInExtent', 'callback参数不能为空'));
             return;
         }
+        console.log(extent.getExtent());
+        (this._layer.getSource() as OlVectorSourceInstanceType).forEachFeatureInExtent(extent.getExtent() as number[], (feature: any) => {
+            // console.log(feature)
+            let uid = OlUtil.getUid(feature)
+            // console.log(uid)
+            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+            if(isDefined(index) && index !== -1) {
+                callback(this.features[index], 0)
+            }
+        })
+    }
+
+    forEachFeatureIntersectingExtent(extent: Extent, callback: (feature: BaseFeature, index: number) => void) {
 
     }
 
-    forEachFeatureIntersectingExtent(extent, callback) {
-
-    }
-
-    getClosestFeatureToCoordinate(coordinates: ) {
-
+    getClosestFeatureToCoordinate(coordinates: Lnglat | OlCoordinateType, filter?: (feature: BaseFeature) => boolean): BaseFeature | undefined {
+        if (!this._isInitializedLayer('getClosestFeatureToCoordinate')) return;
+        if (!isDefined(coordinates)) {
+            warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数不能为空'));
+            return;
+        }
+        if(!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
+            warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数格式有误'));
+            return;
+        }
+        let _coordinates = (coordinates instanceof Lnglat) ? coordinates._lnglat : coordinates;
+        // (this._layer.getSource() as OlVectorSourceInstanceType).getClosestFeatureToCoordinate(_coordinates, (feature: OlFeatureInstanceType) => {
+        //     if(!isDefined(filter)) {
+        //         return true
+        //     }
+        //     let baseFeature = feature
+        //     return filter(baseFeature)
+        // })
     }
 
 }

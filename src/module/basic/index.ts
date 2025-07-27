@@ -7,5 +7,6 @@ import Pixel from './Pixel/index';
 import Lnglat from './Lnglat/index';
 import Color from './Color/index';
 import Extent from './Extent/index';
+import Style from './Style/index';
 
-export { Size, Pixel, Lnglat, Color, Extent }
+export { Size, Pixel, Lnglat, Color, Extent, Style }

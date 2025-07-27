@@ -1,5 +1,5 @@
 import Style from './index'
-import { Color } from '../../../index'
+import { Color, Size, Pixel } from '../../../index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import { OlStyle } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/index'
@@ -13,7 +13,10 @@ export type OlStyleInstanceType = InstanceType<typeof OlStyle.Style>
 export type OMapStyleOptionsType = {
     geometry?: any;
     fill: OMapFillStyleOptionsType,
-    image: {},
+    // image: OMapImageStyleOptionsType, // image实际不太使用
+    circle: OMapCircleStyleOptionsType,
+    icon: OMapIconStyleOptionsType,
+    regularShape: OMapRegularShapeStyleOptionsType,
     text: {},
     stroke: OMapStrokeStyleOptionsType;
     zIndex?: number;
@@ -26,7 +29,7 @@ export type OMapStyleType = 'fill' | 'image' | 'text' | 'stroke'
 
 /** Fill */
 export type OMapFillStyleOptionsType = {
-    color: Color | string;
+    color?: Color | string;
 }
 export type OlFillStyleInstanceType = InstanceType<typeof OlStyle.Fill>
 
@@ -43,3 +46,38 @@ export const OMapStrokeStyleDefaultOptions: OMapStrokeStyleOptionsType = {
     miterLimit: 10
 }
 export type OlStrokeStyleInstanceType = InstanceType<typeof OlStyle.Stroke>
+
+/** Image类型
+ * 实际上Image类型不太使用，需要用子类Circle、Icon或者RegularShape
+ */
+type OlImageStyleOptionsType = ConstructorParameters<typeof OlStyle.Image>[0]
+type CustOlImageStyleOptionsType = ManualOmit<OlImageStyleOptionsType, 'scale'>;
+export type OMapImageStyleOptionsType = CustOlImageStyleOptionsType & {
+    scale: number | Size
+}
+
+
+/** Circle类型 */
+type OlCircleStyleOptionsType = ConstructorParameters<typeof OlStyle.Circle>[0]
+type CustOlCircleStyleOptionsType = ManualOmit<OlCircleStyleOptionsType, keyof OlImageStyleOptionsType | 'fill' | 'stroke'>;
+export type OMapCircleStyleOptionsType = CustOlCircleStyleOptionsType & {
+    fill?: OMapFillStyleOptionsType,
+    stroke?: OMapStrokeStyleOptionsType,
+}
+
+/** Icon类型 */
+type OlIconStyleOptionsType = ConstructorParameters<typeof OlStyle.Icon>[0]
+type CustOlIconStyleOptionsType = ManualOmit<OlIconStyleOptionsType, keyof OlImageStyleOptionsType | 'color' | 'offset' | 'size'>;
+export type OMapIconStyleOptionsType = CustOlIconStyleOptionsType & {
+    color?: Color | string,
+    offset?: Pixel,
+    size?: Size,
+}
+
+/** RegularShape类型 */
+type OlRegularShapeStyleOptionsType = ConstructorParameters<typeof OlStyle.RegularShape>[0]
+type CustOlRegularShapeStyleOptionsType = ManualOmit<OlRegularShapeStyleOptionsType, keyof OlImageStyleOptionsType | 'fill' | 'stroke'>;
+export type OMapRegularShapeStyleOptionsType = CustOlRegularShapeStyleOptionsType & {
+    fill?: OMapFillStyleOptionsType,
+    stroke?: OMapStrokeStyleOptionsType,
+}
