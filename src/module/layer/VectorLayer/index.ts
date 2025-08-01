@@ -41,12 +41,12 @@ export default class VectorLayer extends BaseLayer {
             }) : []
         }
         let _style: OlStyleInstanceType | Array<OlStyleInstanceType> | ((feature: OlFeatureLike, resolution: number) => (OlStyleInstanceType | undefined)) | undefined = undefined
-        if(isDefined(options.style)) {
-            if(options.style instanceof Style) {
+        if (isDefined(options.style)) {
+            if (options.style instanceof Style) {
                 _style = options.style.getStyle()
-            } else if(isArray(options.style) && (options.style as Style[]).every(s => s instanceof Style)) {
+            } else if (isArray(options.style) && (options.style as Style[]).every(s => s instanceof Style)) {
                 _style = (options.style as Style[]).map(s => (s.getStyle() as OlStyleInstanceType))
-            } else if(isFunction(options.style)) {
+            } else if (isFunction(options.style)) {
                 _style = (feature: OlFeatureLike, resolution: number) => {
                     let uid = OlUtil.getUid(feature)
                     let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
@@ -166,26 +166,46 @@ export default class VectorLayer extends BaseLayer {
         })
     }
 
+    /**
+     * 遍历指定范围的特征
+     * @param {Extent} extent 范围
+     * @param {Function} callback 回调函数
+     * @returns {void}
+     */
     forEachFeatureInExtent(extent: Extent, callback: (feature: BaseFeature, index: number) => void): void {
         if (!this._isInitializedLayer('forEachFeatureInExtent')) return;
         if (!isDefined(callback)) {
             warn_(createMessage('forEachFeatureInExtent', 'callback参数不能为空'));
             return;
         }
-        console.log(extent.getExtent());
         (this._layer.getSource() as OlVectorSourceInstanceType).forEachFeatureInExtent(extent.getExtent() as number[], (feature: any) => {
-            // console.log(feature)
             let uid = OlUtil.getUid(feature)
-            // console.log(uid)
             let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-            if(isDefined(index) && index !== -1) {
+            if (isDefined(index) && index !== -1) {
                 callback(this.features[index], 0)
             }
         })
     }
 
+    /**
+     * 遍历与指定范围相交的特征
+     * @param {Extent} extent 范围
+     * @param {Function} callback 回调函数
+     * @returns {void}
+     */
     forEachFeatureIntersectingExtent(extent: Extent, callback: (feature: BaseFeature, index: number) => void) {
-
+        if (!this._isInitializedLayer('forEachFeatureIntersectingExtent')) return;
+        if (!isDefined(callback)) {
+            warn_(createMessage('forEachFeatureIntersectingExtent', 'callback参数不能为空'));
+            return;
+        }
+        (this._layer.getSource() as OlVectorSourceInstanceType).forEachFeatureIntersectingExtent(extent.getExtent() as number[], (feature: any) => {
+            let uid = OlUtil.getUid(feature)
+            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+            if (isDefined(index) && index !== -1) {
+                callback(this.features[index], 0)
+            }
+        })
     }
 
     getClosestFeatureToCoordinate(coordinates: Lnglat | OlCoordinateType, filter?: (feature: BaseFeature) => boolean): BaseFeature | undefined {
@@ -194,18 +214,15 @@ export default class VectorLayer extends BaseLayer {
             warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数不能为空'));
             return;
         }
-        if(!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
+        if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
             warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数格式有误'));
             return;
         }
         let _coordinates = (coordinates instanceof Lnglat) ? coordinates._lnglat : coordinates;
-        // (this._layer.getSource() as OlVectorSourceInstanceType).getClosestFeatureToCoordinate(_coordinates, (feature: OlFeatureInstanceType) => {
-        //     if(!isDefined(filter)) {
-        //         return true
-        //     }
-        //     let baseFeature = feature
-        //     return filter(baseFeature)
-        // })
+        (this._layer.getSource() as OlVectorSourceInstanceType).getClosestFeatureToCoordinate(_coordinates, (feature: OlFeatureLike) => {
+            console.log(feature)
+            return true
+        })
     }
 
 }

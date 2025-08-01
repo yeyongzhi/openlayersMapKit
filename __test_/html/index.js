@@ -163,6 +163,7 @@ function initVectorLayer() {
         vlayer.forEachFeatureInExtent(extent, (feature) => {
             console.log(feature)
         })
+        vlayer.getClosestFeatureToCoordinate(p2)
     }, 3000)
 }
 

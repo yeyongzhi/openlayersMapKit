@@ -35,7 +35,7 @@ export default class Extent {
     }
 
     getExtent(): number[] | undefined {
-        if (!this._isInitialized('getTopLeft')) return;
+        if (!this._isInitialized('getExtent')) return;
         return this._extent
     }
 
