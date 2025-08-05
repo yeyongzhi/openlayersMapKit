@@ -10,12 +10,13 @@ import type {
     OlViewInstanceType,
     IdType,
     OlCoordinateType,
+    OlSizeType,
     OMapEventType,
     OMapEventCallBack,
     OlMapOnEventType,
     OlViewOnEventType
 } from '../../../utils/index';
-import { Lnglat, Extent } from '../../basic/index';
+import { Lnglat, Extent, Size } from '../../basic/index';
 import { Projection, LayerGroup } from '../../../index'
 import BaseLayer from '../../layer/BaseLayer/index'
 import Event from '../../../module/util/Event/index'
@@ -104,6 +105,18 @@ export default class Map implements MapLike {
             return false;
         }
         return true;
+    }
+
+    getSize(): Size | undefined {
+        if (!this._isInitialized('getSize')) return;
+        let size = (this._map as OlMapInstanceType).getSize()
+        return new Size(...(size as OlSizeType));
+    }
+
+    setSize(size: Size | OlSizeType): void {
+        if (!this._isInitialized('getSize')) return;
+        let _size: OlSizeType = (size instanceof Size) ? size._size as OlSizeType : (size as OlSizeType);
+        (this._map as OlMapInstanceType).setSize(_size)
     }
 
     // 地图信息相关
