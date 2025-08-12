@@ -3,6 +3,7 @@ import { warn_, error_, getPackageMessage } from '../../../../utils/index'
 import { OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { OMapPointGeometryCoordinatesType } from './type'
+import type { OlGeomInstanceType } from '../BasicFeature/type'
 import { Lnglat } from '../../../../index'
 
 const PACKAGE_NAME = 'Point';
@@ -15,11 +16,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/7/14
+ * @updateDate 2025/8/11
  */
 
 export default class Point extends BasicFeature {
-
 
     constructor(coordinates: OMapPointGeometryCoordinatesType, properties?: Record<string, any>) {
         if(!isDefined(coordinates)) {
@@ -34,6 +34,11 @@ export default class Point extends BasicFeature {
         if(properties) {
             this.setProperties(properties)
         }
+    }
+
+    getCoordinates() {
+        let coordinates = (this._geometry as OlGeomInstanceType).getCoordinates() as number[]
+        return new Lnglat(coordinates[0], coordinates[1])
     }
 
 }

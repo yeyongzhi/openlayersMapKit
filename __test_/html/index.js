@@ -148,6 +148,7 @@ function initVectorLayer() {
     p.setId("testPoint1")
     const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
     p2.setId("testPoint2")
+    console.log(p2)
     const l = new OMap.LineString([
         OMap.ProjUtil.fromLonLat([120.2, 30.3]),
         OMap.ProjUtil.fromLonLat([120.1, 30.3])
@@ -163,8 +164,17 @@ function initVectorLayer() {
         vlayer.forEachFeatureInExtent(extent, (feature) => {
             console.log(feature)
         })
-        vlayer.getClosestFeatureToCoordinate(p2)
+        console.log("getFeaturesInExtent结果")
+        console.log(vlayer.getFeaturesInExtent(extent))
     }, 3000)
+    let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
+    console.log(re)
+    let extent2 = vlayer.getExtent()
+    let extentPart1 = OMap.ProjUtil.toLonLat(extent2.getBottomLeft())
+    let extentPart2 = OMap.ProjUtil.toLonLat(extent2.getTopRight())
+    console.log(extentPart1.toArray())
+    console.log(extentPart2.toArray())
+
 }
 
 function init() {

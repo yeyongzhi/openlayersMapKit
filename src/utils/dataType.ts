@@ -45,6 +45,10 @@ function isCoordinatesType(value: any): boolean {
     return isArray(value) && value.length === 2 && isNumber(value[0]) && isNumber(value[1]);
 }
 
+function isExtentType(value: any): boolean {
+    return isArray(value) && value.length === 4 && isNumber(value[0]) && isNumber(value[1]) && isNumber(value[2]) && isNumber(value[3]);
+}
+
 function isArrayLength2(value: any) {
     return isArray(value) && value.length === 2
 }
@@ -83,6 +87,7 @@ export {
     isObject,
     isIdType,
     isCoordinatesType,
+    isExtentType,
     isArrayLength2,
     isVaildColorRGB,
     isVaildColorRGBString,

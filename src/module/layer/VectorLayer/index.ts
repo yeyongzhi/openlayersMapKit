@@ -1,6 +1,7 @@
-import { isArray, isDefined, isEmptyArray, isFunction, isString, isNumber, isCoordinatesType } from '../../../utils/index';
+import { isArray, isDefined, isEmptyArray, isFunction, isString, isNumber, isCoordinatesType, isExtentType } from '../../../utils/index';
+
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlCoordinateType } from '../../../utils/index'
+import type { OlCoordinateType, OlExtentType } from '../../../utils/index'
 import type {
     OMapVectorLayerOptionsFinalType,
     OMapVectorSourceOptionsFinalType,
@@ -91,7 +92,51 @@ export default class VectorLayer extends BaseLayer {
         return target || undefined
     }
 
-    getFeaturesInExtent(extent: Extent, projection: Projection) {
+    getFeaturesInExtent(extent: Extent | OlExtentType, projection: Projection): BaseFeature[] | undefined {
+        if (!this._isInitializedLayer('getFeaturesInExtent')) return;
+        if (!isDefined(extent)) {
+            warn_(createMessage('getFeaturesInExtent', 'extent参数不能为空'));
+            return;
+        }
+        if (!(extent instanceof Extent) && !isExtentType(extent)) {
+            warn_(createMessage('getFeaturesInExtent', 'extent参数格式有误'));
+            return;
+        }
+        let _extent = (extent instanceof Extent) ? extent.getExtent() : extent;
+        let features = (this._layer.getSource() as OlVectorSourceInstanceType).getFeaturesInExtent(_extent as OlExtentType)
+        let _features: BaseFeature[] = []
+        features.forEach(f => {
+            let uid = OlUtil.getUid(f)
+            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+            if (index !== -1) {
+                _features.push(this.features[index])
+            }
+        })
+        return _features
+
+    }
+
+    getFeaturesAtCoordinate(coordinates: Lnglat | OlCoordinateType) {
+        if (!this._isInitializedLayer('getFeaturesAtCoordinate')) return;
+        if (!isDefined(coordinates)) {
+            warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数不能为空'));
+            return;
+        }
+        if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
+            warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数格式有误'));
+            return;
+        }
+        let _coordinates = (coordinates instanceof Lnglat) ? coordinates._lnglat : coordinates;
+        const features = (this._layer.getSource() as OlVectorSourceInstanceType).getFeaturesAtCoordinate(_coordinates)
+        let _features: BaseFeature[] = []
+        features.forEach(f => {
+            let uid = OlUtil.getUid(f)
+            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+            if (index !== -1) {
+                _features.push(this.features[index])
+            }
+        })
+        return _features
 
     }
 
@@ -219,10 +264,24 @@ export default class VectorLayer extends BaseLayer {
             return;
         }
         let _coordinates = (coordinates instanceof Lnglat) ? coordinates._lnglat : coordinates;
-        (this._layer.getSource() as OlVectorSourceInstanceType).getClosestFeatureToCoordinate(_coordinates, (feature: OlFeatureLike) => {
-            console.log(feature)
-            return true
-        })
+        let filterFunction = filter ? (feature: OlFeatureLike) => {
+            let uid = OlUtil.getUid(feature)
+            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+            return filter(this.features[index])
+        } : undefined
+        const re = (this._layer.getSource() as OlVectorSourceInstanceType).getClosestFeatureToCoordinate(_coordinates, filterFunction)
+        let resuleIndex = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === OlUtil.getUid(re))
+        if (resuleIndex === -1) {
+            return undefined;
+        }
+        return this.features[resuleIndex]
+
+    }
+
+    getExtent() {
+        if (!this._isInitializedLayer('getExtent')) return;
+        const extent = (this._layer.getSource() as OlVectorSourceInstanceType).getExtent()
+        return new Extent(extent[0], extent[1], extent[2], extent[3])
     }
 
 }
