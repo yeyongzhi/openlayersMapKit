@@ -16,34 +16,40 @@ export function handleMapOnCallBack(target: unknown, type: OMapEventType, e: any
         case 'map:dbclick':
             if (e.pixel) result.pixel = new Pixel(...(e.pixel as OlCoordinateType))
             if (e.coordinate) result.coordinate = new Lnglat(...(e.coordinate as OlCoordinateType))
-                break;
+            break;
         case 'map:propertychange':
+            if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat(...(e.oldValue as OlCoordinateType)) : e.oldValue
+            if (e.key === 'size') {
+                result.newValue = e.newValue || (target as Map).getSize()
+            } else {
+                result.newValue = e.newValue
+            }
             result.key = e.key
-            result.oldValue = e.oldValue
-            let newValObj = (target as Map).getProperties()
-            result.newValue = isDefined<Record<string, any>>(newValObj) ? newValObj[(e.key as string)] : undefined
             break;
         case 'view:change:resolution':
-            if(e.oldValue) result.oldValue = e.oldValue
+            if (e.oldValue) result.oldValue = e.oldValue
             result.newValue = e.newValue || (target as Map).getResolution()
-                break;
+            break;
         case 'view:change:center':
-            if(e.oldValue) result.oldValue = new Lnglat(...(e.oldValue as OlCoordinateType))
+            if (e.oldValue) result.oldValue = new Lnglat(...(e.oldValue as OlCoordinateType))
             result.newValue = e.newValue || (target as Map).getCenter()
             break;
         case 'view:change:rotation':
-            if(e.oldValue) result.oldValue = e.oldValue
+            if (e.oldValue) result.oldValue = e.oldValue
             result.newValue = e.newValue || (target as Map).getRotation()
             break;
         case 'view:propertychange':
-            if(e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat(...(e.oldValue as OlCoordinateType)) : e.oldValue
-            if(e.key === 'center') {
+            if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat(...(e.oldValue as OlCoordinateType)) : e.oldValue
+            if (e.key === 'center') {
                 result.newValue = e.newValue || (target as Map).getCenter()
-            } else if(e.key === 'rotation') {
+            } else if (e.key === 'rotation') {
                 result.newValue = e.newValue || (target as Map).getRotation()
-            } else if(e.key === 'resolution') {
+            } else if (e.key === 'resolution') {
                 result.newValue = e.newValue || (target as Map).getResolution()
+            } else {
+                result.newValue = e.newValue
             }
+            result.key = e.key
             break;
         default:
             break;

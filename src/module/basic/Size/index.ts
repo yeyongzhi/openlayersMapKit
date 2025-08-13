@@ -1,7 +1,7 @@
 
 import { isDefined, isNumber } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-
+import type { OlSizeType } from '../../../utils/index';
 
 const PACKAGE_NAME = 'Size';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -13,17 +13,26 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/06/30
- * @updateDate 2025/06/30
+ * @updateDate 2025/08/05
  */
 
-export default class Size {
+export interface SizeLike {
+    _size?: OlSizeType;
+}
+
+
+interface SizeLikeInitialized {
+    _size: OlSizeType;
+}
+
+export default class Size implements SizeLike {
 
     /**
      * @type {number[]}
      * @example [20, 15]
      * @private
      */
-    _size: number[] = [];
+    _size: OlSizeType;
 
     constructor(width: number, height: number) {
         if(!isNumber(width) || !isNumber(height)) {
@@ -32,7 +41,7 @@ export default class Size {
         this._size = [width, height];
     }
 
-    private _isInitialized(method: string): boolean {
+    private _isInitialized(method: string): this is SizeLikeInitialized & this {
         if (!isDefined(this._size)) {
             warn_(createMessage(method, "未正确实例化"))
             return false;
@@ -42,7 +51,7 @@ export default class Size {
 
     /**
      * 获取size
-     * @returns {number[] | undefined} size
+     * @returns {OlSizeType | undefined} size
      */
     getSize(): number[] | undefined {
         if(!this._isInitialized("getSize")) return undefined
@@ -51,9 +60,9 @@ export default class Size {
 
     /**
      * 设置size
-     * @param {number[]} size
+     * @param {OlSizeType} size
      */
-    setSize(size: number[]): void {
+    setSize(size: OlSizeType): void {
         if(!this._isInitialized("setSize")) return;
         if(!isNumber(size[0]) || !isNumber(size[1])) {
             warn_(createMessage("setSize", "参数格式有误"))
