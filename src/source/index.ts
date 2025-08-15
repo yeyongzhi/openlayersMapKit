@@ -7,8 +7,25 @@ import Feature from 'ol/Feature';
 import * as OlGeometry from 'ol/geom';
 import * as OlStyle from 'ol/style'
 import RenderFeature from 'ol/render/Feature'
+import * as OlCoordinate from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate'
+import type { Extent as OlExtentType } from 'ol/extent'
+
+
+
 
 
 export default OlPackage;
-export { OlLayer, OlSource, OlProj, OlUtil, Feature as OlFeature, OlGeometry, OlStyle, RenderFeature }
-
+export {
+    OlLayer,
+    OlSource,
+    OlProj,
+    OlUtil,
+    Feature as OlFeature,
+    OlGeometry,
+    OlStyle,
+    RenderFeature,
+    OlCoordinate,
+    type Coordinate,
+    type OlExtentType,
+}

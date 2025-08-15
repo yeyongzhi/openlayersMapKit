@@ -1,6 +1,6 @@
 import { isDefined, isNumber, isCoordinatesType } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { LnglatType } from '../../../utils/index'
+import type { LnglatType, OlCoordinateType } from '../../../utils/index'
 
 const PACKAGE_NAME = 'Lnglat';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -10,16 +10,16 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @classdesc 经纬度
  * @author yyz
  * @CreateDate 2025/06/30
- * @LastUpdateDate 2025/06/30
+ * @LastUpdateDate 2025/08/13
  */
 export default class Lnglat {
     /**
      * 经纬度数组
-     * @type {number[]}
+     * @type {OlCoordinateType}
      * @example [119.26, 28.73]
      * @private
      */
-    _lnglat: number[];
+    _lnglat: OlCoordinateType;
 
     constructor(lng: number, lat: number) {
         if (!isNumber(lng) || !isNumber(lat)) {
@@ -99,9 +99,9 @@ export default class Lnglat {
 
     /**
      * 以数组形式输出经纬度
-     * @returns {LnglatType | undefined} 经纬度数组
+     * @returns {OlCoordinateType | undefined} 经纬度数组
      */
-    toArray(): LnglatType | undefined {
+    toArray(): OlCoordinateType | undefined {
         if (!this._isInitialized("toArray")) return undefined;
         return this._lnglat;
     }

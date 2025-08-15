@@ -24,6 +24,7 @@ export default defineConfig({
           'ol/Feature': 'ol.Feature',
           'ol/geom': 'ol.geom',
           'ol/style': 'ol.style',
+          'ol/coordinate': 'ol.coordinate',
         }
       },
       plugins: []

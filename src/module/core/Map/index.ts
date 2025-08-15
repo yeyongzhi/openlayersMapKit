@@ -123,7 +123,8 @@ export default class Map implements MapLike {
     getCenter(): Lnglat | undefined {
         if (!this._isInitialized('getCenter')) return;
         let center = this._view.getCenter()
-        return new Lnglat(...center as OlCoordinateType);
+        if(!center) return;
+        return new Lnglat(center[0], center[1]);
     }
 
     setCenter(center: Lnglat | OlCoordinateType): void {

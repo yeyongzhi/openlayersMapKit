@@ -1,6 +1,6 @@
 import { OlFeature, OlGeometry, RenderFeature } from '../../../../source/index'
-import type { OMapPointGeometryCoordinatesType } from '../Point/type'
-import type { OMapLineStringGeometryCoordinatesType } from '../LineString/type'
+import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType } from '../Point/type'
+import type { OMapLineStringGeometryCoordinatesType, OlLineStringGeomInstanceType } from '../LineString/type'
 import type { OMapPolygonGeometryCoordinatesType } from '../Polygon/type'
 
 export interface BasicFeatureLike {
@@ -23,8 +23,7 @@ export type OlFeatureOptionsType = {
 
 export type OlFeatureType = "Point" | "LineString" | "Polygon" | "MultiPoint" | "MultiLineString" | "MultiPolygon" | 'LineraRing' | 'Circle' | 'GeometryCollection'
 
-type OlPointGeomInstanceType = InstanceType<typeof OlGeometry.Point>
-type OlLineStringGeomInstanceType = InstanceType<typeof OlGeometry.LineString>
+
 type OlPolygonGeomInstanceType = InstanceType<typeof OlGeometry.Polygon>
 type OlMultiPointGeomInstanceType = InstanceType<typeof OlGeometry.MultiPoint>
 type OlMultiLineStringGeomInstanceType = InstanceType<typeof OlGeometry.MultiLineString>

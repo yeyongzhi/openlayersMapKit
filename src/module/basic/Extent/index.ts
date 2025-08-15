@@ -1,18 +1,34 @@
 import Lnglat from '../Lnglat/index'
-import { isCoordinatesType, isDefined, isNumber } from '../../../utils/index';
+import { isDefined, isNumber } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import type { OlExtentType } from '../../../utils/index'
 
 const PACKAGE_NAME = 'Extent';
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /** Extent 边界范围
  * Author：yyz
- * CreateDate：2022/08/07
- * UpdateDate：2022/09/28
+ * CreateDate：2025/08/07
+ * UpdateDate：2025/08/13
  */
 
-export default class Extent {
-    _extent: number[] = [];
+interface ExtentLike {
+    _extent?: OlExtentType;
+}
+
+// 精确类型：保证一定已初始化
+interface ExtentLikeInitialized {
+    _extent: OlExtentType;
+}
+
+export default class Extent implements ExtentLike {
+    /**
+     * extent数组
+     * @type {OlExtentType}
+     * @example [119.26, 28.73, 119.26, 28.73]
+     * @private
+     */
+    _extent?: OlExtentType;
 
     constructor(minX: number, minY: number, maxX: number, maxY: number) {
         if(!isNumber(minX) || !isNumber(minY) || !isNumber(maxX) || !isNumber(maxY)) {
@@ -26,7 +42,7 @@ export default class Extent {
         this._extent = [minX, minY, maxX, maxY];
     }
 
-    private _isInitialized(method: string): boolean {
+    private _isInitialized(method: string): this is ExtentLikeInitialized & this {
         if (!isDefined(this._extent) || this._extent.length !== 4) {
             warn_(createMessage(method, '未正确实例化'));
             return false;
@@ -34,7 +50,7 @@ export default class Extent {
         return true;
     }
 
-    getExtent(): number[] | undefined {
+    getExtent(): OlExtentType | undefined {
         if (!this._isInitialized('getExtent')) return;
         return this._extent
     }

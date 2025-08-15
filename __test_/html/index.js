@@ -161,19 +161,21 @@ function initVectorLayer() {
     console.log(vlayer.getFeatures())
     const extent = new OMap.Extent(...OMap.ProjUtil.fromLonLat([120.05, 30.2]).toArray(), ...OMap.ProjUtil.fromLonLat([120.15, 30.35]).toArray())
     setTimeout(() => {
-        vlayer.forEachFeatureInExtent(extent, (feature) => {
-            console.log(feature)
-        })
-        console.log("getFeaturesInExtent结果")
-        console.log(vlayer.getFeaturesInExtent(extent))
+        // vlayer.forEachFeatureInExtent(extent, (feature) => {
+        //     console.log(feature)
+        // })
+        // console.log("getFeaturesInExtent结果")
+        // console.log(vlayer.getFeaturesInExtent(extent))
+        // console.log('-----p-----')
+        // console.log(p.getFirstCoordinate())
+        // console.log(p.getLastCoordinate())
+        // console.log(p2.intersectsExtent(extent))
+        console.log(l.getCoordinates())
     }, 3000)
     let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
     console.log(re)
     let extent2 = vlayer.getExtent()
-    let extentPart1 = OMap.ProjUtil.toLonLat(extent2.getBottomLeft())
-    let extentPart2 = OMap.ProjUtil.toLonLat(extent2.getTopRight())
-    console.log(extentPart1.toArray())
-    console.log(extentPart2.toArray())
+    console.log(extent2)
 
 }
 
