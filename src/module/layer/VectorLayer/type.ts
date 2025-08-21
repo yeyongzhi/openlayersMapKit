@@ -32,6 +32,7 @@ export type OMapVectorSourceOptionsFinalType = CustOlVectorSourceOptionsType & {
     features?: BaseFeature[];
 }
 
-
 export type OlVectorLayerInstanceType = InstanceType<typeof OlLayer.Vector>
 export type OlVectorSourceInstanceType = InstanceType<typeof OlSource.Vector>
+
+export type OMapVectorLayerStyleType = OMapStyleLike

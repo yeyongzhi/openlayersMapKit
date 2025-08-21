@@ -76,7 +76,8 @@ function initMap() {
 function initVectorLayer() {
     const vlayer = new OMap.VectorLayer({
         style: (feature, resolution) => {
-            // console.log(resolution)
+            console.log(feature)
+            console.log(resolution)
             if (feature.getType() === 'Point') {
                 return new OMap.Style({
                     circle: {
@@ -170,6 +171,8 @@ function initVectorLayer() {
         // console.log(p.getFirstCoordinate())
         // console.log(p.getLastCoordinate())
         // console.log(p2.intersectsExtent(extent))
+        console.log(l.getCoordinates())
+        l.translate(10000, 10000)
         console.log(l.getCoordinates())
     }, 3000)
     let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))

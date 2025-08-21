@@ -1,5 +1,4 @@
 import { isArray, isDefined, isEmptyArray, isFunction, isString, isNumber, isCoordinatesType, isExtentType } from '../../../utils/index';
-
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { OlCoordinateType, OlExtentType } from '../../../utils/index'
 import type {
@@ -9,7 +8,7 @@ import type {
     OlVectorSourceInstanceType
 } from './type'
 import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
-import type { OlStyleInstanceType } from '../../basic/Style/type'
+import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
 import { OlLayer, OlSource, OlUtil } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
@@ -25,12 +24,14 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/7/23
+ * @updateDate 2025/8/21
  */
 
 export default class VectorLayer extends BaseLayer {
 
     features: BaseFeature[] = []
+
+    style: OMapStyleLike | undefined;
 
     constructor(options: OMapVectorLayerOptionsFinalType = {}) {
         super('Vector', options)
@@ -41,25 +42,10 @@ export default class VectorLayer extends BaseLayer {
                 return f.getFeature() as OlFeatureInstanceType
             }) : []
         }
-        let _style: OlStyleInstanceType | Array<OlStyleInstanceType> | ((feature: OlFeatureLike, resolution: number) => (OlStyleInstanceType | undefined)) | undefined = undefined
-        if (isDefined(options.style)) {
-            if (options.style instanceof Style) {
-                _style = options.style.getStyle()
-            } else if (isArray(options.style) && (options.style as Style[]).every(s => s instanceof Style)) {
-                _style = (options.style as Style[]).map(s => (s.getStyle() as OlStyleInstanceType))
-            } else if (isFunction(options.style)) {
-                _style = (feature: OlFeatureLike, resolution: number) => {
-                    let uid = OlUtil.getUid(feature)
-                    let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-                    let style = (options.style as Function)(index !== - 1 ? this.features[index] : null, resolution)
-                    return style ? style.getStyle() : undefined
-                }
-            }
-        }
         this._layer = new OlLayer.Vector({
-            source: new OlSource.Vector(_sourceParams),
-            style: _style
+            source: new OlSource.Vector(_sourceParams)
         })
+        this.initStyle(options.style)
         this._initLayerEvent()
     }
 
@@ -69,6 +55,35 @@ export default class VectorLayer extends BaseLayer {
             return false;
         }
         return true;
+    }
+
+    /**
+     * 初始化样式
+     * @param {OMapStyleLike | undefined} style 样式
+     */
+    protected initStyle(style: OMapStyleLike | undefined): void {
+        if (!this._isInitializedLayer('initStyle')) return;
+        let _style: OlStyleInstanceType | Array<OlStyleInstanceType> | ((feature: OlFeatureLike, resolution: number) => (OlStyleInstanceType | undefined)) | undefined = undefined
+        if (isDefined(style)) {
+            if (style instanceof Style) {
+                _style = style.getStyle()
+            } else if (isArray(style) && (style as Style[]).every(s => s instanceof Style)) {
+                _style = (style as Style[]).map(s => (s.getStyle() as OlStyleInstanceType))
+            } else if (isFunction(style)) {
+                _style = (feature: OlFeatureLike, resolution: number) => {
+                    let uid = OlUtil.getUid(feature)
+                    let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+                    let styleFnResult = (style as Function)(index !== - 1 ? this.features[index] : null, resolution)
+                    return styleFnResult ? styleFnResult.getStyle() : undefined
+                }
+            } else {
+                warn_(createMessage('initStyle', 'style格式有误'));
+            }
+        }
+        if(_style) {
+            this._layer.setStyle(_style)
+            this.style = style
+        }
     }
 
     getFeatures(): BaseFeature[] | undefined {
@@ -282,6 +297,39 @@ export default class VectorLayer extends BaseLayer {
         if (!this._isInitializedLayer('getExtent')) return;
         const extent = (this._layer.getSource() as OlVectorSourceInstanceType).getExtent()
         return new Extent(extent[0], extent[1], extent[2], extent[3])
+    }
+
+    // 样式管理
+    /**
+     * 获取样式
+     * @returns {OMapStyleLike | undefined} style 样式
+     */
+    getStyle(): OMapStyleLike | undefined {
+        if (!this._isInitializedLayer('getStyle')) return;
+        return this.style
+    }
+    
+    /**
+     * 设置图层样式
+     * @param {OMapStyleLike} style 新样式
+     */
+    setStyle(style: OMapStyleLike): void {
+        if (!this._isInitializedLayer('setStyle')) return;
+        if(!isDefined(style)) {
+            warn_(createMessage('setStyle', 'style参数不能为空'));
+            return;
+        }
+        this.initStyle(style)
+    }
+
+    /**
+     * 设置去重叠功能
+     * @param declutter 
+     * @returns 
+     */
+    setDeclutter(declutter: boolean | string | number): void {
+        if (!this._isInitializedLayer('setDeclutter')) return;
+        this._layer.setDeclutter(declutter)
     }
 
 }
