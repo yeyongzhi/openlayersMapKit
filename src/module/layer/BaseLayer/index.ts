@@ -1,7 +1,7 @@
 import { BaseLayerType, BaseLayerIdType, isDefined, isBoolean, isObject, isNumber } from "../../../utils/index";
 import OlPackage, { OlLayer } from '../../../source/index'
 import { warn_, error_, getPackageMessage, isVaildOpacity } from '../../../utils/index'
-import type { BaseLayerOptionsType, PropertiesType, BaseLayerEventType, IdType } from '../../../utils/index'
+import type { BaseLayerOptionsType, PropertiesType, BaseLayerEventType, IdType, OlExtentType } from '../../../utils/index'
 import { LayerGroup, Extent, VectorLayer } from '../../../index'
 import type { OlAllLayerInstanceType } from './type'
 
@@ -114,13 +114,27 @@ export default class BaseLayer implements BaseLayerLike {
     }
 
     _initLayerEvent(): void {
-        if (!this._isInitialized('setOpacity')) return;
+        if (!this._isInitialized('_initLayerEvent')) return;
         // 图层属性变化事件，用于监听图层属性变化
         this._layer.on([
             "propertychange"
         ], (e: any) => {
             if (e.key === 'opacity') {
                 this.opacity = this.getOpacity() as number
+            } else if (e.key === 'visible') {
+                this.visible = this.getVisible() as boolean
+            } else if (e.key === 'extent') {
+                this.extent = this.getExtent() as Extent
+            } else if (e.key === 'minZoom') {
+                this.minZoom = this.getMinZoom() as number
+            } else if (e.key === 'maxZoom') {
+                this.maxZoom = this.getMaxZoom() as number
+            } else if (e.key === 'minResolution') {
+                this.minResolution = this.getMinResolution() as number
+            } else if (e.key === 'maxResolution') {
+                this.maxResolution = this.getMaxResolution() as number
+            } else if (e.key === 'zIndex') {
+                this.zIndex = this.getZIndex() as number
             }
         })
     }
@@ -182,12 +196,23 @@ export default class BaseLayer implements BaseLayerLike {
         return this._layer.getVisible();
     }
 
-    setExtent(): void {
-
+    /**
+     * 设置图层的范围
+     */
+    setExtent(extent: Extent | OlExtentType): void {
+        if (!this._isInitialized('setExtent')) return;
+        let _extent = (extent instanceof Extent) ? extent.getExtent() : extent
+        this._layer.setExtent(_extent)
     }
 
-    getExtent(): void {
-
+    /**
+     * 获取图层的范围
+     */
+    getExtent(): Extent | undefined {
+        if (!this._isInitialized('getExtent')) return undefined;
+        let extent = this._layer.getExtent()
+        if(!extent) return;
+        return new Extent(extent[0], extent[1], extent[2], extent[3])
     }
 
     setMinZoom(minZoom: number): void {

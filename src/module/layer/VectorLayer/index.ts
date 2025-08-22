@@ -82,7 +82,7 @@ export default class VectorLayer extends BaseLayer {
         }
         if(_style) {
             this._layer.setStyle(_style)
-            this.style = style
+            this.style = style // 到这里才更新style属性
         }
     }
 
@@ -293,8 +293,8 @@ export default class VectorLayer extends BaseLayer {
 
     }
 
-    getExtent() {
-        if (!this._isInitializedLayer('getExtent')) return;
+    getSourceExtent(): Extent | undefined {
+        if (!this._isInitializedLayer('getSourceExtent')) return;
         const extent = (this._layer.getSource() as OlVectorSourceInstanceType).getExtent()
         return new Extent(extent[0], extent[1], extent[2], extent[3])
     }
