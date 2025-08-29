@@ -4,6 +4,7 @@ import type { OlCoordinateType } from '../../../../utils/index'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType } from './type'
+import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import { Lnglat, Extent } from '../../../../index'
 
 
@@ -17,23 +18,27 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/8/14
+ * @updateDate 2025/8/29
  */
 
 export default class Point extends BasicFeature {
 
-    constructor(coordinates: OMapPointGeometryCoordinatesType, properties?: Record<string, any>) {
-        if (!isDefined(coordinates)) {
+    constructor(coordinatesOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
+        if (!isDefined(coordinatesOrFeature)) {
             error_(createMessage('constructor', '参数不能为空'));
             return
         }
-        if ((!(coordinates instanceof Lnglat)) && (!isCoordinatesType(coordinates))) {
-            error_(createMessage('constructor', '坐标格式有误'));
-            return
-        }
-        super("Point", coordinates)
-        if (properties) {
-            this.setProperties(properties)
+        if (coordinatesOrFeature instanceof OlFeature) {
+            super("Point", coordinatesOrFeature as OlFeatureInstanceType)
+        } else {
+            if ((!(coordinatesOrFeature instanceof Lnglat)) && (!isCoordinatesType(coordinatesOrFeature))) {
+                error_(createMessage('constructor', '坐标格式有误'));
+                return
+            }
+            super("Point", coordinatesOrFeature as OMapPointGeometryCoordinatesType)
+            if (properties) {
+                this.setProperties(properties)
+            }
         }
     }
 

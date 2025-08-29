@@ -21,7 +21,7 @@ export type OlFeatureOptionsType = {
     properties?: Record<string, any>
 }
 
-export type OlFeatureType = "Point" | "LineString" | "Polygon" | "MultiPoint" | "MultiLineString" | "MultiPolygon" | 'LineraRing' | 'Circle' | 'GeometryCollection'
+export type OlFeatureType = "Point" | "LineString" | "Polygon" | "MultiPoint" | "MultiLineString" | "MultiPolygon" | 'LinearRing' | 'Circle' | 'GeometryCollection'
 
 
 type OlPolygonGeomInstanceType = InstanceType<typeof OlGeometry.Polygon>
@@ -35,6 +35,6 @@ type OlGeometryCollectionGeomInstanceType = InstanceType<typeof OlGeometry.Geome
 export type OlGeomType = OlGeometry.Point | OlGeometry.LineString | OlGeometry.Polygon | OlMultiPointGeomInstanceType | OlMultiLineStringGeomInstanceType | OlMultiPolygonGeomInstanceType | OlLinearRingGeomInstanceType | OlCircleGeomInstanceType | OlGeometryCollectionGeomInstanceType
 
 
-export type OlGeomInstanceType = OlPointGeomInstanceType | OlLineStringGeomInstanceType | OlPolygonGeomInstanceType
+export type OlGeomInstanceType = OlPointGeomInstanceType | OlLineStringGeomInstanceType | OlPolygonGeomInstanceType | OlLinearRingGeomInstanceType
 
 export type OMapBasicFeatureCoordinatesType = OMapPointGeometryCoordinatesType | OMapLineStringGeometryCoordinatesType | OMapPolygonGeometryCoordinatesType

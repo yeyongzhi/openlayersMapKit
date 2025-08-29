@@ -1,6 +1,6 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import OlPackage from '../../../source/index'
+import OlPackage, { OlUtil } from '../../../source/index'
 import type {
     MapContainerType,
     BaseLayerIdType,
@@ -19,6 +19,8 @@ import type {
 import { Lnglat, Extent, Size } from '../../basic/index';
 import { Projection, LayerGroup } from '../../../index'
 import BaseLayer from '../../layer/BaseLayer/index'
+import Interaction from '../../interaction/Interaction/index'
+import Draw from '../../interaction/Draw/index'
 import Event from '../../../module/util/Event/index'
 
 import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
@@ -54,6 +56,8 @@ interface MapLayersItemType {
 interface MapLike {
     _map?: OlMapInstanceType;
     _view?: OlViewInstanceType;
+    layers: Array<BaseLayer>;
+    interactions: Array<Interaction>;
 }
 
 // 精确类型：保证一定已初始化
@@ -67,6 +71,7 @@ export default class Map implements MapLike {
     _map?: OlMapInstanceType;
     _view?: OlViewInstanceType;
     layers: Array<BaseLayer> = [];
+    interactions: Array<Interaction> = [];
     events: Event | null = null;
 
     constructor(element: MapContainerType, options: OlMapOptionsFinalType) {
@@ -123,7 +128,7 @@ export default class Map implements MapLike {
     getCenter(): Lnglat | undefined {
         if (!this._isInitialized('getCenter')) return;
         let center = this._view.getCenter()
-        if(!center) return;
+        if (!center) return;
         return new Lnglat(center[0], center[1]);
     }
 
@@ -394,6 +399,39 @@ export default class Map implements MapLike {
             return;
         }
         this._map.setProperties(properties)
+    }
+
+    /** 交互管理 */
+
+    /**
+     * 添加交互
+     */
+    addInteraction(interaction: Interaction): void {
+        let index = this.interactions.findIndex(i => {
+            return OlUtil.getUid(i._interaction) === OlUtil.getUid(interaction._interaction)
+        })
+        if (index !== -1) {
+            warn_(createMessage('addInteraction', '该交互已添加到地图中'));
+            return;
+        }
+        // 是否需要额外的图层添加
+        if (interaction instanceof Draw) {
+            if (interaction._layer) {
+                this.addLayer(interaction._layer)
+            }
+        }
+        if (isDefined(interaction._interaction)) {
+            this.interactions.push(interaction)
+            this._map?.addInteraction(interaction._interaction)
+        }
+    }
+
+    getInteraction() {
+
+    }
+
+    removeInteraction() {
+
     }
 
 }

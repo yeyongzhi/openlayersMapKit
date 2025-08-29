@@ -24,9 +24,9 @@ export interface ColorObjectType {
     color?: string;
     opacity?: number;
     alpha?: number;
-    r: number;
-    g: number;
-    b: number;
+    r?: number;
+    g?: number;
+    b?: number;
 }
 
 export type ColorType = string | Array<number | string> | ColorObjectType;

@@ -10,6 +10,8 @@ import type {
 } from './type'
 import { OlStyle } from '../../../source/index'
 import { Color } from '../../../index'
+import Style from './index'
+import BaseFeature from '../../core/Feature/BasicFeature/index'
 import { isDefined, isNumber } from '../../../utils/index'
 
 export function getOlFillSingleStyle(options: OMapFillStyleOptionsType | undefined) {
@@ -70,7 +72,7 @@ export function getOlIconSingleStyle(options: OMapIconStyleOptionsType | undefin
     let _style = new OlStyle.Icon({
         ...options,
         color: options.color ? (options.color instanceof Color) ? options.color.getColor() : (options.color as string) : undefined,
-        offset: isDefined(options.offset) ? options.offset.getPixel() : [0, 0] ,
+        offset: isDefined(options.offset) ? options.offset.getPixel() : [0, 0],
         size: isDefined(options.size) ? options.size.getSize() : undefined
     })
     return _style
@@ -97,4 +99,43 @@ export function getOlRegularShapeSingleStyle(options: OMapRegularShapeStyleOptio
         }))
     }
     return _style
+}
+
+/**
+ * 矢量图层的默认样式
+ */
+export const DEFAULT_STYLE = (feature: BaseFeature, resolution: number): undefined | Style => {
+    console.log(feature)
+    if(!isDefined(feature)) return undefined
+    if (feature.getType() === 'Point') {
+        return new Style({
+            circle: {
+                fill: {
+                    color: 'red'
+                },
+                radius: 10
+            }
+        })
+    } else if (feature.getType() === 'LineString') {
+        return new Style({
+            stroke: {
+                color: '#13c2c2',
+                width: 10
+            }
+        })
+    } else if (feature.getType() === 'Polygon') {
+        return new Style({
+            stroke: {
+                color: '#000000',
+                width: 2
+            },
+            fill: {
+                color: new Color({
+                    color: '#1890FF',
+                    opacity: 0.5
+                })
+            },
+        })
+    }
+    return undefined
 }

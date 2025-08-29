@@ -8,8 +8,9 @@ import type {
     OlVectorSourceInstanceType
 } from './type'
 import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
+import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
-import { OlLayer, OlSource, OlUtil } from '../../../source/index'
+import { OlLayer, OlSource, OlUtil, OlFeature, OlGeometry } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import { Extent, Lnglat, Projection, Style } from '../../../index'
@@ -47,6 +48,7 @@ export default class VectorLayer extends BaseLayer {
         })
         this.initStyle(options.style)
         this._initLayerEvent()
+        this.initVectorLyaerEvent()
     }
 
     protected _isInitializedLayer(method: string): this is { _layer: OlVectorLayerInstanceType } & this {
@@ -55,6 +57,20 @@ export default class VectorLayer extends BaseLayer {
             return false;
         }
         return true;
+    }
+
+    protected initVectorLyaerEvent() {
+        if (!this._isInitializedLayer('initStyle')) return;
+        (this._layer.getSource() as OlVectorSourceInstanceType).on("addfeature", (e) => {
+            const { feature } = e
+            if(isDefined(feature)) {
+                // 根据原生的feature生成内部的feature
+                let basicFeature = createBaseFeatureByOlFeature(feature)
+                if(basicFeature) {
+                    this.features.push(basicFeature)
+                }
+            }
+        })
     }
 
     /**

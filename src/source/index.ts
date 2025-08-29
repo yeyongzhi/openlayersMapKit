@@ -2,6 +2,7 @@ import * as OlPackage from 'ol'
 import * as OlLayer from "ol/layer";
 import * as OlSource from 'ol/source';
 import * as OlProj from 'ol/proj';
+import * as OlInteraction from 'ol/interaction';
 import * as OlUtil from 'ol/util';
 import Feature from 'ol/Feature';
 import * as OlGeometry from 'ol/geom';
@@ -10,16 +11,14 @@ import RenderFeature from 'ol/render/Feature'
 import * as OlCoordinate from 'ol/coordinate';
 import type { Coordinate } from 'ol/coordinate'
 import type { Extent as OlExtentType } from 'ol/extent'
-
-
-
-
+import { createBox, createRegularPolygon } from 'ol/interaction/Draw';
 
 export default OlPackage;
 export {
     OlLayer,
     OlSource,
     OlProj,
+    OlInteraction,
     OlUtil,
     Feature as OlFeature,
     OlGeometry,
@@ -28,4 +27,6 @@ export {
     OlCoordinate,
     type Coordinate,
     type OlExtentType,
+    createBox as OlDrawCreateBox,
+    createRegularPolygon as OlDrawCreateRegularPolygon
 }

@@ -12,13 +12,13 @@ export type OlStyleInstanceType = InstanceType<typeof OlStyle.Style>
 
 export type OMapStyleOptionsType = {
     geometry?: any;
-    fill: OMapFillStyleOptionsType,
+    fill?: OMapFillStyleOptionsType,
     // image: OMapImageStyleOptionsType, // image实际不太使用
-    circle: OMapCircleStyleOptionsType,
-    icon: OMapIconStyleOptionsType,
-    regularShape: OMapRegularShapeStyleOptionsType,
-    text: {},
-    stroke: OMapStrokeStyleOptionsType;
+    circle?: OMapCircleStyleOptionsType,
+    icon?: OMapIconStyleOptionsType,
+    regularShape?: OMapRegularShapeStyleOptionsType,
+    text?: {},
+    stroke?: OMapStrokeStyleOptionsType;
     zIndex?: number;
     hitDetectionRenderer?: any;
     renderer?: any;

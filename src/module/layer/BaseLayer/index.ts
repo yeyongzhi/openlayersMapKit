@@ -145,6 +145,15 @@ export default class BaseLayer implements BaseLayerLike {
     }
 
     /**
+     * 获取图层数据源
+     * @returns 
+     */
+    getSource() {
+        if (!this._isInitialized('getSource')) return undefined;
+        return this._layer.getSource();
+    }
+
+    /**
      * 设置图层透明度
      * @param {number} opacity 透明度，0~1
      */

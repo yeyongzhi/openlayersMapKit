@@ -12,6 +12,7 @@ import type {
 import type { OMapPointGeometryCoordinatesType } from '../Point/type'
 import type { OMapLineStringGeometryCoordinatesType } from '../LineString/type'
 import type { OMapPolygonGeometryCoordinatesType } from '../Polygon/type'
+import type { OMapLinearRingGeometryCoordinatesType } from '../LinearRing/type'
 import type { OlCoordinateType, PropertiesType } from '../../../../utils/type'
 import { Lnglat } from '../../../../index';
 
@@ -25,7 +26,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/7/14
+ * @updateDate 2025/8/29
  */
 
 
@@ -36,12 +37,16 @@ export default class BasicFeature implements BasicFeatureLike {
     _feature?: OlFeatureInstanceType
     _geometry?: OlGeomInstanceType
 
-    constructor(type: OlFeatureType, coordinates: OMapBasicFeatureCoordinatesType) {
+    constructor(type: OlFeatureType, coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType) {
         this.type = type;
-        this._init(coordinates)
+        if (coordinatesOrFeature instanceof OlFeature) {
+            this._initByFeature(coordinatesOrFeature)
+        } else {
+            this._init(coordinatesOrFeature as OMapBasicFeatureCoordinatesType)
+        }
     }
 
-    private _init(coordinates: OMapBasicFeatureCoordinatesType) {
+    protected _init(coordinates: OMapBasicFeatureCoordinatesType) {
         switch (this.type) {
             case 'Point':
                 let p_coordinates = coordinates as OMapPointGeometryCoordinatesType
@@ -61,13 +66,24 @@ export default class BasicFeature implements BasicFeatureLike {
                 })
                 this._geometry = new OlGeometry.Polygon(p2_coordinates)
                 break;
+            case 'LinearRing':
+                let l2_coordinates = (coordinates as OMapLinearRingGeometryCoordinatesType).map(c => {
+                    return (c instanceof Lnglat) ? c._lnglat : c
+                })
+                this._geometry = new OlGeometry.LinearRing(l2_coordinates)
+                break;
         }
         this._feature = new OlFeature({
             geometry: this._geometry
         })
     }
 
-    private _isInitialized(
+    protected _initByFeature(feature: OlFeatureInstanceType) {
+        this._feature = feature
+        this._geometry = feature.getGeometry() as OlGeomInstanceType
+    }
+
+    protected _isInitialized(
         method: string
     ): this is BasicFeatureInitialized & this {
         if (this._feature == null) {
@@ -120,6 +136,10 @@ export default class BasicFeature implements BasicFeatureLike {
 
     getType() {
         return this.type
+    }
+
+    getGeometry() {
+        return this._geometry
     }
 
 }

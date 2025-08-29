@@ -20,6 +20,16 @@ const polygonData = [
     ]
 ]
 
+const polygonData2 = [
+    [
+        [120, 30.6],
+        [120, 30],
+        [120.6, 30],
+        [120.6, 30.6],
+        [120, 30.6],
+    ]
+]
+
 function initDom() {
     clickLnglat = document.getElementById('click_lnglat')
     mapCenter = document.getElementById('map_center')
@@ -73,6 +83,7 @@ function initMap() {
     }, 3000)
 }
 
+// 测试VectorLayer
 function initVectorLayer() {
     const vlayer = new OMap.VectorLayer({
         style: (feature, resolution) => {
@@ -182,10 +193,55 @@ function initVectorLayer() {
 
 }
 
+
+// 测试feature
+function initFeature() {
+    const vlayer = new OMap.VectorLayer({
+        style: [
+            new OMap.Style({
+                fill: {
+                    color: 'red'
+                },
+            }),
+            new OMap.Style({
+                stroke: {
+                    color: 'gray',
+                    width: 2
+                }
+            }),
+        ]
+    })
+    const polygon = new OMap.Polygon([
+        polygonData2[0].map(item => OMap.ProjUtil.fromLonLat(item))
+    ])
+    vlayer.addFeatures([polygon])
+    map.addLayer(vlayer)
+    // 添加内环
+    polygon.appendLinearRing([
+        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+        OMap.ProjUtil.fromLonLat([120.1, 30.3]),
+        OMap.ProjUtil.fromLonLat([120.1, 30.4]),
+        OMap.ProjUtil.fromLonLat([120.2, 30.4]),
+        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+    ])
+    console.log(polygon.getCoordinates())
+    console.log(polygon.getFirstCoordinate())
+    console.log(polygon.getLastCoordinate())
+}
+
+function initDraw() {
+    const draw = new OMap.Draw('Point')
+    console.log(draw)
+    map.addInteraction(draw)
+    console.log(map.getAllLayers())
+}
+
 function init() {
     initDom()
     initMap()
-    initVectorLayer()
+    // initVectorLayer()
+    // initFeature()
+    initDraw()
 }
 
 init()
