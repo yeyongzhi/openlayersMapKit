@@ -59,15 +59,21 @@ export default class VectorLayer extends BaseLayer {
         return true;
     }
 
+    /**
+     * 初始化矢量图层事件
+     */
     protected initVectorLyaerEvent() {
         if (!this._isInitializedLayer('initStyle')) return;
         (this._layer.getSource() as OlVectorSourceInstanceType).on("addfeature", (e) => {
+            console.log(e)
             const { feature } = e
             if(isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
                 let basicFeature = createBaseFeatureByOlFeature(feature)
                 if(basicFeature) {
                     this.features.push(basicFeature)
+                } else {
+                    warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
                 }
             }
         })

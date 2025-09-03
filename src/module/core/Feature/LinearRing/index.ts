@@ -1,8 +1,10 @@
 import { isDefined, isCoordinatesType, isArray } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../../utils/index'
 import type { OlCoordinateType } from '../../../../utils/index'
+import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
-import { 
+import type { OlFeatureInstanceType } from '../BasicFeature/type'
+import {
     checkLinearRingCoordinates,
     type OMapLinearRingGeometryCoordinatesType,
     type OlLinearRingGeomInstanceType
@@ -19,23 +21,27 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/8/25
- * @updateDate 2025/8/25
+ * @updateDate 2025/9/1
  */
 
 export default class LinearRing extends BasicFeature {
 
-    constructor(coordinates: OMapLinearRingGeometryCoordinatesType, properties?: Record<string, any>) {
-        if(!isDefined(coordinates)) {
+    constructor(coordinatesOrFeature: OMapLinearRingGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
+        if (!isDefined(coordinatesOrFeature)) {
             error_(createMessage('constructor', '参数不能为空'));
             return
         }
-        if(!checkLinearRingCoordinates(coordinates)) {
-            error_(createMessage('constructor', '坐标格式有误'));
-            return
-        }
-        super("LinearRing", coordinates)
-        if(properties) {
-            this.setProperties(properties)
+        if (coordinatesOrFeature instanceof OlFeature) {
+            super("LinearRing", coordinatesOrFeature as OlFeatureInstanceType)
+        } else {
+            if (!checkLinearRingCoordinates(coordinatesOrFeature)) {
+                error_(createMessage('constructor', '坐标格式有误'));
+                return
+            }
+            super("LinearRing", coordinatesOrFeature)
+            if (properties) {
+                this.setProperties(properties)
+            }
         }
     }
 

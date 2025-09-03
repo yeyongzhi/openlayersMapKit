@@ -47,6 +47,10 @@ h5 {
 button {
     background-color: #0000fe;
     padding: 5px 15px;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    margin: 0 10px;
 }
 
 .border {
@@ -61,4 +65,9 @@ button {
     line-height: 20px;
     display: inline-flex;
     align-items: center;
+}
+
+.ol-test-dragbox {
+    background-color: rgba(0, 0, 255, 0.1);
+    border: 1px solid #0000fe;
 }

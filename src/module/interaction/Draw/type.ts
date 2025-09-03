@@ -25,6 +25,7 @@ export const DrawMode = {
 }
 
 type OlDrawParamsType = ConstructorParameters<typeof OlInteraction.Draw>[0]
+export type OlDrawInstanceType = InstanceType<typeof OlInteraction.Draw>
 type CustOlDrawParamsType = ManualOmit<OlDrawParamsType,
     'type' | 'source' | 'features' | 'finishCondition' | 'style' |'geometryFunction'
 >

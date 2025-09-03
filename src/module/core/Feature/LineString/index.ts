@@ -3,6 +3,7 @@ import { warn_, error_, getPackageMessage } from '../../../../utils/index'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import { type OMapLineStringGeometryCoordinatesType, type OlLineStringGeomInstanceType, checkLineStringCoordinates } from './type'
+import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import { Extent, Lnglat } from '../../../../index'
 
 const PACKAGE_NAME = 'Point';
@@ -15,24 +16,28 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/8/19
+ * @updateDate 2025/9/1
  */
 
 export default class LineString extends BasicFeature {
 
 
-    constructor(coordinates: OMapLineStringGeometryCoordinatesType, properties?: Record<string, any>) {
-        if (!isDefined(coordinates)) {
+    constructor(coordinatesOrFeature: OMapLineStringGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
+        if (!isDefined(coordinatesOrFeature)) {
             error_(createMessage('constructor', '参数不能为空'));
             return
         }
-        if (!checkLineStringCoordinates(coordinates)) {
-            error_(createMessage('constructor', '坐标格式有误'));
-            return
-        }
-        super("LineString", coordinates)
-        if (properties) {
-            this.setProperties(properties)
+        if (coordinatesOrFeature instanceof OlFeature) {
+            super("LineString", coordinatesOrFeature as OlFeatureInstanceType)
+        } else {
+            if (!checkLineStringCoordinates(coordinatesOrFeature)) {
+                error_(createMessage('constructor', '坐标格式有误'));
+                return
+            }
+            super("LineString", coordinatesOrFeature)
+            if (properties) {
+                this.setProperties(properties)
+            }
         }
     }
 

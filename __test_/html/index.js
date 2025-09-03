@@ -9,6 +9,11 @@ let mapResolution = null
 let mapZoom = null
 let mapExtent = null
 
+const abortDrawingBtn = document.getElementById('abortDrawing')
+const removeLastPointBtn = document.getElementById('removeLastPoint')
+const finishDrawingBtn = document.getElementById('finishDrawing')
+const getExtentBtn = document.getElementById('getExtent')
+
 const polygonData = [
     [
         [120.19715036, 30.27835874],
@@ -230,18 +235,55 @@ function initFeature() {
 }
 
 function initDraw() {
-    const draw = new OMap.Draw('Point')
+    const draw = new OMap.Draw("LineString")
     console.log(draw)
     map.addInteraction(draw)
     console.log(map.getAllLayers())
+    abortDrawingBtn.onclick = () => {
+        draw.cancel()
+    }
+    removeLastPointBtn.onclick = () => {
+        draw.revoke()
+    }
+    finishDrawingBtn.onclick = () => {
+        draw.finish()
+    }
 }
+
+function initDragBox() {
+    const dragBox = new OMap.DragBox({
+        className: 'ol-test-dragbox',
+        onBoxEnd: (e) => {
+            // console.log(e)
+        }
+    })
+    map.addInteraction(dragBox)
+}
+
+function initDragPan() {
+    const dragPan = new OMap.DragPan({
+        className: 'ol-test-dragpan',
+    })
+    map.addInteraction(dragPan)
+}
+
+function initExtent() {
+    const extent = new OMap.InteractionExtent()
+    map.addInteraction(extent)
+    getExtentBtn.onclick = () => {
+        console.log(extent.getExtent())
+    }
+}
+
 
 function init() {
     initDom()
     initMap()
     // initVectorLayer()
     // initFeature()
-    initDraw()
+    // initDragBox()
+    // initDragPan()
+    initExtent()
 }
 
 init()

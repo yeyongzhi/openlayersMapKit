@@ -3,6 +3,7 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from '../../../utils/index'
 import{ OlInteraction } from '../../../source/index'
 import type { OMapInteractionType, OlInteractionInstanceType } from './type'
+import Event from '../../../module/util/Event/index'
 
 const PACKAGE_NAME = 'Interaction';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -14,17 +15,23 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/8/25
- * @updateDate 2025/8/25
+ * @updateDate 2025/9/2
  */
 
 interface InteractionLike {
     type: OMapInteractionType | null;
     _interaction?: OlInteractionInstanceType;
+    properties: Record<string, any>;
+    active: boolean;
+    events: Event;
 }
 
 interface InteractionInitialized {
     type: OMapInteractionType | null;
-    _interaction: OMapInteractionType;
+    _interaction: OlInteractionInstanceType;
+    properties: Record<string, any>;
+    active: boolean;
+    events: Event;
 }
 
 export default class Interaction implements InteractionLike {
@@ -40,8 +47,34 @@ export default class Interaction implements InteractionLike {
      */
     _interaction?: OlInteractionInstanceType;
 
+    /**
+     * 交互属性
+     * @type {Record<string, any>} 
+     */
+    properties: Record<string, any> = {};
+
+    /**
+     * 交互是否激活
+     * @param type 
+     */
+    active: boolean = false;
+    /**
+     * 交互事件
+     * @type {Event}
+     */
+    events: Event = new Event();
+
     constructor(type: OMapInteractionType) {
         this.type = type;
+    }
+
+    protected initInteractionEvent() {
+        if (!this._isInitialized('initInteractionEvent')) return;
+        this._interaction.on("change:active", (e) => {
+            if(e.type === 'change:active') {
+                this.active = (this.getActive() as boolean)
+            }
+        })
     }
 
     protected _isInitialized(method: string): this is InteractionInitialized & this {
@@ -77,6 +110,33 @@ export default class Interaction implements InteractionLike {
     getInteraction(): OlInteractionInstanceType | undefined {
         if (!this._isInitialized('getInteraction')) return;
         return this._interaction
+    }
+
+    /**
+     * 获取交互属性
+     * @returns {Record<string, any>} 交互属性
+     */
+    getProperties(): Record<string, any> {
+        return this.properties
+    }
+
+    /**
+     * 设置交互属性
+     * @param properties 交互属性
+     */
+    setProperties(properties: Record<string, any>): void {
+        if (!this._isInitialized('getInteraction')) return;
+        this._interaction.setProperties(properties)
+        this.properties = properties
+    }
+
+    /**
+     * 返回交互中涉及的当前指针数，例如，当使用两个手指时为 2。
+     * @returns {number | undefined} 指针数
+     */
+    getPointerCount(): number | undefined {
+        if (!this._isInitialized('getInteraction')) return;
+        return this._interaction.getPointerCount()
     }
 
 }

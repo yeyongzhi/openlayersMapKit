@@ -14,7 +14,7 @@ export function getOlDrawType(mode: OMapDrawMode): { type: OlDrawType, geometryF
             type = 'Circle';
             break;
         case 'Rectangle':
-            type = 'Polygon';
+            type = 'Circle';
             geometryFunction = OlDrawCreateBox()
             break;
     }

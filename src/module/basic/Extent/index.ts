@@ -117,6 +117,11 @@ export default class Extent implements ExtentLike {
         return `[${this._extent[0].toFixed(place)}, ${this._extent[1].toFixed(place)}, ${this._extent[2].toFixed(place)}, ${this._extent[3].toFixed(place)}]`;
     }
 
+    toArray(): OlExtentType | undefined {
+        if (!this._isInitialized('toString')) return undefined;
+        return this._extent
+    }
+
     /**
      * 判断边界范围Extent是否包含某个点
      * @param extent 范围

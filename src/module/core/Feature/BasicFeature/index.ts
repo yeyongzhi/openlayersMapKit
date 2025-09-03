@@ -26,7 +26,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/8/29
+ * @updateDate 2025/9/1
  */
 
 
@@ -37,16 +37,16 @@ export default class BasicFeature implements BasicFeatureLike {
     _feature?: OlFeatureInstanceType
     _geometry?: OlGeomInstanceType
 
-    constructor(type: OlFeatureType, coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType) {
+    constructor(type: OlFeatureType, coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType, radius?: number) {
         this.type = type;
         if (coordinatesOrFeature instanceof OlFeature) {
             this._initByFeature(coordinatesOrFeature)
         } else {
-            this._init(coordinatesOrFeature as OMapBasicFeatureCoordinatesType)
+            this._init(coordinatesOrFeature as OMapBasicFeatureCoordinatesType, radius)
         }
     }
 
-    protected _init(coordinates: OMapBasicFeatureCoordinatesType) {
+    protected _init(coordinates: OMapBasicFeatureCoordinatesType, radius?: number) {
         switch (this.type) {
             case 'Point':
                 let p_coordinates = coordinates as OMapPointGeometryCoordinatesType
@@ -71,6 +71,10 @@ export default class BasicFeature implements BasicFeatureLike {
                     return (c instanceof Lnglat) ? c._lnglat : c
                 })
                 this._geometry = new OlGeometry.LinearRing(l2_coordinates)
+                break;
+            case 'Circle':
+                let c_coordinates = coordinates as OMapPointGeometryCoordinatesType;
+                this._geometry = new OlGeometry.Circle((c_coordinates instanceof Lnglat) ? c_coordinates._lnglat : c_coordinates, radius as number)
                 break;
         }
         this._feature = new OlFeature({

@@ -105,7 +105,6 @@ export function getOlRegularShapeSingleStyle(options: OMapRegularShapeStyleOptio
  * 矢量图层的默认样式
  */
 export const DEFAULT_STYLE = (feature: BaseFeature, resolution: number): undefined | Style => {
-    console.log(feature)
     if(!isDefined(feature)) return undefined
     if (feature.getType() === 'Point') {
         return new Style({
@@ -119,19 +118,19 @@ export const DEFAULT_STYLE = (feature: BaseFeature, resolution: number): undefin
     } else if (feature.getType() === 'LineString') {
         return new Style({
             stroke: {
-                color: '#13c2c2',
-                width: 10
+                color: 'red',
+                width: 5
             }
         })
-    } else if (feature.getType() === 'Polygon') {
+    } else if (feature.getType() === 'Polygon' || feature.getType() === 'Circle') {
         return new Style({
             stroke: {
-                color: '#000000',
+                color: 'red',
                 width: 2
             },
             fill: {
                 color: new Color({
-                    color: '#1890FF',
+                    color: '#FFFFFF',
                     opacity: 0.5
                 })
             },

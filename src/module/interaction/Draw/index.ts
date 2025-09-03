@@ -1,13 +1,16 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from '../../../utils/index'
+import type { OlCoordinateType } from '../../../utils/index'
 import Interaction from '../Interaction/index'
 import { OlInteraction, OlLayer } from '../../../source/index'
 import { VectorLayer } from '../../../index'
+import Lnglat from '../../basic/Lnglat/index'
 import {
     type OMapDrawMode,
     type OMapDrawParamsType,
-    DRAW_DEFAULT_PARAMS
+    type OlDrawInstanceType,
+    DRAW_DEFAULT_PARAMS,
+    DrawMode
 } from './type'
 import { type OlVectorSourceInstanceType } from '../../layer/VectorLayer/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
@@ -23,7 +26,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/8/25
- * @updateDate 2025/8/25
+ * @updateDate 2025/9/2
  */
 
 interface DrawLike {
@@ -35,6 +38,10 @@ export default class Draw extends Interaction implements DrawLike {
     _layer?: VectorLayer;
 
     constructor(mode: OMapDrawMode, params?: OMapDrawParamsType) {
+        if(!(Object.values(DrawMode) as OMapDrawMode[]).includes(mode)) {
+            error_(createMessage('constructor', 'mode参数有误'));
+            return
+        }
         super("Draw")
         let draw_source: OlVectorSourceInstanceType | null = null
         if (params?.layer) {
@@ -54,14 +61,51 @@ export default class Draw extends Interaction implements DrawLike {
         let _params = Object.assign(DRAW_DEFAULT_PARAMS, {
             clickTolerance: params?.clickTolerance,
             source: draw_source,
-            // features: undefined,
-            // style: undefined
+            features: undefined,
+            style: undefined
         })
-        console.log(_params)
         this._interaction = new OlInteraction.Draw({
             ...getOlDrawType(mode),
             ..._params,
         })
+        // 注册事件
+        this.initInteractionEvent()
+    }
+
+    /**
+     * 追加坐标
+     * @param coordinates 坐标
+     */
+    appendCoordinates(coordinates: Array<OlCoordinateType | Lnglat>): void {
+        if (!this._isInitialized('appendCoordinates')) return;
+        let _coordinates = coordinates.map(c => {
+            return c instanceof Lnglat ? (c.toArray() as OlCoordinateType) : c
+        });
+        (this._interaction as OlDrawInstanceType).appendCoordinates(_coordinates)
+    }
+
+    /**
+     * 取消绘制，并结束当前未完成的绘制
+     */
+    cancel(): void {
+        if (!this._isInitialized('cancel')) return;
+        (this._interaction as OlDrawInstanceType).abortDrawing()
+    }
+
+    /**
+     * 删除最后一个点
+     */
+    revoke(): void {
+        if (!this._isInitialized('revoke')) return;
+        (this._interaction as OlDrawInstanceType).removeLastPoint()
+    }
+
+    /**
+     * 结束当前未完成的绘制
+     */
+    finish(): void {
+        if (!this._isInitialized('finish')) return;
+        (this._interaction as OlDrawInstanceType).finishDrawing()
     }
 
 }

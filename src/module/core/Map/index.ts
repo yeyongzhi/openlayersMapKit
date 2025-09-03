@@ -423,6 +423,7 @@ export default class Map implements MapLike {
         if (isDefined(interaction._interaction)) {
             this.interactions.push(interaction)
             this._map?.addInteraction(interaction._interaction)
+            interaction.setActive(true)
         }
     }
 
