@@ -22,6 +22,7 @@ export default defineConfig({
           'ol/proj': 'ol.proj',
           'ol/util': 'ol.util',
           'ol/Feature': 'ol.Feature',
+          'ol/Overlay': 'ol.Overlay',
           'ol/geom': 'ol.geom',
           'ol/style': 'ol.style',
           'ol/coordinate': 'ol.coordinate',

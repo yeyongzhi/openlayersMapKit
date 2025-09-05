@@ -11,7 +11,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/06/30
- * @updateDate 2025/06/30
+ * @updateDate 2025/9/5
  */
 
 export default class Pixel {
@@ -117,6 +117,11 @@ export default class Pixel {
         const otherPixel = pixel.getPixel();
         if (!otherPixel) return undefined;
         return this._pixel[0] === otherPixel[0] && this._pixel[1] === otherPixel[1];
+    }
+    
+    toArray(): number[] | undefined {
+        if (!this._isInitialized("toArray")) return;
+        return this._pixel;
     }
 
     /**

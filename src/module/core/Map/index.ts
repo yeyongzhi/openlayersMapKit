@@ -17,11 +17,13 @@ import type {
     OlViewOnEventType
 } from '../../../utils/index';
 import { Lnglat, Extent, Size } from '../../basic/index';
-import { Projection, LayerGroup } from '../../../index'
+import { Projection, LayerGroup, VectorLayer } from '../../../index'
 import BaseLayer from '../../layer/BaseLayer/index'
 import Interaction from '../../interaction/Interaction/index'
 import Draw from '../../interaction/Draw/index'
+import Measure from '../../interaction/Measure/index'
 import Event from '../../../module/util/Event/index'
+import Popup from '../../basic/Popup/index'
 
 import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
 
@@ -73,6 +75,7 @@ export default class Map implements MapLike {
     layers: Array<BaseLayer> = [];
     interactions: Array<Interaction> = [];
     events: Event | null = null;
+    popups: Array<Popup> = [];
 
     constructor(element: MapContainerType, options: OlMapOptionsFinalType) {
         let _options = options
@@ -247,8 +250,13 @@ export default class Map implements MapLike {
                 return;
             }
         }
-        if (layer._layer) {
+        if (isDefined(layer._layer)) {
             this.layers.push(layer);
+            if(layer instanceof BaseLayer) {
+                if(!isDefined(layer.getTarget())) {
+                    layer.setTarget(this)
+                }
+            }
             this._map.addLayer(layer._layer); // 添加图层到地图中
         }
     }
@@ -415,15 +423,20 @@ export default class Map implements MapLike {
             return;
         }
         // 是否需要额外的图层添加
-        if (interaction instanceof Draw) {
-            if (interaction._layer) {
-                this.addLayer(interaction._layer)
+        if (interaction instanceof Draw || interaction instanceof Measure) {
+            const layer = interaction.getLayer();
+            if (isDefined<VectorLayer>(layer)) {
+                layer.setTarget(interaction);
+                this.addLayer(layer);
             }
         }
         if (isDefined(interaction._interaction)) {
             this.interactions.push(interaction)
             this._map?.addInteraction(interaction._interaction)
-            interaction.setActive(true)
+            if(interaction.setMap) {
+                interaction.setMap(this)
+            }
+            interaction.setActive(true) // 自动开启
         }
     }
 
@@ -433,6 +446,32 @@ export default class Map implements MapLike {
 
     removeInteraction() {
 
+    }
+
+    // 弹窗管理
+
+    /**
+     * 添加弹窗
+     * @param popup 
+     * @returns 
+     */
+    addPopup(popup: Popup) {
+        if (!this._isInitialized('addPopup')) return;
+        let index = this.popups.findIndex(i => {
+            return OlUtil.getUid(i._popup) === OlUtil.getUid(popup._popup)
+        })
+        if (index !== -1) {
+            warn_(createMessage('addPopup', '该弹窗已添加到地图中'));
+            return;
+        }
+        if (isDefined(popup._popup)) {
+            this.popups.push(popup);
+            (this._map as OlMapInstanceType).addOverlay(popup._popup)
+        }
+    }
+
+    removePopup() {
+        
     }
 
 }

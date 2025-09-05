@@ -8,5 +8,6 @@ import Lnglat from './Lnglat/index';
 import Color from './Color/index';
 import Extent from './Extent/index';
 import Style from './Style/index';
+import Popup from './Popup/index';
 
-export { Size, Pixel, Lnglat, Color, Extent, Style }
+export { Size, Pixel, Lnglat, Color, Extent, Style, Popup }

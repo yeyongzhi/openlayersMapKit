@@ -12,7 +12,6 @@ export function createBaseFeatureByOlFeature(feature: OlFeatureInstanceType): Ba
     let basicFeature: BasicFeature | null = null
     let geometry = feature.getGeometry()
     if(!geometry) return null
-    console.log("新添加的feature" + geometry.getType())
     switch (geometry.getType()) {
         case OlFeatureTypeObject.Point:
             basicFeature = new Point(feature)

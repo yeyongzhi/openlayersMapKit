@@ -1,5 +1,5 @@
-console.log(window.ol)
-console.log(window.OMap);
+// console.log(window.ol)
+// console.log(window.OMap);
 
 let map = null
 
@@ -13,6 +13,8 @@ const abortDrawingBtn = document.getElementById('abortDrawing')
 const removeLastPointBtn = document.getElementById('removeLastPoint')
 const finishDrawingBtn = document.getElementById('finishDrawing')
 const getExtentBtn = document.getElementById('getExtent')
+
+const ModifyrevokeBtn = document.getElementById('Modifyrevoke')
 
 const polygonData = [
     [
@@ -52,8 +54,6 @@ function initMap() {
     })
 
     const point = new OMap.Point([120.2, 30.3], { name: '测试点' })
-    console.log(point)
-
 
     map.once('map:rendercomplete', (e) => {
         console.log('【地图渲染完成】')
@@ -84,7 +84,7 @@ function initMap() {
     })
 
     setTimeout(() => {
-        console.log(map.getAllLayers())
+        // console.log(map.getAllLayers())
     }, 3000)
 }
 
@@ -92,8 +92,8 @@ function initMap() {
 function initVectorLayer() {
     const vlayer = new OMap.VectorLayer({
         style: (feature, resolution) => {
-            console.log(feature)
-            console.log(resolution)
+            // console.log(feature)
+            // console.log(resolution)
             if (feature.getType() === 'Point') {
                 return new OMap.Style({
                     circle: {
@@ -165,7 +165,7 @@ function initVectorLayer() {
     p.setId("testPoint1")
     const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
     p2.setId("testPoint2")
-    console.log(p2)
+    // console.log(p2)
     const l = new OMap.LineString([
         OMap.ProjUtil.fromLonLat([120.2, 30.3]),
         OMap.ProjUtil.fromLonLat([120.1, 30.3])
@@ -175,7 +175,7 @@ function initVectorLayer() {
     ])
     map.addLayer(vlayer)
     vlayer.addFeatures([p, p2, l, polygon])
-    console.log(vlayer.getFeatures())
+    // console.log(vlayer.getFeatures())
     const extent = new OMap.Extent(...OMap.ProjUtil.fromLonLat([120.05, 30.2]).toArray(), ...OMap.ProjUtil.fromLonLat([120.15, 30.35]).toArray())
     setTimeout(() => {
         // vlayer.forEachFeatureInExtent(extent, (feature) => {
@@ -187,14 +187,14 @@ function initVectorLayer() {
         // console.log(p.getFirstCoordinate())
         // console.log(p.getLastCoordinate())
         // console.log(p2.intersectsExtent(extent))
-        console.log(l.getCoordinates())
+        // console.log(l.getCoordinates())
         l.translate(10000, 10000)
-        console.log(l.getCoordinates())
+        // console.log(l.getCoordinates())
     }, 3000)
     let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
-    console.log(re)
+    // console.log(re)
     let extent2 = vlayer.getExtent()
-    console.log(extent2)
+    // console.log(extent2)
 
 }
 
@@ -229,16 +229,15 @@ function initFeature() {
         OMap.ProjUtil.fromLonLat([120.2, 30.4]),
         OMap.ProjUtil.fromLonLat([120.2, 30.3]),
     ])
-    console.log(polygon.getCoordinates())
-    console.log(polygon.getFirstCoordinate())
-    console.log(polygon.getLastCoordinate())
+    // console.log(polygon.getCoordinates())
+    // console.log(polygon.getFirstCoordinate())
+    // console.log(polygon.getLastCoordinate())
 }
 
 function initDraw() {
     const draw = new OMap.Draw("LineString")
     console.log(draw)
     map.addInteraction(draw)
-    console.log(map.getAllLayers())
     abortDrawingBtn.onclick = () => {
         draw.cancel()
     }
@@ -275,15 +274,82 @@ function initExtent() {
     }
 }
 
+function initModify() {
+    const vlayer = new OMap.VectorLayer({
+        style: (feature, resolution) => {
+            if (feature.getType() === 'Point') {
+                return new OMap.Style({
+                    circle: {
+                        fill: {
+                            color: resolution > 25 ? 'red' : 'green'
+                        },
+                        radius: 20
+                    }
+                })
+            } else if (feature.getType() === 'LineString') {
+                return new OMap.Style({
+                    stroke: {
+                        color: '#13c2c2',
+                        width: 10
+                    }
+                })
+            } else if (feature.getType() === 'Polygon') {
+                return new OMap.Style({
+                    stroke: {
+                        color: '#000000',
+                        width: 2
+                    },
+                    fill: {
+                        color: new OMap.Color({
+                            color: '#1890FF',
+                            opacity: 0.5
+                        })
+                    },
+                })
+            }
+            return undefined
+        }
+    })
+    const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+    p.setId('p1')
+    const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
+    const l = new OMap.LineString([
+        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+        OMap.ProjUtil.fromLonLat([120.1, 30.3])
+    ])
+    const polygon = new OMap.Polygon([
+        polygonData[0].map(item => OMap.ProjUtil.fromLonLat(item))
+    ])
+    map.addLayer(vlayer)
+    vlayer.addFeatures([p, p2, l, polygon])
+    // 初始化新的修改交互
+    const modify = new OMap.Modify({
+        layer: vlayer,
+    })
+    map.addInteraction(modify)
+    ModifyrevokeBtn.onclick = () => {
+        modify.revoke()
+    }
+}
+
+function initMeasure() {
+    const measure = new OMap.Measure("Distance")
+    map.addInteraction(measure)
+}
+
 
 function init() {
     initDom()
     initMap()
+    
+    // initDraw()
     // initVectorLayer()
     // initFeature()
     // initDragBox()
     // initDragPan()
-    initExtent()
+    // initExtent()
+    // initModify()
+    initMeasure()
 }
 
 init()

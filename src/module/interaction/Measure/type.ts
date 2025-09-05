@@ -5,32 +5,23 @@ import type { OMapStyleLike } from '../../basic/Style/type'
 
 export type OlDrawType = 'Point' | 'LineString' | 'Polygon' | 'LinearRing' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon' | 'GeometryCollection' | 'Circle'
 
-export type OMapDrawMode = 'Point' | 'LineString' | 'Polygon' | 'Rectangle' | 'Circle'
+export type OMapMeasureMode = 'Distance' | 'Area'
 
 /**
  * 绘制模式
- * @enum {OMapDrawMode}
+ * @enum {OMapMeasureMode}
  */
-export const DrawMode = {
-    /** 点 */
-    Point: 'Point',
-    /** 线 */
-    LineString: 'LineString',
-    /** 面 */
-    Polygon: 'Polygon',
-    /** 矩形 */
-    Rectangle: 'Rectangle',
-    /** 圆 */
-    Circle: 'Circle',
-} as const
+export const MeasureMode = {
+    Distance: 'Distance',
+    Area: 'Area',
+}
 
 type OlDrawParamsType = ConstructorParameters<typeof OlInteraction.Draw>[0]
 export type OlDrawInstanceType = InstanceType<typeof OlInteraction.Draw>
 type CustOlDrawParamsType = ManualOmit<OlDrawParamsType,
     'type' | 'source' | 'features' | 'finishCondition' | 'style' |'geometryFunction'
 >
-export type OMapDrawParamsType = CustOlDrawParamsType & {
-    layer?: VectorLayer;
+export type OMapMeasureParamsType = CustOlDrawParamsType & {
     /** 样式 */
     style?: OMapStyleLike;
 }

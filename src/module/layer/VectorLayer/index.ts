@@ -13,6 +13,8 @@ import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
 import { OlLayer, OlSource, OlUtil, OlFeature, OlGeometry } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
+import Draw from '../../interaction/Draw/index'
+import Measure from '../../interaction/Measure/index'
 import { Extent, Lnglat, Projection, Style } from '../../../index'
 
 let PACKAGE_NAME = 'VectorLayer';
@@ -63,17 +65,20 @@ export default class VectorLayer extends BaseLayer {
      * 初始化矢量图层事件
      */
     protected initVectorLyaerEvent() {
-        if (!this._isInitializedLayer('initStyle')) return;
+        if (!this._isInitializedLayer('initVectorLyaerEvent')) return;
         (this._layer.getSource() as OlVectorSourceInstanceType).on("addfeature", (e) => {
-            console.log(e)
             const { feature } = e
             if(isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
-                let basicFeature = createBaseFeatureByOlFeature(feature)
-                if(basicFeature) {
-                    this.features.push(basicFeature)
-                } else {
-                    warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
+                if(this.target instanceof Draw || this.target instanceof Measure) {
+                    // 这里一定要保证原生的feature 和 basicFeature 状态是同步的
+                    // 因此 createBaseFeatureByOlFeature 里面不能用fearure.clone()
+                    let basicFeature = createBaseFeatureByOlFeature(feature)
+                    if(basicFeature) {
+                        this.features.push(basicFeature) // 这里是把 feature 同步一份到 this.features 里面
+                    } else {
+                        warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
+                    }
                 }
             }
         })

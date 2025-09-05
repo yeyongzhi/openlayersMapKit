@@ -4,6 +4,8 @@ import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from 
 import{ OlInteraction } from '../../../source/index'
 import type { OMapInteractionType, OlInteractionInstanceType } from './type'
 import Event from '../../../module/util/Event/index'
+import Map from '../../core/Map/index'
+import VectorLayer from '../../layer/VectorLayer/index'
 
 const PACKAGE_NAME = 'Interaction';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -21,17 +23,21 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 interface InteractionLike {
     type: OMapInteractionType | null;
     _interaction?: OlInteractionInstanceType;
+    layer: VectorLayer | null;
     properties: Record<string, any>;
     active: boolean;
     events: Event;
+    map?: Map;
 }
 
 interface InteractionInitialized {
     type: OMapInteractionType | null;
     _interaction: OlInteractionInstanceType;
+    layer: VectorLayer | null;
     properties: Record<string, any>;
     active: boolean;
     events: Event;
+    map?: Map;
 }
 
 export default class Interaction implements InteractionLike {
@@ -48,6 +54,11 @@ export default class Interaction implements InteractionLike {
     _interaction?: OlInteractionInstanceType;
 
     /**
+     * 交互所需要的图层
+     * @type {VectorLayer} layer
+     */
+    layer: VectorLayer | null = null;
+    /**
      * 交互属性
      * @type {Record<string, any>} 
      */
@@ -63,6 +74,8 @@ export default class Interaction implements InteractionLike {
      * @type {Event}
      */
     events: Event = new Event();
+
+    map?: Map;
 
     constructor(type: OMapInteractionType) {
         this.type = type;
@@ -137,6 +150,15 @@ export default class Interaction implements InteractionLike {
     getPointerCount(): number | undefined {
         if (!this._isInitialized('getInteraction')) return;
         return this._interaction.getPointerCount()
+    }
+
+    getLayer(): undefined | VectorLayer | null {
+        if (!this._isInitialized('getInteraction')) return;
+        return this.layer
+    }
+
+    setMap(map: Map) {
+        this.map = map
     }
 
 }

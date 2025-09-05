@@ -3,6 +3,10 @@ import OlPackage, { OlLayer } from '../../../source/index'
 import { warn_, error_, getPackageMessage, isVaildOpacity } from '../../../utils/index'
 import type { BaseLayerOptionsType, PropertiesType, BaseLayerEventType, IdType, OlExtentType } from '../../../utils/index'
 import { LayerGroup, Extent, VectorLayer } from '../../../index'
+import Map from '../../core/Map/index'
+import Draw from '../../interaction/Draw/index'
+import Modify from '../../interaction/Modify/index'
+import Measure from '../../interaction/Measure/index'
 import type { OlAllLayerInstanceType } from './type'
 
 let PACKAGE_NAME = 'BaseLayer';
@@ -15,7 +19,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/5
- * @updateDate 2025/7/6
+ * @updateDate 2025/9/2
  */
 
 const DEFAULT_LAYER_OPACITY: number = 1.0;
@@ -80,6 +84,11 @@ export default class BaseLayer implements BaseLayerLike {
     zIndex: number = DEFAULT_LAYER_ZINDEX; // 图层层级，默认0
     properties: PropertiesType = DEFAULT_LAYER_PROPERTIES; // 图层属性，用于存储图层相关信息
 
+    /**
+     * 图层所属的对象
+     */
+    target: Map | Draw | Modify | Measure | null = null;
+
     #groupId: IdType = null; // 图层所属组ID，默认null
 
     constructor(type: BaseLayerType, options?: BaseLayerOptionsType) {
@@ -113,7 +122,7 @@ export default class BaseLayer implements BaseLayerLike {
         return true;
     }
 
-    _initLayerEvent(): void {
+    protected _initLayerEvent(): void {
         if (!this._isInitialized('_initLayerEvent')) return;
         // 图层属性变化事件，用于监听图层属性变化
         this._layer.on([
@@ -340,6 +349,19 @@ export default class BaseLayer implements BaseLayerLike {
     // TODO
     setGroupId(newId: number | string) {
         this.#groupId = newId;
+    }
+
+    /**
+     * 设置图层当前的对象
+     * @param {Map | Draw | Modify | Measure} target 图层所属的对象
+     */
+    setTarget(target: Map | Draw | Modify | Measure) {
+        this.target = target;
+    }
+
+    getTarget(): Map | Draw | Modify | Measure | undefined {
+        if(!isDefined(this.target)) return;
+        return this.target;
     }
 
 }

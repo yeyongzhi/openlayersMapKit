@@ -146,4 +146,8 @@ export default class BasicFeature implements BasicFeatureLike {
         return this._geometry
     }
 
+    getCoordinates() {}
+
+    setCoordinates(coordinates: any) {}
+
 }

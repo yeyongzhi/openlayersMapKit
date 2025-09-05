@@ -5,6 +5,7 @@ import * as OlProj from 'ol/proj';
 import * as OlInteraction from 'ol/interaction';
 import * as OlUtil from 'ol/util';
 import Feature from 'ol/Feature';
+import Overlay from 'ol/Overlay';
 import * as OlGeometry from 'ol/geom';
 import * as OlStyle from 'ol/style'
 import RenderFeature from 'ol/render/Feature'
@@ -21,6 +22,7 @@ export {
     OlInteraction,
     OlUtil,
     Feature as OlFeature,
+    Overlay as OlOverlay,
     OlGeometry,
     OlStyle,
     RenderFeature,
