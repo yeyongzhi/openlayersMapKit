@@ -26,6 +26,7 @@ export default defineConfig({
           'ol/geom': 'ol.geom',
           'ol/style': 'ol.style',
           'ol/coordinate': 'ol.coordinate',
+          'ol/sphere': 'ol.sphere',
           'ol/interaction': 'ol.interaction',
           'ol/interaction/Draw': 'ol.interaction.Draw'
         }

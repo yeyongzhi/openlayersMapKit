@@ -1,6 +1,6 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import OlPackage, { OlUtil } from '../../../source/index'
+import OlPackage, { OlUtil, OlSphere } from '../../../source/index'
 import type {
     MapContainerType,
     BaseLayerIdType,
@@ -19,6 +19,7 @@ import type {
 import { Lnglat, Extent, Size } from '../../basic/index';
 import { Projection, LayerGroup, VectorLayer } from '../../../index'
 import BaseLayer from '../../layer/BaseLayer/index'
+import BaseFeature from '../Feature/BasicFeature/index'
 import Interaction from '../../interaction/Interaction/index'
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
@@ -472,6 +473,11 @@ export default class Map implements MapLike {
 
     removePopup() {
         
+    }
+
+    // 几何图形计算
+    getLength(feature: BaseFeature) {
+        let length = OlSphere.getLength()
     }
 
 }

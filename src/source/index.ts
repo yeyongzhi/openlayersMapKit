@@ -10,6 +10,7 @@ import * as OlGeometry from 'ol/geom';
 import * as OlStyle from 'ol/style'
 import RenderFeature from 'ol/render/Feature'
 import * as OlCoordinate from 'ol/coordinate';
+import * as OlSphere from 'ol/sphere';
 import type { Coordinate } from 'ol/coordinate'
 import type { Extent as OlExtentType } from 'ol/extent'
 import { createBox, createRegularPolygon } from 'ol/interaction/Draw';
@@ -27,6 +28,7 @@ export {
     OlStyle,
     RenderFeature,
     OlCoordinate,
+    OlSphere,
     type Coordinate,
     type OlExtentType,
     createBox as OlDrawCreateBox,

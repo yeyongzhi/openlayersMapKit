@@ -103,4 +103,9 @@ export default class Popup implements PopupLike {
         return this._popup.getProperties()
     }
 
+    getElement(): HTMLElement | undefined {
+        if (!this._isInitialized("getElement")) return;
+        return this._popup.getElement()
+    }
+
 }

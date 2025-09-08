@@ -2,7 +2,7 @@ import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { OlCoordinateType } from '../../../utils/index'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlLayer } from '../../../source/index'
+import { OlInteraction, OlGeometry } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 import Lnglat from '../../basic/Lnglat/index'
@@ -19,9 +19,14 @@ import {
 import type { OlVectorSourceInstanceType, OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
 import { getOlDrawType, createMeasureElement } from './handle'
+import Pixel from '../../basic/Pixel/index';
+import type { OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type';
 
 const PACKAGE_NAME = 'Measure';
 const createMessage = getPackageMessage(PACKAGE_NAME);
+
+let measureFeature: OlFeatureInstanceType | null = null
+let measureListener: any = null
 
 /**
  * 绘制类
@@ -30,7 +35,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/5
- * @updateDate 2025/9/5
+ * @updateDate 2025/9/8
  */
 
 export default class Measure extends Interaction {
@@ -44,7 +49,7 @@ export default class Measure extends Interaction {
         }
         super("Measure")
         let draw_source: OlVectorSourceInstanceType | null = null
-        // Measure模式下，layer直接新建一个VectorLayer
+        // Measure模式下，直接新建一个VectorLayer
         this.layer = new VectorLayer({
             style: DEFAULT_STYLE
         })
@@ -67,22 +72,41 @@ export default class Measure extends Interaction {
     protected initMeasureEvent() {
         if (!this._isInitialized('initDrawEvent')) return;
         console.log(this.map);
-        if(!this._popup) {
+        if(!isDefined(this._popup)) {
             let div = createMeasureElement('单击地图开始测量')
             this._popup = new Popup({
                 id: 'omap-measure-popup',
-                element: div
+                element: div,
+                offset: new Pixel(0, -10)
             });
             (this.map as Map).addPopup(this._popup)
         }
-        ((this.map as Map)._map as OlMapInstanceType).on("pointermove", (e) => {
-            console.log(e)
+        if(isDefined(this.map)) {
+            ((this.map as Map)._map as OlMapInstanceType).on("pointermove", (e) => {
             if(this._popup) {
                 this._popup.setPosition(e.coordinate)
             }
         });
+        }
         (this._interaction as OlDrawInstanceType).on("drawstart", (e) => {
+            console.log("drawstart")
             console.log(e)
+            const { feature } = e
+            if(isDefined(feature)) {
+                console.log(feature)
+                measureFeature = feature
+                measureListener = measureFeature.getGeometry()?.on('change', (e) => {
+                    console.log(e)
+                    const { target } = e
+                    if(isDefined(target)) {
+                        if(target instanceof OlGeometry.LineString) {
+                            console.log(target.getCoordinates())
+                        } else if(target instanceof OlGeometry.Polygon) {
+                            // console.log(target.getCoordinates())
+                        }
+                    }
+                })
+            }
         })
         // (this._interaction as OlDrawInstanceType).on("drawend", (e) => {
         //     const { feature } = e
