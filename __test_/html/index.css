@@ -3,6 +3,13 @@
     padding: 0;
 }
 
+:root {
+	--omap-primary-color: #0000fe;
+	--omap-success-color: #18a058;
+	--omap-warning-color: #f0a020;
+	--omap-error-color: #d03050;
+}
+
 html,
 body {
     width: 100dvw;
@@ -46,7 +53,7 @@ h5 {
 }
 
 button {
-    background-color: #0000fe;
+    background-color: var(--omap-primary-color);
     padding: 5px 15px;
     border: none;
     border-radius: 5px;
@@ -57,11 +64,11 @@ button {
 .border {
     width: 100%;
     height: 2px;
-    background-color: #0000fe;
+    background-color: var(--omap-primary-color);
 }
 
 .border_text {
-    color: #0000fe;
+    color: var(--omap-primary-color);
     height: 20px;
     line-height: 20px;
     display: inline-flex;
@@ -70,5 +77,5 @@ button {
 
 .ol-test-dragbox {
     background-color: rgba(0, 0, 255, 0.1);
-    border: 1px solid #0000fe;
+    border: 1px solid var(--omap-primary-color);
 }

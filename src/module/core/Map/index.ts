@@ -20,11 +20,13 @@ import { Lnglat, Extent, Size } from '../../basic/index';
 import { Projection, LayerGroup, VectorLayer } from '../../../index'
 import BaseLayer from '../../layer/BaseLayer/index'
 import BaseFeature from '../Feature/BasicFeature/index'
+import { OlGeomInstanceType } from '../Feature/BasicFeature/type'
 import Interaction from '../../interaction/Interaction/index'
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
 import Event from '../../../module/util/Event/index'
 import Popup from '../../basic/Popup/index'
+import type { OlPopupInstanceType } from '../../basic/Popup/type'
 
 import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
 
@@ -445,8 +447,21 @@ export default class Map implements MapLike {
 
     }
 
-    removeInteraction() {
-
+    removeInteraction(interaction: Interaction): void {
+        let index = this.interactions.findIndex(i => {
+            return OlUtil.getUid(i._interaction) === OlUtil.getUid(interaction._interaction)
+        })
+        if (index === -1) {
+            warn_(createMessage('removeInteraction', '该交互未添加到地图中'));
+            return;
+        }
+        if (isDefined(interaction._interaction)) {
+            this.interactions.splice(index, 1)
+            this._map?.removeInteraction(interaction._interaction)
+            if(interaction.setMap) {
+                interaction.setMap(null)
+            }
+        }
     }
 
     // 弹窗管理
@@ -471,13 +486,38 @@ export default class Map implements MapLike {
         }
     }
 
-    removePopup() {
-        
+    getPopupById(id: number | string) {
+        let popup = this.popups.find(i => {
+            return i.id === id
+        })
+        return popup
+    }
+
+    removePopup(popup: Popup) {
+        let index = this.popups.findIndex(i => {
+            return OlUtil.getUid(i._popup) === OlUtil.getUid(popup._popup)
+        })
+        if (index !== -1) {
+            this.popups.splice(index, 1);
+            (this._map as OlMapInstanceType).removeOverlay(popup._popup as OlPopupInstanceType)
+        }
     }
 
     // 几何图形计算
-    getLength(feature: BaseFeature) {
-        let length = OlSphere.getLength()
+    getLength(feature: BaseFeature): number | undefined {
+        if (!this._isInitialized('getLength')) return;
+        let length = OlSphere.getLength((feature.getGeometry() as OlGeomInstanceType), {
+            projection: this._map.getView().getProjection()
+        })
+        return length
+    }
+
+    getArea(feature: BaseFeature): number | undefined {
+        if (!this._isInitialized('getArea')) return;
+        let area = OlSphere.getArea((feature.getGeometry() as OlGeomInstanceType), {
+            projection: this._map.getView().getProjection()
+        })
+        return area
     }
 
 }

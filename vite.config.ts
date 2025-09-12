@@ -28,7 +28,8 @@ export default defineConfig({
           'ol/coordinate': 'ol.coordinate',
           'ol/sphere': 'ol.sphere',
           'ol/interaction': 'ol.interaction',
-          'ol/interaction/Draw': 'ol.interaction.Draw'
+          'ol/interaction/Draw': 'ol.interaction.Draw',
+          'ol/Observable': 'ol.Observable'
         }
       },
       plugins: []

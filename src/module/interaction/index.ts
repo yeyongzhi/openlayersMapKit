@@ -8,3 +8,4 @@ export { default as InteractionExtent } from "./Extent/index";
 export { default as Modify } from "./Modify/index";
 export { default as Measure } from "./Measure/index";
 export { DrawMode } from './Draw/type'
+export { MeasureMode } from './Measure/type'

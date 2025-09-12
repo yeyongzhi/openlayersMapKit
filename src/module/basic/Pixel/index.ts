@@ -11,7 +11,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/06/30
- * @updateDate 2025/9/5
+ * @updateDate 2025/9/12
  */
 
 export default class Pixel {

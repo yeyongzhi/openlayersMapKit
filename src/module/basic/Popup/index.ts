@@ -3,6 +3,7 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType, OlCoordinateType } from '../../../utils/index'
 import Lnglat from '../../basic/Lnglat/index'
 import Pixel from '../../basic/Pixel/index'
+import { type OMapPixelType, type OlPixelType } from '../../basic/Pixel/type'
 import Extent from '../../basic/Extent/index'
 import Event from '../../util/Event/index'
 import { OlOverlay } from '../../../source/index'
@@ -19,16 +20,18 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/5
- * @updateDate 2025/9/5
+ * @updateDate 2025/9/11
  */
 
 interface PopupLike {
     _popup?: OlPopupInstanceType;
+    id: number | string | null;
 }
 
 // 精确类型：保证一定已初始化
 interface PopupLikeInitialized {
     _popup: OlPopupInstanceType;
+    id: number | string | null;
 }
 
 const POPUP_DEFAULT_PARAMS: OMapPopupParamsType = {
@@ -44,8 +47,17 @@ export default class Popup implements PopupLike {
 
     _popup?: OlPopupInstanceType;
 
+    /**
+     * Popup 的唯一ID
+     */
+    id: number | string | null = null;
+
     constructor(params: OMapPopupParamsType) {
+        if (isDefined(params.id)) {
+            this.id = params.id
+        }
         let _params = Object.assign({}, POPUP_DEFAULT_PARAMS, params)
+        delete _params.id
         this._popup = new OlOverlay({
             ..._params,
             offset: _params.offset?.toArray(),
@@ -75,19 +87,19 @@ export default class Popup implements PopupLike {
      * 设置弹窗位置
      * @param {Lnglat | OlCoordinateType} coordinates 弹窗位置
      */
-    setPosition(coordinates: Lnglat | OlCoordinateType): void {
+    setPosition(coordinates: Lnglat | OlCoordinateType | undefined): void {
         if (!this._isInitialized("setPosition")) return;
         let _coordinates = (coordinates instanceof Lnglat) ? coordinates.toArray() : coordinates
         this._popup.setPosition(_coordinates)
     }
-    
+
     /**
      * 设置弹窗属性
      * @param {Record<string, any>} properties 弹窗属性
      */
     setProperties(properties: Record<string, any>): void {
         if (!this._isInitialized("setProperties")) return;
-        if(!isDefined(properties)) {
+        if (!isDefined(properties)) {
             warn_(createMessage("setProperties", "参数不能为空"));
             return;
         }
@@ -106,6 +118,32 @@ export default class Popup implements PopupLike {
     getElement(): HTMLElement | undefined {
         if (!this._isInitialized("getElement")) return;
         return this._popup.getElement()
+    }
+
+    setElement(element: HTMLElement): void {
+        if (!this._isInitialized("getElement")) return;
+        return this._popup.setElement(element)
+    }
+
+    getOffset(): Pixel | undefined {
+        if (!this._isInitialized("getOffset")) return;
+        let offset = this._popup.getOffset()
+        return new Pixel(offset[0], offset[1])
+    }
+
+    setOffset(offset: OMapPixelType): void {
+        if (!this._isInitialized("setOffset")) return;
+        let _offset = (offset instanceof Pixel) ? (offset.toArray() as OlPixelType) : offset;
+        this._popup.setOffset(_offset)
+    }
+
+    getId(): number | string | null | undefined {
+        if (!this._isInitialized("getId")) return;
+        return this.id
+    }
+
+    setId(id: number | string): void {
+        this.id = id
     }
 
 }

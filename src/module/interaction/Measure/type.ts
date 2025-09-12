@@ -5,16 +5,15 @@ import type { OMapStyleLike } from '../../basic/Style/type'
 
 export type OlDrawType = 'Point' | 'LineString' | 'Polygon' | 'LinearRing' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon' | 'GeometryCollection' | 'Circle'
 
-export type OMapMeasureMode = 'Distance' | 'Area'
-
 /**
  * 绘制模式
  * @enum {OMapMeasureMode}
  */
 export const MeasureMode = {
     Distance: 'Distance',
-    Area: 'Area',
-}
+    Area: 'Area'
+} as const
+export type OMapMeasureMode = (typeof MeasureMode)[keyof typeof MeasureMode]
 
 type OlDrawParamsType = ConstructorParameters<typeof OlInteraction.Draw>[0]
 export type OlDrawInstanceType = InstanceType<typeof OlInteraction.Draw>
@@ -32,3 +31,10 @@ export const DRAW_DEFAULT_PARAMS = {
     snapTolerance: 12,
     stopClick: false
 }
+
+export const MeasureEventType = {
+    measureStart: "measure:start",
+    measureEnd: "measure:end",
+} as const
+
+export type OMapMeasureEventType = (typeof MeasureEventType)[keyof typeof MeasureEventType]

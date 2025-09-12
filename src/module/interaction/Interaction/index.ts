@@ -27,7 +27,7 @@ interface InteractionLike {
     properties: Record<string, any>;
     active: boolean;
     events: Event;
-    map?: Map;
+    map: Map | null;
 }
 
 interface InteractionInitialized {
@@ -37,7 +37,7 @@ interface InteractionInitialized {
     properties: Record<string, any>;
     active: boolean;
     events: Event;
-    map?: Map;
+    map: Map | null;
 }
 
 export default class Interaction implements InteractionLike {
@@ -75,7 +75,7 @@ export default class Interaction implements InteractionLike {
      */
     events: Event = new Event();
 
-    map?: Map;
+    map: Map | null = null;
 
     constructor(type: OMapInteractionType) {
         this.type = type;
@@ -157,7 +157,7 @@ export default class Interaction implements InteractionLike {
         return this.layer
     }
 
-    setMap(map: Map) {
+    setMap(map: Map | null) {
         this.map = map
     }
 
