@@ -38,3 +38,8 @@ export const MeasureEventType = {
 } as const
 
 export type OMapMeasureEventType = (typeof MeasureEventType)[keyof typeof MeasureEventType]
+
+export interface OMapMeasureResult {
+    value: number;
+    unit: string;
+}

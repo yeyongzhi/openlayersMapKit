@@ -120,7 +120,7 @@ export default class Popup implements PopupLike {
         return this._popup.getElement()
     }
 
-    setElement(element: HTMLElement): void {
+    setElement(element: HTMLElement | undefined): void {
         if (!this._isInitialized("getElement")) return;
         return this._popup.setElement(element)
     }

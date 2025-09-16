@@ -20,6 +20,9 @@ const MeasureDistanceBtn = document.getElementById('MeasureDistance')
 const MeasureAreaBtn = document.getElementById('MeasureArea')
 const endMeasureBtn = document.getElementById('endMeasure')
 
+let distanceMeasure = null
+let areaMeasure = null
+
 const polygonData = [
     [
         [120.19715036, 30.27835874],
@@ -339,35 +342,41 @@ function initModify() {
 function initMeasure() {
     // 测距
     MeasureDistanceBtn.onclick = () => {
-        const measure = new OMap.Measure(OMap.MeasureMode.Distance)
-        map.addInteraction(measure)
-        measure.on("measure:start", (e) => {
-            console.log("测量开始")
-            console.log(e)
-        })
-        measure.on("measure:end", (e) => {
-            console.log("测量结束")
-            console.log(e)
-            // measure.setActive(false)
-        })
+        if (!distanceMeasure) {
+            distanceMeasure = new OMap.Measure(OMap.MeasureMode.Distance)
+            map.addInteraction(distanceMeasure)
+            distanceMeasure.on("measure:start", (e) => {
+                console.log("测量开始")
+                console.log(e)
+            })
+            distanceMeasure.on("measure:end", (e) => {
+                console.log("测量结束")
+                console.log(e)
+            })
+        }
+        distanceMeasure.setActive(true)
     }
     // 测面
     MeasureAreaBtn.onclick = () => {
-        const measure = new OMap.Measure(OMap.MeasureMode.Area)
-        map.addInteraction(measure)
-        measure.on("measure:start", (e) => {
-            console.log("测量开始")
-            console.log(e)
-        })
-        measure.on("measure:end", (e) => {
-            console.log("测量结束")
-            console.log(e)
-            // measure.setActive(false)
-        })
+        if (!areaMeasure) {
+            console.log("【测面】初始化")
+            areaMeasure = new OMap.Measure(OMap.MeasureMode.Area)
+            map.addInteraction(areaMeasure)
+            areaMeasure.on("measure:start", (e) => {
+                console.log("测量开始")
+                console.log(e)
+            })
+            areaMeasure.on("measure:end", (e) => {
+                console.log("测量结束")
+                console.log(e)
+            })
+        }
+        areaMeasure.setActive(true)
     }
     // 结束测量
     endMeasureBtn.onclick = () => {
-        measure.setActive(false)
+        distanceMeasure.setActive(false)
+        areaMeasure.setActive(false)
     }
 }
 
@@ -375,7 +384,7 @@ function initMeasure() {
 function init() {
     initDom()
     initMap()
-    
+
     // initDraw()
     // initVectorLayer()
     // initFeature()

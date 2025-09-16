@@ -15,6 +15,7 @@ import {
     type OMapMeasureParamsType,
     type OlDrawInstanceType,
     type OMapMeasureEventType,
+    type OMapMeasureResult,
     DRAW_DEFAULT_PARAMS,
     MeasureMode,
     MeasureEventType
@@ -32,12 +33,14 @@ import {
     transformArea,
     updateMeasureFeature,
     getOMapMeasureMarkerId,
-    destroy
+    destroy,
+    createMeasureAreaCloseElement
 } from './handle'
 import Pixel from '../../basic/Pixel/index';
 import LineString from '../../core/Feature/LineString/index'
 import Polygon from '../../core/Feature/Polygon/index'
 import type { OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type';
+import { tooltipPopup, measurePopup } from './handlePopup'
 
 const PACKAGE_NAME = 'Measure';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -54,16 +57,17 @@ let pointMoveListener: any = null
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/5
- * @updateDate 2025/9/9
+ * @updateDate 2025/9/16
  */
 
 export default class Measure extends Interaction {
 
     mode: OMapMeasureMode | null = null;
-    /**
-     * 作为Measure类中提示类，用于提示用户测量信息
-     */
-    _popup: Popup | null = null;
+
+    result: OMapMeasureResult = {
+        value: 0,
+        unit: ''
+    }
 
     constructor(mode: OMapMeasureMode, params?: OMapMeasureParamsType) {
         if (!(Object.values(MeasureMode) as OMapMeasureMode[]).includes(mode)) {
@@ -88,9 +92,14 @@ export default class Measure extends Interaction {
             ..._params,
         })
         this.mode = mode
+        if (mode === MeasureMode.Distance) {
+            this.result.unit = 'km'
+        } else if (mode === MeasureMode.Area) {
+            this.result.unit = 'km²'
+        }
         // 注册事件
         this.initInteractionEvent()
-        // this.initMeasureEvent()
+        this.initMeasureEvent()
     }
 
     /**
@@ -98,25 +107,13 @@ export default class Measure extends Interaction {
      */
     protected initMeasureEvent() {
         if (!this._isInitialized('initMeasureEvent')) return;
-        // -----添加提示信息-----
-        if (!isDefined(this._popup)) {
-            let div = createMeasureTooltipElement('单击地图开始测量')
-            this._popup = new Popup({
-                id: 'omap-measure-popup',
-                element: div,
-                offset: new Pixel(0, -10)
-            });
-            (this.map as Map).addPopup(this._popup);
-            // 这里暂时不使用addPopup直接添加，避免和其他Popup冲突
-            // (this.map as Map)._map?.addOverlay(this._popup._popup as OlPopupInstanceType)
-        }
-        if (isDefined(this.map)) {
-            pointMoveListener = ((this.map as Map)._map as OlMapInstanceType).on("pointermove", (e) => {
-                if (this._popup) {
-                    this._popup.setPosition(e.coordinate)
-                }
-            });
-        }
+        this._interaction.on("change:active", (e) => {
+            if(this._interaction.getActive()) {
+                this.onMeasureActive()
+            } else {
+                this.onMeasureInActive()
+            }
+        });
         // 【测量开始】
         (this._interaction as OlDrawInstanceType).on("drawstart", (e) => {
             // 派发测量开始的回调函数
@@ -124,101 +121,138 @@ export default class Measure extends Interaction {
                 target: this,
                 type: MeasureEventType.measureStart
             });
-            const { feature } = e
-            let isInitAreaElement = false
-            if (isDefined(feature)) {
-                measureFeature = feature
-                updateMeasureFeature(this.mode as OMapMeasureMode, feature, (this.map as Map))
-                let lastLength = 0
-                measureListener = measureFeature.getGeometry()?.on('change', (e) => {
-                    const { target } = e
-                    if (isDefined(target)) {
-                        let newLength = (target instanceof OlGeometry.LineString) ? target.getCoordinates().length : target.getCoordinates()[0].length
-                        if (lastLength === 0) {
-                            lastLength = newLength
-                            if (target instanceof OlGeometry.LineString) {
-                                let startMarker = createMeasureMarkerElement("起点", 0)
-                                let popup = createMeasureMarkerPopup({
-                                    id: getOMapMeasureMarkerId(0),
-                                    element: startMarker,
-                                    offset: new Pixel(0, -10)
-                                })
-                                popup.setPosition(target.getCoordinates()[0]);
-                                (this.map as Map).addPopup(popup);
-                                // (this.map as Map)._map?.addOverlay(popup._popup as OlPopupInstanceType)
-                            }
-                        }
-                        let value: number | undefined = undefined
-                        if (target instanceof OlGeometry.LineString) {
-                            value = this.map?.getLength(new LineString(new OlFeature({
-                                geometry: target
-                            })))
-                        } else if (target instanceof OlGeometry.Polygon) {
-                            value = this.map?.getArea(new Polygon(new OlFeature({
-                                geometry: target
-                            })))
-                        }
-                        // 更新鼠标Popup的信息
-                        if (isDefined(value) && isNumber(value)) {
-                            if (target instanceof OlGeometry.LineString) {
-                                let newElement = createMeasureDistanceElement(value.toFixed(2))
-                                if (isDefined(this._popup)) {
-                                    this._popup.setElement(newElement as HTMLElement)
-                                }
-                            }
-                        }
-                        if (target instanceof OlGeometry.LineString) {
-                            if (newLength > lastLength) {
-                                let index = newLength - 1 - 1
-                                let marker = createMeasureMarkerElement(transformDistance(value as number), index)
-                                let popup = createMeasureMarkerPopup({
-                                    id: getOMapMeasureMarkerId(index),
-                                    element: marker,
-                                    offset: new Pixel(0, -10)
-                                })
-                                popup.setPosition(target.getCoordinates()[target.getCoordinates().length - 1]);
-                                (this.map as Map).addPopup(popup)
-                                // (this.map as Map)._map?.addOverlay(popup._popup as OlPopupInstanceType)
-                                lastLength = newLength
-                            }
-                        } else if (target instanceof OlGeometry.Polygon) {
-                            if(newLength >= 4) {
-                                if (isDefined(this._popup)) {
-                                    this._popup.setElement(createMeasureAreaElement(transformArea(value as number)))
-                                    this._popup.setPosition(target.getInteriorPoint().getCoordinates());
-                                }
-                            }
-                        }
-                    } else {
-                        warn_('target is undefined')
-                    }
-                })
-            }
+            this.onMeasureStart(e.feature)
         });
         // 【测量结束】
         (this._interaction as OlDrawInstanceType).on("drawend", (e) => {
-            console.log(e)
-            const { feature } = e
-            if (this.mode === MeasureMode.Distance) {
-                if (isDefined(this._popup)) {
-                    (this.map as Map).removePopup(this._popup)
-                    this._popup.setPosition(undefined)
-                    this._popup = null
-                    this.setActive(false)
-                }
-            } else if (this.mode === MeasureMode.Area) {
-                if (isDefined(pointMoveListener)) {
-                    OlObservable.unByKey(pointMoveListener)
-                }
-                // if (isDefined(this._popup)) {
-                //     this._popup.setOffset(new Pixel(0, 0))
-                // }
-            }
-            this.events.emit(MeasureEventType.measureEnd, {
-                target: this,
-                type: MeasureEventType.measureEnd
-            });
+            this.onMeasureEnd()
         })
+    }
+
+    protected onMeasureActive() {
+        if (isDefined(this.map)) {
+            if(!pointMoveListener) {
+                pointMoveListener = ((this.map as Map)._map as OlMapInstanceType).on("pointermove", (e) => {
+                    tooltipPopup.updatePosition(e.coordinate)
+                });
+            }
+        }
+        // 重置测量数据
+        this.result.value = 0
+    }
+
+    protected onMeasureInActive() {
+        if(pointMoveListener) {
+            OlObservable.unByKey(pointMoveListener)
+            pointMoveListener = null
+        }
+    }
+
+    /**
+     * 测量开始
+     * @param feature 测量开始的feature
+     */
+    protected onMeasureStart(feature: OlFeatureInstanceType | null) {
+        if (isDefined(feature)) {
+            measureFeature = feature
+            updateMeasureFeature(this.mode as OMapMeasureMode, feature, (this.map as Map))
+            let lastLength = 0
+            measureListener = measureFeature.getGeometry()?.on('change', (e) => {
+                const { target } = e
+                if (isDefined(target)) {
+                    let newLength = (target instanceof OlGeometry.LineString) ? target.getCoordinates().length : target.getCoordinates()[0].length
+                    if (lastLength === 0) {
+                        lastLength = newLength
+                        if (target instanceof OlGeometry.LineString) {
+                            let startMarker = createMeasureMarkerElement("起点", 0)
+                            let popup = createMeasureMarkerPopup({
+                                id: getOMapMeasureMarkerId(0),
+                                element: startMarker,
+                                offset: new Pixel(0, -10)
+                            })
+                            popup.setPosition(target.getCoordinates()[0]);
+                            (this.map as Map).addPopup(popup);
+                            // (this.map as Map)._map?.addOverlay(popup._popup as OlPopupInstanceType)
+                        }
+                    }
+                    let value: number | undefined = undefined
+                    if (target instanceof OlGeometry.LineString) {
+                        value = this.map?.getLength(new LineString(new OlFeature({
+                            geometry: target
+                        })))
+                    } else if (target instanceof OlGeometry.Polygon) {
+                        value = this.map?.getArea(new Polygon(new OlFeature({
+                            geometry: target
+                        })))
+                    }
+                    if (isDefined(value) && isNumber(value)) {
+                        this.result.value = value
+                    }
+                    // 更新鼠标Popup的信息
+                    if (isDefined(value) && isNumber(value)) {
+                        if (target instanceof OlGeometry.LineString) {
+                            let newElement = (newLength >= 2) ? createMeasureDistanceElement(transformDistance(value as number), value === 0 ? '' : '单击继续，双击结束测量') : createMeasureTooltipElement('单击地图开始测量')
+                            tooltipPopup.setElement(newElement as HTMLElement)
+                        }
+                    }
+                    if (target instanceof OlGeometry.LineString) {
+                        if (newLength > lastLength) {
+                            let index = newLength - 1 - 1
+                            let marker = createMeasureMarkerElement(transformDistance(value as number), index)
+                            let popup = createMeasureMarkerPopup({
+                                id: getOMapMeasureMarkerId(index),
+                                element: marker,
+                                offset: new Pixel(0, -10)
+                            })
+                            popup.setPosition(target.getCoordinates()[target.getCoordinates().length - 1]);
+                            (this.map as Map).addPopup(popup)
+                            // (this.map as Map)._map?.addOverlay(popup._popup as OlPopupInstanceType)
+                            lastLength = newLength
+                        }
+                    } else if (target instanceof OlGeometry.Polygon) {
+                        if (newLength >= 4) {
+                            (this.map as Map).addPopup(measurePopup.getPopup() as Popup);
+                            measurePopup.setElement(createMeasureAreaElement(transformArea(value as number), '单击继续，双击结束测量'))
+                            measurePopup.updatePosition(target.getInteriorPoint().getCoordinates());
+                            tooltipPopup.setElement(undefined)
+                            tooltipPopup.updatePosition(undefined);
+                        }
+                    }
+                } else {
+                    warn_('target is undefined')
+                }
+            })
+        }
+    }
+
+    /**
+     * 测量结束
+     */
+    protected onMeasureEnd() {
+        this.setActive(false)
+        if (isDefined(pointMoveListener)) {
+            OlObservable.unByKey(pointMoveListener)
+        }
+        if (this.mode === MeasureMode.Distance) {
+
+        }
+        if (this.mode === MeasureMode.Area) {
+            const element = createMeasureAreaElement(transformArea(this.result.value as number))
+            element.style.display = 'flex'
+            element.style.alignItems = 'center'
+            element.appendChild(createMeasureAreaCloseElement(() => {
+                measurePopup.updatePosition(undefined)
+                measurePopup.setElement(undefined)
+                this.layer?.clear()
+            }))
+            measurePopup.setElement(element)
+        }
+        tooltipPopup.updatePosition(undefined)
+        tooltipPopup.setElement(undefined)
+        this.events.emit(MeasureEventType.measureEnd, {
+            target: this,
+            type: MeasureEventType.measureEnd
+        });
     }
 
     /**
@@ -246,8 +280,11 @@ export default class Measure extends Interaction {
     }
 
     setMap(map: Map) {
-        this.map = map
-        this.initMeasureEvent()
+        this.map = map;
+        // this.initMeasureEvent()
+        // -----添加提示信息-----
+        (this.map as Map).addPopup(tooltipPopup.getPopup() as Popup);
+        this.onMeasureActive();
     }
 
     on(type: OMapMeasureEventType, callback: () => void): number | string | undefined {
@@ -260,12 +297,16 @@ export default class Measure extends Interaction {
         return id
     }
 
+    /**
+     * 该移除的都移除掉
+     */
     destroy() {
-        destroy()
-        if(isDefined(this.layer)) {
-            this.map?.removeLayer(this.layer)
+        tooltipPopup.updatePosition(undefined)
+        this.setActive(false)
+        if (isDefined(this.layer)) {
+            this.layer.clear()
         }
-        this.map?.removeInteraction(this)
+        destroy()
     }
 
 }

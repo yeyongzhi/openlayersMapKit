@@ -255,8 +255,8 @@ export default class Map implements MapLike {
         }
         if (isDefined(layer._layer)) {
             this.layers.push(layer);
-            if(layer instanceof BaseLayer) {
-                if(!isDefined(layer.getTarget())) {
+            if (layer instanceof BaseLayer) {
+                if (!isDefined(layer.getTarget())) {
                     layer.setTarget(this)
                 }
             }
@@ -436,7 +436,7 @@ export default class Map implements MapLike {
         if (isDefined(interaction._interaction)) {
             this.interactions.push(interaction)
             this._map?.addInteraction(interaction._interaction)
-            if(interaction.setMap) {
+            if (interaction.setMap) {
                 interaction.setMap(this)
             }
             interaction.setActive(true) // 自动开启
@@ -458,7 +458,14 @@ export default class Map implements MapLike {
         if (isDefined(interaction._interaction)) {
             this.interactions.splice(index, 1)
             this._map?.removeInteraction(interaction._interaction)
-            if(interaction.setMap) {
+            // 是否需要额外的图层添加
+            if (interaction instanceof Draw || interaction instanceof Measure) {
+                const layer = interaction.getLayer();
+                if (isDefined<VectorLayer>(layer)) {
+                    this.removeLayer(layer);
+                }
+            }
+            if (interaction.setMap) {
                 interaction.setMap(null)
             }
         }

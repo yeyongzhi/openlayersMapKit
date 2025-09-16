@@ -29,6 +29,11 @@ export function getOlDrawType(mode: OMapMeasureMode): { type: OlDrawType, geomet
 }
 
 /**
+ * 悬浮信息的弹窗
+ */
+let tooltipPopup: Popup | null = null
+
+/**
  * 
  */
 let distanceElement: HTMLElement | null = null
@@ -77,7 +82,7 @@ export function createMeasureTooltipElement(text: string): HTMLElement {
     return div
 }
 
-export function createMeasureDistanceElement(distance: string): HTMLElement {
+export function createMeasureDistanceElement(distance: string, tooltipText?: string): HTMLElement {
     if (!distanceElement) {
         let div = document.createElement('div')
         div.style.padding = '2px 5px'
@@ -87,20 +92,42 @@ export function createMeasureDistanceElement(distance: string): HTMLElement {
         div.style.fontSize = '12px'
         // 距离信息
         let p = document.createElement('p')
-        p.innerHTML = `总长：<span style="color: var(--omap-primary-color);margin: 0 5px;">${distance || ''}</span>米`
+        p.innerHTML = createMeasureValueSpan('总长', distance)
         div.appendChild(p)
         // 提示信息
-        let p2 = document.createElement('p')
-        p2.innerHTML = '单击继续，双击结束测量'
-        div.appendChild(p2)
+        if(tooltipText && tooltipText !== '') {
+            let p2 = document.createElement('p')
+            p2.className = 'omap-measure-tooltip-text'
+            p2.innerHTML = tooltipText
+            div.appendChild(p2)
+        }
         distanceElement = div
     } else {
-        distanceElement.children[0].innerHTML = `总长: <span style="color: var(--omap-primary-color);margin: 0 5px;">${distance || ''}</span> 米`
+        distanceElement.children[0].innerHTML = createMeasureValueSpan('总长', distance)
+        if(!tooltipText || tooltipText === '') {
+            if(distanceElement.children.length > 1) {
+                distanceElement.removeChild(distanceElement.children[1])
+            }
+        } else {
+            if(distanceElement.children.length > 1) {
+                distanceElement.children[1].innerHTML = tooltipText
+            } else {
+                let p2 = document.createElement('p')
+                p2.className = 'omap-measure-tooltip-text'
+                p2.innerHTML = tooltipText
+                distanceElement.appendChild(p2)
+            }
+        }
     }
     return distanceElement
 }
 
-export function createMeasureAreaElement(value: string): HTMLElement {
+/**
+ * 创建面积测量提示元素
+ * @param value 面积值
+ * @returns {HTMLElement}
+ */
+export function createMeasureAreaElement(value: string, tooltipText?: string): HTMLElement {
     if (!areaElement) {
         let div = document.createElement('div')
         div.style.padding = '2px 5px'
@@ -113,14 +140,45 @@ export function createMeasureAreaElement(value: string): HTMLElement {
         p.innerHTML = createMeasureValueSpan('总长', value)
         div.appendChild(p)
         // 提示信息
-        let p2 = document.createElement('p')
-        p2.innerHTML = '单击继续，双击结束测量'
-        div.appendChild(p2)
+        if(tooltipText && tooltipText !== '') {
+            let p2 = document.createElement('p')
+            p2.className = 'omap-measure-tooltip-text'
+            p2.innerHTML = tooltipText
+            div.appendChild(p2)
+        }
         areaElement = div
     } else {
         areaElement.children[0].innerHTML = createMeasureValueSpan('面积', value)
+        if(!tooltipText || tooltipText === '') {
+            if(areaElement.children.length > 1) {
+                areaElement.removeChild(areaElement.children[1])
+            }
+        } else {
+            if(areaElement.children.length > 1) {
+                areaElement.children[1].innerHTML = tooltipText
+            } else {
+                let p2 = document.createElement('p')
+                p2.className = 'omap-measure-tooltip-text'
+                p2.innerHTML = tooltipText
+                areaElement.appendChild(p2)
+            }
+        }
     }
     return areaElement
+}
+
+export function createMeasureAreaCloseElement(callback?: () => void) {
+    let closeElement = document.createElement('span')
+    closeElement.title = '删除'
+    closeElement.innerHTML = '×'
+    closeElement.style.color = '#FFFFFF'
+    closeElement.style.cursor = 'pointer'
+    closeElement.addEventListener('click', (e) => {
+        if(isDefined(callback)) {
+            callback()
+        }
+    })
+    return closeElement
 }
 
 export function createMeasureMarkerPopup(params: OMapPopupParamsType) {
@@ -277,7 +335,6 @@ export function destroy() {
     })
     distanceFeature = null
     areaFeature = null
-    measureMap = null
     setTimeout(() => {
         measureMarkerElements = []
         measureMarkerPopups = []
