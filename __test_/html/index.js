@@ -381,6 +381,96 @@ function initMeasure() {
 }
 
 
+function initSelect() {
+    const vlayer = new OMap.VectorLayer({
+        style: (feature, resolution) => {
+            if (feature.getType() === 'Point') {
+                return new OMap.Style({
+                    circle: {
+                        fill: {
+                            color: 'green'
+                        },
+                        radius: 20
+                    }
+                })
+            } else if (feature.getType() === 'LineString') {
+                return new OMap.Style({
+                    stroke: {
+                        color: '#13c2c2',
+                        width: 10
+                    }
+                })
+            } else if (feature.getType() === 'Polygon') {
+                return new OMap.Style({
+                    stroke: {
+                        color: '#000000',
+                        width: 2
+                    },
+                    fill: {
+                        color: new OMap.Color({
+                            color: '#1890FF',
+                            opacity: 0.5
+                        })
+                    },
+                })
+            }
+            return undefined
+        }
+    })
+    const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+    p.setId('p1')
+    const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
+    const l = new OMap.LineString([
+        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+        OMap.ProjUtil.fromLonLat([120.1, 30.3])
+    ])
+    const polygon = new OMap.Polygon([
+        polygonData[0].map(item => OMap.ProjUtil.fromLonLat(item))
+    ])
+    map.addLayer(vlayer)
+    vlayer.addFeatures([p, p2, l, polygon])
+    // 初始化新的修改交互
+    const select = new OMap.Select({
+        layers: [vlayer],
+        multi: true,
+        style: (feature, resolution) => {
+            console.log(feature)
+            if (feature.getType() === 'Point') {
+                return new OMap.Style({
+                    circle: {
+                        fill: {
+                            color: '#eb2f96'
+                        },
+                        radius: 20
+                    }
+                })
+            } else if (feature.getType() === 'LineString') {
+                return new OMap.Style({
+                    stroke: {
+                        color: '#eb2f96',
+                        width: 10
+                    }
+                })
+            } else if (feature.getType() === 'Polygon') {
+                return new OMap.Style({
+                    stroke: {
+                        color: '#000000',
+                        width: 2
+                    },
+                    fill: {
+                        color: new OMap.Color({
+                            color: '#eb2f96',
+                            opacity: 0.5
+                        })
+                    },
+                })
+            }
+            return undefined
+        }
+    })
+    map.addInteraction(select)
+}
+
 function init() {
     initDom()
     initMap()
@@ -392,7 +482,8 @@ function init() {
     // initDragPan()
     // initExtent()
     // initModify()
-    initMeasure()
+    // initMeasure()
+    initSelect()
 }
 
 init()
