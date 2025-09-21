@@ -1,6 +1,6 @@
 import { isDefined, isNumber, isCoordinatesType } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { LnglatType, OlCoordinateType } from '../../../utils/index'
+import type { OlCoordinateType } from '../../../utils/index'
 
 const PACKAGE_NAME = 'Lnglat';
 const createMessage = getPackageMessage(PACKAGE_NAME);

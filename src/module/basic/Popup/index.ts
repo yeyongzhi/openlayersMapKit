@@ -146,4 +146,8 @@ export default class Popup implements PopupLike {
         this.id = id
     }
 
+    getPopup(): OlPopupInstanceType | undefined {
+        return this._popup
+    }
+
 }

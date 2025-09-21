@@ -3,12 +3,14 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import Style from '../../basic/Style/index'
 import Interaction from '../Interaction/index'
+import Event from '../../util/Event/index'
+import VectorLayer from '../../layer/VectorLayer/index'
 import {type OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
 import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
 import { OlInteraction, OlUtil } from '../../../source/index'
-import { type OMapSelectParamsType, type OlInteractionSelectInstanceType } from './type'
-import { getTargetFeature, updateSelectLayers } from './handle'
+import { type OMapSelectParamsType, type OlInteractionSelectInstanceType, type OMapSelectEventType } from './type'
+import { getTargetFeature, updateSelectLayers, updateSelectFeatures, handleSelectEvent } from './handle'
 
 const PACKAGE_NAME = 'Select';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -20,13 +22,13 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/17
- * @updateDate 2025/9/19
+ * @updateDate 2025/9/20
  */
 
 const defaultSelectOptions = {
     layers: undefined,
     style: undefined,
-    multi: false,
+    multi: false, // 当为true的时候，支持一次选择n个重叠的要素
     features: undefined,
     filter: undefined,
     hitTolerance: 0,
@@ -45,14 +47,19 @@ export default class Select extends Interaction {
     constructor(params?: OMapSelectParamsType) {
         super("Select")
         let layers: OlVectorLayerInstanceType[] = []
+        // layers的优先级低于features
         if(isDefined(params?.layers)) {
             updateSelectLayers(params.layers)
             layers = params.layers.map(l => (l._layer as OlVectorLayerInstanceType))
         }
+        if(isDefined(params?.features)) {
+            updateSelectFeatures(params.features)
+        }
         this._interaction = new OlInteraction.Select(Object.assign({}, defaultSelectOptions, {
             ...params,
             layers,
-            style: this.initStyle(params?.style)
+            style: this.initStyle(params?.style),
+            filter: this.initFilter(params?.filter),
         }))
         // 注册事件
         this.initInteractionEvent()
@@ -74,7 +81,6 @@ export default class Select extends Interaction {
                 _style = (feature: OlFeatureLike, resolution: number) => {
                     let uid = OlUtil.getUid(feature)
                     let targetFeature = getTargetFeature(uid)
-                    console.log(targetFeature)
                     let styleFnResult = (style as Function)(targetFeature, resolution)
                     return styleFnResult ? styleFnResult.getStyle() : undefined
                 }
@@ -83,6 +89,18 @@ export default class Select extends Interaction {
             }
         }
         return _style
+    }
+
+    protected initFilter(filter: ((feature: BaseFeature, layer: VectorLayer) => boolean) | undefined): ((feature: OlFeatureLike, layer: OlVectorLayerInstanceType) => boolean) | undefined {
+        if(isDefined(filter)) {
+            return (feature: OlFeatureLike, layer: OlVectorLayerInstanceType) => {
+                let targetFeature = getTargetFeature(OlUtil.getUid(feature))
+                let targetLayer = this.map?.getAllLayers().find(l => OlUtil.getUid(l._layer) === OlUtil.getUid(layer))
+                return filter(targetFeature as BaseFeature, targetLayer as VectorLayer)
+            }
+        } else {
+            return undefined
+        }
     }
 
     /**
@@ -109,16 +127,56 @@ export default class Select extends Interaction {
         return this.deselected
     }
 
-    on() {
-
+    on(type: OMapSelectEventType, callback: () => void): number | string | undefined {
+        if (!this._isInitialized('on')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', '参数不能为空'));
+            return;
+        }
+        let list = (this.events as Event).get(type);
+        if (!isDefined(list) || list.length === 0) {
+            (this._interaction as OlInteractionSelectInstanceType).on(type, (e: any) => {
+                console.log('select', e);
+                (this.events as Event).emit(type, Object.assign({}, handleSelectEvent(this, type, e), {
+                    selected: this.selected,
+                    deselected: this.deselected,
+                }))
+            })
+        }
+        const id = (this.events as Event).on(type, callback)
+        return id
     }
 
-    un() {
-
+    un(id: number | string): void {
+        if (!this._isInitialized('un')) return;
+        if (!isDefined(id)) {
+            warn_(createMessage('un', '参数不能为空'));
+            return;
+        }
+        if (!isNumber(id) && !isString(id)) {
+            warn_(createMessage('un', '事件ID应为number或string类型'));
+            return;
+        }
+        (this.events as Event).remove(id)
     }
 
-    once() {
-
+    once(type: OMapSelectEventType, callback: () => void): number | string | undefined {
+        if (!this._isInitialized('on')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', '参数不能为空'));
+            return;
+        }
+        let list = (this.events as Event).get(type);
+        if (!isDefined(list) || list.length === 0) {
+            (this._interaction as OlInteractionSelectInstanceType).on(type, (e: any) => {
+                (this.events as Event).emit(type, Object.assign({}, handleSelectEvent(this, type, e), {
+                    selected: this.selected,
+                    deselected: this.deselected,
+                }))
+            })
+        }
+        const id = (this.events as Event).once(type, callback)
+        return id
     }
 
 }

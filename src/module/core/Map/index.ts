@@ -1,4 +1,4 @@
-import { isDefined, isNumber, isString } from '../../../utils/index';
+import { isDefined, isNumber, isString, defaultValue } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import OlPackage, { OlUtil, OlSphere } from '../../../source/index'
 import type {
@@ -22,12 +22,13 @@ import BaseLayer from '../../layer/BaseLayer/index'
 import BaseFeature from '../Feature/BasicFeature/index'
 import { OlGeomInstanceType } from '../Feature/BasicFeature/type'
 import Interaction from '../../interaction/Interaction/index'
+import { type OlInteractionInstanceType } from '../../interaction/Interaction/type'
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
 import Event from '../../../module/util/Event/index'
 import Popup from '../../basic/Popup/index'
 import type { OlPopupInstanceType } from '../../basic/Popup/type'
-
+import { type OMapOptionsType, defaultMapOptions } from './type'
 import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
 
 const PACKAGE_NAME = 'Map';
@@ -40,7 +41,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/5
- * @updateDate 2025/7/14
+ * @updateDate 2025/9/20
  */
 
 // const defaultOptions: MapOptionsType = {
@@ -80,7 +81,7 @@ export default class Map implements MapLike {
     events: Event | null = null;
     popups: Array<Popup> = [];
 
-    constructor(element: MapContainerType, options: OlMapOptionsFinalType) {
+    constructor(element: MapContainerType, options: OMapOptionsType) {
         let _options = options
         const view_options = _options.view
         if (!isDefined(view_options)) {
@@ -98,10 +99,19 @@ export default class Map implements MapLike {
             projection: (proj as Projection)._projection as OlProjInstanceType
         }
         const view = new OlPackage.View(view_params)
-        const map = new OlPackage.Map({
-            target: element,
-            view
-        });
+        let mapInteractions = defaultValue(_options.interactions, defaultMapOptions.interactions)
+        let mapPopups = defaultValue(_options.popups, defaultMapOptions.popups)
+        let mapParams = Object.assign({}, defaultMapOptions, {
+            ..._options,
+            interactions: mapInteractions.map(interaction => {
+                return interaction.getInteraction() as OlInteractionInstanceType;
+            }),
+            overlays: mapPopups.map(popup => {
+                return popup.getPopup() as OlPopupInstanceType;
+            }),
+            view: view
+        })
+        const map = new OlPackage.Map(mapParams);
         this._view = view;
         this._map = map;
         this.events = new Event<Record<OMapEventType, unknown[]>>(this);

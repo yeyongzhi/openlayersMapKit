@@ -66,8 +66,17 @@ function initMap() {
         console.log('【地图渲染完成】')
     })
 
-    const layer = new OMap.GaodeLayer("vec", { id: "gaode_vec" })
-    map.addLayer(layer)
+    // const layer = new OMap.GaodeLayer("vec", { id: "gaode_vec" })
+    // map.addLayer(layer)
+
+    // 加载 OSM 图层
+    const OSMlayer = new OMap.TileLayer({
+        source: {
+            // url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            url: 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
+        }
+    })
+    map.addLayer(OSMlayer)
 
     map.on('map:singleclick', (e) => {
         // clickLnglat.innerText = e.coordinate.toString(2)
@@ -383,6 +392,7 @@ function initMeasure() {
 
 function initSelect() {
     const vlayer = new OMap.VectorLayer({
+        id: 'test-select-vector-layer',
         style: (feature, resolution) => {
             if (feature.getType() === 'Point') {
                 return new OMap.Style({
@@ -432,9 +442,8 @@ function initSelect() {
     // 初始化新的修改交互
     const select = new OMap.Select({
         layers: [vlayer],
-        multi: true,
+        multi: false,
         style: (feature, resolution) => {
-            console.log(feature)
             if (feature.getType() === 'Point') {
                 return new OMap.Style({
                     circle: {
@@ -468,7 +477,15 @@ function initSelect() {
             return undefined
         }
     })
+    select.on('select', (e) => {
+        console.log(e)
+    })
     map.addInteraction(select)
+}
+
+function initLink() {
+    const link = new OMap.Link()
+    map.addInteraction(link)
 }
 
 function init() {
@@ -483,7 +500,9 @@ function init() {
     // initExtent()
     // initModify()
     // initMeasure()
-    initSelect()
+    // initSelect()
+
+    // initLink()
 }
 
 init()

@@ -62,7 +62,7 @@ export type OlMapOptionsOmitType = ManualOmit<OlMapOptionsType, OlMapOptionsType
 export type CustomerOlMapOptionsType = {
     layers: Array<any>;
     controls: Array<any>;
-    interactions: Array<any>;
+    interactions: Array<any>; // 地图的默认交互列表
     overlays: Array<string>;
     view: OlViewOptionsFinalType;
 };
