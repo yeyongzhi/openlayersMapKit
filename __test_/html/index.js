@@ -60,14 +60,15 @@ function initMap() {
         }
     })
 
-    const point = new OMap.Point([120.2, 30.3], { name: '测试点' })
+    console.log(map)
+    console.log(map.getInteractions())
 
     map.once('map:rendercomplete', (e) => {
         console.log('【地图渲染完成】')
     })
 
-    // const layer = new OMap.GaodeLayer("vec", { id: "gaode_vec" })
-    // map.addLayer(layer)
+    const layer = new OMap.GaodeLayer("vec", { id: "gaode_vec" })
+    map.addLayer(layer)
 
     // 加载 OSM 图层
     const OSMlayer = new OMap.TileLayer({
@@ -76,7 +77,7 @@ function initMap() {
             url: 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
         }
     })
-    map.addLayer(OSMlayer)
+    // map.addLayer(OSMlayer)
 
     map.on('map:singleclick', (e) => {
         // clickLnglat.innerText = e.coordinate.toString(2)
@@ -98,10 +99,6 @@ function initMap() {
     map.on('view:change:center', (e) => {
         mapCenter.innerText = OMap.ProjUtil.toLonLat(map.getCenter()).toString(4)
     })
-
-    setTimeout(() => {
-        // console.log(map.getAllLayers())
-    }, 3000)
 }
 
 // 测试VectorLayer

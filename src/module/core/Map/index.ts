@@ -103,17 +103,25 @@ export default class Map implements MapLike {
         let mapPopups = defaultValue(_options.popups, defaultMapOptions.popups)
         let mapParams = Object.assign({}, defaultMapOptions, {
             ..._options,
-            interactions: mapInteractions.map(interaction => {
-                return interaction.getInteraction() as OlInteractionInstanceType;
-            }),
+            interactions: [],
+            // interactions: mapInteractions.map(interaction => {
+            //     return interaction.getInteraction() as OlInteractionInstanceType;
+            // }),
             overlays: mapPopups.map(popup => {
                 return popup.getPopup() as OlPopupInstanceType;
             }),
             view: view
         })
+        mapParams.target = element as HTMLElement
         const map = new OlPackage.Map(mapParams);
         this._view = view;
         this._map = map;
+        // 初始化加载Interaction
+        if(isDefined(mapInteractions) && mapInteractions.length > 0) {
+            mapInteractions.forEach(interaction => {
+                this.addInteraction(interaction);
+            })
+        }
         this.events = new Event<Record<OMapEventType, unknown[]>>(this);
     }
 
@@ -453,8 +461,9 @@ export default class Map implements MapLike {
         }
     }
 
-    getInteraction() {
-
+    getInteractions(): Interaction[] | undefined {
+        if (!this._isInitialized('setProperties')) return;
+        return this.interactions
     }
 
     removeInteraction(interaction: Interaction): void {

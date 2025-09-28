@@ -13,7 +13,7 @@ import * as A from "ol/interaction";
 import * as _ from "ol/util";
 import T from "ol/Feature";
 import jt from "ol/Overlay";
-import * as F from "ol/geom";
+import * as x from "ol/geom";
 import * as S from "ol/style";
 import "ol/render/Feature";
 import "ol/coordinate";
@@ -996,7 +996,7 @@ class Dt {
     return this._popup;
   }
 }
-let Se = "BaseLayer", I = p(Se);
+let Se = "BaseLayer", F = p(Se);
 const ot = 1, at = !0, lt = 0, ut = 22, ct = 0, dt = 1 / 0, ft = 1, ht = {};
 var se;
 class X {
@@ -1045,10 +1045,10 @@ class X {
     c(this, "target", null);
     qe(this, se, null);
     let i = t || {};
-    this.type = e, Se = `${e}Layer`, I = p(Se), i.id && (this.id = i.id), this.name = i.name || "", this.className = i.className || "", this.opacity = i.opacity || ot, this.visible = i.visible || at, this.extent = i.extent || null, this.minZoom = i.minZoom || lt, this.maxZoom = i.maxZoom || ut, this.minResolution = i.minResolution || ct, this.maxResolution = i.maxResolution || dt, this.zIndex = i.zIndex || ft, this.properties = i.properties || ht;
+    this.type = e, Se = `${e}Layer`, F = p(Se), i.id && (this.id = i.id), this.name = i.name || "", this.className = i.className || "", this.opacity = i.opacity || ot, this.visible = i.visible || at, this.extent = i.extent || null, this.minZoom = i.minZoom || lt, this.maxZoom = i.maxZoom || ut, this.minResolution = i.minResolution || ct, this.maxResolution = i.maxResolution || dt, this.zIndex = i.zIndex || ft, this.properties = i.properties || ht;
   }
   _isInitialized(e) {
-    return s(this._layer) ? !0 : (o(I(e, "未正确实例化")), !1);
+    return s(this._layer) ? !0 : (o(F(e, "未正确实例化")), !1);
   }
   _initLayerEvent() {
     this._isInitialized("_initLayerEvent") && this._layer.on([
@@ -1076,11 +1076,11 @@ class X {
   setOpacity(e) {
     if (this._isInitialized("setOpacity")) {
       if (!s(e)) {
-        o(I("setOpacity", "透明度不能为空"));
+        o(F("setOpacity", "透明度不能为空"));
         return;
       }
       if (!ye(e)) {
-        o(I("setOpacity", "透明度必须为0~1的数字"));
+        o(F("setOpacity", "透明度必须为0~1的数字"));
         return;
       }
       this._layer.setOpacity(e);
@@ -1101,11 +1101,11 @@ class X {
   setVisible(e) {
     if (this._isInitialized("setVisible")) {
       if (!s(e)) {
-        o(I("setVisible", "可见性不能为空"));
+        o(F("setVisible", "可见性不能为空"));
         return;
       }
       if (St(e)) {
-        o(I("setVisible", "可见性必须为boolean类型"));
+        o(F("setVisible", "可见性必须为boolean类型"));
         return;
       }
       this._layer.setVisible(e);
@@ -1139,11 +1139,11 @@ class X {
   setMinZoom(e) {
     if (this._isInitialized("setMinZoom")) {
       if (!s(e)) {
-        o(I("setMinZoom", "minZoom不能为空"));
+        o(F("setMinZoom", "minZoom不能为空"));
         return;
       }
       if (!f(e)) {
-        o(I("setMinZoom", "minZoom必须为number类型"));
+        o(F("setMinZoom", "minZoom必须为number类型"));
         return;
       }
       this._layer.setMinZoom(e);
@@ -1156,11 +1156,11 @@ class X {
   setMaxZoom(e) {
     if (this._isInitialized("setMaxZoom")) {
       if (!s(e)) {
-        o(I("setMaxZoom", "maxZoom不能为空"));
+        o(F("setMaxZoom", "maxZoom不能为空"));
         return;
       }
       if (!f(e)) {
-        o(I("setMaxZoom", "maxZoom必须为number类型"));
+        o(F("setMaxZoom", "maxZoom必须为number类型"));
         return;
       }
       this._layer.setMaxZoom(e);
@@ -1173,11 +1173,11 @@ class X {
   setMinResolution(e) {
     if (this._isInitialized("setMinResolution")) {
       if (!s(e)) {
-        o(I("setMinResolution", "minResolution不能为空"));
+        o(F("setMinResolution", "minResolution不能为空"));
         return;
       }
       if (!f(e)) {
-        o(I("setMinResolution", "minResolution必须为number类型"));
+        o(F("setMinResolution", "minResolution必须为number类型"));
         return;
       }
       this._layer.setMinResolution(e);
@@ -1190,11 +1190,11 @@ class X {
   setMaxResolution(e) {
     if (this._isInitialized("setMaxResolution")) {
       if (!s(e)) {
-        o(I("setMaxResolution", "maxResolution不能为空"));
+        o(F("setMaxResolution", "maxResolution不能为空"));
         return;
       }
       if (!f(e)) {
-        o(I("setMaxResolution", "maxResolution必须为number类型"));
+        o(F("setMaxResolution", "maxResolution必须为number类型"));
         return;
       }
       this._layer.setMaxResolution(e);
@@ -1207,11 +1207,11 @@ class X {
   setZIndex(e) {
     if (this._isInitialized("setZIndex")) {
       if (!s(e)) {
-        o(I("setZIndex", "zIndex不能为空"));
+        o(F("setZIndex", "zIndex不能为空"));
         return;
       }
       if (!f(e)) {
-        o(I("setZIndex", "zIndex必须为number类型"));
+        o(F("setZIndex", "zIndex必须为number类型"));
         return;
       }
       this._layer.setZIndex(e);
@@ -1224,11 +1224,11 @@ class X {
   setProperties(e) {
     if (this._isInitialized("setProperties")) {
       if (!s(e)) {
-        o(I("setProperties", "属性不能为空"));
+        o(F("setProperties", "属性不能为空"));
         return;
       }
       if (Oe(e)) {
-        o(I("setProperties", "属性必须为object类型"));
+        o(F("setProperties", "属性必须为object类型"));
         return;
       }
       this._layer.setProperties(e);
@@ -1435,23 +1435,23 @@ class oe {
     switch (this.type) {
       case "Point":
         let i = e;
-        this._geometry = new F.Point(i instanceof u ? i._lnglat : i);
+        this._geometry = new x.Point(i instanceof u ? i._lnglat : i);
         break;
       case "LineString":
         let r = e.map((g) => g instanceof u ? g._lnglat : g);
-        this._geometry = new F.LineString(r);
+        this._geometry = new x.LineString(r);
         break;
       case "Polygon":
         let a = e.map((g) => g.map((m) => m instanceof u ? m._lnglat : m));
-        this._geometry = new F.Polygon(a);
+        this._geometry = new x.Polygon(a);
         break;
       case "LinearRing":
         let l = e.map((g) => g instanceof u ? g._lnglat : g);
-        this._geometry = new F.LinearRing(l);
+        this._geometry = new x.LinearRing(l);
         break;
       case "Circle":
         let h = e;
-        this._geometry = new F.Circle(h instanceof u ? h._lnglat : h, t);
+        this._geometry = new x.Circle(h instanceof u ? h._lnglat : h, t);
         break;
     }
     this._feature = new T({
@@ -2079,9 +2079,9 @@ function It(n) {
     if (s(t))
       if (s(n)) {
         let i = [];
-        (t instanceof F.LineString || t instanceof F.Polygon) && (i = t.getCoordinates()), i.splice(n, 1), (t instanceof F.LineString || t instanceof F.Polygon) && t.setCoordinates(i);
+        (t instanceof x.LineString || t instanceof x.Polygon) && (i = t.getCoordinates()), i.splice(n, 1), (t instanceof x.LineString || t instanceof x.Polygon) && t.setCoordinates(i);
       } else
-        t instanceof F.LineString ? t.setCoordinates([]) : t instanceof F.Polygon && t.setCoordinates([]);
+        t instanceof x.LineString ? t.setCoordinates([]) : t instanceof x.Polygon && t.setCoordinates([]);
   }
 }
 function Pi() {
@@ -2211,8 +2211,8 @@ class Te extends C {
         var h, g;
         const { target: l } = a;
         if (s(l)) {
-          let m = l instanceof F.LineString ? l.getCoordinates().length : l.getCoordinates()[0].length;
-          if (r === 0 && (r = m, l instanceof F.LineString)) {
+          let m = l instanceof x.LineString ? l.getCoordinates().length : l.getCoordinates()[0].length;
+          if (r === 0 && (r = m, l instanceof x.LineString)) {
             let P = vt("起点", 0), O = mt({
               id: Be(0),
               element: P,
@@ -2220,25 +2220,25 @@ class Te extends C {
             });
             O.setPosition(l.getCoordinates()[0]), this.map.addPopup(O);
           }
-          let x;
-          if (l instanceof F.LineString ? x = (h = this.map) == null ? void 0 : h.getLength(new Ze(new T({
+          let I;
+          if (l instanceof x.LineString ? I = (h = this.map) == null ? void 0 : h.getLength(new Ze(new T({
             geometry: l
-          }))) : l instanceof F.Polygon && (x = (g = this.map) == null ? void 0 : g.getArea(new Rt(new T({
+          }))) : l instanceof x.Polygon && (I = (g = this.map) == null ? void 0 : g.getArea(new Rt(new T({
             geometry: l
-          })))), s(x) && f(x) && (this.result.value = x), s(x) && f(x) && l instanceof F.LineString) {
-            let P = m >= 2 ? zi(Re(x), x === 0 ? "" : "单击继续，双击结束测量") : Tt("单击地图开始测量");
+          })))), s(I) && f(I) && (this.result.value = I), s(I) && f(I) && l instanceof x.LineString) {
+            let P = m >= 2 ? zi(Re(I), I === 0 ? "" : "单击继续，双击结束测量") : Tt("单击地图开始测量");
             G.setElement(P);
           }
-          if (l instanceof F.LineString) {
+          if (l instanceof x.LineString) {
             if (m > r) {
-              let P = m - 1 - 1, O = vt(Re(x), P), Ne = mt({
+              let P = m - 1 - 1, O = vt(Re(I), P), Ne = mt({
                 id: Be(P),
                 element: O,
                 offset: new V(0, -10)
               });
               Ne.setPosition(l.getCoordinates()[l.getCoordinates().length - 1]), this.map.addPopup(Ne), r = m;
             }
-          } else l instanceof F.Polygon && m >= 4 && (this.map.addPopup(q.getPopup()), q.setElement(yt(Ft(x), "单击继续，双击结束测量")), q.updatePosition(l.getInteriorPoint().getCoordinates()), G.setElement(void 0), G.updatePosition(void 0));
+          } else l instanceof x.Polygon && m >= 4 && (this.map.addPopup(q.getPopup()), q.setElement(yt(Ft(I), "单击继续，双击结束测量")), q.updatePosition(l.getInteriorPoint().getCoordinates()), G.setElement(void 0), G.updatePosition(void 0));
         } else
           o("target is undefined");
       });
@@ -2365,7 +2365,7 @@ class Ie extends X {
     }
     let r = t instanceof v ? t.getExtent() : t, a = this._layer.getSource().getFeaturesInExtent(r), l = [];
     return a.forEach((h) => {
-      let g = _.getUid(h), m = this.features.findIndex((x) => _.getUid(x.getFeature()) === g);
+      let g = _.getUid(h), m = this.features.findIndex((I) => _.getUid(I.getFeature()) === g);
       m !== -1 && l.push(this.features[m]);
     }), l;
   }
@@ -2491,8 +2491,8 @@ class Ie extends X {
       return;
     }
     let r = t instanceof u ? t._lnglat : t, a = i ? (g) => {
-      let m = _.getUid(g), x = this.features.findIndex((P) => _.getUid(P.getFeature()) === m);
-      return i(this.features[x]);
+      let m = _.getUid(g), I = this.features.findIndex((P) => _.getUid(P.getFeature()) === m);
+      return i(this.features[I]);
     } : void 0;
     const l = this._layer.getSource().getClosestFeatureToCoordinate(r, a);
     let h = this.features.findIndex((g) => _.getUid(g.getFeature()) === _.getUid(l));
@@ -2617,11 +2617,46 @@ class Ve extends C {
     this._isInitialized("finish") && this._interaction.finishDrawing();
   }
 }
-const Pe = {
+const Di = {
+  onFocusOnly: !1,
+  maxDelta: 1,
+  duration: 250,
+  timeout: 80,
+  useAnchor: !0,
+  constrainResolution: !1
+};
+class $i extends C {
+  constructor(e) {
+    super("MouseWheelZoom"), this._interaction = new A.MouseWheelZoom(Object.assign({}, Di, e || {})), this.initInteractionEvent();
+  }
+}
+const Ri = {
+  duration: 250,
+  delta: 1
+};
+class Bi extends C {
+  constructor(e) {
+    super("DoubleClickZoom"), this._interaction = new A.DoubleClickZoom(Object.assign({}, Ri, e || {})), this.initInteractionEvent();
+  }
+}
+const Ti = {
+  onFocusOnly: !1,
+  kinetic: void 0
+};
+class Vi extends C {
+  constructor(e) {
+    super("DragPan"), this._interaction = new A.DragPan(Object.assign({}, Ti, e || {})), this.initInteractionEvent();
+  }
+}
+const Oi = [
+  new $i(),
+  new Bi(),
+  new Vi()
+], Pe = {
   pixelRatio: Jt(),
   layers: [],
   controls: [],
-  interactions: [],
+  interactions: Oi,
   popups: []
 };
 function zt(n) {
@@ -2656,8 +2691,8 @@ function fe(n, e, t) {
   }
   return i;
 }
-const Di = "Map", y = p(Di);
-let gn = class {
+const Gi = "Map", y = p(Gi);
+let mn = class {
   constructor(e, t) {
     c(this, "_map");
     c(this, "_view");
@@ -2680,14 +2715,20 @@ let gn = class {
       extent: r.extent instanceof v ? r.extent._extent : r.extent,
       projection: a._projection
     }, h = new Xe.View(l);
-    let g = me(i.interactions, Pe.interactions), m = me(i.popups, Pe.popups), x = Object.assign({}, Pe, {
+    let g = me(i.interactions, Pe.interactions), m = me(i.popups, Pe.popups), I = Object.assign({}, Pe, {
       ...i,
-      interactions: g.map((O) => O.getInteraction()),
+      interactions: [],
+      // interactions: mapInteractions.map(interaction => {
+      //     return interaction.getInteraction() as OlInteractionInstanceType;
+      // }),
       overlays: m.map((O) => O.getPopup()),
       view: h
     });
-    const P = new Xe.Map(x);
-    this._view = h, this._map = P, this.events = new Ge(this);
+    I.target = e;
+    const P = new Xe.Map(I);
+    this._view = h, this._map = P, s(g) && g.length > 0 && g.forEach((O) => {
+      this.addInteraction(O);
+    }), this.events = new Ge(this);
   }
   /** 私有守卫：运行期检查 + 类型收窄 */
   _isInitialized(e) {
@@ -2800,7 +2841,7 @@ let gn = class {
       o(y("addLayer", "图层对象不能为空"));
       return;
     }
-    if (e instanceof Hi)
+    if (e instanceof en)
       return e.getId(), e.getAll().forEach((i) => {
         i._layer && (this.layers.push(i), this._map.addLayer(i._layer));
       }), !1;
@@ -2921,7 +2962,9 @@ let gn = class {
     }
     s(e._interaction) && (this.interactions.push(e), (i = this._map) == null || i.addInteraction(e._interaction), e.setMap && e.setMap(this), e.setActive(!0));
   }
-  getInteraction() {
+  getInteractions() {
+    if (this._isInitialized("setProperties"))
+      return this.interactions;
   }
   removeInteraction(e) {
     var i;
@@ -2971,7 +3014,7 @@ let gn = class {
     }) : void 0;
   }
 };
-const $i = "Map", At = p($i);
+const Zi = "Map", At = p(Zi);
 class B {
   constructor(e) {
     c(this, "_projection", null);
@@ -3007,7 +3050,7 @@ class B {
     return this._projection.getExtent();
   }
 }
-const Ri = "LinearRing", he = p(Ri);
+const Ui = "LinearRing", he = p(Ui);
 class Le extends oe {
   constructor(e, t) {
     if (!s(e)) {
@@ -3048,7 +3091,7 @@ class Le extends oe {
     this._geometry.setCoordinates(t);
   }
 }
-const Bi = {
+const ji = {
   vec: [
     "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
     "https://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
@@ -3068,7 +3111,7 @@ const Bi = {
     "http://webst04is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8"
   ]
 };
-class pn extends X {
+class En extends X {
   constructor(t, i) {
     super("Gaode", i);
     /**
@@ -3077,13 +3120,13 @@ class pn extends X {
     c(this, "gaodeType", null);
     this.gaodeType = t, this._layer = new xe.Tile({
       source: new we.XYZ({
-        urls: Bi[this.gaodeType]
+        urls: ji[this.gaodeType]
       })
     }), this._initLayerEvent();
   }
 }
-const Ti = "ProjUtil", Ct = p(Ti);
-class yn {
+const Ni = "ProjUtil", Ct = p(Ni);
+class In {
   static fromLonLat(e, t) {
     if (!s(e)) {
       o(Ct("fromLonLat", "coordinate参数不能为空"));
@@ -3105,22 +3148,22 @@ class yn {
     return new u(a[0], a[1]);
   }
 }
-const Me = "OMapToken", Vi = {
+const Me = "OMapToken", Ki = {
   tdt: null
 };
-function Oi(n, e) {
+function Hi(n, e) {
   window[Me] || (window[Me] = {}), window[Me][n] = e;
 }
-const Ot = new Proxy(Vi, {
+const Ot = new Proxy(Ki, {
   set: function(n, e, t, i) {
-    return Oi(e, t), Reflect.set(n, e, t, i);
+    return Hi(e, t), Reflect.set(n, e, t, i);
   }
-}), Gi = "http://t{0-7}.tianditu.com/DataServer?T={T}&tk={tk}&x={x}&y={y}&l={z}";
-function Zi(n, e) {
-  return Gi.replace(/\{T\}/g, n + "_" + e).replace(/\{tk\}/g, Ot.tdt);
+}), Wi = "http://t{0-7}.tianditu.com/DataServer?T={T}&tk={tk}&x={x}&y={y}&l={z}";
+function qi(n, e) {
+  return Wi.replace(/\{T\}/g, n + "_" + e).replace(/\{tk\}/g, Ot.tdt);
 }
-let Ui = "TdtLayer", Pt = p(Ui);
-class mn extends X {
+let Yi = "TdtLayer", Pt = p(Yi);
+class Fn extends X {
   constructor(t, i) {
     var a, l, h;
     super("Tdt", i);
@@ -3143,17 +3186,17 @@ class mn extends X {
       map: s(r.map) ? (l = r.map) == null ? void 0 : l._map : void 0,
       background: s(r.background) ? (h = r.background) == null ? void 0 : h._color : void 0,
       source: new we.XYZ({
-        url: Zi(t, (i == null ? void 0 : i.proj) || "w")
+        url: qi(t, (i == null ? void 0 : i.proj) || "w")
       })
     }), this._initLayerEvent();
   }
 }
-let ji = "TileLayer", Ni = p(ji);
-class vn extends X {
+let Xi = "TileLayer", Ji = p(Xi);
+class xn extends X {
   constructor(e) {
     super("Tile", e);
     let t = s(e.source) ? e.source : {}, i = new B("EPSG:3857"), r = t.projection;
-    s(r) && (r instanceof B ? i = r : w(r) ? i = new B(r) : o(Ni("constructor", "未知的投影类型")));
+    s(r) && (r instanceof B ? i = r : w(r) ? i = new B(r) : o(Ji("constructor", "未知的投影类型")));
     let a = {
       ...t,
       projection: i._projection
@@ -3166,8 +3209,8 @@ class vn extends X {
     }), this._initLayerEvent();
   }
 }
-let Ki = "LayerGroup", ge = p(Ki);
-class Hi {
+let Qi = "LayerGroup", ge = p(Qi);
+class en {
   constructor(e, t) {
     c(this, "id", null);
     c(this, "layers", []);
@@ -3229,8 +3272,8 @@ function Lt(n, e, t) {
     coordinate: new u(t.coordinate[0], t.coordinate[1])
   };
 }
-const Wi = "DragBox", _e = p(Wi);
-class En extends C {
+const tn = "DragBox", _e = p(tn);
+class wn extends C {
   constructor(e) {
     super("DragBox"), this._interaction = new A.DragBox({
       ...e || {},
@@ -3283,16 +3326,7 @@ class En extends C {
     }), this.events.once(e, t);
   }
 }
-const qi = {
-  onFocusOnly: !1,
-  kinetic: void 0
-};
-class In extends C {
-  constructor(e) {
-    super("DragPan"), this._interaction = new A.DragPan(Object.assign({}, qi, e || {})), this.initInteractionEvent();
-  }
-}
-const Yi = {
+const nn = {
   condition: void 0,
   extent: void 0,
   boxStyle: void 0,
@@ -3300,9 +3334,9 @@ const Yi = {
   pointerStyle: void 0,
   wrapX: !1
 };
-class Fn extends C {
+class zn extends C {
   constructor(e) {
-    super("Extent"), this._interaction = new A.Extent(Object.assign({}, Yi, e || {})), this.initInteractionEvent();
+    super("Extent"), this._interaction = new A.Extent(Object.assign({}, nn, e || {})), this.initInteractionEvent();
   }
   getExtent() {
     if (!this._isInitialized("getExtent")) return;
@@ -3322,7 +3356,7 @@ function Mt(n, e, t) {
     mapBrowserEvent: t.mapBrowserEvent
   };
 }
-const Xi = "Modify", Z = p(Xi), Ji = {
+const rn = "Modify", Z = p(rn), sn = {
   condition: void 0,
   deleteCondition: void 0,
   insertVertexCondition: void 0,
@@ -3334,13 +3368,13 @@ const Xi = "Modify", Z = p(Xi), Ji = {
   wrapX: !1,
   snapToPointer: !1
 };
-let xn = class extends C {
+let An = class extends C {
   constructor(t) {
     super("Modify");
     c(this, "records", []);
     let i = null;
     s(t.layer) || d(Z("init", "layer参数不能为空")), s(t.layer) && !(t.layer instanceof Ie) && d(Z("init", "layer参数不属于VectorLayer类型")), this.layer = t.layer, i = t.layer.getSource();
-    let r = Object.assign({}, Ji, {
+    let r = Object.assign({}, sn, {
       ...t,
       source: i
     });
@@ -3472,10 +3506,10 @@ let xn = class extends C {
     }), this.events.once(t, i);
   }
 }, Fe = [], Gt = [];
-function Qi(n) {
+function on(n) {
   Fe = n;
 }
-function en(n) {
+function an(n) {
   Gt = n, Fe = [];
 }
 function pe(n) {
@@ -3496,7 +3530,7 @@ function bt(n, e, t) {
     mapBrowserEvent: t.mapBrowserEvent
   };
 }
-const tn = "Select", re = p(tn), nn = {
+const ln = "Select", re = p(ln), un = {
   layers: void 0,
   style: void 0,
   multi: !1,
@@ -3505,7 +3539,7 @@ const tn = "Select", re = p(tn), nn = {
   filter: void 0,
   hitTolerance: 0
 };
-class zn extends C {
+class Pn extends C {
   constructor(t) {
     super("Select");
     /**
@@ -3517,7 +3551,7 @@ class zn extends C {
      */
     c(this, "deselected", []);
     let i = [];
-    s(t == null ? void 0 : t.layers) && (Qi(t.layers), i = t.layers.map((r) => r._layer)), s(t == null ? void 0 : t.features) && en(t.features), this._interaction = new A.Select(Object.assign({}, nn, {
+    s(t == null ? void 0 : t.layers) && (on(t.layers), i = t.layers.map((r) => r._layer)), s(t == null ? void 0 : t.features) && an(t.features), this._interaction = new A.Select(Object.assign({}, un, {
       ...t,
       layers: i,
       style: this.initStyle(t == null ? void 0 : t.style),
@@ -3600,13 +3634,13 @@ class zn extends C {
     }), this.events.once(t, i);
   }
 }
-const rn = {
+const cn = {
   animate: !0,
   params: ["x", "y", "z", "r", "l"],
   replace: !1,
   prefix: ""
 };
-class An extends C {
+class Ln extends C {
   constructor(e) {
     super("Link");
     let t = {
@@ -3616,77 +3650,55 @@ class An extends C {
         center: e.animate.center instanceof u ? e.animate.center.toArray() : e.animate.center
       } : me(e == null ? void 0 : e.animate, !0)
     };
-    this._interaction = new A.Link(Object.assign({}, rn, t)), this.initInteractionEvent();
+    this._interaction = new A.Link(Object.assign({}, cn, t)), this.initInteractionEvent();
   }
 }
-const sn = {
+const dn = {
   duration: 100,
   delta: 1
 };
-class Cn extends C {
+class Mn extends C {
   constructor(e) {
-    super("KeyboardZoom"), this._interaction = new A.KeyboardZoom(Object.assign({}, sn, e || {})), this.initInteractionEvent();
+    super("KeyboardZoom"), this._interaction = new A.KeyboardZoom(Object.assign({}, dn, e || {})), this.initInteractionEvent();
   }
 }
-const on = {
-  duration: 250,
-  delta: 1
-};
-class Pn extends C {
-  constructor(e) {
-    super("DoubleClickZoom"), this._interaction = new A.DoubleClickZoom(Object.assign({}, on, e || {})), this.initInteractionEvent();
-  }
-}
-const an = {
-  onFocusOnly: !1,
-  maxDelta: 1,
-  duration: 250,
-  timeout: 80,
-  useAnchor: !0,
-  constrainResolution: !1
-};
-class Ln extends C {
-  constructor(e) {
-    super("MouseWheelZoom"), this._interaction = new A.MouseWheelZoom(Object.assign({}, an, e || {})), this.initInteractionEvent();
-  }
-}
-class Mn {
+class bn {
   constructor() {
   }
 }
 export {
   U as Color,
-  Pn as DoubleClickZoom,
-  En as DragBox,
-  In as DragPan,
-  Mn as DragZoom,
+  Bi as DoubleClickZoom,
+  wn as DragBox,
+  Vi as DragPan,
+  bn as DragZoom,
   Ve as Draw,
   De as DrawMode,
   v as Extent,
-  pn as GaodeLayer,
-  Fn as InteractionExtent,
-  Cn as KeyboardZoom,
-  Hi as LayerGroup,
+  En as GaodeLayer,
+  zn as InteractionExtent,
+  Mn as KeyboardZoom,
+  en as LayerGroup,
   Ze as LineString,
   Le as LinearRing,
-  An as Link,
+  Ln as Link,
   u as Lnglat,
-  gn as Map,
+  mn as Map,
   Ot as MapToken,
   Te as Measure,
   R as MeasureMode,
-  xn as Modify,
-  Ln as MouseWheelZoom,
+  An as Modify,
+  $i as MouseWheelZoom,
   V as Pixel,
   $t as Point,
   Rt as Polygon,
   Dt as Popup,
-  yn as ProjUtil,
+  In as ProjUtil,
   B as Projection,
-  zn as Select,
+  Pn as Select,
   nt as Size,
   N as Style,
-  mn as TdtLayer,
-  vn as TileLayer,
+  Fn as TdtLayer,
+  xn as TileLayer,
   Ie as VectorLayer
 };

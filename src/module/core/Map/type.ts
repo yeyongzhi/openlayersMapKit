@@ -3,6 +3,9 @@ import { type ManualOmit } from '../../../utils/type'
 import { getDevicePixelRatio } from '../../../utils/handle'
 import Projection from '../../core/Projection/index'
 import Interaction from '../../interaction/Interaction/index'
+import MouseWheelZoom from '../../interaction/MouseWheelZoom/index'
+import DoubleClickZoom from '../../interaction/DoubleClickZoom/index'
+import DragPan from '../../interaction/DragPan/index'
 import Popup from '../../basic/Popup/index'
 import { type OMapCoordinateType } from '../../basic/Lnglat/type'
 import { type OMapExtentType } from '../../basic/Extent/type'
@@ -34,13 +37,23 @@ export type CustomerOlMapOptionsType = {
     interactions: Array<Interaction>; // 地图的默认交互列表
     popups: Array<Popup>;
     view?: OlViewOptionsFinalType;
+    target?: HTMLElement | string;
 };
 export type OMapOptionsType = OlMapOptionsOmitType & CustomerOlMapOptionsType;
+
+/**
+ * 地图的默认交互
+ */
+const defaultMapInteractions = [
+    new MouseWheelZoom(),
+    new DoubleClickZoom(),
+    new DragPan(),
+]
 
 export const defaultMapOptions: OMapOptionsType = {
     pixelRatio: getDevicePixelRatio(),
     layers: [],
     controls: [],
-    interactions: [],
+    interactions: defaultMapInteractions,
     popups: []
 }
