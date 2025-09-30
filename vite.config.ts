@@ -29,7 +29,8 @@ export default defineConfig({
           'ol/sphere': 'ol.sphere',
           'ol/interaction': 'ol.interaction',
           'ol/interaction/Draw': 'ol.interaction.Draw',
-          'ol/Observable': 'ol.Observable'
+          'ol/Observable': 'ol.Observable',
+          'ol/tilegrid': 'ol.tilegrid'
         }
       },
       plugins: []

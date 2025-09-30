@@ -41,7 +41,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/5
- * @updateDate 2025/9/20
+ * @updateDate 2025/9/29
  */
 
 // const defaultOptions: MapOptionsType = {
@@ -104,12 +104,7 @@ export default class Map implements MapLike {
         let mapParams = Object.assign({}, defaultMapOptions, {
             ..._options,
             interactions: [],
-            // interactions: mapInteractions.map(interaction => {
-            //     return interaction.getInteraction() as OlInteractionInstanceType;
-            // }),
-            overlays: mapPopups.map(popup => {
-                return popup.getPopup() as OlPopupInstanceType;
-            }),
+            overlays: [],
             view: view
         })
         mapParams.target = element as HTMLElement
@@ -120,6 +115,12 @@ export default class Map implements MapLike {
         if(isDefined(mapInteractions) && mapInteractions.length > 0) {
             mapInteractions.forEach(interaction => {
                 this.addInteraction(interaction);
+            })
+        }
+        // 初始化加载Popup
+        if(isDefined(mapPopups) && mapPopups.length > 0) {
+            mapPopups.forEach(popup => {
+                this.addPopup(popup);
             })
         }
         this.events = new Event<Record<OMapEventType, unknown[]>>(this);
@@ -517,6 +518,11 @@ export default class Map implements MapLike {
             return i.id === id
         })
         return popup
+    }
+
+    getPopups(): Popup[] | undefined {
+        if (!this._isInitialized('getPopups')) return;
+        return this.popups
     }
 
     removePopup(popup: Popup) {

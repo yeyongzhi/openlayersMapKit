@@ -126,6 +126,15 @@ export default class Size implements SizeLike {
     }
 
     /**
+     * 转换为数组
+     * @returns {OlSizeType | undefined} size
+     */
+    toArray(): OlSizeType | undefined {
+        if(!this._isInitialized("toArray")) return;
+        return this._size
+    }
+
+    /**
      * 以字符串的形式输出尺寸
      * @returns {string} sizeStr
      */

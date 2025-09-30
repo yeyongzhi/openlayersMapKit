@@ -44,16 +44,21 @@ export type OMapOptionsType = OlMapOptionsOmitType & CustomerOlMapOptionsType;
 /**
  * 地图的默认交互
  */
-const defaultMapInteractions = [
+const defaultMapInteractions: Interaction[] = [
     new MouseWheelZoom(),
     new DoubleClickZoom(),
     new DragPan(),
 ]
+
+/**
+ * 地图的默认弹窗列表
+ */
+const defaultMapPopups: Popup[] = []
 
 export const defaultMapOptions: OMapOptionsType = {
     pixelRatio: getDevicePixelRatio(),
     layers: [],
     controls: [],
     interactions: defaultMapInteractions,
-    popups: []
+    popups: defaultMapPopups
 }

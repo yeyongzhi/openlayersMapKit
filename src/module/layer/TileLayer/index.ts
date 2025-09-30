@@ -5,6 +5,9 @@ import { OlBaseTileLayerDefaultOptions } from '@/utils/index'
 import OlPackage, { OlLayer, OlSource } from '../../../source/index'
 import { Projection } from '../../../index'
 import BaseLayer from '../BaseLayer/index'
+import {
+    type OMapTileLayerParamsType
+} from './type'
 
 let PACKAGE_NAME = 'TileLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -21,7 +24,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class TileLayer extends BaseLayer {
 
-    constructor(options: OMapTileLayerOptionsFinalType) {
+    constructor(options: OMapTileLayerParamsType) {
         super('Tile', options)
         let _sourceOptions = isDefined(options.source) ? options.source : {}
         let _sourceProj: Projection = new Projection("EPSG:3857") // 默认值

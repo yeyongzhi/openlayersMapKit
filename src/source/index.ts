@@ -14,6 +14,7 @@ import * as OlSphere from 'ol/sphere';
 import type { Coordinate } from 'ol/coordinate'
 import type { Extent as OlExtentType } from 'ol/extent'
 import { createBox, createRegularPolygon } from 'ol/interaction/Draw';
+import * as OlTileGrid from 'ol/tilegrid'
 
 import * as OlObservable from 'ol/Observable';
 
@@ -35,5 +36,6 @@ export {
     type OlExtentType,
     createBox as OlDrawCreateBox,
     createRegularPolygon as OlDrawCreateRegularPolygon,
-    OlObservable
+    OlObservable,
+    OlTileGrid
 }

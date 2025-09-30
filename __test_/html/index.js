@@ -67,14 +67,21 @@ function initMap() {
         console.log('【地图渲染完成】')
     })
 
+    // 加载高德地图
     const layer = new OMap.GaodeLayer("vec", { id: "gaode_vec" })
     map.addLayer(layer)
+    // OMap.MapToken.tdt = ""
+    // 加载天地图
+    const TdtLayer1 = new OMap.TdtLayer("vec")
+    const TdtLayer2 = new OMap.TdtLayer("cva")
+    // map.addLayer(TdtLayer1)
+    // map.addLayer(TdtLayer2)
 
     // 加载 OSM 图层
     const OSMlayer = new OMap.TileLayer({
         source: {
-            // url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            url: 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
+            url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            // url: 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
         }
     })
     // map.addLayer(OSMlayer)
@@ -99,6 +106,31 @@ function initMap() {
     map.on('view:change:center', (e) => {
         mapCenter.innerText = OMap.ProjUtil.toLonLat(map.getCenter()).toString(4)
     })
+}
+
+// 测试Popup
+function initPopup() {
+    const popup = new OMap.Popup({
+        position: OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+        content: '这是一个弹窗',
+    })
+    popup.setOffset([0, -20])
+    console.log("------popup-----")
+    console.log(popup)
+    map.addPopup(popup)
+    const vlayer = new OMap.VectorLayer({
+        style: new OMap.Style({
+            circle: {
+                fill: {
+                    color: 'red'
+                },
+                radius: 10
+            }
+        })
+    })
+    const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+    vlayer.addFeature(p)
+    map.addLayer(vlayer)
 }
 
 // 测试VectorLayer
@@ -488,6 +520,8 @@ function initLink() {
 function init() {
     initDom()
     initMap()
+
+    initPopup()
 
     // initDraw()
     // initVectorLayer()

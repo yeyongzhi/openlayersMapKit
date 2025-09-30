@@ -30,7 +30,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         this.target = target
     }
 
-    on<K extends keyof Events>(type: K, callback: (...args: Events[K]) => void): string | number {
+    on<K extends keyof Events>(type: K, callback: (...args: Events[K]) => void): number {
         let _typeVals = this.events.get(type as string) || []
         let valId = ++this.total;
         _typeVals.push({
@@ -46,7 +46,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
     once<K extends keyof Events>(
         type: K,
         callback: (...args: Events[K]) => void
-    ): string | number {
+    ): number {
         const list = this.events.get(type as string) || [];
         const id = ++this.total;
         list.push({
@@ -82,7 +82,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         return this;
     }
 
-    remove(id: string | number): this {
+    remove(id: number): this {
         for (const [type, list] of this.events.entries()) {
             const idx = list.findIndex(item => item.id === id);
             if (idx !== -1) {

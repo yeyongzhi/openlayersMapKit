@@ -11,3 +11,4 @@ import Style from './Style/index';
 import Popup from './Popup/index';
 
 export { Size, Pixel, Lnglat, Color, Extent, Style, Popup }
+export { PopupPositioning } from './Popup/type'

@@ -60,4 +60,8 @@ export default class Projection {
         return (this._projection as OlProjInstanceType).getExtent();
     }
 
+    getProjection(): OlProjInstanceType | undefined |null {
+        return this._projection
+    }
+
 }

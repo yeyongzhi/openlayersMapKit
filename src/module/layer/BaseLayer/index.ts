@@ -1,13 +1,19 @@
-import { BaseLayerType, BaseLayerIdType, isDefined, isBoolean, isObject, isNumber } from "../../../utils/index";
+import { isDefined, isBoolean, isObject, isNumber } from "../../../utils/index";
 import OlPackage, { OlLayer } from '../../../source/index'
-import { warn_, error_, getPackageMessage, isVaildOpacity } from '../../../utils/index'
-import type { BaseLayerOptionsType, PropertiesType, BaseLayerEventType, IdType, OlExtentType } from '../../../utils/index'
+import { warn_, error_, getPackageMessage, isVaildOpacity, defaultValue } from '../../../utils/index'
+import type { IdType, OlExtentType } from '../../../utils/index'
 import { LayerGroup, Extent, VectorLayer } from '../../../index'
 import Map from '../../core/Map/index'
 import Draw from '../../interaction/Draw/index'
 import Modify from '../../interaction/Modify/index'
 import Measure from '../../interaction/Measure/index'
-import type { OlAllLayerInstanceType } from './type'
+import {
+    type OlAllLayerInstanceType,
+    type BaseLayerType,
+    type BaseLayerIdType,
+    type BaseLayerOptionsType,
+    type BaseLayerPropertiesType
+} from './type'
 
 let PACKAGE_NAME = 'BaseLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -19,7 +25,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/5
- * @updateDate 2025/9/2
+ * @updateDate 2025/9/30
  */
 
 const DEFAULT_LAYER_OPACITY: number = 1.0;
@@ -56,7 +62,6 @@ interface BaseLayerInitialized {
 
 export default class BaseLayer implements BaseLayerLike {
 
-
     /**
      * 图层类型
      */
@@ -82,36 +87,38 @@ export default class BaseLayer implements BaseLayerLike {
     minResolution: number = DEFAULT_LAYER_MIN_RESOLUTION; // 最小分辨率，默认0r
     maxResolution: number = DEFAULT_LAYER_MAX_RESOLUTION; // 最大分辨率，默认Infinity
     zIndex: number = DEFAULT_LAYER_ZINDEX; // 图层层级，默认0
-    properties: PropertiesType = DEFAULT_LAYER_PROPERTIES; // 图层属性，用于存储图层相关信息
+    properties: BaseLayerPropertiesType = DEFAULT_LAYER_PROPERTIES; // 图层属性，用于存储图层相关信息
+    /**
+     * 图层所属的地图对象
+     */
+    map: Map | null = null;
 
     /**
      * 图层所属的对象
      */
     target: Map | Draw | Modify | Measure | null = null;
 
-    #groupId: IdType = null; // 图层所属组ID，默认null
-
     constructor(type: BaseLayerType, options?: BaseLayerOptionsType) {
-        let _options: BaseLayerOptionsType = options || {};
+        let _options: BaseLayerOptionsType = defaultValue(options, {});
         this.type = type
-        PACKAGE_NAME = `${type}Layer`; // 动态更新包名
+        // 动态更新包名
+        PACKAGE_NAME = `${type}Layer`;
         createMessage = getPackageMessage(PACKAGE_NAME);
-        // 校验ID
-        if (_options.id) {
-            this.id = _options.id; // 赋值ID，用于区分图层
-        }
+        // 图层ID
+        this.id = defaultValue(_options.id, null); 
         // 赋值其他属性
-        this.name = _options.name || "";
-        this.className = _options.className || '';
-        this.opacity = _options.opacity || DEFAULT_LAYER_OPACITY;
-        this.visible = _options.visible || DEFAULT_LAYER_VISIBLE;
-        this.extent = _options.extent || null;
-        this.minZoom = _options.minZoom || DEFAULT_LAYER_MIN_ZOOM;
-        this.maxZoom = _options.maxZoom || DEFAULT_LAYER_MAX_ZOOM;
-        this.minResolution = _options.minResolution || DEFAULT_LAYER_MIN_RESOLUTION;
-        this.maxResolution = _options.maxResolution || DEFAULT_LAYER_MAX_RESOLUTION;
-        this.zIndex = _options.zIndex || DEFAULT_LAYER_ZINDEX;
-        this.properties = _options.properties || DEFAULT_LAYER_PROPERTIES;
+        this.name = defaultValue(_options.name, "");
+        this.className = defaultValue(_options.className, '');
+        this.opacity = defaultValue(_options.opacity, DEFAULT_LAYER_OPACITY);
+        this.visible = defaultValue(_options.visible, DEFAULT_LAYER_VISIBLE);
+        this.extent = defaultValue(_options.extent, null);
+        this.minZoom = defaultValue(_options.minZoom, DEFAULT_LAYER_MIN_ZOOM);
+        this.maxZoom = defaultValue(_options.maxZoom, DEFAULT_LAYER_MAX_ZOOM);
+        this.minResolution = defaultValue(_options.minResolution, DEFAULT_LAYER_MIN_RESOLUTION);
+        this.maxResolution = defaultValue(_options.maxResolution, DEFAULT_LAYER_MAX_RESOLUTION);
+        this.zIndex = defaultValue(_options.zIndex, DEFAULT_LAYER_ZINDEX);
+        this.properties = defaultValue(_options.properties, DEFAULT_LAYER_PROPERTIES);
+        this.map = defaultValue(_options.map, null);
     }
 
     protected _isInitialized(method: string): this is BaseLayerInitialized & this {
@@ -128,6 +135,7 @@ export default class BaseLayer implements BaseLayerLike {
         this._layer.on([
             "propertychange"
         ], (e: any) => {
+            // 8个基础属性
             if (e.key === 'opacity') {
                 this.opacity = this.getOpacity() as number
             } else if (e.key === 'visible') {
@@ -148,14 +156,18 @@ export default class BaseLayer implements BaseLayerLike {
         })
     }
 
-    getId() {
-        if (!this._isInitialized('getId')) return undefined;
+    getId(): BaseLayerIdType | undefined {
+        if (!this._isInitialized('getId')) return;
         return this.id;
+    }
+
+    setId(id: BaseLayerIdType): void {
+        if (!this._isInitialized('setId')) return;
+        this.id = id
     }
 
     /**
      * 获取图层数据源
-     * @returns 
      */
     getSource() {
         if (!this._isInitialized('getSource')) return undefined;
@@ -215,15 +227,6 @@ export default class BaseLayer implements BaseLayerLike {
     }
 
     /**
-     * 设置图层的范围
-     */
-    setExtent(extent: Extent | OlExtentType): void {
-        if (!this._isInitialized('setExtent')) return;
-        let _extent = (extent instanceof Extent) ? extent.getExtent() : extent
-        this._layer.setExtent(_extent)
-    }
-
-    /**
      * 获取图层的范围
      */
     getExtent(): Extent | undefined {
@@ -231,6 +234,15 @@ export default class BaseLayer implements BaseLayerLike {
         let extent = this._layer.getExtent()
         if(!extent) return;
         return new Extent(extent[0], extent[1], extent[2], extent[3])
+    }
+
+    /**
+     * 设置图层的范围
+     */
+    setExtent(extent: Extent | OlExtentType): void {
+        if (!this._isInitialized('setExtent')) return;
+        let _extent = (extent instanceof Extent) ? extent.getExtent() : extent
+        this._layer.setExtent(_extent)
     }
 
     setMinZoom(minZoom: number): void {
@@ -323,7 +335,7 @@ export default class BaseLayer implements BaseLayerLike {
         return this._layer.getZIndex();
     }
 
-    setProperties(properties: PropertiesType): void {
+    setProperties(properties: BaseLayerPropertiesType): void {
         if (!this._isInitialized('setProperties')) return;
         if (!isDefined(properties)) {
             warn_(createMessage('setProperties', '属性不能为空'));
@@ -336,19 +348,9 @@ export default class BaseLayer implements BaseLayerLike {
         this._layer.setProperties(properties);
     }
 
-    getProperties(): PropertiesType | undefined {
+    getProperties(): BaseLayerPropertiesType | undefined {
         if (!this._isInitialized('getProperties')) return;
         return this._layer.getProperties();
-    }
-
-    getGroupId() {
-        if (!this._isInitialized('getGroupId')) return;
-        return this.#groupId;
-    }
-
-    // TODO
-    setGroupId(newId: number | string) {
-        this.#groupId = newId;
     }
 
     /**

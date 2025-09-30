@@ -4,10 +4,6 @@ import { Map, Style } from '../../../index'
 import type { OMapStyleLike } from '../../basic/Style/type'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 
-
-/** --------------------------- */
-/** VectorLayer */
-/** --------------------------- */
 export type BaseVectorLayerOptionsType = {
     renderOrder?: () => number;
     renderBuffer?: number;

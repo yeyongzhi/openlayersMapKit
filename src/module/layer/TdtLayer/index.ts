@@ -5,6 +5,7 @@ import { OlLayer, OlSource } from '../../../source/index'
 import BaseLayer from '../BaseLayer'
 import { getTdtServiceUrl } from './layerSource'
 import { MapToken } from '../../util/index'
+import { type TdtLayerTypeEnum, type TdtLayerProjType, type TdtLayerProjTypeEnum } from './type'
 
 let PACKAGE_NAME = 'TdtLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -19,16 +20,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/7/11
  */
 
-export type TdtLayerTypeEnum = 'vec' | 'img' | 'ter' | 'cva' | 'cia' | 'cta'
-/**
- * w: 球面墨卡托投影
- * c: 经纬度投影
- */
-export type TdtLayerProjTypeEnum = 'w' | 'c'
 
-interface TdtLayerProjType {
-    proj: TdtLayerProjTypeEnum
-}
 
 export default class TdtLayer extends BaseLayer {
     /**
@@ -39,7 +31,7 @@ export default class TdtLayer extends BaseLayer {
     constructor(type: TdtLayerTypeEnum, options?: OMapTileLayerOptionsFinalType & TdtLayerProjType) {
         super('Tdt', options);
         if (!isDefined(MapToken.tdt)) {
-            error_(createMessage('constructor', '缺少天地图key，请提前申明'))
+            warn_(createMessage('constructor', '缺少天地图key，请提前申明'))
             return;
         }
         if (!isDefined(type)) {
@@ -48,7 +40,7 @@ export default class TdtLayer extends BaseLayer {
         }
         let _layeroptions = (options as OMapTileLayerOptionsFinalType) || {};
         delete _layeroptions.source
-        let _map = _layeroptions.map as OlMapInstanceType | undefined;
+        // let _map = _layeroptions.map as OlMapInstanceType | undefined;
         this.tdtType = type;
         this._layer = new OlLayer.Tile({
             ..._layeroptions,
