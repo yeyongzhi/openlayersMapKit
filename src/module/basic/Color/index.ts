@@ -39,7 +39,7 @@ export default class Color {
      * 初始化颜色
      * @param {ColorType} color 颜色
      */
-    private _initColor(color: ColorType) {
+    protected _initColor(color: ColorType) {
         const errorHandler = () => {
             error_(createMessage('constructor', '初始化参数有误'));
         }

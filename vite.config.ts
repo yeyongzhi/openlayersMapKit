@@ -30,7 +30,8 @@ export default defineConfig({
           'ol/interaction': 'ol.interaction',
           'ol/interaction/Draw': 'ol.interaction.Draw',
           'ol/Observable': 'ol.Observable',
-          'ol/tilegrid': 'ol.tilegrid'
+          'ol/tilegrid': 'ol.tilegrid',
+          'ol/extent': 'ol.extent'
         }
       },
       plugins: []

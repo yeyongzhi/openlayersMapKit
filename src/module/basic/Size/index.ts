@@ -1,5 +1,5 @@
 
-import { isDefined, isNumber } from '../../../utils/index';
+import { isDefined, isNumber, isArray, isAllNumberArray } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { OlSizeType } from '../../../utils/index';
 
@@ -32,13 +32,22 @@ export default class Size implements SizeLike {
      * @example [20, 15]
      * @private
      */
-    _size: OlSizeType;
+    _size: OlSizeType = [0, 0]
 
-    constructor(width: number, height: number) {
-        if(!isNumber(width) || !isNumber(height)) {
-            error_(createMessage("constructor", "初始化参数有误"))
+    constructor(...args: number[]);
+    constructor(args: number[]);
+
+    constructor(...args: any[]) {
+        let value: OlSizeType = [0, 0]
+        if (args.length === 1 && isArray(args[0])) {
+            value = args[0];
+        } else if (args.length === 2 && isAllNumberArray(args)) {
+            value = [args[0], args[1]];
+        } else {
+            error_(createMessage('constructor', '初始化参数格式有误'));
+            return;
         }
-        this._size = [width, height];
+        this._size = value;
     }
 
     private _isInitialized(method: string): this is SizeLikeInitialized & this {

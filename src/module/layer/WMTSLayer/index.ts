@@ -1,62 +1,60 @@
-import { isDefined, isNumber, defaultValue } from '../../../utils/index';
+import { defaultValue, isDefined, isString, isNumber } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import { OlLayer, OlSource, OlTileGrid } from '../../../source/index'
-import BaseLayer from '../BaseLayer'
+import OlPackage, { OlLayer, OlSource, OlTileGrid } from '../../../source/index'
+import { Projection } from '../../../index'
+import { handleGetProjectionValue } from '../../core/Projection/handle'
 import Lnglat from '../../basic/Lnglat/index'
 import { type OMapCoordinateType, type OlCoordinateType } from '../../basic/Lnglat/type'
 import Size from '../../basic/Size/index'
 import { type OMapSizeType, type OlSizeType } from '../../basic/Size/type'
 import { handleGetSizeValue } from '../../basic/Size/handle'
+import BaseLayer from '../BaseLayer/index'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
 import { handleGetColorValue } from '../../basic/Color/handle'
-import { 
-    DEFAULT_GAODE_LAYER_PARAMS,
-    DEFAULT_GAODE_LAYER_SOURCE_PARAMS,
-    type GaodeLayerTypeEnum,
-    type OMapGaodeLayerParamsType
+import {
+    type OMapWMTSLayerParamsType,
+    DEFAULT_WMTS_LAYER_PARAMS,
+    type OMapWMTSLayerSourceParamsType,
+    DEFAULT_WMTS_LAYER_SOURCE_PARAMS
 } from './type'
-import { getGaodeLayerUrlsByType } from './handle'
 
-let PACKAGE_NAME = 'GaodeLayer';
+let PACKAGE_NAME = 'WMTSLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
- * 高德地图类
- * @class
- * @classdesc 快捷使用高德地图相关的开发地图服务
+ * WMS图层类
+ * @class WMTSLayer
+ * @classdesc 基础的WMS地图服务
  * @author Aurora
  * @version 1.0.0
- * @createDate 2025/10/3
- * @updateDate 2025/10/3
+ * @createDate 2025/10/2
+ * @updateDate 2025/10/2
  */
 
-export default class GaodeLayer extends BaseLayer {
-    /**
-     * 图层类型
-     */
-    gaodeType: GaodeLayerTypeEnum | null = null;
+export default class WMTSLayer extends BaseLayer {
 
-    constructor(type: GaodeLayerTypeEnum, options?: OMapGaodeLayerParamsType ) {
-        super('Gaode', defaultValue(options, {}));
-        if(!isDefined(type)) {
-            error_(createMessage('GaodeLayer', "type参数不能为空"))
+    constructor(options: OMapWMTSLayerParamsType) {
+        super('WMS', defaultValue(options, {}))
+        if (!isDefined(options.source)) {
+            warn_(createMessage('constructor', '缺少source参数'))
             return;
         }
-        let _layerParams = Object.assign({}, DEFAULT_GAODE_LAYER_PARAMS, {
-            ...defaultValue(options, {}),
+        let _layerParams = Object.assign({}, DEFAULT_WMTS_LAYER_PARAMS, {
+            ...options,
             source: undefined,
             map: undefined
         })
-        this.gaodeType = type;
-        let _sourceParams = Object.assign({}, DEFAULT_GAODE_LAYER_SOURCE_PARAMS, {
-            ...defaultValue(options?.source, {}),
+        let _sourceParams = Object.assign({}, DEFAULT_WMTS_LAYER_SOURCE_PARAMS, {
+            ...defaultValue(options.source, {}),
         })
+        console.log("_sourceParams")
+        console.log(_sourceParams)
         let _source = undefined
-        if (isDefined(options) && isDefined(options.source)) {
+        if (isDefined(options.source)) {
             let _tileGrid = undefined
             if (isDefined(_sourceParams.tileGrid)) {
-                _tileGrid = new OlTileGrid.TileGrid({
+                _tileGrid = new OlTileGrid.WMTS({
                     ..._sourceParams.tileGrid,
                     extent: handleGetExtentValue(_sourceParams.tileGrid.extent),
                     origin: handleGetLnglatValue(_sourceParams.tileGrid.origin),
@@ -81,15 +79,10 @@ export default class GaodeLayer extends BaseLayer {
                     }) : undefined,
                 })
             }
-            _source = new OlSource.XYZ({
+            _source = new OlSource.WMTS({
                 ..._sourceParams,
-                urls: getGaodeLayerUrlsByType(this.gaodeType),
+                projection: handleGetProjectionValue(_sourceParams.projection),
                 tileGrid: _tileGrid
-            })
-        } else {
-            _source = new OlSource.XYZ({
-                ..._sourceParams,
-                urls: getGaodeLayerUrlsByType(this.gaodeType)
             })
         }
         this._layer = new OlLayer.Tile({

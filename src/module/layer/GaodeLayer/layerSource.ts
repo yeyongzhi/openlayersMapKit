@@ -1,4 +1,4 @@
-import type { GaodeLayerTypeEnum } from './index'
+import type { GaodeLayerTypeEnum } from './type'
 
 export const GaodeLayerTypeUrls: Record<GaodeLayerTypeEnum, Array<string>> = {
     vec: [

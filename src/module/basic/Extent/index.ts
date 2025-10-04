@@ -1,15 +1,20 @@
 import Lnglat from '../Lnglat/index'
-import { isDefined, isNumber } from '../../../utils/index';
+import { isArray, isDefined, isNumber, isCoordinatesType, isAllNumberArray } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlExtentType } from '../../../utils/index'
+import { type OMapCoordinateType, type OlCoordinateType } from '../Lnglat/type'
+import { type OlExtentType, type OMapExtentType } from './type'
+import { OlExtent } from '../../../source/index'
+import { handleGetExtentValue } from './handle';
+import { handleGetLnglatValue } from '../Lnglat/handle'
+import Size from '../Size/index'
 
 const PACKAGE_NAME = 'Extent';
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /** Extent 边界范围
  * Author：yyz
- * CreateDate：2025/08/07
- * UpdateDate：2025/08/13
+ * CreateDate：2025/10/4
+ * UpdateDate：2025/10/4
  */
 
 interface ExtentLike {
@@ -30,16 +35,20 @@ export default class Extent implements ExtentLike {
      */
     _extent?: OlExtentType;
 
-    constructor(minX: number, minY: number, maxX: number, maxY: number) {
-        if(!isNumber(minX) || !isNumber(minY) || !isNumber(maxX) || !isNumber(maxY)) {
-            error_(createMessage('constructor', '初始化参数有误，必须为经纬度数值'));
+    constructor(...args: number[]);
+    constructor(args: number[]);
+
+    constructor(...args: any[]) {
+        let value: OlExtentType = []
+        if (args.length === 1 && isArray(args[0])) {
+            value = args[0];
+        } else if (args.length === 4 && isAllNumberArray(args)) {
+            value = args;
+        } else {
+            error_(createMessage('constructor', '初始化参数格式有误'));
             return;
         }
-        if(maxX < minX || maxY < minY) {
-            error_(createMessage('constructor', '初始化参数有误'));
-            return;
-        }
-        this._extent = [minX, minY, maxX, maxY];
+        this._extent = value;
     }
 
     private _isInitialized(method: string): this is ExtentLikeInitialized & this {
@@ -96,17 +105,32 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 中心点位置
      */
     getCenter(): Lnglat | undefined {
-        if (!this._isInitialized('getCenter')) return undefined;
-        return new Lnglat(
-            (this._extent[0] + this._extent[2]) / 2,
-            (this._extent[1] + this._extent[3]) / 2
-        );
+        if (!this._isInitialized('getCenter')) return;
+        return new Lnglat(...OlExtent.getCenter(this._extent));
     }
 
-    // getWidth(): number | undefined {
-    //     if (!this._isInitialized('getWidth')) return undefined;
-    //     return getWidth(this._extent);
-    // }
+    /**
+     * 获取宽度信息
+     * @returns {number} 宽度
+     */
+    getWidth(): number | undefined {
+        if (!this._isInitialized('getWidth')) return;
+        return OlExtent.getWidth(this._extent);
+    }
+
+    /**
+     * 获取高度信息
+     * @returns {number} 高度
+     */
+    getHeight(): number | undefined {
+        if (!this._isInitialized('getHeight')) return;
+        return OlExtent.getHeight(this._extent);
+    }
+
+    getSize(): Size | undefined {
+        if (!this._isInitialized('getHeight')) return;
+        return new Size(...OlExtent.getSize(this._extent));
+    }
 
     /**
      * 以字符串的形式输出边界范围
@@ -123,39 +147,113 @@ export default class Extent implements ExtentLike {
     }
 
     /**
-     * 判断边界范围Extent是否包含某个点
-     * @param extent 范围
-     * @param position 位置
-     * @return 判断结果
+     * 构建包含所有给定坐标的范围
+     * @param {OMapCoordinateType} coordinates 坐标数组
+     * @return {Extent} 边界范围
      */
-    static containsCoordinate(extent: Extent, position: Lnglat): boolean | undefined {
-        if (!(extent instanceof Extent) || !(position instanceof Lnglat)) {
-            warn_(createMessage('containsCoordinate', '参数格式错误，必须为Extent类型和Lnglat类型'));
+    static boundingExtent(coordinates: Array<OMapCoordinateType>): Extent | undefined {
+        if (!isDefined(coordinates)) {
+            error_(createMessage('boundingExtent', '参数coordinates不能为空'));
             return;
         }
-        if (!extent._isInitialized('containsCoordinate')) return;
-        if (!isDefined(position.toArray())) return;
-        const [x, y] = position.toArray()!;
-        return x >= extent._extent[0] && x <= extent._extent[2] && extent._extent[1] <= y && y <= extent._extent[3];
+        if (!isArray(coordinates)) {
+            error_(createMessage('boundingExtent', '参数coordinates格式错误，必须为数组'));
+            return;
+        }
+        let vaildList = coordinates.filter((c: OMapCoordinateType) => {
+            return c instanceof Lnglat || (isCoordinatesType(c))
+        })
+        if (vaildList.length < coordinates.length) {
+            warn_(createMessage('boundingExtent', '参数coordinates存在不合法格式，元素必须为Lnglat类型或者坐标数组类型'));
+        }
+        let positions = vaildList.map((c: OMapCoordinateType) => {
+            return (c instanceof Lnglat) ? (c.toArray() as OlCoordinateType) : (c as OlCoordinateType);
+        })
+        let _extent = OlExtent.boundingExtent(positions);
+        return new Extent(..._extent);
+    }
+
+    /**
+     * 判断边界范围Extent是否包含某个点
+     * @param {OMapExtentType} extent 范围
+     * @param {OMapCoordinateType} coordinate 位置
+     * @return {boolean} 判断结果
+     */
+    static containsCoordinate(extent: OMapExtentType, coordinate: OMapCoordinateType): boolean | undefined {
+        if (!isDefined(extent) || !isDefined(coordinate)) return undefined;
+        let _extent = handleGetExtentValue(extent)
+        let _coordinate = handleGetLnglatValue(coordinate);
+        if (!isDefined(_extent) || !isDefined(_coordinate)) return undefined;
+        return OlExtent.containsCoordinate(_extent, _coordinate);
     }
 
     /**
      * 判断是否某个范围包含另一个范围
-     * @param extent1 范围1
-     * @param extent2 范围2
+     * @param {OMapExtentType} extent1 范围1
+     * @param {OMapExtentType} extent2 范围2
      * @return 判断结果
      */
-    static containsExtent(extent1: Extent, extent2: Extent): boolean | undefined {
-        if (!(extent1 instanceof Extent) || !(extent2 instanceof Extent)) {
-            warn_(createMessage('containsExtent', '参数格式错误，必须为Extent'));
-            return undefined;
-        }
-        if (!extent1._isInitialized('containsExtent') || !extent2._isInitialized('containsExtent')) return undefined;
-        return (
-            extent1._extent[0] <= extent2._extent[0] &&
-            extent2._extent[2] <= extent1._extent[2] &&
-            extent1._extent[1] <= extent2._extent[1] &&
-            extent2._extent[3] <= extent1._extent[3]
-        );
+    static containsExtent(extent1: OMapExtentType, extent2: OMapExtentType): boolean | undefined {
+        if (!isDefined(extent1) || !isDefined(extent2)) return;
+        let _extent1 = handleGetExtentValue(extent1);
+        let _extent2 = handleGetExtentValue(extent2);
+        if (!isDefined(_extent1) || !isDefined(_extent2)) return;
+        return OlExtent.containsExtent(_extent1, _extent2);
     }
+
+    static containsXY(extent: OMapExtentType, x: number, y: number): boolean | undefined {
+        if (!isDefined(extent) || !isDefined(x) || !isDefined(y)) return;
+        let _extent = handleGetExtentValue(extent);
+        if (!isDefined(_extent)) return;
+        return OlExtent.containsXY(_extent, x, y);
+    }
+
+    static createEmpty(): Extent {
+        return new Extent(...OlExtent.createEmpty());
+    }
+
+    static equals(extent1: OMapExtentType, extent2: OMapExtentType): boolean | undefined {
+        if (!isDefined(extent1) || !isDefined(extent2)) return;
+        let _extent1 = handleGetExtentValue(extent1);
+        let _extent2 = handleGetExtentValue(extent2);
+        if (!isDefined(_extent1) || !isDefined(_extent2)) return;
+        return OlExtent.equals(_extent1, _extent2);
+    }
+
+    static extend(extent1: OMapExtentType, extent2: OMapExtentType): Extent | undefined {
+        if (!isDefined(extent1) || !isDefined(extent2)) return;
+        let _extent1 = handleGetExtentValue(extent1);
+        let _extent2 = handleGetExtentValue(extent2);
+        if (!isDefined(_extent1) || !isDefined(_extent2)) return;
+        return new Extent(...OlExtent.extend(_extent1, _extent2));
+    }
+
+    static getArea(extent: OMapExtentType): number | undefined {
+        if (!isDefined(extent)) return;
+        let _extent = handleGetExtentValue(extent);
+        if (!isDefined(_extent)) return;
+        return OlExtent.getArea(_extent);
+    }
+
+    /**
+     * 确定一个范围是否与另一个范围相交
+     * @param {OMapExtentType} extent1 
+     * @param {OMapExtentType}extent2 
+     * @returns {boolean} 判断结果
+     */
+    static intersects(extent1: OMapExtentType, extent2: OMapExtentType): boolean | undefined {
+        if (!isDefined(extent1) || !isDefined(extent2)) return;
+        let _extent1 = handleGetExtentValue(extent1);
+        let _extent2 = handleGetExtentValue(extent2);
+        if (!isDefined(_extent1) || !isDefined(_extent2)) return;
+        return OlExtent.intersects(_extent1, _extent2);
+    }
+
+    static isEmpty(extent: OMapExtentType): boolean | undefined {
+        if (!isDefined(extent)) return;
+        let _extent = handleGetExtentValue(extent);
+        if (!isDefined(_extent)) return;
+        return OlExtent.isEmpty(_extent);
+    }
+
 }

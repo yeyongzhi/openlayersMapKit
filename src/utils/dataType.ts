@@ -10,7 +10,6 @@ function isArray(value: any): boolean {
 
 function isEmptyArray<T>(value: T): boolean {
     return Array.isArray(value) && value.length === 0;
-
 }
 
 function isNumber(value: number | any): value is number {
@@ -73,6 +72,11 @@ function isVaildColorHex(value: any) {
 function isVaildColorHexWithAlpha(value: any) {
     let _value = value.replace("#", "");
     return isString(value) && value.startsWith("#") && (_value.length === 8);
+}
+
+export function isAllNumberArray(value: any[]): boolean {
+    const isAllNumber = value.every((v: any) => isNumber(v));
+    return isArray(value) && isAllNumber;
 }
 
 export {

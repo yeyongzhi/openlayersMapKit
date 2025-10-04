@@ -68,19 +68,30 @@ function initMap() {
     })
 
     // 加载高德地图
-    const layer = new OMap.GaodeLayer("vec", { id: "gaode_vec" })
+    const layer = new OMap.GaodeLayer(OMap.GaodeLayerType.Vec, {
+        id: "gaode_vec",
+        // minZoom: 16
+    })
+    console.log(layer)
     map.addLayer(layer)
+
     // OMap.MapToken.tdt = ""
     // 加载天地图
-    const TdtLayer1 = new OMap.TdtLayer("vec")
-    const TdtLayer2 = new OMap.TdtLayer("cva")
+    // const TdtLayer1 = new OMap.TdtLayer("vec")
+    // const TdtLayer2 = new OMap.TdtLayer("cva")
     // map.addLayer(TdtLayer1)
     // map.addLayer(TdtLayer2)
 
     // 加载 OSM 图层
-    const OSMlayer = new OMap.TileLayer({
+    const OSMlayer = new OMap.XYZLayer({
         source: {
-            url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            // url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            urls: [
+                "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+                "https://webrd02.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+                "https://webrd03.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}",
+                "https://webrd04.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
+            ]
             // url: 'https://a.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
         }
     })
@@ -517,6 +528,56 @@ function initLink() {
     map.addInteraction(link)
 }
 
+function initWMSLayer() {
+    // 美国区域
+    const wmslayer = new OMap.WMSLayer({
+        source: {
+            url: 'https://ahocevar.com/geoserver/wms',
+            params: { 'LAYERS': 'topp:states', 'TILED': true },
+            serverType: 'geoserver',
+            // Countries have transparency, so do not fade tiles:
+            transition: 0,
+        }
+    })
+    map.addLayer(wmslayer)
+}
+
+function initWMTSLayer() {
+    const projection = new OMap.Projection('EPSG:3857');
+    let projectionExtent = projection.getExtent();
+    console.log(projectionExtent)
+    projectionExtent = new OMap.Extent(...projectionExtent)
+    console.log(projectionExtent.getWidth())
+    const size = projectionExtent.getWidth() / 256
+    const resolutions = new Array(19);
+    const matrixIds = new Array(19);
+    for (let z = 0; z < 19; ++z) {
+        // generate resolutions and matrixIds arrays for this WMTS
+        resolutions[z] = size / Math.pow(2, z);
+        matrixIds[z] = z;
+    }
+    // 美国区域
+    const wmtslayer = new OMap.WMTSLayer({
+        opacity: 0.7,
+        source: {
+            attributions: 'Tiles © <a href="https://mrdata.usgs.gov/geology/state/"' + ' target="_blank">USGS</a>',
+            url: 'https://mrdata.usgs.gov/mapcache/wmts',
+            layer: 'sgmc2',
+            matrixSet: 'GoogleMapsCompatible',
+            format: 'image/png',
+            projection: projection,
+            tileGrid: {
+                origin: projectionExtent.getTopLeft(),
+                resolutions: resolutions,
+                matrixIds: matrixIds,
+            },
+            style: 'default',
+            wrapX: true,
+        }
+    })
+    map.addLayer(wmtslayer)
+}
+
 function init() {
     initDom()
     initMap()
@@ -534,6 +595,10 @@ function init() {
     // initSelect()
 
     // initLink()
+
+
+    // initWMSLayer()
+    initWMTSLayer()
 }
 
 init()

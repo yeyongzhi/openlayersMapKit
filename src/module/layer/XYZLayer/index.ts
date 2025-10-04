@@ -1,59 +1,56 @@
-import { isDefined, isNumber, defaultValue } from '../../../utils/index';
+import { defaultValue, isDefined, isString, isNumber } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import { OlLayer, OlSource, OlTileGrid } from '../../../source/index'
-import BaseLayer from '../BaseLayer'
+import OlPackage, { OlLayer, OlSource, OlTileGrid } from '../../../source/index'
+import { Projection } from '../../../index'
+import { handleGetProjectionValue } from '../../core/Projection/handle'
 import Lnglat from '../../basic/Lnglat/index'
 import { type OMapCoordinateType, type OlCoordinateType } from '../../basic/Lnglat/type'
 import Size from '../../basic/Size/index'
 import { type OMapSizeType, type OlSizeType } from '../../basic/Size/type'
 import { handleGetSizeValue } from '../../basic/Size/handle'
+import BaseLayer from '../BaseLayer/index'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
 import { handleGetColorValue } from '../../basic/Color/handle'
-import { 
-    DEFAULT_GAODE_LAYER_PARAMS,
-    DEFAULT_GAODE_LAYER_SOURCE_PARAMS,
-    type GaodeLayerTypeEnum,
-    type OMapGaodeLayerParamsType
+import {
+    type OMapXYZLayerParamsType,
+    DEFAULT_XYZ_LAYER_PARAMS,
+    type OMapXYZLayerSourceParamsType,
+    DEFAULT_XYZ_LAYER_SOURCE_PARAMS
 } from './type'
-import { getGaodeLayerUrlsByType } from './handle'
 
-let PACKAGE_NAME = 'GaodeLayer';
+
+let PACKAGE_NAME = 'TileLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
- * 高德地图类
- * @class
- * @classdesc 快捷使用高德地图相关的开发地图服务
+ * 瓦片图层类
+ * @class XYZLayer
+ * @classdesc 基础的XYZ瓦片地图服务
  * @author Aurora
  * @version 1.0.0
- * @createDate 2025/10/3
- * @updateDate 2025/10/3
+ * @createDate 2025/10/2
+ * @updateDate 2025/10/2
  */
 
-export default class GaodeLayer extends BaseLayer {
-    /**
-     * 图层类型
-     */
-    gaodeType: GaodeLayerTypeEnum | null = null;
+export default class XYZLayer extends BaseLayer {
 
-    constructor(type: GaodeLayerTypeEnum, options?: OMapGaodeLayerParamsType ) {
-        super('Gaode', defaultValue(options, {}));
-        if(!isDefined(type)) {
-            error_(createMessage('GaodeLayer', "type参数不能为空"))
+    constructor(options: OMapXYZLayerParamsType) {
+        super('XYZ', defaultValue(options, {}))
+        if (!isDefined(options.source)) {
+            error_(createMessage('constructor', 'source参数是必须的'))
             return;
         }
-        let _layerParams = Object.assign({}, DEFAULT_GAODE_LAYER_PARAMS, {
-            ...defaultValue(options, {}),
+        let _layerParams = Object.assign({}, DEFAULT_XYZ_LAYER_PARAMS, {
+            ...options,
             source: undefined,
             map: undefined
         })
-        this.gaodeType = type;
-        let _sourceParams = Object.assign({}, DEFAULT_GAODE_LAYER_SOURCE_PARAMS, {
-            ...defaultValue(options?.source, {}),
+        let _sourceParams = Object.assign({}, DEFAULT_XYZ_LAYER_SOURCE_PARAMS, {
+            ...defaultValue(options.source, {}),
         })
         let _source = undefined
-        if (isDefined(options) && isDefined(options.source)) {
+        if (isDefined(options.source)) {
             let _tileGrid = undefined
             if (isDefined(_sourceParams.tileGrid)) {
                 _tileGrid = new OlTileGrid.TileGrid({
@@ -83,13 +80,7 @@ export default class GaodeLayer extends BaseLayer {
             }
             _source = new OlSource.XYZ({
                 ..._sourceParams,
-                urls: getGaodeLayerUrlsByType(this.gaodeType),
                 tileGrid: _tileGrid
-            })
-        } else {
-            _source = new OlSource.XYZ({
-                ..._sourceParams,
-                urls: getGaodeLayerUrlsByType(this.gaodeType)
             })
         }
         this._layer = new OlLayer.Tile({

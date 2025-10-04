@@ -20,8 +20,8 @@ export type OMapTileSourceTileGrid = {
 }
 
 export type OMapTileSourceParamsType = OMapSourceParamsType & {
-    cacheSize?: number;
-    tilePixelRatio?: number;
+    // cacheSize?: number;
+    // tilePixelRatio?: number;
     tileGrid?: OMapTileSourceTileGrid;
     transition?: number;
     key?: string;

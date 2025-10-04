@@ -1,4 +1,4 @@
-import { isDefined, isNumber, isCoordinatesType } from '../../../utils/index';
+import { isDefined, isNumber, isCoordinatesType, isArray, isAllNumberArray } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { OlCoordinateType } from '../../../utils/index'
 
@@ -19,13 +19,22 @@ export default class Lnglat {
      * @example [119.26, 28.73]
      * @private
      */
-    _lnglat: OlCoordinateType;
+    _lnglat: OlCoordinateType = [];
 
-    constructor(lng: number, lat: number) {
-        if (!isNumber(lng) || !isNumber(lat)) {
-            error_(createMessage("constructor", "传入经纬度格式错误"));
+    constructor(...args: number[]);
+    constructor(args: number[]);
+
+    constructor(...args: any[]) {
+        let value: OlCoordinateType = []
+        if (args.length === 1 && isArray(args[0])) {
+            value = args[0];
+        } else if (args.length === 4 && isAllNumberArray(args)) {
+            value = args;
+        } else {
+            error_(createMessage('constructor', '初始化参数格式有误'));
+            return;
         }
-        this._lnglat = [lng, lat];
+        this._lnglat = value;
     }
 
     private _isInitialized(method: string): boolean {

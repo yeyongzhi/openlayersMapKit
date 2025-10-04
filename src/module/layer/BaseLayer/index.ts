@@ -345,7 +345,10 @@ export default class BaseLayer implements BaseLayerLike {
             warn_(createMessage('setProperties', '属性必须为object类型'));
             return;
         }
-        this._layer.setProperties(properties);
+        let oldProperties = this.getProperties() || {}
+        let newProperties = Object.assign({}, oldProperties, properties)
+        this._layer.setProperties(newProperties);
+        this.properties = newProperties;
     }
 
     getProperties(): BaseLayerPropertiesType | undefined {

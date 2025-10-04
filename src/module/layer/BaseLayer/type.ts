@@ -4,13 +4,18 @@ import Color from '../../basic/Color/index'
 import Map from '../../core/Map/index'
 
 /** BaseLayer */
-export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt'
+type CustBaseLayerType = 'XYZ' | 'WMS'
+export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt' | CustBaseLayerType
 export type BaseLayerIdType = number | string | null | undefined
 export type BaseLayerPropertiesType = Record<string, any>
 
 export type OlBaseLayerOptionsTypeEnum = "className" | "opacity" | "visible" | "extent" | "zIndex" | "minResolution" | "maxResolution" | "minZoom" | "maxZoom" | "background" | "properties"
-// 此处的BaseLayerOptionsType 继承 ol.layer.Base全部属性，并增加 id 和 name
+// 此处的BaseLayerOptionsType 继承 ol.layer.Base全部属性
+// 十一个基础属性
 export type BaseLayerCommonParamsType = {
+    /**
+     * 下面十个是ol.layer.Base的基础属性
+     */
     className?: string;
     opacity?: number;
     visible?: boolean;
@@ -21,8 +26,12 @@ export type BaseLayerCommonParamsType = {
     minZoom?: number;
     maxZoom?: number;
     background?: Color | undefined;
+    /**
+     * properties是ol不具备的初始化属性，但是有对应的方法
+     */
     properties?: Record<string, any>;
 }
+// 增加三个属性
 export type BaseLayerOptionsType = BaseLayerCommonParamsType & {
     id?: BaseLayerIdType; // 图层id
     name?: string; // 图层名称，用于显示在图层控制栏中，默认使用图层id
