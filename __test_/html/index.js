@@ -597,8 +597,11 @@ function init() {
     // initLink()
 
 
-    // initWMSLayer()
-    initWMTSLayer()
+    initWMSLayer()
+    // initWMTSLayer()
+
+    const point = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+    console.log(point)
 }
 
 init()

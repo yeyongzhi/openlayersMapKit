@@ -7,9 +7,13 @@ import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import {
     checkLinearRingCoordinates,
     type OMapLinearRingGeometryCoordinatesType,
-    type OlLinearRingGeomInstanceType
+    type OlLinearRingGeomInstanceType,
+    type LinearRingLike,
+    type LinearRingInitialized,
 } from './type'
-import { Lnglat } from '../../../../index'
+import Lnglat from '../../../basic/Lnglat/index'
+import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
+
 
 const PACKAGE_NAME = 'LinearRing';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -21,10 +25,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/8/25
- * @updateDate 2025/9/1
+ * @updateDate 2025/10/6
  */
 
-export default class LinearRing extends BasicFeature {
+export default class LinearRing extends BasicFeature<OlLinearRingGeomInstanceType> implements LinearRingLike {
 
     constructor(coordinatesOrFeature: OMapLinearRingGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
         if (!isDefined(coordinatesOrFeature)) {
@@ -43,6 +47,31 @@ export default class LinearRing extends BasicFeature {
                 this.setProperties(properties)
             }
         }
+    }
+
+    protected _init(coordinates: OMapLinearRingGeometryCoordinatesType, radius?: number) {
+        let geometryCoordinates = coordinates.map(c => {
+            return handleGetLnglatValue(c) as OlCoordinateType
+        });
+        if (geometryCoordinates) {
+            this._geometry = new OlGeometry.LinearRing(geometryCoordinates)
+            this._feature = new OlFeature({
+                geometry: this._geometry
+            })
+        }
+    }
+
+    protected _initByFeature(feature: OlFeatureInstanceType) {
+        this._feature = feature
+        this._geometry = feature.getGeometry() as OlLinearRingGeomInstanceType
+    }
+
+    protected _isInitialized(method: string): this is LinearRingInitialized & this {
+        if (!isDefined(this._feature) || !isDefined(this._geometry)) {
+            warn_(createMessage(method, '未正确实例化'));
+            return false;
+        }
+        return true;
     }
 
     /**

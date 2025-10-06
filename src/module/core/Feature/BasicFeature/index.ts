@@ -3,7 +3,7 @@ import { isDefined, isNumber, isObject, isString } from '../../../../utils/index
 import { warn_, error_, getPackageMessage } from '../../../../utils/message'
 import type {
     OlFeatureInstanceType,
-    OlFeatureType,
+    OMapBasicFeatureType,
     OlGeomInstanceType,
     OMapBasicFeatureCoordinatesType,
     BasicFeatureLike,
@@ -15,29 +15,28 @@ import type { OMapPolygonGeometryCoordinatesType } from '../Polygon/type'
 import type { OMapLinearRingGeometryCoordinatesType } from '../LinearRing/type'
 import type { OlCoordinateType, PropertiesType } from '../../../../utils/type'
 import { Lnglat } from '../../../../index';
+import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 
-const PACKAGE_NAME = 'Feature';
+const PACKAGE_NAME = 'BasicFeature';
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
- * 要素类
- * @class
- * @classdesc 要素类
+ * @class BasicFeature
+ * @classdesc 要素基类（抽象类）
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/9/1
+ * @updateDate 2025/10/6
  */
 
-
-export default class BasicFeature implements BasicFeatureLike {
+export default abstract class BasicFeature<T> implements BasicFeatureLike {
 
     id?: number | string | null;
-    type?: OlFeatureType;
-    _feature?: OlFeatureInstanceType
-    _geometry?: OlGeomInstanceType
+    type?: OMapBasicFeatureType;
+    _feature?: OlFeatureInstanceType;
+    _geometry?: T;
 
-    constructor(type: OlFeatureType, coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType, radius?: number) {
+    constructor(type: OMapBasicFeatureType, coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType, radius?: number) {
         this.type = type;
         if (coordinatesOrFeature instanceof OlFeature) {
             this._initByFeature(coordinatesOrFeature)
@@ -46,65 +45,24 @@ export default class BasicFeature implements BasicFeatureLike {
         }
     }
 
-    protected _init(coordinates: OMapBasicFeatureCoordinatesType, radius?: number) {
-        switch (this.type) {
-            case 'Point':
-                let p_coordinates = coordinates as OMapPointGeometryCoordinatesType
-                this._geometry = new OlGeometry.Point((p_coordinates instanceof Lnglat) ? p_coordinates._lnglat : p_coordinates)
-                break;
-            case 'LineString':
-                let l_coordinates = (coordinates as OMapLineStringGeometryCoordinatesType).map(c => {
-                    return (c instanceof Lnglat) ? c._lnglat : c
-                })
-                this._geometry = new OlGeometry.LineString(l_coordinates)
-                break;
-            case 'Polygon':
-                let p2_coordinates = (coordinates as OMapPolygonGeometryCoordinatesType).map(c => {
-                    return c.map(c2 => {
-                        return (c2 instanceof Lnglat) ? c2._lnglat : c2
-                    })
-                })
-                this._geometry = new OlGeometry.Polygon(p2_coordinates)
-                break;
-            case 'LinearRing':
-                let l2_coordinates = (coordinates as OMapLinearRingGeometryCoordinatesType).map(c => {
-                    return (c instanceof Lnglat) ? c._lnglat : c
-                })
-                this._geometry = new OlGeometry.LinearRing(l2_coordinates)
-                break;
-            case 'Circle':
-                let c_coordinates = coordinates as OMapPointGeometryCoordinatesType;
-                this._geometry = new OlGeometry.Circle((c_coordinates instanceof Lnglat) ? c_coordinates._lnglat : c_coordinates, radius as number)
-                break;
-        }
-        this._feature = new OlFeature({
-            geometry: this._geometry
-        })
-    }
+    protected abstract _init(coordinates: OMapBasicFeatureCoordinatesType, radius?: number): void;
 
-    protected _initByFeature(feature: OlFeatureInstanceType) {
-        this._feature = feature
-        this._geometry = feature.getGeometry() as OlGeomInstanceType
-    }
+    protected abstract _initByFeature(feature: OlFeatureInstanceType): void;
 
-    protected _isInitialized(
-        method: string
-    ): this is BasicFeatureInitialized & this {
-        if (this._feature == null) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
-    }
+    protected abstract _isInitialized(method: string): boolean;
 
     getFeature(): OlFeatureInstanceType | undefined {
         if (!this._isInitialized('getFeature')) return;
         return this._feature
     }
 
+    getGeometry() {
+        return this._geometry
+    }
+
     getProperties(): PropertiesType | undefined {
         if (!this._isInitialized('getProperties')) return;
-        return this._feature.getProperties()
+        return (this._feature as OlFeatureInstanceType).getProperties()
     }
 
     setProperties(properties: PropertiesType) {
@@ -117,7 +75,7 @@ export default class BasicFeature implements BasicFeatureLike {
             warn_(createMessage('setProperties', '参数应为对象类型'));
             return;
         }
-        this._feature.setProperties(properties || {})
+        (this._feature as OlFeatureInstanceType).setProperties(properties || {})
     }
 
     setId(id: number | string): void {
@@ -141,13 +99,5 @@ export default class BasicFeature implements BasicFeatureLike {
     getType() {
         return this.type
     }
-
-    getGeometry() {
-        return this._geometry
-    }
-
-    getCoordinates() {}
-
-    setCoordinates(coordinates: any) {}
 
 }

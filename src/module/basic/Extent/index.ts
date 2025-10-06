@@ -14,7 +14,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 /** Extent 边界范围
  * Author：yyz
  * CreateDate：2025/10/4
- * UpdateDate：2025/10/4
+ * UpdateDate：2025/10/5
  */
 
 interface ExtentLike {
@@ -51,7 +51,7 @@ export default class Extent implements ExtentLike {
         this._extent = value;
     }
 
-    private _isInitialized(method: string): this is ExtentLikeInitialized & this {
+    protected _isInitialized(method: string): this is ExtentLikeInitialized & this {
         if (!isDefined(this._extent) || this._extent.length !== 4) {
             warn_(createMessage(method, '未正确实例化'));
             return false;
@@ -69,8 +69,8 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 左上方位置
      */
     getTopLeft(): Lnglat | undefined {
-        if (!this._isInitialized('getTopLeft')) return undefined;
-        return new Lnglat(this._extent[0], this._extent[3]);
+        if (!this._isInitialized('getTopLeft')) return;
+        return new Lnglat(...OlExtent.getTopLeft(this._extent));
     }
 
     /**
@@ -78,8 +78,8 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 右上方位置
      */
     getTopRight(): Lnglat | undefined {
-        if (!this._isInitialized('getTopRight')) return undefined;
-        return new Lnglat(this._extent[2], this._extent[3]);
+        if (!this._isInitialized('getTopRight')) return;
+        return new Lnglat(...OlExtent.getTopRight(this._extent));
     }
 
     /**
@@ -87,8 +87,8 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 左下角位置
      */
     getBottomLeft(): Lnglat | undefined {
-        if (!this._isInitialized('getBottomLeft')) return undefined;
-        return new Lnglat(this._extent[0], this._extent[1]);
+        if (!this._isInitialized('getBottomLeft')) return;
+        return new Lnglat(...OlExtent.getBottomLeft(this._extent));
     }
 
     /**
@@ -96,8 +96,8 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 右下角位置
      */
     getBottomRight(): Lnglat | undefined {
-        if (!this._isInitialized('getBottomRight')) return undefined;
-        return new Lnglat(this._extent[2], this._extent[1]);
+        if (!this._isInitialized('getBottomRight')) return;
+        return new Lnglat(...OlExtent.getBottomRight(this._extent));
     }
 
     /**

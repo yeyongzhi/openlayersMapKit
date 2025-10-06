@@ -2,9 +2,17 @@ import { isDefined, isCoordinatesType, OlCoordinateType, isNumber, isExtentType 
 import { warn_, error_, getPackageMessage } from '../../../../utils/index'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
-import { type OMapLineStringGeometryCoordinatesType, type OlLineStringGeomInstanceType, checkLineStringCoordinates } from './type'
+import {
+    type OMapLineStringGeometryCoordinatesType,
+    type OlLineStringGeomInstanceType,
+    checkLineStringCoordinates,
+    type LineStringLike,
+    type LineStringInitialized,
+} from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import { Extent, Lnglat } from '../../../../index'
+import Lnglat from '../../../basic/Lnglat/index'
+import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
+import Extent from '../../../basic/Extent/index'
 
 const PACKAGE_NAME = 'Point';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -16,11 +24,13 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/9/1
+ * @updateDate 2025/10/6
  */
 
-export default class LineString extends BasicFeature {
+export default class LineString extends BasicFeature<OlLineStringGeomInstanceType> implements LineStringLike {
 
+    constructor(args: OMapLineStringGeometryCoordinatesType, properties?: Record<string, any>)
+    constructor(args: OlFeatureInstanceType, properties?: Record<string, any>)
 
     constructor(coordinatesOrFeature: OMapLineStringGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
         if (!isDefined(coordinatesOrFeature)) {
@@ -39,6 +49,31 @@ export default class LineString extends BasicFeature {
                 this.setProperties(properties)
             }
         }
+    }
+
+    protected _init(coordinates: OMapLineStringGeometryCoordinatesType, radius?: number) {
+        let geometryCoordinates = coordinates.map(c => {
+            return handleGetLnglatValue(c) as OlCoordinateType
+        });
+        if (geometryCoordinates) {
+            this._geometry = new OlGeometry.LineString(geometryCoordinates)
+            this._feature = new OlFeature({
+                geometry: this._geometry
+            })
+        }
+    }
+
+    protected _initByFeature(feature: OlFeatureInstanceType) {
+        this._feature = feature
+        this._geometry = feature.getGeometry() as OlLineStringGeomInstanceType
+    }
+
+    protected _isInitialized(method: string): this is LineStringInitialized & this {
+        if (!isDefined(this._feature) || !isDefined(this._geometry)) {
+            warn_(createMessage(method, '未正确实例化'));
+            return false;
+        }
+        return true;
     }
 
     /**

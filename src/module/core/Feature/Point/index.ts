@@ -1,12 +1,13 @@
-import { isDefined, isCoordinatesType, isExtentType } from '../../../../utils/index'
+import { isDefined, isCoordinatesType, isExtentType, isObject } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../../utils/index'
 import type { OlCoordinateType } from '../../../../utils/index'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
-import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType } from './type'
+import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType, PointLike, PointInitialized } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import { Lnglat, Extent } from '../../../../index'
-
+import Lnglat from '../../../basic/Lnglat/index'
+import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
+import Extent from '../../../basic/Extent/index'
 
 const PACKAGE_NAME = 'Point';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -18,10 +19,13 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/8/29
+ * @updateDate 2025/10/6
  */
 
-export default class Point extends BasicFeature {
+export default class Point extends BasicFeature<OlPointGeomInstanceType> implements PointLike {
+
+    constructor(args: OMapPointGeometryCoordinatesType, properties?: Record<string, any>)
+    constructor(args: OlFeatureInstanceType, properties?: Record<string, any>)
 
     constructor(coordinatesOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
         if (!isDefined(coordinatesOrFeature)) {
@@ -36,10 +40,33 @@ export default class Point extends BasicFeature {
                 return
             }
             super("Point", coordinatesOrFeature as OMapPointGeometryCoordinatesType)
-            if (properties) {
-                this.setProperties(properties)
-            }
         }
+        if (isDefined(properties) && isObject(properties)) {
+            this.setProperties(properties)
+        }
+    }
+
+    protected _init(coordinates: OMapPointGeometryCoordinatesType, radius?: number) {
+        let geometryCoordinates = handleGetLnglatValue(coordinates)
+        if (geometryCoordinates) {
+            this._geometry = new OlGeometry.Point(geometryCoordinates)
+            this._feature = new OlFeature({
+                geometry: this._geometry
+            })
+        }
+    }
+
+    protected _initByFeature(feature: OlFeatureInstanceType) {
+        this._feature = feature
+        this._geometry = feature.getGeometry() as OlPointGeomInstanceType
+    }
+
+    protected _isInitialized(method: string): this is PointInitialized & this {
+        if (!isDefined(this._feature) || !isDefined(this._geometry)) {
+            warn_(createMessage(method, '未正确实例化'));
+            return false;
+        }
+        return true;
     }
 
     /**

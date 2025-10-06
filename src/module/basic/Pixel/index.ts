@@ -1,5 +1,6 @@
-import { isDefined, isNumber } from '../../../utils/index';
+import { isDefined, isNumber, isArray, isAllNumberArray } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { OlPixelType } from './type'
 
 const PACKAGE_NAME = 'Pixel';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -11,7 +12,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/06/30
- * @updateDate 2025/9/12
+ * @updateDate 2025/10/5
  */
 
 export default class Pixel {
@@ -22,11 +23,20 @@ export default class Pixel {
      */
     _pixel: number[] = [];
 
-    constructor(x: number, y: number) {
-        if (!isNumber(x) || !isNumber(y)) {
-            error_(createMessage("constructor", "初始化参数有误"));
+    constructor(...args: number[]);
+    constructor(args: number[]);
+
+    constructor(...args: any[]) {
+        let value: OlPixelType = [0, 0]
+        if (args.length === 1 && isArray(args[0])) {
+            value = args[0];
+        } else if (args.length === 2 && isAllNumberArray(args)) {
+            value = [args[0], args[1]];
+        } else {
+            error_(createMessage('constructor', '初始化参数格式有误'));
+            return;
         }
-        this._pixel = [x, y];
+        this._pixel = value;
     }
 
     private _isInitialized(method: string): boolean {

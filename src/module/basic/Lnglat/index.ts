@@ -28,7 +28,7 @@ export default class Lnglat {
         let value: OlCoordinateType = []
         if (args.length === 1 && isArray(args[0])) {
             value = args[0];
-        } else if (args.length === 4 && isAllNumberArray(args)) {
+        } else if (args.length === 2 && isAllNumberArray(args)) {
             value = args;
         } else {
             error_(createMessage('constructor', '初始化参数格式有误'));

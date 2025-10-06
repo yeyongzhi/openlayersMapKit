@@ -3,18 +3,24 @@ import { warn_, error_, getPackageMessage } from '../../../../utils/index'
 import type { OlCoordinateType, OlExtentType } from '../../../../utils/index'
 import { OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
-import { 
+import {
     type OMapPolygonGeometryCoordinatesType,
     type OlPolygonGeomInstanceType,
-    checkPolygonCoordinates 
+    checkPolygonCoordinates,
+    type PolygonLike,
+    type PolygonInitialized,
 } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import { 
+import {
     type OlLinearRingGeomInstanceType,
     type OMapLinearRingGeometryCoordinatesType,
     checkLinearRingCoordinates
 } from '../LinearRing/type'
-import { Lnglat, LinearRing, Extent, Point } from '../../../../index'
+import Point from '../Point/index'
+import LinearRing from '../LinearRing/index'
+import Lnglat from '../../../basic/Lnglat/index'
+import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
+import Extent from '../../../basic/Extent/index'
 
 const PACKAGE_NAME = 'Point';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -26,17 +32,20 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/9/1
+ * @updateDate 2025/10/6
  */
 
-export default class Polygon extends BasicFeature {
+export default class Polygon extends BasicFeature<OlPolygonGeomInstanceType> implements PolygonLike {
+
+    constructor(args: OMapPolygonGeometryCoordinatesType, properties?: Record<string, any>)
+    constructor(args: OlFeatureInstanceType, properties?: Record<string, any>)
 
     constructor(coordinatesOrFeature: OMapPolygonGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
-        if(!isDefined(coordinatesOrFeature)) {
+        if (!isDefined(coordinatesOrFeature)) {
             error_(createMessage('constructor', '参数不能为空'));
             return
         }
-        if(coordinatesOrFeature instanceof OlFeature) {
+        if (coordinatesOrFeature instanceof OlFeature) {
             super("Polygon", coordinatesOrFeature as OlFeatureInstanceType)
         } else {
             if (!checkPolygonCoordinates(coordinatesOrFeature)) {
@@ -48,6 +57,33 @@ export default class Polygon extends BasicFeature {
                 this.setProperties(properties)
             }
         }
+    }
+
+    protected _init(coordinates: OMapPolygonGeometryCoordinatesType, radius?: number) {
+        let geometryCoordinates = coordinates.map(c => {
+            return c.map(c2 => {
+                return handleGetLnglatValue(c2) as OlCoordinateType
+            })
+        });
+        if (geometryCoordinates) {
+            this._geometry = new OlGeometry.Polygon(geometryCoordinates)
+            this._feature = new OlFeature({
+                geometry: this._geometry
+            })
+        }
+    }
+
+    protected _initByFeature(feature: OlFeatureInstanceType) {
+        this._feature = feature
+        this._geometry = feature.getGeometry() as OlPolygonGeomInstanceType
+    }
+
+    protected _isInitialized(method: string): this is PolygonInitialized & this {
+        if (!isDefined(this._feature) || !isDefined(this._geometry)) {
+            warn_(createMessage(method, '未正确实例化'));
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -91,15 +127,15 @@ export default class Polygon extends BasicFeature {
      * @param {LinearRing | OMapLinearRingGeometryCoordinatesType} linearRing 内环
      */
     appendLinearRing(linearRingParams: LinearRing | OMapLinearRingGeometryCoordinatesType): void {
-        if(!isDefined(linearRingParams)) {
+        if (!isDefined(linearRingParams)) {
             error_(createMessage('appendLinearRing', 'linearRing参数不能为空'));
             return
         }
-        if(!(linearRingParams instanceof LinearRing) && !checkLinearRingCoordinates(linearRingParams)) {
+        if (!(linearRingParams instanceof LinearRing) && !checkLinearRingCoordinates(linearRingParams)) {
             error_(createMessage('appendLinearRing', 'linearRing参数格式有误'));
             return
         }
-        if(linearRingParams instanceof LinearRing) {
+        if (linearRingParams instanceof LinearRing) {
             (this._geometry as OlPolygonGeomInstanceType).appendLinearRing(linearRingParams._geometry as OlLinearRingGeomInstanceType)
         } else {
             let coordinates = (linearRingParams as OMapLinearRingGeometryCoordinatesType).map(l => {
