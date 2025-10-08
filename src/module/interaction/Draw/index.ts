@@ -75,7 +75,7 @@ export default class Draw extends Interaction {
             console.log(this.layer?.getFeatures())
             if(isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
-                let basicFeature = createBaseFeatureByOlFeature(feature)
+                let basicFeature = createBaseFeatureByOlFeature<any>(feature)
                 if(basicFeature) {
                     (this.layer as VectorLayer).addFeature(basicFeature)
                     console.log(this.layer?.getFeatures())

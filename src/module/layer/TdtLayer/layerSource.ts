@@ -1,4 +1,4 @@
-import type { TdtLayerTypeEnum, TdtLayerProjTypeEnum } from './index'
+import { type TdtLayerTypeEnum, type TdtLayerProjTypeEnum } from './type'
 import { MapToken } from '../../util/index'
 
 const commonUrlTemplate = `http://t{0-7}.tianditu.com/DataServer?T={T}&tk={tk}&x={x}&y={y}&l={z}`

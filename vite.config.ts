@@ -29,9 +29,11 @@ export default defineConfig({
           'ol/sphere': 'ol.sphere',
           'ol/interaction': 'ol.interaction',
           'ol/interaction/Draw': 'ol.interaction.Draw',
+          'ol/render/Feature': 'ol.render.Feature',
           'ol/Observable': 'ol.Observable',
           'ol/tilegrid': 'ol.tilegrid',
-          'ol/extent': 'ol.extent'
+          'ol/extent': 'ol.extent',
+          'ol/format': 'ol.format'
         }
       },
       plugins: []

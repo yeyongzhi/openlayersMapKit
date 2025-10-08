@@ -6,10 +6,10 @@ import BasicFeature from '../BasicFeature'
 import {
     type OMapPolygonGeometryCoordinatesType,
     type OlPolygonGeomInstanceType,
-    checkPolygonCoordinates,
     type PolygonLike,
     type PolygonInitialized,
 } from './type'
+import { checkPolygonCoordinates } from './handle'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import {
     type OlLinearRingGeomInstanceType,

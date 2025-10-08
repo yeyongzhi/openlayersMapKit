@@ -9,12 +9,16 @@ import Overlay from 'ol/Overlay';
 import * as OlGeometry from 'ol/geom';
 import * as OlStyle from 'ol/style'
 import RenderFeature from 'ol/render/Feature'
+import { toFeature, toGeometry } from 'ol/render/Feature'
 import * as OlCoordinate from 'ol/coordinate';
 import * as OlSphere from 'ol/sphere';
 import type { Coordinate } from 'ol/coordinate'
 import type { Extent as OlExtentType } from 'ol/extent'
 import { createBox, createRegularPolygon } from 'ol/interaction/Draw';
 import * as OlTileGrid from 'ol/tilegrid'
+import * as OlFormat from 'ol/format'
+
+
 
 /**
  * basic
@@ -35,6 +39,8 @@ export {
     OlGeometry,
     OlStyle,
     RenderFeature,
+    toFeature as OlRenderFeaturetoFeature,
+    toGeometry as OlRenderFeaturetoGeometry,
     OlCoordinate,
     OlSphere,
     type Coordinate,
@@ -43,5 +49,6 @@ export {
     createRegularPolygon as OlDrawCreateRegularPolygon,
     OlObservable,
     OlTileGrid,
-    OlExtent
+    OlExtent,
+    OlFormat
 }

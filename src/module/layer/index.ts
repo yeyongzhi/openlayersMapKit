@@ -5,6 +5,7 @@
 export { default as GaodeLayer } from "./GaodeLayer/index";
 export { GaodeLayerType } from "./GaodeLayer/type";
 export { default as TdtLayer } from "./TdtLayer/index";
+export { TdtLayerType } from "./TdtLayer/type";
 export { default as VectorLayer } from "./VectorLayer/index";
 export { default as TileLayer } from "./TileLayer/index";
 export { default as XYZLayer } from "./XYZLayer/index";

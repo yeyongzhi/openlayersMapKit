@@ -4,4 +4,6 @@
 
 export { default as ProjUtil } from "./ProjUtil/index";
 export { default as MapToken } from "./MapToken/index";
+export { default as Format } from "./Format/index";
+export { OMapFormatType as FormatType } from "./Format/type";
 // export { default as Event } from "./Event/index";

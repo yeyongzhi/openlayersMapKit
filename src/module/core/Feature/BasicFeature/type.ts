@@ -3,6 +3,9 @@ import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType } from '
 import type { OlMultiPointGeomInstanceType } from '../MultiPoint/type'
 import type { OMapLineStringGeometryCoordinatesType, OlLineStringGeomInstanceType } from '../LineString/type'
 import type { OMapPolygonGeometryCoordinatesType } from '../Polygon/type'
+import type { OMapMultiPolygonGeometryCoordinatesType } from '../MultiPolygon/type'
+
+
 
 export interface BasicFeatureLike {
     type?: OMapBasicFeatureType;
@@ -47,4 +50,4 @@ export type OlGeomType = OlGeometry.Point | OlGeometry.LineString | OlGeometry.P
 
 export type OlGeomInstanceType = OlPointGeomInstanceType | OlMultiPointGeomInstanceType | OlLineStringGeomInstanceType | OlPolygonGeomInstanceType | OlLinearRingGeomInstanceType | OlCircleGeomInstanceType
 
-export type OMapBasicFeatureCoordinatesType = OMapPointGeometryCoordinatesType | OMapLineStringGeometryCoordinatesType | OMapPolygonGeometryCoordinatesType
+export type OMapBasicFeatureCoordinatesType = OMapPointGeometryCoordinatesType | OMapLineStringGeometryCoordinatesType | OMapPolygonGeometryCoordinatesType | OMapMultiPolygonGeometryCoordinatesType

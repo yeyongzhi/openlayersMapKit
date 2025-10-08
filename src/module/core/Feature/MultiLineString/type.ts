@@ -1,0 +1,16 @@
+import { Lnglat } from '../../../../index'
+import { OlGeometry } from '../../../../source/index'
+import type { OlCoordinateType } from '../../../../utils/type'
+import type { BasicFeatureLike, BasicFeatureInitialized } from '../BasicFeature/type'
+
+export type OMapMultiLineStringGeometryCoordinatesType = Array<Array<OlCoordinateType | Lnglat>>
+
+export type OlMultiLineStringGeomInstanceType = InstanceType<typeof OlGeometry.MultiLineString>
+
+export type MultiLineStringLike = BasicFeatureLike & {
+    _geometry?: OlMultiLineStringGeomInstanceType
+}
+
+export type MultiLineStringInitialized = BasicFeatureInitialized & {
+    _geometry: OlMultiLineStringGeomInstanceType
+}

@@ -6,5 +6,4 @@ export { default as LineString } from "./LineString/index";
 export { default as Polygon } from "./Polygon/index";
 export { default as LinearRing } from "./LinearRing/index";
 export { default as Circle } from "./Circle/index";
-
 export { default as MultiPoint } from "./MultiPoint/index";

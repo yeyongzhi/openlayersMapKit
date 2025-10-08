@@ -73,7 +73,7 @@ export default class VectorLayer extends BaseLayer {
                 if(this.target instanceof Draw || this.target instanceof Measure) {
                     // 这里一定要保证原生的feature 和 basicFeature 状态是同步的
                     // 因此 createBaseFeatureByOlFeature 里面不能用fearure.clone()
-                    let basicFeature = createBaseFeatureByOlFeature(feature)
+                    let basicFeature = createBaseFeatureByOlFeature<any>(feature)
                     if(basicFeature) {
                         this.features.push(basicFeature) // 这里是把 feature 同步一份到 this.features 里面
                     } else {

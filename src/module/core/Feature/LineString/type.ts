@@ -15,17 +15,3 @@ export type LineStringLike = BasicFeatureLike & {
 export type LineStringInitialized = BasicFeatureInitialized & {
     _geometry: OlLineStringGeomInstanceType
 }
-
-export function checkLineStringCoordinates(coordinates: OMapLineStringGeometryCoordinatesType) {
-    let result = true
-    if (!isArray(coordinates)) {
-        result = false
-    }
-    let isInVaildItem = coordinates.some(c => {
-        return (!(c instanceof Lnglat)) && (!isCoordinatesType(c))
-    })
-    if (isInVaildItem) {
-        result = false
-    }
-    return result
-}

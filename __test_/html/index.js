@@ -578,6 +578,15 @@ function initWMTSLayer() {
     map.addLayer(wmtslayer)
 }
 
+function initFormat() {
+    const format = new OMap.Format(OMap.FormatType.GeoJSON)
+    console.log(format)
+    const feature = format.readFeature('{"type":"Feature","geometry":{"type":"Point","coordinates":[120.2,30.3]},"properties":{}}')
+    console.log(feature)
+}
+
+
+
 function init() {
     initDom()
     initMap()
@@ -597,11 +606,10 @@ function init() {
     // initLink()
 
 
-    initWMSLayer()
+    // initWMSLayer()
     // initWMTSLayer()
 
-    const point = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
-    console.log(point)
+    initFormat()
 }
 
 init()

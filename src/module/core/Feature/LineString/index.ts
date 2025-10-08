@@ -5,10 +5,10 @@ import BasicFeature from '../BasicFeature'
 import {
     type OMapLineStringGeometryCoordinatesType,
     type OlLineStringGeomInstanceType,
-    checkLineStringCoordinates,
     type LineStringLike,
     type LineStringInitialized,
 } from './type'
+import { checkLineStringCoordinates } from './handle'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import Lnglat from '../../../basic/Lnglat/index'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
