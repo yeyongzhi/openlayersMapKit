@@ -9,12 +9,9 @@ export type ManualOmit<T, K extends keyof any> = {
     [P in keyof T as P extends K ? never : P]: T[P];
 };
 
-export * from './olType/basic'
-export * from './olType/projection'
-export * from './olType/layer'
-export * from './olType/source'
-export * from './olType/event'
-export * from './olType/map'
+// export * from './olType/projection'
+// export * from './olType/source'
+// export * from './olType/map'
 
 export type EmptyArray = [];
 

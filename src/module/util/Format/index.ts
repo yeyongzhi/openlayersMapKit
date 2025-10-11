@@ -4,27 +4,36 @@ import { OlFormat, RenderFeature, OlFeature } from '../../../source/index'
 import {
     type OMapFormatTypeEnum,
     type OMapFormatGeoJSONOptions,
+    type OMapFormatWKTOptions,
+    type OMapFormatKMLOptions,
     type OMapFormatOptionsType,
     type OMapFormatInstanceType,
     OMapFormatType,
-    type OMapFormatReadFeatureOptionsType,
-    type OMapGeoJSONFormatInstanceType
+    type OMapFormatWriteFeatureOptionsType,
 } from './type'
-import { getDefaultOptionsByType } from './handle'
+import { getDefaultOptionsByType, isVaildFormatType } from './handle'
 import { handleGetProjectionValue } from '../../core/Projection/handle';
-import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle';
-import { type OlRenderFeatureInstanceType, type OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type';
-
+import BasicFeature from '../../core/Feature/BasicFeature/index';
+import { handleGetStyleValue } from '../../basic/Style/handle';
+import {
+    updateFormatTool,
+    handleReadFeature,
+    handleReadFeatures,
+    handleWriteFeature,
+    handleWriteFeatureObject,
+    handleWriteFeatures,
+    handleWriteFeaturesObject,
+} from './module/index'
 
 const PACKAGE_NAME = 'Format';
-const createMessage = getPackageMessage(PACKAGE_NAME);
+export const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /** 
  * @class Format
  * @classdesc 格式化工具
  * @author yyz
  * @CreateDate 2025/10/8
- * @LastUpdateDate 2025/10/8
+ * @LastUpdateDate 2025/10/9
  */
 export default class Format {
 
@@ -41,6 +50,10 @@ export default class Format {
             error_(createMessage('constructor', '初始化参数有误'));
             return;
         }
+        if(!isVaildFormatType(type)) {
+            error_(createMessage('constructor', '初始化参数有误'));
+            return;
+        }
         this.type = type;
         this.options = defaultValue(Object.assign({}, getDefaultOptionsByType(type), options), {});
         this._initFormat()
@@ -53,38 +66,48 @@ export default class Format {
         switch (this.type) {
             case OMapFormatType.GeoJSON:
                 this._format = new OlFormat.GeoJSON({
-                    ...this.options,
+                    ...(this.options as OMapFormatGeoJSONOptions),
                     dataProjection: handleGetProjectionValue((this.options as OMapFormatGeoJSONOptions).dataProjection),
                     featureProjection: handleGetProjectionValue((this.options as OMapFormatGeoJSONOptions).featureProjection),
                 });
                 break;
+            case OMapFormatType.WKT:
+                this._format = new OlFormat.WKT({
+                    ...(this.options as OMapFormatWKTOptions),
+                });
+                break;
+            case OMapFormatType.KML:
+                this._format = new OlFormat.KML({
+                    ...(this.options as OMapFormatKMLOptions),
+                    defaultStyle: defaultValue(handleGetStyleValue((this.options as OMapFormatKMLOptions).defaultStyle), undefined),
+                });
+                break;
         }
+        updateFormatTool(this._format as OMapFormatInstanceType)
     }
 
-    readFeature(source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
-        const feature = (this._format as OMapGeoJSONFormatInstanceType).readFeature(source, defaultValue(options, {}));
-        const _feature = createBaseFeatureByOlFeature<any>(feature as OlFeatureInstanceType)
-        return _feature
+    readFeature(source: unknown, options?: unknown) {
+        return handleReadFeature(this.type as string, source, options)
     }
 
-    readFeatures() {
-
+    readFeatures(source: unknown, options?: unknown) {
+        return handleReadFeatures(this.type as string, source, options)
     }
 
-    writeFeature() {
-
+    writeFeature(feature: BasicFeature<any>, options?: OMapFormatWriteFeatureOptionsType): string {
+        return handleWriteFeature(this.type as string, feature, options)
     }
 
-    writeFeatureObject() {
-
+    writeFeatureObject(feature: BasicFeature<any>, options?: OMapFormatWriteFeatureOptionsType) {
+        return handleWriteFeatureObject(this.type as string, feature, options)
     }
 
-    writeFeatures() {
-
+    writeFeatures(features: Array<BasicFeature<any>>, options?: OMapFormatWriteFeatureOptionsType): string {
+        return handleWriteFeatures(this.type as string, features, options)
     }
 
-    writeFeaturesObject() {
-
+    writeFeaturesObject(features: Array<BasicFeature<any>>, options?: OMapFormatWriteFeatureOptionsType) {
+        return handleWriteFeaturesObject(this.type as string, features, options)
     }
 
 }

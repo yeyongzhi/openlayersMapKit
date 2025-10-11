@@ -1,3 +1,8 @@
+import { type OMapTileLayerParamsType } from '../TileLayer/type'
+import { ManualOmit } from "../../../utils/index";
+
+export type OMapTdtLayerParamsType = ManualOmit<OMapTileLayerParamsType, 'source'> & TdtLayerProjType
+
 /**
  * 天地图图层类型
  * @link http://lbs.tianditu.gov.cn/server/MapService.html

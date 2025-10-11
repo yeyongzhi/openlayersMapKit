@@ -17,7 +17,7 @@ import type { Extent as OlExtentType } from 'ol/extent'
 import { createBox, createRegularPolygon } from 'ol/interaction/Draw';
 import * as OlTileGrid from 'ol/tilegrid'
 import * as OlFormat from 'ol/format'
-
+import * as OlControl from 'ol/control'
 
 
 /**
@@ -50,5 +50,6 @@ export {
     OlObservable,
     OlTileGrid,
     OlExtent,
-    OlFormat
+    OlFormat,
+    OlControl
 }

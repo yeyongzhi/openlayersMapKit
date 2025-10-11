@@ -7,8 +7,11 @@ import MouseWheelZoom from '../../interaction/MouseWheelZoom/index'
 import DoubleClickZoom from '../../interaction/DoubleClickZoom/index'
 import DragPan from '../../interaction/DragPan/index'
 import Popup from '../../basic/Popup/index'
+import Pixel from '../../basic/Pixel/index'
+import Lnglat from '../../basic/Lnglat/index'
 import { type OMapCoordinateType } from '../../basic/Lnglat/type'
 import { type OMapExtentType } from '../../basic/Extent/type'
+import BaseLayer from '../../layer/BaseLayer/index'
 
 /** View */
 export type OlViewInstanceType = InstanceType<typeof OlPackage.View>
@@ -61,4 +64,58 @@ export const defaultMapOptions: OMapOptionsType = {
     controls: [],
     interactions: defaultMapInteractions,
     popups: defaultMapPopups
+}
+
+
+export type OMapEventType = 
+// 'map:change'
+// 'map:change:layerGroup'
+// 'map:change:size'
+// 'map:change:target'
+// 'map:change:view'
+'map:click' |
+'map:dbclick' |
+'map:error' |
+'map:loadend' |
+'map:loadstart' |
+'map:moveend' |
+'map:movestart' |
+'map:pointerdrag' |
+'map:pointermove' |
+'map:postcompose' |
+'map:postrender' |
+'map:precompose' |
+'map:propertychange' |
+'map:rendercomplete' |
+'map:singleclick' |
+// view部分
+'view:change' |
+'view:change:center' |
+'view:change:resolution' |
+'view:change:rotation' |
+'view:error' |
+'view:propertychange'
+
+export type OMapEventTarget = {
+    target: any;
+    type: OMapEventType;
+    oldValue?: any;
+    newValue?: any;
+    pixel?: Pixel;
+    coordinate?: Lnglat;
+    key?: string;
+}
+
+export type OMapEventCallBack = (event: OMapEventTarget) => void
+export type OlMapOnEventType = Parameters<OlPackage.Map['on']>[0];
+export type OlViewOnEventType = Parameters<OlPackage.View['on']>[0];
+
+export type OMapForEachFeatureAtPixelOptionsType = {
+    layerFilter?: (layer: BaseLayer) => boolean;
+    hitTolerance: number;
+    checkWrapped: boolean;
+}
+export const DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS: OMapForEachFeatureAtPixelOptionsType = {
+    hitTolerance: 0,
+    checkWrapped: true,
 }

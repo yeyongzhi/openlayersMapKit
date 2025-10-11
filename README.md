@@ -1,12 +1,6 @@
-npm install -D typedoc
-npx typedoc src/**/*.ts
+# omap
 
+## 介绍
+omap是一个基于openlayers封装的地图引擎开发包，提供一系列开发类，用于快速开发地图应用。
 
-/**
- * @class Lnglat
- * @classdesc 经纬度
- * @author Aurora
- * @version 1.0.0
- * @createDate 2022/08/07
- * @updateDate 2025/06/30
- */
+## 安装

@@ -6,13 +6,15 @@ import type {
     OlStrokeStyleInstanceType,
     OMapCircleStyleOptionsType,
     OMapIconStyleOptionsType,
-    OMapRegularShapeStyleOptionsType
+    OMapRegularShapeStyleOptionsType,
+    OlStyleInstanceType,
+    OMapStyleLike
 } from './type'
 import { OlStyle } from '../../../source/index'
 import { Color } from '../../../index'
 import Style from './index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
-import { isDefined, isNumber } from '../../../utils/index'
+import { isDefined, isFunction, isNumber } from '../../../utils/index'
 
 export function getOlFillSingleStyle(options: OMapFillStyleOptionsType | undefined) {
     if (!isDefined(options)) {
@@ -104,7 +106,7 @@ export function getOlRegularShapeSingleStyle(options: OMapRegularShapeStyleOptio
 /**
  * 矢量图层的默认样式
  */
-export const DEFAULT_STYLE = (feature: BaseFeature, resolution: number): undefined | Style => {
+export const DEFAULT_STYLE = (feature: BaseFeature<any>, resolution: number): undefined | Style => {
     if(!isDefined(feature)) return undefined
     if (feature.getType() === 'Point') {
         return new Style({
@@ -135,6 +137,20 @@ export const DEFAULT_STYLE = (feature: BaseFeature, resolution: number): undefin
                 })
             },
         })
+    }
+    return undefined
+}
+
+export function handleGetStyleValue(style?: OMapStyleLike): OlStyleInstanceType | Array<OlStyleInstanceType> | undefined {
+    if(isDefined(style)) {
+        if (style instanceof Style) {
+            return style.getStyle()
+        } else if (Array.isArray(style)) {
+            return style.map((item) => (item.getStyle() as OlStyleInstanceType))
+        } else if (isFunction(style)) {
+            // TODO
+            return undefined
+        }
     }
     return undefined
 }

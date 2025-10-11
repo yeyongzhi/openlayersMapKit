@@ -18,3 +18,7 @@ export * from './module/interaction';
  * 工具模块
  */
 export * from './module/util';
+/**
+ * 控件模块
+ */
+export * from './module/control';

@@ -1,4 +1,4 @@
-import { isDefined, isCoordinatesType, isArray, isExtentType } from '../../../../utils/index'
+import { isDefined, isCoordinatesType, isArray, isExtentType, isObject } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../../utils/index'
 import type { OlCoordinateType, OlExtentType } from '../../../../utils/index'
 import { OlFeature, OlGeometry } from '../../../../source/index'
@@ -22,17 +22,17 @@ import Lnglat from '../../../basic/Lnglat/index'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 import Extent from '../../../basic/Extent/index'
 
-const PACKAGE_NAME = 'Point';
+const PACKAGE_NAME = 'Polygon';
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
- * Point类
+ * Polygon类
  * @class
- * @classdesc Point
+ * @classdesc Polygon
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/10/6
+ * @updateDate 2025/10/9
  */
 
 export default class Polygon extends BasicFeature<OlPolygonGeomInstanceType> implements PolygonLike {
@@ -53,7 +53,7 @@ export default class Polygon extends BasicFeature<OlPolygonGeomInstanceType> imp
                 return
             }
             super("Polygon", coordinatesOrFeature)
-            if (properties) {
+            if (isDefined(properties) && isObject(properties)) {
                 this.setProperties(properties)
             }
         }

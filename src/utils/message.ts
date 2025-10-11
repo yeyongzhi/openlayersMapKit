@@ -16,9 +16,28 @@ function getPackageMessage(packageName: string) {
     }
 }
 
+export function paramsNotDefined(paramsName: string) {
+    return `参数${paramsName}不能为空`
+}
+
+export function paramsInvaildFormat(paramsName: string, format?: string) {
+    return `参数${paramsName}格式错误` + (format ? `，正确格式为${format}` : "")
+}
+
+export function haveInvaildDataItem(paramsName: string) {
+    return `参数${paramsName}中存在无效数据，已过滤`
+}
+
+const commonMessage = {
+    paramsNotDefined,
+    paramsInvaildFormat,
+    haveInvaildDataItem
+}
+
 export { 
     warn_,
     info_,
     error_,
-    getPackageMessage
+    getPackageMessage,
+    commonMessage
 }

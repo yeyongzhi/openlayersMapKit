@@ -1,34 +1,49 @@
-import { isDefined, isNumber, isString, defaultValue } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { isDefined, isNumber, isString, defaultValue, isFunction, isArray, isObject } from '../../../utils/index';
+import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import OlPackage, { OlUtil, OlSphere } from '../../../source/index'
 import type {
-    MapContainerType,
-    BaseLayerIdType,
-    OlMapInstanceType,
-    OlMapOptionsFinalType,
-    OlProjInstanceType,
     OlViewInstanceType,
     IdType,
-    OlCoordinateType,
-    OlSizeType,
-    OMapEventType,
-    OMapEventCallBack,
-    OlMapOnEventType,
-    OlViewOnEventType
 } from '../../../utils/index';
-import { Lnglat, Extent, Size } from '../../basic/index';
-import { Projection, LayerGroup, VectorLayer } from '../../../index'
+import Lnglat from '../../basic/Lnglat/index'
+import { type OlCoordinateType, type OMapCoordinateType } from '../../basic/Lnglat/type'
+import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
+import Extent from '../../basic/Extent/index'
+import { type OlExtentType } from '../../basic/Extent/type'
+import Size from '../../basic/Size/index'
+import { type OlSizeType } from '../../basic/Size/type'
+import Pixel from '../../basic/Pixel/index'
+import { type OMapPixelType, type OlPixelType } from '../../basic/Pixel/type'
+import { handleGetPixelValue } from '../../basic/Pixel/handle'
+import Projection from '../Projection/index'
+import { type OlProjInstanceType } from '../Projection/type'
+import { VectorLayer } from '../../../index'
 import BaseLayer from '../../layer/BaseLayer/index'
+import { type OlAllLayerInstanceType, type BaseLayerIdType } from '../../layer/BaseLayer/type'
 import BaseFeature from '../Feature/BasicFeature/index'
-import { OlGeomInstanceType } from '../Feature/BasicFeature/type'
+import type { OlFeatureInstanceType, OlGeomInstanceType, OlFeatureLike } from '../Feature/BasicFeature/type'
 import Interaction from '../../interaction/Interaction/index'
+import Control from '../../control/Control/index'
 import { type OlInteractionInstanceType } from '../../interaction/Interaction/type'
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
 import Event from '../../../module/util/Event/index'
 import Popup from '../../basic/Popup/index'
+import LayerGroup from '../../layer/LayerGroup/index'
+import { type LayerGroupIdType } from '../../layer/LayerGroup/type'
 import type { OlPopupInstanceType } from '../../basic/Popup/type'
-import { type OMapOptionsType, defaultMapOptions } from './type'
+import {
+    type OMapOptionsType,
+    defaultMapOptions,
+    type OlMapInstanceType,
+    type MapContainerType,
+    type OMapEventType,
+    type OMapEventCallBack,
+    type OlMapOnEventType,
+    type OlViewOnEventType,
+    OMapForEachFeatureAtPixelOptionsType,
+    DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS
+} from './type'
 import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
 
 const PACKAGE_NAME = 'Map';
@@ -41,23 +56,8 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/5
- * @updateDate 2025/9/29
+ * @updateDate 2025/10/11
  */
-
-// const defaultOptions: MapOptionsType = {
-//     center: [120.2, 30.3], // 中心点坐标
-//     zoom: 8, // 初始缩放级别
-//     layers: [], // 图层
-//     controls: [], // 控件
-//     interactions: [], // 交互
-//     overlays: [], // 覆盖物
-// }
-
-interface MapLayersItemType {
-    type: 'BaseLayer' | 'LayerGroup';
-    layer: BaseLayer;
-    groupId?: IdType;
-}
 
 interface MapLike {
     _map?: OlMapInstanceType;
@@ -77,7 +77,9 @@ export default class Map implements MapLike {
     _map?: OlMapInstanceType;
     _view?: OlViewInstanceType;
     layers: Array<BaseLayer> = [];
+    layerGroups: Array<LayerGroup> = [];
     interactions: Array<Interaction> = [];
+    controls: Array<Control> = [];
     events: Event | null = null;
     popups: Array<Popup> = [];
 
@@ -100,6 +102,7 @@ export default class Map implements MapLike {
         }
         const view = new OlPackage.View(view_params)
         let mapInteractions = defaultValue(_options.interactions, defaultMapOptions.interactions)
+        let mapControls = defaultValue(_options.controls, defaultMapOptions.controls)
         let mapPopups = defaultValue(_options.popups, defaultMapOptions.popups)
         let mapParams = Object.assign({}, defaultMapOptions, {
             ..._options,
@@ -112,14 +115,20 @@ export default class Map implements MapLike {
         this._view = view;
         this._map = map;
         // 初始化加载Interaction
-        if(isDefined(mapInteractions) && mapInteractions.length > 0) {
-            mapInteractions.forEach(interaction => {
+        if (isDefined(mapInteractions) && mapInteractions.length > 0) {
+            mapInteractions.forEach((interaction: Interaction) => {
                 this.addInteraction(interaction);
             })
         }
+        // 初始化加载Control
+        if (isDefined(mapControls) && mapControls.length > 0) {
+            mapControls.forEach((control: Control) => {
+                this.addControl(control);
+            })
+        }
         // 初始化加载Popup
-        if(isDefined(mapPopups) && mapPopups.length > 0) {
-            mapPopups.forEach(popup => {
+        if (isDefined(mapPopups) && mapPopups.length > 0) {
+            mapPopups.forEach((popup: Popup) => {
                 this.addPopup(popup);
             })
         }
@@ -246,47 +255,66 @@ export default class Map implements MapLike {
         this._view.adjustZoom(delta)
     }
 
-    // 图层管理相关
+    /** 图层管理相关 */
 
-    addLayer(layer: BaseLayer | LayerGroup) {
+    /**
+     * 添加图层
+     * @param {BaseLayer} layer 图层对象
+     */
+    addLayer(layer: BaseLayer): void {
         if (!this._isInitialized('addLayer')) return;
         if (!isDefined(layer)) {
             warn_(createMessage('addLayer', '图层对象不能为空'));
             return;
         }
-        if (layer instanceof LayerGroup) {
-            let groudId = layer.getId()
-            layer.getAll().forEach((item) => {
-                if (item._layer) {
-                    this.layers.push(item);
-                    this._map.addLayer(item._layer);
-                }
-            })
-            return false
+        if (!(layer instanceof BaseLayer)) {
+            warn_(createMessage('addLayer', '图层对象必须为BaseLayer类型'));
+            return;
         }
         const layerId = layer.getId();
+        let isExist: boolean = false
         if (isDefined(layerId)) {
-            let isExist = this.getLayerById(layerId)
-            if (isExist) {
-                warn_(createMessage('addLayer', '图层已存在'));
-                return;
-            }
+            isExist = (this.getLayerById(layerId) !== undefined)
+        } else {
+            isExist = this.layers.some((item: BaseLayer) => {
+                return OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer.getLayer())
+            })
         }
-        if (isDefined(layer._layer)) {
+        if (isExist) {
+            warn_(createMessage('addLayer', '图层已存在'));
+            return;
+        }
+        if (isDefined(layer.getLayer())) {
             this.layers.push(layer);
-            if (layer instanceof BaseLayer) {
-                if (!isDefined(layer.getTarget())) {
-                    layer.setTarget(this)
-                }
-            }
-            this._map.addLayer(layer._layer); // 添加图层到地图中
+            layer.setTarget(this)
+            this._map.addLayer(layer.getLayer() as OlAllLayerInstanceType); // 添加图层到地图中
         }
     }
 
-    addLayers(layers: Array<BaseLayer>) {
-
+    /**
+     * 添加多个图层
+     * @param {Array<BaseLayer>} layers 图层数组
+     */
+    addLayers(layers: Array<BaseLayer>): void {
+        if (!this._isInitialized('addLayer')) return;
+        if (!isDefined(layers)) {
+            warn_(createMessage('addLayer', '参数layers不能为空'));
+            return;
+        }
+        if (!isArray(layers)) {
+            warn_(createMessage('addLayers', '参数layers必须为数组类型'));
+            return;
+        }
+        layers.forEach((item: BaseLayer) => {
+            this.addLayer(item)
+        })
     }
 
+    /**
+     * 根据id获取图层
+     * @param {BaseLayerIdType} id 图层id
+     * @returns {BaseLayer | undefined} 图层对象
+     */
     getLayerById(id: BaseLayerIdType): BaseLayer | undefined {
         if (!isDefined(id)) {
             warn_(createMessage('getLayerById', '图层id不能为空'));
@@ -310,6 +338,10 @@ export default class Map implements MapLike {
         return layer
     }
 
+    /**
+     * 移除图层
+     * @param {BaseLayer} layer 图层对象
+     */
     removeLayer(layer: BaseLayer) {
         if (!this._isInitialized('removeLayer')) return;
         let index = this.layers.indexOf(layer);
@@ -321,6 +353,10 @@ export default class Map implements MapLike {
         }
     }
 
+    /**
+     * 移除多个图层
+     * @param {Array<BaseLayer>} layers 图层数组
+     */
     removeLayers(layers: BaseLayer[]) {
         if (!this._isInitialized('removeLayers')) return;
         this.layers.forEach((l, index) => {
@@ -333,6 +369,10 @@ export default class Map implements MapLike {
         })
     }
 
+    /**
+     * 根据id移除图层
+     * @param {BaseLayerIdType} id 图层id
+     */
     removeLayerById(id: number | string) {
         if (!this._isInitialized('removeLayerById')) return;
         if (!isDefined(id)) {
@@ -347,9 +387,130 @@ export default class Map implements MapLike {
         this.removeLayer(layer)
     }
 
+    /**
+     * 获取所有图层
+     * @returns {Array<BaseLayer>} 图层数组
+     */
     getAllLayers(): BaseLayer[] {
         if (!this._isInitialized('getAllLayers')) return [];
         return this.layers
+    }
+
+    /** 图层组管理 */
+
+    /**
+     * 添加图层组
+     * @param {LayerGroup} group 图层组实例
+     */
+    addLayerGroup(group: LayerGroup): void {
+        if (!this._isInitialized('addLayerGroup')) return;
+        if (!isDefined(group)) {
+            warn_(createMessage('addLayerGroup', '参数layerGroup不能为空'));
+            return;
+        }
+        if (!(group instanceof LayerGroup)) {
+            warn_(createMessage('addLayerGroup', '参数layerGroup必须为LayerGroup实例'));
+            return;
+        }
+        let isExist: boolean = false
+        if (group.getId()) {
+            isExist = (this.layerGroups.some(item => {
+                return isDefined(item.getId()) && (item.getId() === group.getId())
+            }))
+        }
+        if (!isExist) {
+            group.setMap(this);
+            this.layerGroups.push(group);
+            this.addLayers(group.getAllLayers());
+        }
+    }
+
+    /**
+     * 移除图层组
+     * @param {LayerGroup} group 图层组实例
+     */
+    removeLayerGroup(group: LayerGroup): void {
+        if (!this._isInitialized('removeLayerGroup')) return;
+        if (!isDefined(group)) {
+            warn_(createMessage('removeLayerGroup', '参数layerGroup不能为空'));
+            return;
+        }
+        if (!(group instanceof LayerGroup)) {
+            warn_(createMessage('removeLayerGroup', '参数layerGroup必须为LayerGroup实例'));
+            return;
+        }
+        let index: number = -1
+        if (group.getId()) {
+            index = (this.layerGroups.findIndex(item => {
+                return isDefined(item.getId()) && (item.getId() === group.getId())
+            }))
+        }
+        if (index !== -1) {
+            group.setMap(null);
+            this.removeLayers(group.getAllLayers());
+            this.layerGroups = this.layerGroups.splice(index, 1);
+        }
+    }
+
+    /**
+     * 移除图层组
+     * @param {LayerGroupIdType} groupId 图层组id
+     */
+    removeLayerGroupById(groupId: LayerGroupIdType): void {
+        if (!this._isInitialized('removeLayerGroupById')) return;
+        if (!isDefined(groupId)) {
+            warn_(createMessage('removeLayerGroupById', '参数groupId不能为空'));
+            return;
+        }
+        if (!isNumber(groupId) && !isString(groupId)) {
+            warn_(createMessage('removeLayerGroupById', '参数groupId必须为number或string类型'));
+            return;
+        }
+        let index: number = (this.layerGroups.findIndex(item => {
+            return isDefined(item.getId()) && (item.getId() === groupId)
+        }))
+        if (index !== -1) {
+            (this.layerGroups[index] as LayerGroup).setMap(null);
+            this.removeLayers((this.layerGroups[index] as LayerGroup).getAllLayers());
+            this.layerGroups = this.layerGroups.splice(index, 1);
+        }
+    }
+
+    /**
+     * 获取所有图层组
+     * @returns {LayerGroup[]} 所有图层组
+     */
+    getAllLayerGroups(): LayerGroup[] | undefined {
+        if (!this._isInitialized('getAllLayerGroups')) return;
+        return this.layerGroups
+    }
+
+    /**
+     * 获取所有图层组
+     * @returns {LayerGroup[]} 所有图层组
+     */
+    getLayerGroups(): LayerGroup[] | undefined {
+        return this.getAllLayerGroups()
+    }
+
+    getLayerGroupById(groupId: LayerGroupIdType): LayerGroup | undefined {
+        if (!this._isInitialized('getLayerGroupById')) return;
+        if (!isDefined(groupId)) {
+            warn_(createMessage('removeLayerGroupById', '参数groupId不能为空'));
+            return;
+        }
+        if (!isNumber(groupId) && !isString(groupId)) {
+            warn_(createMessage('removeLayerGroupById', '参数groupId必须为number或string类型'));
+            return;
+        }
+        let index: number = (this.layerGroups.findIndex(item => {
+            return isDefined(item.getId()) && (item.getId() === groupId)
+        }))
+        if (index === -1) {
+            warn_(createMessage('getLayerGroupById', '未找到图层组'));
+            return;
+        }
+        return this.layerGroups[index] as LayerGroup;
     }
 
     // 事件管理
@@ -416,25 +577,32 @@ export default class Map implements MapLike {
         return id
     }
 
-    // 属性管理
+    /** 属性管理 */
+
     getProperties(): Record<string, any> | undefined {
         if (!this._isInitialized('getProperties')) return;
-        return this._map.getProperties() || {}
+        return defaultValue(this._map.getProperties(), {})
     }
 
     setProperties(properties: Record<string, any>): void {
         if (!this._isInitialized('setProperties')) return;
         if (!isDefined(properties)) {
-            warn_(createMessage('setProperties', '参数不能为空'));
+            warn_(createMessage('setProperties', commonMessage.paramsNotDefined('properties')));
             return;
         }
-        this._map.setProperties(properties)
+        if (!isObject(properties)) {
+            warn_(createMessage('setProperties', commonMessage.paramsInvaildFormat('properties', 'object类型')));
+            return;
+        }
+        const newProperties = Object.assign({}, defaultValue(this.getProperties(), {}), properties)
+        this._map.setProperties(newProperties)
     }
 
     /** 交互管理 */
 
     /**
      * 添加交互
+     * @param {Interaction} interaction 交互对象
      */
     addInteraction(interaction: Interaction): void {
         let index = this.interactions.findIndex(i => {
@@ -462,11 +630,19 @@ export default class Map implements MapLike {
         }
     }
 
+    /**
+     * 获取所有交互
+     * @returns {Interaction[] | undefined} 交互数组
+     */
     getInteractions(): Interaction[] | undefined {
-        if (!this._isInitialized('setProperties')) return;
+        if (!this._isInitialized('getInteractions')) return;
         return this.interactions
     }
 
+    /**
+     * 移除交互
+     * @param {Interaction} interaction 交互对象
+     */
     removeInteraction(interaction: Interaction): void {
         let index = this.interactions.findIndex(i => {
             return OlUtil.getUid(i._interaction) === OlUtil.getUid(interaction._interaction)
@@ -478,7 +654,7 @@ export default class Map implements MapLike {
         if (isDefined(interaction._interaction)) {
             this.interactions.splice(index, 1)
             this._map?.removeInteraction(interaction._interaction)
-            // 是否需要额外的图层添加
+            // 是否有额外的图层
             if (interaction instanceof Draw || interaction instanceof Measure) {
                 const layer = interaction.getLayer();
                 if (isDefined<VectorLayer>(layer)) {
@@ -491,52 +667,167 @@ export default class Map implements MapLike {
         }
     }
 
+    /**
+     * 控件管理
+     */
+
+    /**
+     * 添加控件
+     * @param {Control} control 控件对象
+     */
+    addControl(control: Control): void {
+        if (!this._isInitialized('addControl')) return;
+        let index = this.controls.findIndex(i => {
+            return OlUtil.getUid(i.getControl()) === OlUtil.getUid(control.getControl())
+        })
+        if (index !== -1) {
+            warn_(createMessage('addControl', '该控件已添加到地图中'));
+            return;
+        }
+        if (isDefined(control.getControl())) {
+            this.controls.push(control)
+            this._map.addControl(control.getControl())
+        }
+    }
+
+    /**
+     * 获取所有控件
+     * @returns {Control[] | undefined} 控件数组
+     */
+    getControls(): Control[] | undefined {
+        if (!this._isInitialized('getControls')) return;
+        return this.controls
+    }
+
+    /**
+     * 根据ID获取控件
+     * @param {number | string} id 控件ID
+     * @returns {Control | undefined} 控件对象
+     */
+    getControlById(id: number | string): Control | undefined {
+        if (!this._isInitialized('getControlById')) return;
+        const target = this.controls.find((item: Control) => {
+            return item.getId() === id
+        })
+        return target
+    }
+
+    /**
+     * 移除控件
+     * @param {Control} control 控件对象
+     */
+    removeControl(control: Control): void {
+        if (!this._isInitialized('removeControl')) return;
+        let index = this.controls.findIndex(i => {
+            return OlUtil.getUid(i.getControl()) === OlUtil.getUid(control.getControl())
+        })
+        if (index === -1) {
+            warn_(createMessage('removeControl', '该控件未添加到地图中'));
+            return;
+        }
+        if (isDefined(control.getControl())) {
+            this.controls.splice(index, 1)
+            this._map.removeControl(control.getControl())
+        }
+    }
+
     // 弹窗管理
 
     /**
      * 添加弹窗
      * @param popup 
-     * @returns 
      */
-    addPopup(popup: Popup) {
+    addPopup(popup: Popup): void {
         if (!this._isInitialized('addPopup')) return;
+        if (!isDefined(popup)) return;
         let index = this.popups.findIndex(i => {
-            return OlUtil.getUid(i._popup) === OlUtil.getUid(popup._popup)
+            return OlUtil.getUid(i.getPopup()) === OlUtil.getUid(popup.getPopup())
         })
         if (index !== -1) {
             warn_(createMessage('addPopup', '该弹窗已添加到地图中'));
             return;
         }
-        if (isDefined(popup._popup)) {
+        if (isDefined(popup.getPopup())) {
             this.popups.push(popup);
-            (this._map as OlMapInstanceType).addOverlay(popup._popup)
+            if (popup.setMap) {
+                popup.setMap(this)
+            }
+            (this._map as OlMapInstanceType).addOverlay(popup.getPopup() as OlPopupInstanceType);
         }
     }
 
-    getPopupById(id: number | string) {
-        let popup = this.popups.find(i => {
-            return i.id === id
+    /**
+     * 根据ID获取弹窗
+     * @param {number | string} id 弹窗ID
+     * @returns {Popup} 弹窗对象
+     */
+    getPopupById(id: number | string): Popup | undefined {
+        if (!this._isInitialized('getPopupById')) return;
+        if (!isDefined(id)) {
+            warn_(createMessage('getPopupById', '参数不能为空'));
+            return;
+        }
+        if (!isNumber(id) && !isString(id)) {
+            warn_(createMessage('getPopupById', '参数必须为数字或字符串'));
+            return;
+        }
+        let popup = this.popups.find((popup: Popup) => {
+            return isDefined(popup.getId()) && popup.getId() === id
         })
         return popup
     }
 
+    getPopupByProperties(filter: (properties: Record<string, any>) => boolean): Popup[] | undefined {
+        if (!this._isInitialized('getPopupByProperties')) return;
+        if (!isDefined(filter)) {
+            warn_(createMessage('getPopupById', '参数不能为空'));
+            return;
+        }
+        if (!isFunction(filter)) {
+            warn_(createMessage('getPopupById', '参数必须为数字或字符串'));
+            return;
+        }
+        const popups = this.popups.filter((p: Popup) => {
+            if (!isDefined(p.getProperties())) return false;
+            return filter(p.getProperties() as Record<string, any>)
+        })
+        return popups
+    }
+
+    /**
+     * 获取所有弹窗
+     * @returns {Popup[]} 弹窗数组
+     */
     getPopups(): Popup[] | undefined {
         if (!this._isInitialized('getPopups')) return;
         return this.popups
     }
 
-    removePopup(popup: Popup) {
+    /**
+     * 删除弹窗
+     * @param {Popup} popup 弹窗对象
+     */
+    removePopup(popup: Popup): void {
+        if (!this._isInitialized('removePopup')) return;
+        if (!isDefined(popup)) return;
         let index = this.popups.findIndex(i => {
-            return OlUtil.getUid(i._popup) === OlUtil.getUid(popup._popup)
+            return OlUtil.getUid(i.getPopup()) === OlUtil.getUid(popup.getPopup())
         })
-        if (index !== -1) {
+        if (index == -1) {
+            warn_(createMessage('removePopup', '该弹窗未添加到地图中'));
+            return;
+        }
+        if (isDefined(popup.getPopup())) {
             this.popups.splice(index, 1);
-            (this._map as OlMapInstanceType).removeOverlay(popup._popup as OlPopupInstanceType)
+            if (popup.setMap) {
+                popup.setMap(null)
+            }
+            (this._map as OlMapInstanceType).removeOverlay(popup.getPopup() as OlPopupInstanceType)
         }
     }
 
-    // 几何图形计算
-    getLength(feature: BaseFeature): number | undefined {
+    /** 几何图形计算 */
+    getLength(feature: BaseFeature<any>): number | undefined {
         if (!this._isInitialized('getLength')) return;
         let length = OlSphere.getLength((feature.getGeometry() as OlGeomInstanceType), {
             projection: this._map.getView().getProjection()
@@ -544,12 +835,98 @@ export default class Map implements MapLike {
         return length
     }
 
-    getArea(feature: BaseFeature): number | undefined {
+    getArea(feature: BaseFeature<any>): number | undefined {
         if (!this._isInitialized('getArea')) return;
         let area = OlSphere.getArea((feature.getGeometry() as OlGeomInstanceType), {
             projection: this._map.getView().getProjection()
         })
         return area
+    }
+
+    /**
+     * @TODO
+     * 遍历地图上指定像素位置的所有特征
+     * @param pixel 像素位置
+     * @param callback 回调函数
+     */
+    forEachFeatureAtPixel(pixel: Pixel, callback: (feature: BaseFeature<any>) => void, options?: OMapForEachFeatureAtPixelOptionsType): void {
+        if (!this._isInitialized('forEachFeatureAtPixel')) return;
+    }
+
+    getCoordinateFromPixel(pixel: OMapPixelType): Lnglat | undefined {
+        if (!this._isInitialized('getCoordinateFromPixel')) return;
+        if(!handleGetPixelValue(pixel)) return;
+        const lnglat = this._map.getCoordinateFromPixel(handleGetPixelValue(pixel) as OlPixelType)
+        return new Lnglat(...lnglat)
+    }
+
+    getPixelFromCoordinate(coordinate: OMapCoordinateType): Pixel | undefined {
+        if (!this._isInitialized('getPixelFromCoordinate')) return;
+        if(!handleGetLnglatValue(coordinate)) return;
+        const pixel = this._map.getPixelFromCoordinate(handleGetLnglatValue(coordinate) as OlCoordinateType)
+        return new Pixel(...pixel)
+    }
+
+    getEventCoordinate(event: any): Lnglat | undefined {
+        if (!this._isInitialized('getEventCoordinate')) return;
+        return new Lnglat(...this._map.getEventCoordinate(event))
+    }
+
+    getEventPixel(event: any): Pixel | undefined {
+        if (!this._isInitialized('getEventPixel')) return;
+        return new Pixel(...this._map.getEventPixel(event))
+    }
+
+    getFeaturesAtPixel(pixel: Pixel, options?: OMapForEachFeatureAtPixelOptionsType): BaseFeature<any>[] | undefined {
+        if (!this._isInitialized('getFeaturesAtPixel')) return;
+        if(!handleGetPixelValue(pixel)) return;
+        const params = Object.assign({}, DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS, options)
+        let features = this._map.getFeaturesAtPixel(handleGetPixelValue(pixel) as OlPixelType, {
+            ...params,
+            layerFilter: (layer: any) => {
+                if(!isDefined(params.layerFilter)) return true;
+                const targetLayer = this.layers.find((l: BaseLayer) => {
+                    return OlUtil.getUid(l) === OlUtil.getUid(layer)
+                })
+                return isDefined(targetLayer) ? params.layerFilter(targetLayer) : false
+            }
+        })
+        let featureIds = features.map((f: OlFeatureLike) => {
+            return OlUtil.getUid(f)
+        })
+        if(!isDefined(features)) return [];
+        const targetFeatures: BaseFeature<any>[] = []
+        this.layers.forEach((layer: BaseLayer) => {
+            if(layer instanceof VectorLayer) {
+                let layerFeatures = defaultValue(layer.getFeatures(), [])
+                layerFeatures.forEach((f: BaseFeature<any>) => {
+                    if(featureIds.includes(OlUtil.getUid(f.getFeature()))) {
+                        targetFeatures.push(f)
+                    }
+                })
+            }
+        })
+        return targetFeatures
+    }
+
+    hasFeatureAtPixel(pixel: Pixel, options?: OMapForEachFeatureAtPixelOptionsType): boolean {
+        const features = this.getFeaturesAtPixel(pixel, options)
+        return (isDefined(features) && features.length > 0)
+    }
+
+    render() {
+        if (!this._isInitialized('render')) return;
+        this._map.render()
+    }
+
+    renderSync() {
+        if (!this._isInitialized('renderSync')) return;
+        this._map.renderSync()
+    }
+
+    updateSize() {
+        if (!this._isInitialized('updateSize')) return;
+        this._map.updateSize()
     }
 
 }

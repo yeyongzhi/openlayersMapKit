@@ -20,6 +20,11 @@
     padding: var(--omap-popup-padding);
     box-sizing: border-box;
     color: var(--omap-text-color);
+    pointer-events: auto;
+}
+
+.omap-popup-selectable {
+    user-select: text;
 }
 
 .omap-popup-default-element::before {

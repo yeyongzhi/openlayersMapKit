@@ -1,6 +1,7 @@
 import { OlOverlay } from '../../../source/index'
-import type { ManualOmit, OlCoordinateType } from '../../../utils/type'
+import type { ManualOmit } from '../../../utils/type'
 import Lnglat from '../../basic/Lnglat/index'
+import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
 
 export type OlPopupParamsType = ConstructorParameters<typeof OlOverlay>[0]
@@ -42,6 +43,7 @@ export const DEFAULT_POPUP_PARAMS: OMapPopupParamsType = {
 }
 
 type OlOverlayEventType = "change:position" | "change:positioning" | "change:element" | "change:offset"
+
 export function isOlOverlayEventType(type: string): type is OlOverlayEventType {
     return ["change:position", "change:positioning", "change:element", "change:offset"].includes(type)
 }

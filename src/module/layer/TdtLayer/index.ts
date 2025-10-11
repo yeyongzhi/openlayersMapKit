@@ -1,11 +1,16 @@
 import { isDefined, isNumber } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlMapInstanceType, OMapTileLayerOptionsFinalType } from '../../../utils/index'
+import type { OlMapInstanceType } from '../../../utils/index'
 import { OlLayer, OlSource } from '../../../source/index'
 import BaseLayer from '../BaseLayer'
 import { getTdtServiceUrl } from './layerSource'
 import { MapToken } from '../../util/index'
-import { type TdtLayerTypeEnum, type TdtLayerProjType, type TdtLayerProjTypeEnum } from './type'
+import {
+    type TdtLayerTypeEnum,
+    type TdtLayerProjType,
+    type TdtLayerProjTypeEnum,
+    type OMapTdtLayerParamsType,
+} from './type'
 
 let PACKAGE_NAME = 'TdtLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -17,7 +22,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/8
- * @updateDate 2025/7/11
+ * @updateDate 2025/10/10
  */
 
 
@@ -28,7 +33,7 @@ export default class TdtLayer extends BaseLayer {
      */
     tdtType: TdtLayerTypeEnum | null = null;
 
-    constructor(type: TdtLayerTypeEnum, options?: OMapTileLayerOptionsFinalType & TdtLayerProjType) {
+    constructor(type: TdtLayerTypeEnum, options?: OMapTdtLayerParamsType) {
         super('Tdt', options);
         if (!isDefined(MapToken.tdt)) {
             warn_(createMessage('constructor', '缺少天地图key，请提前申明'))
@@ -38,8 +43,7 @@ export default class TdtLayer extends BaseLayer {
             error_(createMessage('constructor', '缺少参数天地图图层类型'))
             return;
         }
-        let _layeroptions = (options as OMapTileLayerOptionsFinalType) || {};
-        delete _layeroptions.source
+        let _layeroptions = (options as OMapTdtLayerParamsType) || {};
         // let _map = _layeroptions.map as OlMapInstanceType | undefined;
         this.tdtType = type;
         this._layer = new OlLayer.Tile({

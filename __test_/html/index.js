@@ -20,6 +20,8 @@ const MeasureDistanceBtn = document.getElementById('MeasureDistance')
 const MeasureAreaBtn = document.getElementById('MeasureArea')
 const endMeasureBtn = document.getElementById('endMeasure')
 
+const switchBaseLayer = document.getElementById('switchBaseLayer')
+
 let distanceMeasure = null
 let areaMeasure = null
 
@@ -61,7 +63,7 @@ function initMap() {
     })
 
     console.log(map)
-    console.log(map.getInteractions())
+    // console.log(map.getInteractions())
 
     map.once('map:rendercomplete', (e) => {
         console.log('【地图渲染完成】')
@@ -72,11 +74,23 @@ function initMap() {
         id: "gaode_vec",
         // minZoom: 16
     })
-    console.log(layer)
     map.addLayer(layer)
 
-    // OMap.MapToken.tdt = ""
+    OMap.MapToken.tdt = ""
     // 加载天地图
+    // const TDT_VEC_LAYER_GROUP = new OMap.LayerGroup("tdt_vec", [
+    //     new OMap.TdtLayer("vec"),
+    //     new OMap.TdtLayer("cva")
+    // ]
+    // )
+    // map.addLayerGroup(TDT_VEC_LAYER_GROUP)
+    // const TDT_IMG_LAYER_GROUP = new OMap.LayerGroup("tdt_img",
+    //     [
+    //         new OMap.TdtLayer(OMap.TdtLayerType.Img, { visible: false }),
+    //         new OMap.TdtLayer(OMap.TdtLayerType.Cia, { visible: false })
+    //     ]
+    // )
+    // map.addLayerGroup(TDT_IMG_LAYER_GROUP)
     // const TdtLayer1 = new OMap.TdtLayer("vec")
     // const TdtLayer2 = new OMap.TdtLayer("cva")
     // map.addLayer(TdtLayer1)
@@ -124,10 +138,11 @@ function initPopup() {
     const popup = new OMap.Popup({
         position: OMap.ProjUtil.fromLonLat([120.2, 30.3]),
         content: '这是一个弹窗',
+        stopEvent: true
     })
     popup.setOffset([0, -20])
-    console.log("------popup-----")
-    console.log(popup)
+    // console.log("------popup-----")
+    // console.log(popup)
     map.addPopup(popup)
     const vlayer = new OMap.VectorLayer({
         style: new OMap.Style({
@@ -581,11 +596,37 @@ function initWMTSLayer() {
 function initFormat() {
     const format = new OMap.Format(OMap.FormatType.GeoJSON)
     console.log(format)
-    const feature = format.readFeature('{"type":"Feature","geometry":{"type":"Point","coordinates":[120.2,30.3]},"properties":{}}')
+    const feature = format.readFeatures('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[120.2,30.3]},"properties":{}}]}')
     console.log(feature)
+    // const point = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]), { id: 123, name: '测试 format' })
+    // const line = new OMap.LineString([
+    //     OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+    //     OMap.ProjUtil.fromLonLat([120.1, 30.3])
+    // ], { id: 456, name: '测试 format' })
+    // const source = format.writeFeaturesObject([point, line])
+    // console.log(source)
 }
 
+function initControl() {
+    const control = new OMap.Zoom()
+    const control2 = new OMap.FullScreen()
+    map.addControl(control)
+    map.addControl(control2)
+}
 
+function initSwitchLayer() {
+    switchBaseLayer.onclick = (e) => {
+        console.log("switchBaseLayer")
+        const vecGroup = map.getLayerGroupById('tdt_vec')
+        vecGroup.getAllLayers().forEach(item => {
+            item.setVisible(false)
+        })
+        const imgGroup = map.getLayerGroupById('tdt_img')
+        imgGroup.getAllLayers().forEach(item => {
+            item.setVisible(true)
+        })
+    }
+}
 
 function init() {
     initDom()
@@ -609,7 +650,12 @@ function init() {
     // initWMSLayer()
     // initWMTSLayer()
 
-    initFormat()
+    // initFormat()
+
+    initControl()
+
+    // initSwitchLayer()
+
 }
 
 init()

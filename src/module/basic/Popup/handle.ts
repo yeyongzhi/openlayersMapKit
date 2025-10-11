@@ -11,7 +11,7 @@ import { type OMapPopupEventType } from './type'
  */
 export function createDefaultContentElement(content: string): HTMLElement {
     let div = document.createElement('div');
-    div.className  = 'omap-popup-default-element';
+    div.className = 'omap-popup-default-element';
     div.innerHTML = content;
     return div;
 }

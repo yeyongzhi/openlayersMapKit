@@ -1,8 +1,9 @@
-import { isDefined, isBoolean, isObject, isNumber } from "../../../utils/index";
-import OlPackage, { OlLayer } from '../../../source/index'
+import { isDefined, isBoolean, isObject, isNumber, isExtentType } from "../../../utils/index";
+import { commonMessage } from "../../../utils/message";
 import { warn_, error_, getPackageMessage, isVaildOpacity, defaultValue } from '../../../utils/index'
-import type { IdType, OlExtentType } from '../../../utils/index'
-import { LayerGroup, Extent, VectorLayer } from '../../../index'
+import { type OMapExtentType } from '../../basic/Extent/type'
+import Extent from '../../basic/Extent/index'
+import { handleGetExtentValue } from '../../basic/Extent/handle'
 import Map from '../../core/Map/index'
 import Draw from '../../interaction/Draw/index'
 import Modify from '../../interaction/Modify/index'
@@ -15,6 +16,8 @@ import {
     type BaseLayerPropertiesType
 } from './type'
 
+import { layerState } from './layerState'
+import { type LayerGroupIdType } from '../LayerGroup/type'
 let PACKAGE_NAME = 'BaseLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
 
@@ -25,7 +28,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/5
- * @updateDate 2025/9/30
+ * @updateDate 2025/10/10
  */
 
 const DEFAULT_LAYER_OPACITY: number = 1.0;
@@ -73,7 +76,7 @@ export default class BaseLayer implements BaseLayerLike {
     /**
      * 图层id，每个图层的唯一主键，用于区分图层
      */
-    id: BaseLayerIdType = null;
+    id: BaseLayerIdType | null = null;
     /**
      * 图层名称，用于显示在图层控制栏中
      */
@@ -119,6 +122,10 @@ export default class BaseLayer implements BaseLayerLike {
         this.zIndex = defaultValue(_options.zIndex, DEFAULT_LAYER_ZINDEX);
         this.properties = defaultValue(_options.properties, DEFAULT_LAYER_PROPERTIES);
         this.map = defaultValue(_options.map, null);
+        // 初始化图层状态
+        layerState.set(this, {
+            groupId: null
+        })
     }
 
     protected _isInitialized(method: string): this is BaseLayerInitialized & this {
@@ -156,14 +163,18 @@ export default class BaseLayer implements BaseLayerLike {
         })
     }
 
-    getId(): BaseLayerIdType | undefined {
-        if (!this._isInitialized('getId')) return;
+    getId(): BaseLayerIdType | null {
+        if (!this._isInitialized('getId')) return null;
         return this.id;
     }
 
     setId(id: BaseLayerIdType): void {
         if (!this._isInitialized('setId')) return;
         this.id = id
+    }
+
+    getLayer() {
+        return this._layer
     }
 
     /**
@@ -181,11 +192,11 @@ export default class BaseLayer implements BaseLayerLike {
     setOpacity(opacity: number): void {
         if (!this._isInitialized('setOpacity')) return;
         if (!isDefined(opacity)) {
-            warn_(createMessage('setOpacity', '透明度不能为空'));
+            warn_(createMessage('setOpacity', commonMessage.paramsNotDefined('opacity')));
             return;
         }
         if (!isVaildOpacity(opacity)) {
-            warn_(createMessage('setOpacity', '透明度必须为0~1的数字'));
+            warn_(createMessage('setOpacity', commonMessage.paramsInvaildFormat('opacity', '0~1的数字')));
             return;
         }
         this._layer.setOpacity(opacity);
@@ -196,7 +207,7 @@ export default class BaseLayer implements BaseLayerLike {
      * @returns {number} 透明度，0~1
      */
     getOpacity(): number | undefined {
-        if (!this._isInitialized('getOpacity')) return undefined;
+        if (!this._isInitialized('getOpacity')) return;
         return this._layer.getOpacity();
     }
 
@@ -207,11 +218,11 @@ export default class BaseLayer implements BaseLayerLike {
     setVisible(visible: boolean): void {
         if (!this._isInitialized('setVisible')) return;
         if (!isDefined(visible)) {
-            warn_(createMessage('setVisible', '可见性不能为空'));
+            warn_(createMessage('setVisible', commonMessage.paramsNotDefined('visible')));
             return;
         }
-        if (isBoolean(visible)) {
-            warn_(createMessage('setVisible', '可见性必须为boolean类型'));
+        if (!isBoolean(visible)) {
+            warn_(createMessage('setVisible', commonMessage.paramsInvaildFormat('visible', 'boolean类型')));
             return;
         }
         this._layer.setVisible(visible);
@@ -222,37 +233,45 @@ export default class BaseLayer implements BaseLayerLike {
      * @returns {boolean} 可见性，true/false
      */
     getVisible(): boolean | undefined {
-        if (!this._isInitialized('getVisible')) return undefined;
+        if (!this._isInitialized('getVisible')) return;
         return this._layer.getVisible();
     }
 
     /**
      * 获取图层的范围
+     * @returns {Extent | undefined} 范围
      */
     getExtent(): Extent | undefined {
-        if (!this._isInitialized('getExtent')) return undefined;
+        if (!this._isInitialized('getExtent')) return;
         let extent = this._layer.getExtent()
-        if(!extent) return;
-        return new Extent(extent[0], extent[1], extent[2], extent[3])
+        return isDefined(extent) ? new Extent(...extent) : undefined
     }
 
     /**
      * 设置图层的范围
+     * @param {OMapExtentType} extent 范围
      */
-    setExtent(extent: Extent | OlExtentType): void {
+    setExtent(extent: OMapExtentType): void {
         if (!this._isInitialized('setExtent')) return;
-        let _extent = (extent instanceof Extent) ? extent.getExtent() : extent
-        this._layer.setExtent(_extent)
+        if (!isDefined(extent)) {
+            warn_(createMessage('setExtent', commonMessage.paramsNotDefined('extent')));
+            return;
+        }
+        if(!(extent instanceof Extent) && !isExtentType(extent)) {
+            warn_(createMessage('setExtent', commonMessage.paramsInvaildFormat('extent', 'Extent类型')));
+            return;
+        }
+        this._layer.setExtent(handleGetExtentValue(extent))
     }
 
     setMinZoom(minZoom: number): void {
         if (!this._isInitialized('setMinZoom')) return;
         if (!isDefined(minZoom)) {
-            warn_(createMessage('setMinZoom', 'minZoom不能为空'));
+            warn_(createMessage('setMinZoom', commonMessage.paramsNotDefined('minZoom')));
             return;
         }
         if (!isNumber(minZoom)) {
-            warn_(createMessage('setMinZoom', 'minZoom必须为number类型'));
+            warn_(createMessage('setMinZoom', commonMessage.paramsInvaildFormat('minZoom', 'number类型')));
             return;
         }
         this._layer.setMinZoom(minZoom);
@@ -266,11 +285,11 @@ export default class BaseLayer implements BaseLayerLike {
     setMaxZoom(maxZoom: number): void {
         if (!this._isInitialized('setMaxZoom')) return;
         if (!isDefined(maxZoom)) {
-            warn_(createMessage('setMaxZoom', 'maxZoom不能为空'));
+            warn_(createMessage('setMaxZoom', commonMessage.paramsNotDefined('maxZoom')));
             return;
         }
         if (!isNumber(maxZoom)) {
-            warn_(createMessage('setMaxZoom', 'maxZoom必须为number类型'));
+            warn_(createMessage('setMaxZoom', commonMessage.paramsInvaildFormat('maxZoom', 'number类型')));
             return;
         }
         this._layer.setMaxZoom(maxZoom);
@@ -284,11 +303,11 @@ export default class BaseLayer implements BaseLayerLike {
     setMinResolution(minResolution: number): void {
         if (!this._isInitialized('setMinResolution')) return;
         if (!isDefined(minResolution)) {
-            warn_(createMessage('setMinResolution', 'minResolution不能为空'));
+            warn_(createMessage('setMinResolution', commonMessage.paramsNotDefined('minResolution')));
             return;
         }
         if (!isNumber(minResolution)) {
-            warn_(createMessage('setMinResolution', 'minResolution必须为number类型'));
+            warn_(createMessage('setMinResolution', commonMessage.paramsInvaildFormat('minResolution', 'number类型')));
             return;
         }
         this._layer.setMinResolution(minResolution);
@@ -302,11 +321,11 @@ export default class BaseLayer implements BaseLayerLike {
     setMaxResolution(maxResolution: number): void {
         if (!this._isInitialized('setMaxResolution')) return;
         if (!isDefined(maxResolution)) {
-            warn_(createMessage('setMaxResolution', 'maxResolution不能为空'));
+            warn_(createMessage('setMaxResolution', commonMessage.paramsNotDefined('maxResolution')));
             return;
         }
         if (!isNumber(maxResolution)) {
-            warn_(createMessage('setMaxResolution', 'maxResolution必须为number类型'));
+            warn_(createMessage('setMaxResolution', commonMessage.paramsInvaildFormat('maxResolution', 'number类型')));
             return;
         }
         this._layer.setMaxResolution(maxResolution);
@@ -320,11 +339,11 @@ export default class BaseLayer implements BaseLayerLike {
     setZIndex(zIndex: number): void {
         if (!this._isInitialized('setZIndex')) return;
         if (!isDefined(zIndex)) {
-            warn_(createMessage('setZIndex', 'zIndex不能为空'));
+            warn_(createMessage('setZIndex', commonMessage.paramsNotDefined('zIndex')));
             return;
         }
         if (!isNumber(zIndex)) {
-            warn_(createMessage('setZIndex', 'zIndex必须为number类型'));
+            warn_(createMessage('setZIndex', commonMessage.paramsInvaildFormat('zIndex', 'number类型')));
             return;
         }
         this._layer.setZIndex(zIndex);
@@ -338,11 +357,11 @@ export default class BaseLayer implements BaseLayerLike {
     setProperties(properties: BaseLayerPropertiesType): void {
         if (!this._isInitialized('setProperties')) return;
         if (!isDefined(properties)) {
-            warn_(createMessage('setProperties', '属性不能为空'));
+            warn_(createMessage('setProperties', commonMessage.paramsNotDefined('properties')));
             return;
         }
         if (isObject(properties)) {
-            warn_(createMessage('setProperties', '属性必须为object类型'));
+            warn_(createMessage('setProperties', commonMessage.paramsInvaildFormat('properties', 'object类型')));
             return;
         }
         let oldProperties = this.getProperties() || {}
@@ -367,6 +386,14 @@ export default class BaseLayer implements BaseLayerLike {
     getTarget(): Map | Draw | Modify | Measure | undefined {
         if(!isDefined(this.target)) return;
         return this.target;
+    }
+
+    get groupId(): LayerGroupIdType | null {
+        return layerState.get(this)?.groupId || null;
+    }
+
+    getGroupId(): LayerGroupIdType | null {
+        return this.groupId;
     }
 
 }

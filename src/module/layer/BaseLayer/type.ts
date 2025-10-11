@@ -4,9 +4,9 @@ import Color from '../../basic/Color/index'
 import Map from '../../core/Map/index'
 
 /** BaseLayer */
-type CustBaseLayerType = 'XYZ' | 'WMS'
+type CustBaseLayerType = 'XYZ' | 'WMS' | 'WMTS'
 export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt' | CustBaseLayerType
-export type BaseLayerIdType = number | string | null | undefined
+export type BaseLayerIdType = number | string
 export type BaseLayerPropertiesType = Record<string, any>
 
 export type OlBaseLayerOptionsTypeEnum = "className" | "opacity" | "visible" | "extent" | "zIndex" | "minResolution" | "maxResolution" | "minZoom" | "maxZoom" | "background" | "properties"

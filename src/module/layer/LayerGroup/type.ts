@@ -1,0 +1,1 @@
+export type LayerGroupIdType = number | string

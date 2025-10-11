@@ -1,9 +1,16 @@
 {
   "name": "omap",
   "version": "1.0.0-beta1",
-  "description": "A convenient OpenLayers-based application library.",
-  "main": "dist/omap.umd.js",
+  "description": "一个基于openlayers封装的地图引擎开发包，提供一系列开发类，用于快速开发地图应用。",
+  "main": "index.js",
   "module": "dist/omap.es.js",
+  "files": [
+    "dist/**/*",
+    "index.js",
+    "src/**/*",
+    "README.md",
+    "LICENSE"
+  ],
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
@@ -13,9 +20,10 @@
   "keywords": [
     "openlayers",
     "map",
-    "gis"
+    "gis",
+    "mapKit"
   ],
-  "author": "",
+  "author": "Aurora",
   "license": "MIT",
   "dependencies": {
     "ol": "^10.6.1"

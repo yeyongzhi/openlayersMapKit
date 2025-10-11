@@ -4,7 +4,7 @@ import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType, OlCoor
 import Lnglat from '../../basic/Lnglat/index'
 import Pixel from '../../basic/Pixel/index'
 import { type OMapPixelType, type OlPixelType } from '../../basic/Pixel/type'
-import Extent from '../../basic/Extent/index'
+import Map from '../../core/Map/index'
 import Event from '../../util/Event/index'
 import { isValidEventId, type EventIdType } from '../../util/Event/handle'
 import { OlOverlay } from '../../../source/index'
@@ -32,22 +32,24 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/5
- * @updateDate 2025/9/30
+ * @updateDate 2025/10/9
  */
 
 interface PopupLike {
     _popup?: OlPopupInstanceType;
     id: number | string | null;
     content: string;
+    map: Map | null;
     events: Event;
     properties: Record<string, any>;
 }
 
 // 精确类型：保证一定已初始化
-interface PopupLikeInitialized {
+interface PopupInitialized {
     _popup: OlPopupInstanceType;
     id: number | string | null;
     content: string;
+    map: Map | null;
     events: Event;
     properties: Record<string, any>;
 }
@@ -60,6 +62,11 @@ export default class Popup implements PopupLike {
      * Popup 的唯一ID
      */
     id: number | string | null = null;
+
+    /**
+     * 弹窗所属地图
+     */
+    map: Map | null = null;
     /**
      * 弹窗内容(不一定有)
      */
@@ -84,6 +91,9 @@ export default class Popup implements PopupLike {
             this.content = _params.content
             _params.element = createDefaultContentElement(_params.content)
         }
+        if(isDefined(_params.element)) {
+            _params.element.classList.add("omap-popup-selectable")
+        }
         this._popup = new OlOverlay({
             ..._params,
             offset: _params.offset?.toArray(),
@@ -92,7 +102,15 @@ export default class Popup implements PopupLike {
         this.events = new Event(this)
     }
 
-    protected _isInitialized(method: string): this is PopupLikeInitialized & this {
+    /**
+     * 初始化弹窗元素事件
+     * @todo 暂不需要
+     */
+    protected _initElementEvent() {
+        
+    }
+
+    protected _isInitialized(method: string): this is PopupInitialized & this {
         if (!isDefined(this._popup)) {
             warn_(createMessage(method, '未正确实例化'));
             return false;
@@ -168,6 +186,8 @@ export default class Popup implements PopupLike {
 
     setElement(element: HTMLElement | undefined): void {
         if (!this._isInitialized("getElement")) return;
+        if (!isDefined(element)) return;
+        element.classList.add("omap-popup-selectable")
         return this._popup.setElement(element)
     }
 
@@ -212,7 +232,7 @@ export default class Popup implements PopupLike {
         return this._popup
     }
 
-    on(type: OMapPopupEventType, callback: () => void) {
+    on(type: OMapPopupEventType, callback: () => void): number | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', '参数不能为空'));
@@ -244,8 +264,30 @@ export default class Popup implements PopupLike {
         (this.events as Event).remove(id)
     }
 
-    once() {
+    once(type: OMapPopupEventType, callback: () => void): number | undefined {
+        if (!this._isInitialized('on')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', '参数不能为空'));
+            return;
+        }
+        if (isOlOverlayEventType(type)) {
+            let list = (this.events as Event).get(type)
+            if (!isDefined(list) || list.length === 0) {
+                (this._popup as OlPopupInstanceType).on(type, (e) => {
+                    console.log(e);
+                    (this.events as Event).emit(type, handlePopupEvent(this, type, e))
+                })
+            }
+        }
+        const id: EventIdType = (this.events as Event).once(type, callback)
+        return id
+    }
 
+    setMap(map: Map | null) {
+        this.map = map
+        if (isDefined(map)) {
+            this._initElementEvent()
+        }
     }
 
 }

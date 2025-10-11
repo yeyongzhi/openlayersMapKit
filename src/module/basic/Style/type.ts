@@ -4,7 +4,7 @@ import BaseFeature from '../../core/Feature/BasicFeature/index'
 import { OlStyle } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/index'
 
-export type OMapStyleFunction = (feature: BaseFeature, resolution: number) => Style | Array<Style> | undefined
+export type OMapStyleFunction = (feature: BaseFeature<any>, resolution: number) => Style | Array<Style> | undefined
 
 export type OMapStyleLike = Style | Array<Style> | OMapStyleFunction
 

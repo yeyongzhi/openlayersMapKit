@@ -19,7 +19,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/10/6
+ * @updateDate 2025/10/9
  */
 
 export default class Point extends BasicFeature<OlPointGeomInstanceType> implements PointLike {
@@ -40,9 +40,9 @@ export default class Point extends BasicFeature<OlPointGeomInstanceType> impleme
                 return
             }
             super("Point", coordinatesOrFeature as OMapPointGeometryCoordinatesType)
-        }
-        if (isDefined(properties) && isObject(properties)) {
-            this.setProperties(properties)
+            if (isDefined(properties) && isObject(properties)) {
+                this.setProperties(properties)
+            }
         }
     }
 

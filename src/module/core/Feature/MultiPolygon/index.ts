@@ -18,7 +18,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/10/8
- * @updateDate 2025/10/8
+ * @updateDate 2025/10/9
  */
 
 export default class MultiPolygon extends BasicFeature<OlMultiPolygonGeomInstanceType> implements MultiPolygonLike {
@@ -39,9 +39,9 @@ export default class MultiPolygon extends BasicFeature<OlMultiPolygonGeomInstanc
                 return
             }
             super("MultiPolygon", coordinatesOrFeature as OMapMultiPolygonGeometryCoordinatesType)
-        }
-        if (isDefined(properties) && isObject(properties)) {
-            this.setProperties(properties)
+            if (isDefined(properties) && isObject(properties)) {
+                this.setProperties(properties)
+            }
         }
     }
 

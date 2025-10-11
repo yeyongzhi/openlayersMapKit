@@ -21,7 +21,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/10/5
- * @updateDate 2025/10/6
+ * @updateDate 2025/10/9
  */
 
 export default class MultiPoint extends BasicFeature<OlMultiPointGeomInstanceType> implements MultiPointLike {
@@ -42,9 +42,9 @@ export default class MultiPoint extends BasicFeature<OlMultiPointGeomInstanceTyp
                 return
             }
             super("MultiPoint", coordinatesOrFeature as OMapMultiPointGeometryCoordinatesType)
-        }
-        if (isDefined(properties) && isObject(properties)) {
-            this.setProperties(properties)
+            if (isDefined(properties) && isObject(properties)) {
+                this.setProperties(properties)
+            }
         }
     }
 
