@@ -76,7 +76,7 @@ function initMap() {
     })
     map.addLayer(layer)
 
-    OMap.MapToken.tdt = ""
+    // OMap.MapToken.tdt = ""
     // 加载天地图
     // const TDT_VEC_LAYER_GROUP = new OMap.LayerGroup("tdt_vec", [
     //     new OMap.TdtLayer("vec"),
@@ -111,8 +111,16 @@ function initMap() {
     })
     // map.addLayer(OSMlayer)
 
+    // 注册点击事件
     map.on('map:singleclick', (e) => {
         // clickLnglat.innerText = e.coordinate.toString(2)
+        console.log(e)
+        const clickFeatures = map.getFeaturesAtPixel(e.pixel)
+        console.log(clickFeatures)
+        const clickFeatures2 = map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
+            return feature
+        })
+        console.log(clickFeatures2)
         clickLnglat.innerText = OMap.ProjUtil.toLonLat(e.coordinate).toString(2)
     })
 
@@ -259,7 +267,7 @@ function initVectorLayer() {
         // console.log(p.getLastCoordinate())
         // console.log(p2.intersectsExtent(extent))
         // console.log(l.getCoordinates())
-        l.translate(10000, 10000)
+        // l.translate(10000, 10000)
         // console.log(l.getCoordinates())
     }, 3000)
     let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
@@ -632,10 +640,10 @@ function init() {
     initDom()
     initMap()
 
-    initPopup()
+    // initPopup()
 
     // initDraw()
-    // initVectorLayer()
+    initVectorLayer()
     // initFeature()
     // initDragBox()
     // initDragPan()

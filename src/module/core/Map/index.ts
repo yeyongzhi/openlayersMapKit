@@ -9,9 +9,10 @@ import Lnglat from '../../basic/Lnglat/index'
 import { type OlCoordinateType, type OMapCoordinateType } from '../../basic/Lnglat/type'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
 import Extent from '../../basic/Extent/index'
-import { type OlExtentType } from '../../basic/Extent/type'
+import { type OMapExtentType } from '../../basic/Extent/type'
 import Size from '../../basic/Size/index'
-import { type OlSizeType } from '../../basic/Size/type'
+import { type OlSizeType, type OMapSizeType } from '../../basic/Size/type'
+import { handleGetSizeValue } from '../../basic/Size/handle'
 import Pixel from '../../basic/Pixel/index'
 import { type OMapPixelType, type OlPixelType } from '../../basic/Pixel/type'
 import { handleGetPixelValue } from '../../basic/Pixel/handle'
@@ -42,7 +43,12 @@ import {
     type OlMapOnEventType,
     type OlViewOnEventType,
     OMapForEachFeatureAtPixelOptionsType,
-    DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS
+    DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS,
+    OMapViewAnimateOptionsType,
+    OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS,
+    OMapEasing,
+    type OMapViewFitOptionsType,
+    OMAP_VIEW_FIT_DEFAULT_OPTIONS,
 } from './type'
 import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
 
@@ -849,20 +855,50 @@ export default class Map implements MapLike {
      * @param pixel 像素位置
      * @param callback 回调函数
      */
-    forEachFeatureAtPixel(pixel: Pixel, callback: (feature: BaseFeature<any>) => void, options?: OMapForEachFeatureAtPixelOptionsType): void {
+    forEachFeatureAtPixel(pixel: Pixel, callback: (feature: BaseFeature<any> | null, layer: BaseLayer | null) => void, options?: OMapForEachFeatureAtPixelOptionsType): void {
         if (!this._isInitialized('forEachFeatureAtPixel')) return;
+        if (!handleGetPixelValue(pixel)) return;
+        const params = Object.assign({}, DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS, options)
+        const result = this._map.forEachFeatureAtPixel(handleGetPixelValue(pixel) as OlPixelType, (feature: OlFeatureLike, layer: any) => {
+            let targetFeature: BaseFeature<any> | null = null
+            let targetLayer: BaseLayer | null = null
+            this.layers.forEach((item: BaseLayer) => {
+                if (OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer)) {
+                    targetLayer = (item as BaseLayer)
+                };
+                if (item instanceof VectorLayer) {
+                    let layerFeatures = defaultValue(item.getFeatures(), [])
+                    layerFeatures.forEach((f: BaseFeature<any>) => {
+                        if (OlUtil.getUid(feature) === OlUtil.getUid(f.getFeature())) {
+                            targetFeature = (f as BaseFeature<any>)
+                        }
+                    })
+                }
+            })
+            return callback(targetFeature, targetLayer)
+        }, {
+            ...params,
+            layerFilter: (layer: any) => {
+                if (!isDefined(params.layerFilter)) return true;
+                const targetLayer = this.layers.find((l: BaseLayer) => {
+                    return OlUtil.getUid(l) === OlUtil.getUid(layer)
+                })
+                return isDefined(targetLayer) ? params.layerFilter(targetLayer) : false
+            }
+        })
+        return result
     }
 
     getCoordinateFromPixel(pixel: OMapPixelType): Lnglat | undefined {
         if (!this._isInitialized('getCoordinateFromPixel')) return;
-        if(!handleGetPixelValue(pixel)) return;
+        if (!handleGetPixelValue(pixel)) return;
         const lnglat = this._map.getCoordinateFromPixel(handleGetPixelValue(pixel) as OlPixelType)
         return new Lnglat(...lnglat)
     }
 
     getPixelFromCoordinate(coordinate: OMapCoordinateType): Pixel | undefined {
         if (!this._isInitialized('getPixelFromCoordinate')) return;
-        if(!handleGetLnglatValue(coordinate)) return;
+        if (!handleGetLnglatValue(coordinate)) return;
         const pixel = this._map.getPixelFromCoordinate(handleGetLnglatValue(coordinate) as OlCoordinateType)
         return new Pixel(...pixel)
     }
@@ -879,12 +915,12 @@ export default class Map implements MapLike {
 
     getFeaturesAtPixel(pixel: Pixel, options?: OMapForEachFeatureAtPixelOptionsType): BaseFeature<any>[] | undefined {
         if (!this._isInitialized('getFeaturesAtPixel')) return;
-        if(!handleGetPixelValue(pixel)) return;
+        if (!handleGetPixelValue(pixel)) return;
         const params = Object.assign({}, DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS, options)
         let features = this._map.getFeaturesAtPixel(handleGetPixelValue(pixel) as OlPixelType, {
             ...params,
             layerFilter: (layer: any) => {
-                if(!isDefined(params.layerFilter)) return true;
+                if (!isDefined(params.layerFilter)) return true;
                 const targetLayer = this.layers.find((l: BaseLayer) => {
                     return OlUtil.getUid(l) === OlUtil.getUid(layer)
                 })
@@ -894,13 +930,13 @@ export default class Map implements MapLike {
         let featureIds = features.map((f: OlFeatureLike) => {
             return OlUtil.getUid(f)
         })
-        if(!isDefined(features)) return [];
+        if (!isDefined(features)) return [];
         const targetFeatures: BaseFeature<any>[] = []
         this.layers.forEach((layer: BaseLayer) => {
-            if(layer instanceof VectorLayer) {
+            if (layer instanceof VectorLayer) {
                 let layerFeatures = defaultValue(layer.getFeatures(), [])
                 layerFeatures.forEach((f: BaseFeature<any>) => {
-                    if(featureIds.includes(OlUtil.getUid(f.getFeature()))) {
+                    if (featureIds.includes(OlUtil.getUid(f.getFeature()))) {
                         targetFeatures.push(f)
                     }
                 })
@@ -927,6 +963,116 @@ export default class Map implements MapLike {
     updateSize() {
         if (!this._isInitialized('updateSize')) return;
         this._map.updateSize()
+    }
+
+    /**
+     * view 视图相关方法
+     */
+    adjustCenter(deltaCoordinates: OMapCoordinateType): void {
+        if (!this._isInitialized('adjustCenter')) return;
+        if (!isDefined(deltaCoordinates)) {
+            return;
+        }
+        this._view.adjustCenter(handleGetLnglatValue(deltaCoordinates) as OlCoordinateType)
+    }
+
+    adjustResolution(ratio: number, anchor?: OMapCoordinateType): void {
+        if (!this._isInitialized('adjustResolution')) return;
+        this._view.adjustResolution(ratio, anchor ? handleGetLnglatValue(anchor) as OlCoordinateType : undefined);
+    }
+
+    adjustRotation(delta: number, anchor?: OMapCoordinateType): void {
+        if (!this._isInitialized('adjustRotation')) return;
+        this._view.adjustRotation(delta, anchor ? handleGetLnglatValue(anchor) as OlCoordinateType : undefined);
+    }
+
+    adjustZoom(delta: number, anchor?: OMapCoordinateType): void {
+        if (!this._isInitialized('adjustZoom')) return;
+        this._view.adjustZoom(delta, anchor ? handleGetLnglatValue(anchor) as OlCoordinateType : undefined);
+    }
+
+    animate(options: OMapViewAnimateOptionsType) {
+        if (!this._isInitialized('animate')) return;
+        let params = Object.assign({}, OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS, {
+            center: options.center ? handleGetLnglatValue(options.center) as OlCoordinateType : undefined,
+            resolution: options.resolution,
+            rotation: options.rotation,
+            zoom: options.zoom,
+            anchor: options.anchor ? handleGetLnglatValue(options.anchor) as OlCoordinateType : undefined,
+            duration: options.duration,
+            easing: OMapEasing[options.easing](1),
+        })
+        this._view.animate(params)
+    }
+
+    beginInteraction() {
+        if (!this._isInitialized('updateSize')) return;
+        this._view.beginInteraction()
+    }
+
+    calculateExtent(size: OMapSizeType): Extent | undefined {
+        if (!this._isInitialized('calculateExtent')) return;
+        this._view.calculateExtent(isDefined(size) ? handleGetSizeValue(size) : undefined)
+    }
+
+    cancelAnimations() {
+        if (!this._isInitialized('cancelAnimations')) return;
+        this._view.cancelAnimations()
+    }
+
+    centerOn(coordinate: OMapCoordinateType, size: OMapSizeType, position: OMapPixelType) {
+        if (!this._isInitialized('centerOn')) return;
+        if(!isDefined(coordinate) || !isDefined(size) || !isDefined(position)) {
+            warn_(createMessage('centerOn', commonMessage.paramsListHaveNotDefined('coordinate', 'size', 'position')));
+            return;
+        }
+        this._view.centerOn(
+            handleGetLnglatValue(coordinate) as OlCoordinateType,
+            handleGetSizeValue(size) as OlSizeType,
+            handleGetPixelValue(position) as OlPixelType)
+    }
+
+    changed() {
+        if (!this._isInitialized('changed')) return;
+        this._view.changed()
+    }
+
+    endInteraction(duration?: number, resolutionDirection?: number, anchor?: OMapCoordinateType) {
+        if (!this._isInitialized('endInteraction')) return;
+        this._view.endInteraction(duration, resolutionDirection, handleGetLnglatValue(anchor) as OlCoordinateType)
+    }
+
+    fit(featureOrExtent: BaseFeature<any> | Extent, options: OMapViewFitOptionsType) {
+
+    }
+
+    getAnimating(): boolean | undefined {
+        if (!this._isInitialized('updateSize')) return;
+        return this._view.getAnimating()
+    }
+
+    getInteracting() {
+
+    }
+
+    getMaxResolution() {
+
+    }
+
+    getMinResolution() {
+
+    }
+
+    getMaxZoom() {
+
+    }
+
+    getMinZoom() {
+
+    }
+
+    getProjection() {
+
     }
 
 }

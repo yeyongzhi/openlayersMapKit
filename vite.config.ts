@@ -34,7 +34,8 @@ export default defineConfig({
           'ol/tilegrid': 'ol.tilegrid',
           'ol/extent': 'ol.extent',
           'ol/format': 'ol.format',
-          'ol/control': 'ol.control'
+          'ol/control': 'ol.control',
+          'ol/easing': 'ol.easing'
         }
       },
       plugins: []

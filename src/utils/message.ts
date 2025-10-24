@@ -16,8 +16,14 @@ function getPackageMessage(packageName: string) {
     }
 }
 
+/** 校验提示 */
+
 export function paramsNotDefined(paramsName: string) {
     return `参数${paramsName}不能为空`
+}
+
+export function paramsListHaveNotDefined(...paramsName: string[]) {
+    return `参数${paramsName.join(', ')}均不能为空`
 }
 
 export function paramsInvaildFormat(paramsName: string, format?: string) {
@@ -30,6 +36,7 @@ export function haveInvaildDataItem(paramsName: string) {
 
 const commonMessage = {
     paramsNotDefined,
+    paramsListHaveNotDefined,
     paramsInvaildFormat,
     haveInvaildDataItem
 }
