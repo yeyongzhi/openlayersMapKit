@@ -170,6 +170,7 @@ function initPopup() {
 // 测试VectorLayer
 function initVectorLayer() {
     const vlayer = new OMap.VectorLayer({
+        id: 'test-vector',
         style: (feature, resolution) => {
             // console.log(feature)
             // console.log(resolution)
@@ -663,6 +664,21 @@ function init() {
     initControl()
 
     // initSwitchLayer()
+
+    setTimeout(() => {
+        console.log(map.getAllLayers())
+        const vlayer = map.getLayerById('test-vector')
+        console.log(vlayer)
+        console.log(vlayer.getFeatures()[0])
+        // map.fit(vlayer.getFeatures()[0], {
+        //     maxZoom: 18
+        // })
+        // map.animate({
+        //     center: vlayer.getFeatures()[0].getCoordinates(),
+        //     zoom: 18
+        // })
+        // map.adjustZoom(1)
+    }, 3000)
 
 }
 

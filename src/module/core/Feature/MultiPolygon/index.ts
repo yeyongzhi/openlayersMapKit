@@ -1,6 +1,6 @@
 import { isDefined, isCoordinatesType, isExtentType, isObject } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage, isNumber } from '../../../../utils/index'
-import type { OlCoordinateType } from '../../../../utils/index'
+import { type OlCoordinateType } from '../../../basic/Lnglat/type'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { OMapMultiPolygonGeometryCoordinatesType, OlMultiPolygonGeomInstanceType, MultiPolygonLike, MultiPolygonInitialized } from './type'

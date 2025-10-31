@@ -23,11 +23,15 @@ export function paramsNotDefined(paramsName: string) {
 }
 
 export function paramsListHaveNotDefined(...paramsName: string[]) {
-    return `参数${paramsName.join(', ')}均不能为空`
+    return `参数${paramsName.join('、')}均不能为空`
 }
 
 export function paramsInvaildFormat(paramsName: string, format?: string) {
     return `参数${paramsName}格式错误` + (format ? `，正确格式为${format}` : "")
+}
+
+export function paramsListInvaildFormat(...paramsName: string[]) {
+    return `参数${paramsName.join('、')}格式错误`
 }
 
 export function haveInvaildDataItem(paramsName: string) {
@@ -38,6 +42,7 @@ const commonMessage = {
     paramsNotDefined,
     paramsListHaveNotDefined,
     paramsInvaildFormat,
+    paramsListInvaildFormat,
     haveInvaildDataItem
 }
 

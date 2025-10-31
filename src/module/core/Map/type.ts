@@ -72,7 +72,7 @@ export const defaultMapOptions: OMapOptionsType = {
 export type OMapEventType = 
 // 'map:change'
 // 'map:change:layerGroup'
-// 'map:change:size'
+'map:change:size' | 
 // 'map:change:target'
 // 'map:change:view'
 'map:click' |
@@ -153,7 +153,7 @@ export type OMapViewFitOptionsType = {
     easing: keyof typeof OMapEasing;
     callback?: () => void;
 }
-export const OMAP_VIEW_FIT_DEFAULT_OPTIONS = {
+export const OMAP_VIEW_FIT_DEFAULT_OPTIONS: OMapViewFitOptionsType = {
     padding: [0, 0, 0, 0],
     nearest: false,
     minResolution: 0,

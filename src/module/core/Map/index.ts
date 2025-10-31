@@ -1,4 +1,4 @@
-import { isDefined, isNumber, isString, defaultValue, isFunction, isArray, isObject } from '../../../utils/index';
+import { isDefined, isNumber, isBoolean, isString, defaultValue, isFunction, isArray, isObject } from '../../../utils/index';
 import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import OlPackage, { OlUtil, OlSphere } from '../../../source/index'
 import type {
@@ -9,6 +9,7 @@ import Lnglat from '../../basic/Lnglat/index'
 import { type OlCoordinateType, type OMapCoordinateType } from '../../basic/Lnglat/type'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
 import Extent from '../../basic/Extent/index'
+import { handleGetExtentValue } from '../../basic/Extent/handle'
 import { type OMapExtentType } from '../../basic/Extent/type'
 import Size from '../../basic/Size/index'
 import { type OlSizeType, type OMapSizeType } from '../../basic/Size/type'
@@ -51,6 +52,7 @@ import {
     OMAP_VIEW_FIT_DEFAULT_OPTIONS,
 } from './type'
 import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
+import { sign } from 'crypto';
 
 const PACKAGE_NAME = 'Map';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -82,6 +84,7 @@ export default class Map implements MapLike {
 
     _map?: OlMapInstanceType;
     _view?: OlViewInstanceType;
+    projection?: Projection;
     layers: Array<BaseLayer> = [];
     layerGroups: Array<LayerGroup> = [];
     interactions: Array<Interaction> = [];
@@ -100,6 +103,7 @@ export default class Map implements MapLike {
         if (isString(proj)) {
             proj = new Projection(proj as string)
         }
+        this.projection = proj as Projection
         const view_params = {
             ...view_options,
             center: (view_options.center instanceof Lnglat) ? view_options.center._lnglat : view_options.center, // 中心点坐标
@@ -530,7 +534,7 @@ export default class Map implements MapLike {
         const target = (isMapTarget) ? this._map : this._view;
         let list = (this.events as Event).get(type)
         // 初次注册ol原生事件
-        if (!isDefined(list) || list.length === 0) {
+        if (!isDefined(list) || (isDefined(list) && list.length === 0)) {
             if (isMapTarget) {
                 (target as OlMapInstanceType).on(type.replace('map:', '') as unknown as OlMapOnEventType, (e) => {
                     (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
@@ -1000,7 +1004,7 @@ export default class Map implements MapLike {
             zoom: options.zoom,
             anchor: options.anchor ? handleGetLnglatValue(options.anchor) as OlCoordinateType : undefined,
             duration: options.duration,
-            easing: OMapEasing[options.easing](1),
+            easing: isDefined(options.easing) ? OMapEasing[options.easing] : undefined,
         })
         this._view.animate(params)
     }
@@ -1042,8 +1046,25 @@ export default class Map implements MapLike {
         this._view.endInteraction(duration, resolutionDirection, handleGetLnglatValue(anchor) as OlCoordinateType)
     }
 
-    fit(featureOrExtent: BaseFeature<any> | Extent, options: OMapViewFitOptionsType) {
-
+    fit(featureOrExtent: BaseFeature<any> | Extent, options?: OMapViewFitOptionsType) {
+        if (!this._isInitialized('fit')) return;
+        if(!(featureOrExtent instanceof BaseFeature || featureOrExtent instanceof Extent)) {
+            warn_(createMessage('setProperties', commonMessage.paramsInvaildFormat('featureOrExtent', 'BaseFeature或Extent类型')));
+            return;
+        }
+        let target = featureOrExtent instanceof BaseFeature ? featureOrExtent.getGeometry() : handleGetExtentValue(featureOrExtent as Extent);
+        const _options = isDefined(options) ? Object.assign({}, OMAP_VIEW_FIT_DEFAULT_OPTIONS, {
+            ...options,
+            size: handleGetSizeValue(options.size) as OlSizeType,
+            easing: isDefined(options.easing) ? OMapEasing[options.easing] : undefined,
+            padding: isDefined(options.padding) ? (isNumber(options.padding) ? [options.padding, options.padding, options.padding, options.padding] : options.padding) : [0, 0, 0, 0]
+        }) : {
+            ...OMAP_VIEW_FIT_DEFAULT_OPTIONS,
+            easing: OMapEasing[OMAP_VIEW_FIT_DEFAULT_OPTIONS.easing],
+            padding: [0, 0, 0, 0],
+            size: undefined
+        };
+        this._view.fit(target, _options)
     }
 
     getAnimating(): boolean | undefined {
@@ -1052,27 +1073,68 @@ export default class Map implements MapLike {
     }
 
     getInteracting() {
+        if (!this._isInitialized('getInteracting')) return;
+        return this._view.getInteracting()
+    }
+
+    getMaxResolution(): number | undefined {
+        if (!this._isInitialized('getMaxResolution')) return;
+        return this._view.getMaxResolution()
+    }
+
+    getMinResolution(): number | undefined {
+        if (!this._isInitialized('getMinResolution')) return;
+        return this._view.getMinResolution()
+    }
+
+    getMaxZoom(): number | undefined {
+        if (!this._isInitialized('getMaxZoom')) return;
+        return this._view.getMaxZoom()
+    }
+
+    getMinZoom(): number | undefined {
+        if (!this._isInitialized('getMinZoom')) return;
+        return this._view.getMinZoom()
+    }
+
+    getProjection(): Projection | undefined {
+        if (!this._isInitialized('getProjection')) return;
+        return this.projection
+    }
+    
+    getResolutionForExtent() {
 
     }
 
-    getMaxResolution() {
+    getResolutionForZoom(zoom: number) {
 
     }
 
-    getMinResolution() {
+    getZoomForResolution() {
 
     }
 
-    getMaxZoom() {
+    getResolutions() {
 
     }
 
-    getMinZoom() {
-
+    setConstrainResolution(enabled: boolean): void {
+        if (!this._isInitialized('setConstrainResolution')) return;
+        if(!isBoolean(enabled)) {
+            warn_(createMessage('setProperties', commonMessage.paramsInvaildFormat('enabled', 'boolean类型')));
+            return;
+        }
+        return this._view.setConstrainResolution(enabled)
     }
 
-    getProjection() {
+    setMaxZoom(maxZoom: number): void {
+        if (!this._isInitialized('setMaxZoom')) return;
+        this._view.setMaxZoom(maxZoom)
+    }
 
+    setMinZoom(minZoom: number): void {
+        if (!this._isInitialized('setMinZoom')) return;
+        this._view.setMinZoom(minZoom)
     }
 
 }
