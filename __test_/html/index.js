@@ -637,6 +637,34 @@ function initSwitchLayer() {
     }
 }
 
+function initImageLayer() {
+    const centerLonLat = [-74.006, 40.7128];
+    const center = OMap.ProjUtil.fromLonLat(centerLonLat); // [x, y] in EPSG:3857
+
+    // 2. 根据图片尺寸设定覆盖范围（单位：米）
+    const widthInMeters = 1000;   // 图片覆盖 1 公里宽
+    const heightInMeters = (968 / 1024) * widthInMeters; // 保持原图比例
+
+    const halfW = widthInMeters / 2;
+    const halfH = heightInMeters / 2;
+
+    const imageExtent = [
+        center[0] - halfW,
+        center[1] - halfH,
+        center[0] + halfW,
+        center[1] + halfH
+    ]; // [minX, minY, maxX, maxY]
+    const imagelayer = new OMap.ImageLayer({
+        source: {
+            url: 'https://imgs.xkcd.com/comics/online_communities.png',
+            // projection: 'EPSG:3857', // 关键：使用地图的投影
+            imageExtent: imageExtent
+        }
+    })
+    console.log(imagelayer)
+    map.addLayer(imagelayer)
+}
+
 function init() {
     initDom()
     initMap()
@@ -644,7 +672,7 @@ function init() {
     // initPopup()
 
     // initDraw()
-    initVectorLayer()
+    // initVectorLayer()
     // initFeature()
     // initDragBox()
     // initDragPan()
@@ -665,11 +693,15 @@ function init() {
 
     // initSwitchLayer()
 
+    console.log(OMap.ProjUtil.toLonLat([3320672.1131, 582130.269]))
+
+    initImageLayer()
+
     setTimeout(() => {
-        console.log(map.getAllLayers())
-        const vlayer = map.getLayerById('test-vector')
-        console.log(vlayer)
-        console.log(vlayer.getFeatures()[0])
+        // console.log(map.getAllLayers())
+        // const vlayer = map.getLayerById('test-vector')
+        // console.log(vlayer)
+        // console.log(vlayer.getFeatures()[0])
         // map.fit(vlayer.getFeatures()[0], {
         //     maxZoom: 18
         // })

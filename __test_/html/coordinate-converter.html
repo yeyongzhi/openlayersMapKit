@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>平面坐标转 GeoJSON（无地图版）</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f8f9fa; }
+    .container { max-width: 900px; margin: 0 auto; }
+    input, button { padding: 10px; width: 100%; box-sizing: border-box; margin: 8px 0; }
+    textarea { width: 100%; height: 120px; font-family: monospace; font-size: 14px; }
+    .result-item { background: white; border: 1px solid #ddd; margin: 10px 0; padding: 12px; border-radius: 4px; }
+    .result-item h4 { margin-top: 0; color: #2c3e50; }
+    code { background: #f1f1f1; padding: 2px 6px; border-radius: 3px; }
+  </style>
+  <!-- 仅引入 proj4js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>中国平面坐标 → WGS84 GeoJSON 转换器</h2>
+    <p>输入格式：<code>X (北向), Y (东向)</code>，例如：<code>3320672.1131, 582130.269</code></p>
+
+    <input type="text" id="inputCoord" placeholder="请输入 X, Y" value="3320672.1131, 582130.269" />
+    <button onclick="doConvert()">转换</button>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    // 定义中国常用坐标系（CGCS2000 / Xian80 / Beijing54，3° 和 6° 分带）
+    const CRS_DEFINITIONS = [
+      // CGCS2000 3° 分带（最常用）
+      { name: "CGCS2000 / GK zone 39 (3°)", proj: "+proj=tmerc +lat_0=0 +lon_0=117 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
+      { name: "CGCS2000 / GK zone 40 (3°)", proj: "+proj=tmerc +lat_0=0 +lon_0=120 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
+      { name: "CGCS2000 / GK zone 41 (3°)", proj: "+proj=tmerc +lat_0=0 +lon_0=123 +k=1 +x_0=500000 +y_0=0 +ellps=GRS80 +units=m +no_defs" },
+
+      // 西安80
+      { name: "Xian80 / GK zone 39 (3°)", proj: "+proj=tmerc +lat_0=0 +lon_0=117 +k=1 +x_0=500000 +y_0=0 +ellps=IAU76 +units=m +no_defs" },
+      { name: "Xian80 / GK zone 40 (3°)", proj: "+proj=tmerc +lat_0=0 +lon_0=120 +k=1 +x_0=500000 +y_0=0 +ellps=IAU76 +units=m +no_defs" },
+      { name: "Xian80 / GK zone 41 (3°)", proj: "+proj=tmerc +lat_0=0 +lon_0=123 +k=1 +x_0=500000 +y_0=0 +ellps=IAU76 +units=m +no_defs" },
+
+      // 北京54（6° 分带）
+      { name: "Beijing54 / GK zone 20 (6°)", proj: "+proj=tmerc +lat_0=0 +lon_0=117 +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs" },
+      { name: "Beijing54 / GK zone 21 (6°)", proj: "+proj=tmerc +lat_0=0 +lon_0=123 +k=1 +x_0=500000 +y_0=0 +ellps=krass +units=m +no_defs" }
+    ];
+
+    function parseInput(str) {
+      const nums = str.split(/[,，\s]+/).map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
+      if (nums.length !== 2) throw new Error("请输入两个数字：X, Y");
+      return { x: nums[0], y: nums[1] }; // x = Northing, y = Easting
+    }
+
+    function isInRange(lon, lat) {
+      // 中国大致范围：73°E ~ 136°E, 18°N ~ 54°N
+      return lon >= 73 && lon <= 136 && lat >= 18 && lat <= 54;
+    }
+
+    function doConvert() {
+      const outputDiv = document.getElementById("output");
+      try {
+        const { x, y } = parseInput(document.getElementById("inputCoord").value);
+
+        let results = [];
+
+        CRS_DEFINITIONS.forEach(crs => {
+          try {
+            // 注意：proj4 输入是 [Easting, Northing] = [y, x]
+            const [lon, lat] = proj4(crs.proj, "WGS84", [y, x]);
+            const lonRounded = parseFloat(lon.toFixed(6));
+            const latRounded = parseFloat(lat.toFixed(6));
+
+            if (isInRange(lonRounded, latRounded)) {
+              const geojson = {
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: [lonRounded, latRounded] // [经度, 纬度]
+                },
+                properties: {
+                  original_x: x,
+                  original_y: y,
+                  crs: crs.name
+                }
+              };
+              results.push({ crs: crs.name, lon: lonRounded, lat: latRounded, geojson });
+            }
+          } catch (e) {
+            // 忽略转换失败
+          }
+        });
+
+        // 按经度接近 120 排序（你期望的位置）
+        results.sort((a, b) => Math.abs(a.lon - 120) - Math.abs(b.lon - 120));
+
+        if (results.length === 0) {
+          outputDiv.innerHTML = `<p style="color:red;">❌ 未找到合理的转换结果（可能坐标系不匹配或坐标无效）</p>`;
+          return;
+        }
+
+        let html = `<h3>✅ 找到 ${results.length} 个可能结果（按经度接近 120° 排序）：</h3>`;
+        results.forEach(r => {
+          html += `
+            <div class="result-item">
+              <h4>${r.crs}</h4>
+              <p><strong>经纬度：</strong>${r.lon}, ${r.lat}</p>
+              <textarea readonly>${JSON.stringify(r.geojson, null, 2)}</textarea>
+            </div>
+          `;
+        });
+
+        outputDiv.innerHTML = html;
+      } catch (err) {
+        outputDiv.innerHTML = `<p style="color:red;">错误：${err.message}</p>`;
+      }
+    }
+
+    // 页面加载时自动转换示例坐标
+    window.onload = () => {
+      doConvert();
+    };
+  </script>
+</body>
+</html>

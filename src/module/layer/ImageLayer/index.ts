@@ -9,8 +9,8 @@ import { handleGetColorValue } from '../../basic/Color/handle'
 import {
     type OMapImageLayerParamsType,
     DEFAULT_IMAGE_LAYER_PARAMS,
-    type OMapImageLayerSourceParamsType,
-    DEFAULT_IMAGE_LAYER_SOURCE_PARAMS
+    DEFAULT_IMAGE_SOURCE_PARAMS,
+    DEFAULT_IMAGE_STATIC_SOURCE_PARAMS
 } from './type'
 
 let PACKAGE_NAME = 'ImageLayer';
@@ -23,7 +23,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/10/31
- * @updateDate 2025/10/31
+ * @updateDate 2025/11/6
  */
 
 export default class ImageLayer extends BaseLayer {
@@ -39,20 +39,20 @@ export default class ImageLayer extends BaseLayer {
             source: undefined,
             map: undefined
         })
-        let _sourceParams = Object.assign({}, DEFAULT_IMAGE_LAYER_SOURCE_PARAMS, {
+        let _sourceParams = Object.assign({}, DEFAULT_IMAGE_STATIC_SOURCE_PARAMS, {
             ...defaultValue(options.source, {}),
         })
         let _source = undefined
         if (isDefined(options.source)) {
-            _source = new OlSource.WMTS({
+            _source = new OlSource.ImageStatic({
                 ..._sourceParams,
+                extent: isDefined(_sourceParams.imageExtent) ? handleGetExtentValue(_sourceParams.imageExtent) : undefined,
                 projection: handleGetProjectionValue(_sourceParams.projection)
             })
         }
-        this._layer = new OlLayer.Tile({
+        this._layer = new OlLayer.Image({
             ..._layerParams,
             extent: isDefined(_layerParams.extent) ? handleGetExtentValue(_layerParams.extent) : undefined,
-            background: isDefined(_layerParams.background) ? handleGetColorValue(_layerParams.background) : undefined,
             source: _source
         })
         this._initLayerEvent()
