@@ -1,6 +1,5 @@
 import { isDefined, isCoordinatesType, isArray, isExtentType, isObject } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../../utils/index'
-import type { OlCoordinateType, OlExtentType } from '../../../../utils/index'
 import { OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import {
@@ -19,8 +18,10 @@ import {
 import Point from '../Point/index'
 import LinearRing from '../LinearRing/index'
 import Lnglat from '../../../basic/Lnglat/index'
+import type { OlCoordinateType } from '../../../basic/Lnglat/type'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 import Extent from '../../../basic/Extent/index'
+import type { OlExtentType, OMapExtentType } from '../../../basic/Extent/type'
 
 const PACKAGE_NAME = 'Polygon';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -219,7 +220,7 @@ export default class Polygon extends BasicFeature<OlPolygonGeomInstanceType> imp
 
     /**
      * 线是否在extent范围内
-     * @param {Extent | OlExtentType} extent 
+     * @param {OMapExtentType} extent 
      * @returns {boolean | undefined}
      */
     intersectsExtent(extent: Extent): boolean | undefined {

@@ -1,4 +1,4 @@
-import { isDefined, isCoordinatesType, OlCoordinateType, isNumber, isExtentType, isObject } from '../../../../utils/index'
+import { isDefined, isCoordinatesType, isNumber, isExtentType, isObject } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../../utils/index'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
@@ -11,6 +11,7 @@ import {
 import { checkLineStringCoordinates } from './handle'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import Lnglat from '../../../basic/Lnglat/index'
+import { type OlCoordinateType } from '../../../basic/Lnglat/type'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 import Extent from '../../../basic/Extent/index'
 
@@ -24,7 +25,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/10/9
+ * @updateDate 2025/12/20
  */
 
 export default class LineString extends BasicFeature<OlLineStringGeomInstanceType> implements LineStringLike {

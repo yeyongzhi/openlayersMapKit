@@ -1,8 +1,9 @@
-import type { BaseLayerOptionsType, ManualOmit } from '../../../utils/type'
+import type { ManualOmit } from '../../../utils/type'
 import { OlSource, OlLayer, OlFeature, OlGeometry } from '../../../source/index'
 import { Map, Style } from '../../../index'
 import type { OMapStyleLike } from '../../basic/Style/type'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
+import type { BaseLayerOptionsType } from '../BaseLayer/type'
 
 export type BaseVectorLayerOptionsType = {
     renderOrder?: () => number;

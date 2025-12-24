@@ -1,11 +1,11 @@
 import { isDefined, isCoordinatesType, isExtentType, isObject } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage, isNumber } from '../../../../utils/index'
-import type { OlCoordinateType } from '../../../../utils/index'
-import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
+import { OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { OMapMultiPolygonGeometryCoordinatesType, OlMultiPolygonGeomInstanceType, MultiPolygonLike, MultiPolygonInitialized } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import { Lnglat, Extent } from '../../../../index'
+import Lnglat from '../../../basic/Lnglat/index'
+import type { OlCoordinateType, OMapCoordinateType } from '../../../basic/Lnglat/type'
 import { checkMultiPolygonCoordinates } from './handle'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 
@@ -105,7 +105,7 @@ export default class MultiPolygon extends BasicFeature<OlMultiPolygonGeomInstanc
             error_(createMessage('setCoordinates', '坐标格式有误'));
             return
         }
-        let _coordinates: Array<Array<Array<OlCoordinateType>>> = coordinates.map((c: Array<Array<OlCoordinateType | Lnglat>>) => {
+        let _coordinates: Array<Array<Array<OlCoordinateType>>> = coordinates.map((c: Array<Array<OMapCoordinateType>>) => {
             return c.map(c2 => {
                 return c2.map(c3 => {
                     return (c3 instanceof Lnglat) ? c3.toArray() as OlCoordinateType : c3

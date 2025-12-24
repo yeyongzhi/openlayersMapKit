@@ -632,7 +632,7 @@ function init() {
     initDom()
     initMap()
 
-    initPopup()
+    // initPopup()
 
     // initDraw()
     // initVectorLayer()

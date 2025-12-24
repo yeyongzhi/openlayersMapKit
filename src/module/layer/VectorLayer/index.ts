@@ -1,6 +1,5 @@
 import { isArray, isDefined, isEmptyArray, isFunction, isString, isNumber, isCoordinatesType, isExtentType } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlCoordinateType, OlExtentType } from '../../../utils/index'
 import type {
     OMapVectorLayerOptionsFinalType,
     OMapVectorSourceOptionsFinalType,
@@ -15,7 +14,12 @@ import BaseLayer from '../BaseLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
-import { Extent, Lnglat, Projection, Style } from '../../../index'
+import Extent from '../../basic/Extent/index'
+import type { OlExtentType, OMapExtentType } from '../../basic/Extent/type'
+import Lnglat from '../../basic/Lnglat/index'
+import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
+import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
+import { Projection, Style } from '../../../index'
 
 let PACKAGE_NAME = 'VectorLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -27,7 +31,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/8/21
+ * @updateDate 2025/12/20
  */
 
 export default class VectorLayer extends BaseLayer {
@@ -134,7 +138,7 @@ export default class VectorLayer extends BaseLayer {
         return target || undefined
     }
 
-    getFeaturesInExtent(extent: Extent | OlExtentType, projection: Projection): BaseFeature[] | undefined {
+    getFeaturesInExtent(extent: OMapExtentType, projection: Projection): BaseFeature[] | undefined {
         if (!this._isInitializedLayer('getFeaturesInExtent')) return;
         if (!isDefined(extent)) {
             warn_(createMessage('getFeaturesInExtent', 'extent参数不能为空'));
@@ -158,7 +162,7 @@ export default class VectorLayer extends BaseLayer {
 
     }
 
-    getFeaturesAtCoordinate(coordinates: Lnglat | OlCoordinateType) {
+    getFeaturesAtCoordinate(coordinates: OMapCoordinateType) {
         if (!this._isInitializedLayer('getFeaturesAtCoordinate')) return;
         if (!isDefined(coordinates)) {
             warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数不能为空'));
@@ -168,8 +172,8 @@ export default class VectorLayer extends BaseLayer {
             warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数格式有误'));
             return;
         }
-        let _coordinates = (coordinates instanceof Lnglat) ? coordinates._lnglat : coordinates;
-        const features = (this._layer.getSource() as OlVectorSourceInstanceType).getFeaturesAtCoordinate(_coordinates)
+        let _coordinates = handleGetLnglatValue(coordinates);
+        const features = (this._layer.getSource() as OlVectorSourceInstanceType).getFeaturesAtCoordinate(_coordinates as OlCoordinateType)
         let _features: BaseFeature[] = []
         features.forEach(f => {
             let uid = OlUtil.getUid(f)
@@ -295,7 +299,7 @@ export default class VectorLayer extends BaseLayer {
         })
     }
 
-    getClosestFeatureToCoordinate(coordinates: Lnglat | OlCoordinateType, filter?: (feature: BaseFeature) => boolean): BaseFeature | undefined {
+    getClosestFeatureToCoordinate(coordinates: OMapCoordinateType, filter?: (feature: BaseFeature) => boolean): BaseFeature | undefined {
         if (!this._isInitializedLayer('getClosestFeatureToCoordinate')) return;
         if (!isDefined(coordinates)) {
             warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数不能为空'));
@@ -305,13 +309,13 @@ export default class VectorLayer extends BaseLayer {
             warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数格式有误'));
             return;
         }
-        let _coordinates = (coordinates instanceof Lnglat) ? coordinates._lnglat : coordinates;
+        let _coordinates = handleGetLnglatValue(coordinates);
         let filterFunction = filter ? (feature: OlFeatureLike) => {
             let uid = OlUtil.getUid(feature)
             let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
             return filter(this.features[index])
         } : undefined
-        const re = (this._layer.getSource() as OlVectorSourceInstanceType).getClosestFeatureToCoordinate(_coordinates, filterFunction)
+        const re = (this._layer.getSource() as OlVectorSourceInstanceType).getClosestFeatureToCoordinate(_coordinates as OlCoordinateType, filterFunction)
         let resuleIndex = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === OlUtil.getUid(re))
         if (resuleIndex === -1) {
             return undefined;

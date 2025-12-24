@@ -1,9 +1,12 @@
 import { OlFeature, OlGeometry, RenderFeature } from '../../../../source/index'
 import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType } from '../Point/type'
-import type { OlMultiPointGeomInstanceType } from '../MultiPoint/type'
+import type { OMapMultiPointGeometryCoordinatesType, OlMultiPointGeomInstanceType } from '../MultiPoint/type'
 import type { OMapLineStringGeometryCoordinatesType, OlLineStringGeomInstanceType } from '../LineString/type'
-import type { OMapPolygonGeometryCoordinatesType } from '../Polygon/type'
-import type { OMapMultiPolygonGeometryCoordinatesType } from '../MultiPolygon/type'
+import type { OMapMultiLineStringGeometryCoordinatesType, OlMultiLineStringGeomInstanceType } from '../MultiLineString/type'
+import type { OMapPolygonGeometryCoordinatesType, OlPolygonGeomInstanceType } from '../Polygon/type'
+import type { OMapMultiPolygonGeometryCoordinatesType, OlMultiPolygonGeomInstanceType } from '../MultiPolygon/type'
+import type { OMapLinearRingGeometryCoordinatesType, OlLinearRingGeomInstanceType } from '../LinearRing/type'
+import type { OMapCircleGeometryCoordinatesType, OlCircleGeomInstanceType } from '../Circle/type'
 
 
 
@@ -21,7 +24,7 @@ export type OlRenderFeatureInstanceType = InstanceType<typeof RenderFeature>
 export type OlFeatureInstanceType = InstanceType<typeof OlFeature>
 export type OlFeatureLike = OlRenderFeatureInstanceType | OlFeatureInstanceType
 export type OlFeatureOptionsType = {
-    geometry: OlGeomType,
+    geometry: OlGeomInstanceType,
     properties?: Record<string, any>
 }
 
@@ -38,16 +41,29 @@ export const OlFeatureTypeObject = {
     GeometryCollection: 'GeometryCollection',
 }
 
-type OlPolygonGeomInstanceType = InstanceType<typeof OlGeometry.Polygon>
-type OlMultiLineStringGeomInstanceType = InstanceType<typeof OlGeometry.MultiLineString>
-type OlMultiPolygonGeomInstanceType = InstanceType<typeof OlGeometry.MultiPolygon>
-type OlLinearRingGeomInstanceType = InstanceType<typeof OlGeometry.LinearRing>
-type OlCircleGeomInstanceType = InstanceType<typeof OlGeometry.Circle>
 type OlGeometryCollectionGeomInstanceType = InstanceType<typeof OlGeometry.GeometryCollection>
 
-export type OlGeomType = OlGeometry.Point | OlGeometry.LineString | OlGeometry.Polygon | OlMultiPointGeomInstanceType | OlMultiLineStringGeomInstanceType | OlMultiPolygonGeomInstanceType | OlLinearRingGeomInstanceType | OlCircleGeomInstanceType | OlGeometryCollectionGeomInstanceType
+/**
+ * ol原生的 Geometry实例 类型
+ */
+export type OlGeomInstanceType = OlPointGeomInstanceType | 
+OlMultiPointGeomInstanceType | 
+OlLineStringGeomInstanceType | 
+OlMultiLineStringGeomInstanceType |
+OlPolygonGeomInstanceType | 
+OlMultiPolygonGeomInstanceType |
+OlLinearRingGeomInstanceType | 
+OlCircleGeomInstanceType | 
+OlGeometryCollectionGeomInstanceType
 
-
-export type OlGeomInstanceType = OlPointGeomInstanceType | OlMultiPointGeomInstanceType | OlLineStringGeomInstanceType | OlPolygonGeomInstanceType | OlLinearRingGeomInstanceType | OlCircleGeomInstanceType
-
-export type OMapBasicFeatureCoordinatesType = OMapPointGeometryCoordinatesType | OMapLineStringGeometryCoordinatesType | OMapPolygonGeometryCoordinatesType | OMapMultiPolygonGeometryCoordinatesType
+/**
+ * ol原生的 Geometry实例坐标 类型
+ */
+export type OMapBasicFeatureCoordinatesType = OMapPointGeometryCoordinatesType | 
+OMapMultiPointGeometryCoordinatesType |
+OMapLineStringGeometryCoordinatesType | 
+OMapMultiLineStringGeometryCoordinatesType |
+OMapPolygonGeometryCoordinatesType | 
+OMapMultiPolygonGeometryCoordinatesType | 
+OMapLinearRingGeometryCoordinatesType | 
+OMapCircleGeometryCoordinatesType

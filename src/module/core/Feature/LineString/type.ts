@@ -1,10 +1,9 @@
 import { Lnglat } from '../../../../index'
 import { OlGeometry } from '../../../../source/index'
-import type { OlCoordinateType } from '../../../../utils/type'
-import { isArray, isCoordinatesType } from '../../../../utils/index'
+import { type OMapCoordinateType } from '../../../basic/Lnglat/type'
 import type { BasicFeatureLike, BasicFeatureInitialized } from '../BasicFeature/type'
 
-export type OMapLineStringGeometryCoordinatesType = Array<OlCoordinateType | Lnglat>
+export type OMapLineStringGeometryCoordinatesType = Array<OMapCoordinateType>
 
 export type OlLineStringGeomInstanceType = InstanceType<typeof OlGeometry.LineString>
 

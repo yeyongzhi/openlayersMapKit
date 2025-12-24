@@ -1,8 +1,12 @@
 import BasicFeature from './index'
-import Point from "../Point"
-import LineString from "../LineString"
-import Polygon from "../Polygon"
-import Circle from "../Circle"
+import Point from "../Point/index"
+import LineString from "../LineString/index"
+import Polygon from "../Polygon/index"
+import MultiPoint from "../MultiPoint/index"
+import MultiLineString from "../MultiLineString/index"
+import MultiPolygon from "../MultiPolygon/index"
+import LinearRing from "../LinearRing/index"
+import Circle from "../Circle/index"
 import type {
     OlFeatureInstanceType,
     OlRenderFeatureInstanceType,

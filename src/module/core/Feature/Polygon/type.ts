@@ -1,10 +1,8 @@
-import { Lnglat } from '../../../../index'
 import { OlGeometry } from '../../../../source/index'
-import { isArray, isCoordinatesType } from '../../../../utils/index'
-import type { OlCoordinateType } from '../../../../utils/index'
+import type { OMapCoordinateType } from '../../../basic/Lnglat/type'
 import type { BasicFeatureLike, BasicFeatureInitialized } from '../BasicFeature/type'
 
-export type OMapPolygonGeometryCoordinatesType = Array<Array<OlCoordinateType | Lnglat>>
+export type OMapPolygonGeometryCoordinatesType = Array<Array<OMapCoordinateType>>
 export type OlPolygonGeomInstanceType = InstanceType<typeof OlGeometry.Polygon>
 
 export type PolygonLike = BasicFeatureLike & {

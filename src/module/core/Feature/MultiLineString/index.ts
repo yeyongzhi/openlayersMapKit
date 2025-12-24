@@ -1,11 +1,11 @@
 import { isDefined, isCoordinatesType, isExtentType, isObject } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage, isNumber } from '../../../../utils/index'
-import type { OlCoordinateType } from '../../../../utils/index'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { OMapMultiLineStringGeometryCoordinatesType, OlMultiLineStringGeomInstanceType, MultiLineStringLike, MultiLineStringInitialized } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import { Lnglat, Extent } from '../../../../index'
+import Lnglat from '../../../basic/Lnglat/index'
+import { type OlCoordinateType } from '../../../basic/Lnglat/type'
 import { checkMultiLineStringCoordinates } from './handle'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 

@@ -1,6 +1,6 @@
 import { isDefined, isCoordinatesType, isExtentType, isObject } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../../utils/index'
-import type { OlCoordinateType } from '../../../../utils/index'
+import { type OlCoordinateType } from '../../../basic/Lnglat/type'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType, PointLike, PointInitialized } from './type'
@@ -19,7 +19,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/10/9
+ * @updateDate 2025/12/20
  */
 
 export default class Point extends BasicFeature<OlPointGeomInstanceType> implements PointLike {
