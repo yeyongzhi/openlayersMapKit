@@ -1,6 +1,6 @@
 import { type OMapMultiLineStringGeometryCoordinatesType } from './type'
 import { Lnglat } from '../../../../index'
-import type { OlCoordinateType } from '../../../../utils/type'
+import { type OlCoordinateType } from '../../../basic/Lnglat/type'
 import { isArray, isCoordinatesType } from '../../../../utils/index'
 import { checkLineStringCoordinates } from '../LineString/handle'
 

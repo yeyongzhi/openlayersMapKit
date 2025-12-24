@@ -1,4 +1,4 @@
-import type { OMapEventType } from './olType/map'
+import type { OMapEventType } from '../module/core/Map/type'
 import { defaultValue } from './define';
 
 export function MapEventTypeIsMap(type: OMapEventType): boolean {

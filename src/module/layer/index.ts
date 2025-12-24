@@ -12,3 +12,4 @@ export { default as XYZLayer } from "./XYZLayer/index";
 export { default as LayerGroup } from "./LayerGroup/index";
 export { default as WMTSLayer } from "./WMTSLayer/index";
 export { default as WMSLayer } from "./WMSLayer/index";
+export { default as ImageLayer } from "./ImageLayer/index";

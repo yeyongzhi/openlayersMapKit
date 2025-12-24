@@ -76,7 +76,7 @@ function initMap() {
     })
     map.addLayer(layer)
 
-    OMap.MapToken.tdt = ""
+    // OMap.MapToken.tdt = ""
     // 加载天地图
     // const TDT_VEC_LAYER_GROUP = new OMap.LayerGroup("tdt_vec", [
     //     new OMap.TdtLayer("vec"),
@@ -111,8 +111,16 @@ function initMap() {
     })
     // map.addLayer(OSMlayer)
 
+    // 注册点击事件
     map.on('map:singleclick', (e) => {
         // clickLnglat.innerText = e.coordinate.toString(2)
+        console.log(e)
+        const clickFeatures = map.getFeaturesAtPixel(e.pixel)
+        console.log(clickFeatures)
+        const clickFeatures2 = map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
+            return feature
+        })
+        console.log(clickFeatures2)
         clickLnglat.innerText = OMap.ProjUtil.toLonLat(e.coordinate).toString(2)
     })
 
@@ -162,6 +170,7 @@ function initPopup() {
 // 测试VectorLayer
 function initVectorLayer() {
     const vlayer = new OMap.VectorLayer({
+        id: 'test-vector',
         style: (feature, resolution) => {
             // console.log(feature)
             // console.log(resolution)
@@ -259,7 +268,7 @@ function initVectorLayer() {
         // console.log(p.getLastCoordinate())
         // console.log(p2.intersectsExtent(extent))
         // console.log(l.getCoordinates())
-        l.translate(10000, 10000)
+        // l.translate(10000, 10000)
         // console.log(l.getCoordinates())
     }, 3000)
     let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
@@ -628,6 +637,34 @@ function initSwitchLayer() {
     }
 }
 
+function initImageLayer() {
+    const centerLonLat = [-74.006, 40.7128];
+    const center = OMap.ProjUtil.fromLonLat(centerLonLat); // [x, y] in EPSG:3857
+
+    // 2. 根据图片尺寸设定覆盖范围（单位：米）
+    const widthInMeters = 1000;   // 图片覆盖 1 公里宽
+    const heightInMeters = (968 / 1024) * widthInMeters; // 保持原图比例
+
+    const halfW = widthInMeters / 2;
+    const halfH = heightInMeters / 2;
+
+    const imageExtent = [
+        center[0] - halfW,
+        center[1] - halfH,
+        center[0] + halfW,
+        center[1] + halfH
+    ]; // [minX, minY, maxX, maxY]
+    const imagelayer = new OMap.ImageLayer({
+        source: {
+            url: 'https://imgs.xkcd.com/comics/online_communities.png',
+            // projection: 'EPSG:3857', // 关键：使用地图的投影
+            imageExtent: imageExtent
+        }
+    })
+    console.log(imagelayer)
+    map.addLayer(imagelayer)
+}
+
 function init() {
     initDom()
     initMap()
@@ -655,6 +692,25 @@ function init() {
     initControl()
 
     // initSwitchLayer()
+
+    console.log(OMap.ProjUtil.toLonLat([3320672.1131, 582130.269]))
+
+    initImageLayer()
+
+    setTimeout(() => {
+        // console.log(map.getAllLayers())
+        // const vlayer = map.getLayerById('test-vector')
+        // console.log(vlayer)
+        // console.log(vlayer.getFeatures()[0])
+        // map.fit(vlayer.getFeatures()[0], {
+        //     maxZoom: 18
+        // })
+        // map.animate({
+        //     center: vlayer.getFeatures()[0].getCoordinates(),
+        //     zoom: 18
+        // })
+        // map.adjustZoom(1)
+    }, 3000)
 
 }
 

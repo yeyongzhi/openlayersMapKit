@@ -1,4 +1,4 @@
-import OlPackage, { OlLayer, OlSource } from '../../../source/index'
+import OlPackage, { OlEasing } from '../../../source/index'
 import { type ManualOmit } from '../../../utils/type'
 import { getDevicePixelRatio } from '../../../utils/handle'
 import Projection from '../../core/Projection/index'
@@ -9,8 +9,10 @@ import DragPan from '../../interaction/DragPan/index'
 import Popup from '../../basic/Popup/index'
 import Pixel from '../../basic/Pixel/index'
 import Lnglat from '../../basic/Lnglat/index'
+import Size from '../../basic/Size/index'
 import { type OMapCoordinateType } from '../../basic/Lnglat/type'
 import { type OMapExtentType } from '../../basic/Extent/type'
+import { type OMapSizeType } from '../../basic/Size/type'
 import BaseLayer from '../../layer/BaseLayer/index'
 
 /** View */
@@ -70,7 +72,7 @@ export const defaultMapOptions: OMapOptionsType = {
 export type OMapEventType = 
 // 'map:change'
 // 'map:change:layerGroup'
-// 'map:change:size'
+'map:change:size' | 
 // 'map:change:target'
 // 'map:change:view'
 'map:click' |
@@ -118,4 +120,43 @@ export type OMapForEachFeatureAtPixelOptionsType = {
 export const DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS: OMapForEachFeatureAtPixelOptionsType = {
     hitTolerance: 0,
     checkWrapped: true,
+}
+
+export const OMapEasing = {
+    linear: OlEasing.linear,
+    easeIn: OlEasing.easeIn,
+    easeOut: OlEasing.easeOut,
+    inAndOut: OlEasing.inAndOut,
+    upAndDown: OlEasing.upAndDown,
+}
+
+export type OMapViewAnimateOptionsType = {
+    center?: OMapCoordinateType;
+    resolution?: number;
+    rotation?: number;
+    zoom?: number;
+    anchor?: OMapCoordinateType;
+    duration: number;
+    easing: keyof typeof OMapEasing; // TODO：这里还有个参数t时间
+}
+export const OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS = {
+    duration: 1000,
+    easing: 'linear',
+}
+export type OMapViewFitOptionsType = {
+    size?: OMapSizeType;
+    padding: number[] | number;
+    nearest: boolean;
+    minResolution: number;
+    maxZoom?: number;
+    duration: number;
+    easing: keyof typeof OMapEasing;
+    callback?: () => void;
+}
+export const OMAP_VIEW_FIT_DEFAULT_OPTIONS: OMapViewFitOptionsType = {
+    padding: [0, 0, 0, 0],
+    nearest: false,
+    minResolution: 0,
+    duration: 1000,
+    easing: 'easeOut',
 }

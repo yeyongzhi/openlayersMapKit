@@ -47,7 +47,6 @@ export default class LayerGroup {
         } else {
             _layers = idOrLayers as BaseLayer[];
         }
-        console.log(_layers)
         const vaildLayers = _layers.filter((item: BaseLayer) => {
             return isDefined(item) && isDefined(item.getLayer()) && (item instanceof BaseLayer)
         })
