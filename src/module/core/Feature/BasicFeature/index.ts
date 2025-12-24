@@ -4,6 +4,7 @@ import { warn_, error_, getPackageMessage } from '../../../../utils/message'
 import type {
     OlFeatureInstanceType,
     OMapBasicFeatureType,
+    OlGeometryType,
     OlGeomInstanceType,
     OMapBasicFeatureCoordinatesType,
     BasicFeatureLike,
@@ -30,7 +31,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/10/6
  */
 
-export default abstract class BasicFeature<T extends OlGeomInstanceType> implements BasicFeatureLike {
+export default abstract class BasicFeature<T extends OlGeometryType> implements BasicFeatureLike {
 
     id?: number | string | null;
     type?: OMapBasicFeatureType;

@@ -9,7 +9,6 @@ import type { OMapLinearRingGeometryCoordinatesType, OlLinearRingGeomInstanceTyp
 import type { OMapCircleGeometryCoordinatesType, OlCircleGeomInstanceType } from '../Circle/type'
 
 
-
 export interface BasicFeatureLike {
     type?: OMapBasicFeatureType;
     _feature?: OlFeatureInstanceType;
@@ -40,8 +39,28 @@ export const OlFeatureTypeObject = {
     Circle: 'Circle',
     GeometryCollection: 'GeometryCollection',
 }
-
 type OlGeometryCollectionGeomInstanceType = InstanceType<typeof OlGeometry.GeometryCollection>
+
+export type OlFeatureType = OlFeature<OlGeometry.Point> |
+OlFeature<OlGeometry.MultiPoint> |
+OlFeature<OlGeometry.LineString> |
+OlFeature<OlGeometry.MultiLineString> |
+OlFeature<OlGeometry.Polygon> |
+OlFeature<OlGeometry.MultiPolygon> |
+OlFeature<OlGeometry.LinearRing> |
+OlFeature<OlGeometry.Circle>
+
+export type OlGeometryType = OlGeometry.Point | 
+OlGeometry.MultiPoint | 
+OlGeometry.LineString | 
+OlGeometry.MultiLineString |
+OlGeometry.Polygon | 
+OlGeometry.MultiPolygon |
+OlGeometry.LinearRing | 
+OlGeometry.Circle | 
+OlGeometry.GeometryCollection |
+OlGeometry.Geometry | 
+OlGeometry.SimpleGeometry
 
 /**
  * ol原生的 Geometry实例 类型

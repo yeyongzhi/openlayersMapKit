@@ -14,7 +14,7 @@ import BasicFeature from '../../../core/Feature/BasicFeature/index';
 function readFeature(source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
     const format = getFormatTool()
     const feature = (format as OMapGeoJSONFormatInstanceType).readFeature(source, defaultValue(options, {}));
-    const _feature = createBaseFeatureByOlFeature<any>(feature as OlFeatureInstanceType)
+    const _feature = createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
     return _feature
 }
 

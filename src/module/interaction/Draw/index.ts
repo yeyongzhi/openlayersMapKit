@@ -2,9 +2,10 @@ import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { OlCoordinateType } from '../../../utils/index'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlLayer } from '../../../source/index'
+import { OlInteraction, OlLayer, OlFeature, OlGeometry } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
+import type { OlFeatureType, OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
 import Lnglat from '../../basic/Lnglat/index'
 import {
     type OMapDrawMode,
@@ -71,11 +72,11 @@ export default class Draw extends Interaction {
     protected initDrawEvent() {
         if (!this._isInitialized('initDrawEvent')) return;
         (this._interaction as OlDrawInstanceType).on("drawend", (e) => {
-            const { feature } = e
+            const feature: OlFeatureInstanceType = e.feature
             console.log(this.layer?.getFeatures())
             if(isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
-                let basicFeature = createBaseFeatureByOlFeature<any>(feature)
+                    let basicFeature = createBaseFeatureByOlFeature(feature as unknown as OlFeatureType)
                 if(basicFeature) {
                     (this.layer as VectorLayer).addFeature(basicFeature)
                     console.log(this.layer?.getFeatures())
