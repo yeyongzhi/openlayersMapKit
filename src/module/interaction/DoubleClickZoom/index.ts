@@ -25,7 +25,9 @@ export default class DoubleClickZoom extends Interaction {
 
     constructor(params?: OMapDoubleClickZoomParamsType) {
         super("DoubleClickZoom")
-        this._interaction = new OlInteraction.DoubleClickZoom(Object.assign({}, defaultDoubleClickZoomOptions, params || {}))
+        this._interaction = new OlInteraction.DoubleClickZoom(Object.assign({
+            active: false
+        }, defaultDoubleClickZoomOptions, params || {}))
         // 注册事件
         this.initInteractionEvent()
     }

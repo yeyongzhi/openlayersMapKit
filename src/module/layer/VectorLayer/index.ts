@@ -36,7 +36,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class VectorLayer extends BaseLayer {
 
-    features: BaseFeature[] = []
+    features: BaseFeature<OlGeometry.Geometry>[] = []
 
     style: OMapStyleLike | undefined;
 
@@ -77,7 +77,7 @@ export default class VectorLayer extends BaseLayer {
                 if(this.target instanceof Draw || this.target instanceof Measure) {
                     // 这里一定要保证原生的feature 和 basicFeature 状态是同步的
                     // 因此 createBaseFeatureByOlFeature 里面不能用fearure.clone()
-                    let basicFeature = createBaseFeatureByOlFeature<any>(feature)
+                    let basicFeature = createBaseFeatureByOlFeature(feature as OlFeature<OlGeometry.Geometry>)
                     if(basicFeature) {
                         this.features.push(basicFeature) // 这里是把 feature 同步一份到 this.features 里面
                     } else {
@@ -117,12 +117,12 @@ export default class VectorLayer extends BaseLayer {
         }
     }
 
-    getFeatures(): BaseFeature[] | undefined {
+    getFeatures(): BaseFeature<OlGeometry.Geometry>[] | undefined {
         if (!this._isInitializedLayer('getFeatures')) return;
         return this.features
     }
 
-    getFeatureById(id: number | string): BaseFeature | undefined {
+    getFeatureById(id: number | string): BaseFeature<OlGeometry.Geometry> | undefined {
         if (!this._isInitializedLayer('getFeatureById')) return;
         if (!isDefined(id)) {
             warn_(createMessage('setId', '参数id不能为空'));
@@ -138,7 +138,7 @@ export default class VectorLayer extends BaseLayer {
         return target || undefined
     }
 
-    getFeaturesInExtent(extent: OMapExtentType, projection: Projection): BaseFeature[] | undefined {
+    getFeaturesInExtent(extent: OMapExtentType, projection: Projection): BaseFeature<OlGeometry.Geometry>[] | undefined {
         if (!this._isInitializedLayer('getFeaturesInExtent')) return;
         if (!isDefined(extent)) {
             warn_(createMessage('getFeaturesInExtent', 'extent参数不能为空'));
@@ -150,7 +150,7 @@ export default class VectorLayer extends BaseLayer {
         }
         let _extent = (extent instanceof Extent) ? extent.getExtent() : extent;
         let features = (this._layer.getSource() as OlVectorSourceInstanceType).getFeaturesInExtent(_extent as OlExtentType)
-        let _features: BaseFeature[] = []
+        let _features: BaseFeature<OlGeometry.Geometry>[] = []
         features.forEach(f => {
             let uid = OlUtil.getUid(f)
             let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
@@ -174,7 +174,7 @@ export default class VectorLayer extends BaseLayer {
         }
         let _coordinates = handleGetLnglatValue(coordinates);
         const features = (this._layer.getSource() as OlVectorSourceInstanceType).getFeaturesAtCoordinate(_coordinates as OlCoordinateType)
-        let _features: BaseFeature[] = []
+        let _features: BaseFeature<OlGeometry.Geometry>[] = []
         features.forEach(f => {
             let uid = OlUtil.getUid(f)
             let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
@@ -186,7 +186,7 @@ export default class VectorLayer extends BaseLayer {
 
     }
 
-    addFeature(feature: BaseFeature): void {
+    addFeature(feature: BaseFeature<OlGeometry.Geometry>): void {
         if (!this._isInitializedLayer('addFeature')) return;
         if (!isDefined(feature)) {
             warn_(createMessage('addFeature', '参数不能为空'));
@@ -198,7 +198,7 @@ export default class VectorLayer extends BaseLayer {
         }
     }
 
-    addFeatures(features: BaseFeature[]): void {
+    addFeatures(features: BaseFeature<OlGeometry.Geometry>[]): void {
         if (!this._isInitializedLayer('addFeatures')) return;
         if (!isDefined(features) || !isArray(features)) {
             warn_(createMessage('addFeatures', '参数格式有误不能为空'));
@@ -211,7 +211,7 @@ export default class VectorLayer extends BaseLayer {
         }
     }
 
-    removeFeature(feature: BaseFeature): void {
+    removeFeature(feature: BaseFeature<OlGeometry.Geometry>): void {
         if (!this._isInitializedLayer('removeFeature')) return;
         if (!isDefined(feature)) {
             warn_(createMessage('removeFeature', '参数不能为空'));
@@ -224,7 +224,7 @@ export default class VectorLayer extends BaseLayer {
         }
     }
 
-    removeFeatures(features: BaseFeature[]): void {
+    removeFeatures(features: BaseFeature<OlGeometry.Geometry>[]): void {
         if (!this._isInitializedLayer('removeFeatures')) return;
         if (!isDefined(features) || !isArray(features)) {
             warn_(createMessage('removeFeatures', '参数格式有误不能为空'));
@@ -246,7 +246,7 @@ export default class VectorLayer extends BaseLayer {
         this.features = []
     }
 
-    forEachFeature(callback: (feature: BaseFeature, index: number) => void): void {
+    forEachFeature(callback: (feature: BaseFeature<OlGeometry.Geometry>, index: number) => void): void {
         if (!this._isInitializedLayer('forEachFeature')) return;
         if (!isDefined(callback) || !isFunction(callback)) {
             warn_(createMessage('forEachFeature', '参数格式有误'));
@@ -263,7 +263,7 @@ export default class VectorLayer extends BaseLayer {
      * @param {Function} callback 回调函数
      * @returns {void}
      */
-    forEachFeatureInExtent(extent: Extent, callback: (feature: BaseFeature, index: number) => void): void {
+    forEachFeatureInExtent(extent: Extent, callback: (feature: BaseFeature<OlGeometry.Geometry>, index: number) => void): void {
         if (!this._isInitializedLayer('forEachFeatureInExtent')) return;
         if (!isDefined(callback)) {
             warn_(createMessage('forEachFeatureInExtent', 'callback参数不能为空'));
@@ -284,7 +284,7 @@ export default class VectorLayer extends BaseLayer {
      * @param {Function} callback 回调函数
      * @returns {void}
      */
-    forEachFeatureIntersectingExtent(extent: Extent, callback: (feature: BaseFeature, index: number) => void) {
+    forEachFeatureIntersectingExtent(extent: Extent, callback: (feature: BaseFeature<OlGeometry.Geometry>, index: number) => void) {
         if (!this._isInitializedLayer('forEachFeatureIntersectingExtent')) return;
         if (!isDefined(callback)) {
             warn_(createMessage('forEachFeatureIntersectingExtent', 'callback参数不能为空'));
@@ -299,7 +299,7 @@ export default class VectorLayer extends BaseLayer {
         })
     }
 
-    getClosestFeatureToCoordinate(coordinates: OMapCoordinateType, filter?: (feature: BaseFeature) => boolean): BaseFeature | undefined {
+    getClosestFeatureToCoordinate(coordinates: OMapCoordinateType, filter?: (feature: BaseFeature<OlGeometry.Geometry>) => boolean): BaseFeature<OlGeometry.Geometry> | undefined {
         if (!this._isInitializedLayer('getClosestFeatureToCoordinate')) return;
         if (!isDefined(coordinates)) {
             warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数不能为空'));

@@ -1,8 +1,8 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType, OlCoordinateType } from '../../../utils/index'
+import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
 import { getCurrentDateTime } from '../../../utils/handle'
-import { OlInteraction, OlUtil } from '../../../source/index'
+import { OlInteraction, OlUtil, OlGeometry } from '../../../source/index'
 import Interaction from '../Interaction/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
@@ -11,6 +11,7 @@ import Event from '../../util/Event/index'
 import { type OlVectorSourceInstanceType } from '../../layer/VectorLayer/type'
 import type { OMapModifyParamsType, OlModifyInstanceType, OMapModifyEventType, ModifyRecordItem, SampleRecordItem } from './type'
 import { handleModifyEvent } from './handle'
+import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
 
 const PACKAGE_NAME = 'Modify';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -95,7 +96,7 @@ export default class Modify extends Interaction implements ModifyLike {
             let features = e.features.getArray()
             let newList: any[] = []
             features.forEach(f => {
-                let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature[]).find(item => {
+                let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature<OlGeometry.Geometry>[]).find(item => {
                     return OlUtil.getUid(item._feature) === OlUtil.getUid(f)
                 })
                 if (target) {
@@ -128,29 +129,29 @@ export default class Modify extends Interaction implements ModifyLike {
 
     /**
      * 插入一个点
-     * @param {Lnglat | OlCoordinateType} coordinates 点的坐标
+     * @param {OMapCoordinateType} coordinates 点的坐标
      */
-    insertPoint(coordinates: Lnglat | OlCoordinateType): boolean | undefined {
+    insertPoint(coordinates: OMapCoordinateType): boolean | undefined {
         if (!this._isInitialized('insertPoint')) return;
         if (!isDefined(coordinates)) {
             warn_(createMessage('insertPoint', 'coordinates参数不能为空'));
             return;
         }
-        let _coordinates: OlCoordinateType = coordinates instanceof Lnglat ? (coordinates.toArray() as OlCoordinateType) : coordinates;
+        let _coordinates: OlCoordinateType = handleGetLnglatValue(coordinates) as OlCoordinateType
         return (this._interaction as OlModifyInstanceType).insertPoint(_coordinates)
     }
 
     /**
      * 删除一个点
-     * @param {Lnglat | OlCoordinateType} coordinates 点的坐标
+     * @param {OMapCoordinateType} coordinates 点的坐标
      */
-    removePoint(coordinates: Lnglat | OlCoordinateType): boolean | undefined {
+    removePoint(coordinates: OMapCoordinateType): boolean | undefined {
         if (!this._isInitialized('removePoint')) return;
         if (!isDefined(coordinates)) {
             warn_(createMessage('removePoint', 'coordinates参数不能为空'));
             return;
         }
-        let _coordinates: OlCoordinateType = coordinates instanceof Lnglat ? (coordinates.toArray() as OlCoordinateType) : coordinates;
+        let _coordinates: OlCoordinateType = handleGetLnglatValue(coordinates) as OlCoordinateType
         return (this._interaction as OlModifyInstanceType).removePoint(_coordinates)
     }
 
@@ -169,14 +170,14 @@ export default class Modify extends Interaction implements ModifyLike {
         }
         const { features } = this.records[targetIndex]
         features.forEach(f => {
-            let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature[]).find(item => {
+            let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature<OlGeometry.Geometry>[]).find(item => {
                 if (f.id) {
                     return f.id === item.id
                 }
                 return OlUtil.getUid(item._feature) === (f as SampleRecordItem).originFeatureId
             })
-            if (target) {
-                target.setCoordinates((f as SampleRecordItem).coordinates)
+            if (isDefined(target)) {
+                (target as BasicFeature<OlGeometry.Geometry>).setCoordinates((f as SampleRecordItem).coordinates)
             }
         })
         this.records.splice(targetIndex + 1)
@@ -189,7 +190,7 @@ export default class Modify extends Interaction implements ModifyLike {
     cancel() {
         const { features } = this.records[0]
         features.forEach(f => {
-            let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature[]).find(item => {
+            let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature<OlGeometry.Geometry>[]).find(item => {
                 if (f.id) {
                     return f.id === item.id
                 }

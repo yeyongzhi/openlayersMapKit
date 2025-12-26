@@ -1,6 +1,5 @@
 import { isDefined, isFunction, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from '../../../utils/index'
 import Interaction from '../Interaction/index'
 import Lnglat from '../../basic/Lnglat/index'
 import Pixel from '../../basic/Pixel/index'

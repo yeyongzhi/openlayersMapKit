@@ -46,10 +46,15 @@ h3 {
 }
 
 h5 {
-    margin: 5px 0;
+    margin: 10px 0;
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid var(--omap-primary-color);
+    padding: 5px 10px;
+    border-radius: 4px;
 }
 
 button {
@@ -59,6 +64,7 @@ button {
     border-radius: 5px;
     color: #fff;
     margin: 0 10px;
+    cursor: pointer;
 }
 
 .border {
@@ -78,4 +84,13 @@ button {
 .ol-test-dragbox {
     background-color: rgba(0, 0, 255, 0.1);
     border: 1px solid var(--omap-primary-color);
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0 10px;
+}
+input[type="checkbox"]:checked {
+    accent-color: var(--omap-primary-color); /* 使用主题色作为选中颜色 */
 }

@@ -62,6 +62,18 @@ export default abstract class BasicFeature<T extends OlGeometryType> implements 
         return this._geometry
     }
 
+    /**
+     * 获取坐标
+     * @returns {OMapBasicFeatureCoordinatesType} 坐标
+     */
+    abstract getCoordinates(): OMapBasicFeatureCoordinatesType;
+
+    /**
+     * 设置坐标
+     * @param {OMapBasicFeatureCoordinatesType} coordinates 坐标
+     */
+    abstract setCoordinates(coordinates: OMapBasicFeatureCoordinatesType): void;
+
     getProperties(): PropertiesType | undefined {
         if (!this._isInitialized('getProperties')) return;
         return (this._feature as OlFeatureInstanceType).getProperties()

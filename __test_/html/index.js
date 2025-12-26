@@ -22,6 +22,8 @@ const endMeasureBtn = document.getElementById('endMeasure')
 
 const switchBaseLayer = document.getElementById('switchBaseLayer')
 
+const DoubleClickZoomInput = document.getElementById('DoubleClickZoom')
+
 let distanceMeasure = null
 let areaMeasure = null
 
@@ -63,7 +65,23 @@ function initMap() {
     })
 
     console.log(map)
-    // console.log(map.getInteractions())
+    
+
+    let interactions = map.getInteractions()
+    console.log(interactions)
+    let typeList = ['DoubleClickZoom', 'DragPan', 'DragZoom', 'KeyboardPan', 'KeyboardZoom', 'MouseWheelZoom', 'PinchZoom', 'ShiftDragZoom']
+    typeList.forEach(type => {
+        let interaction = interactions.find(i => {
+            return i.type === type
+        })
+        if (interaction) {
+            if(type === 'DoubleClickZoom') {
+                DoubleClickZoomInput.checked = interaction.active
+            }
+        }
+    })
+
+    
 
     map.once('map:rendercomplete', (e) => {
         console.log('【地图渲染完成】')

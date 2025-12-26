@@ -1,6 +1,6 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlCoordinateType } from '../../../utils/index'
+import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
 import Interaction from '../Interaction/index'
 import { OlInteraction, OlLayer, OlFeature, OlGeometry } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
@@ -34,7 +34,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 export default class Draw extends Interaction {
 
     constructor(mode: OMapDrawMode, params?: OMapDrawParamsType) {
-        if(!(Object.values(DrawMode) as OMapDrawMode[]).includes(mode)) {
+        if (!(Object.values(DrawMode) as OMapDrawMode[]).includes(mode)) {
             error_(createMessage('constructor', 'mode参数有误'));
             return
         }
@@ -54,7 +54,7 @@ export default class Draw extends Interaction {
             })
             draw_source = (this.layer.getSource() as OlVectorSourceInstanceType)
         }
-        let _params = Object.assign({},DRAW_DEFAULT_PARAMS, {
+        let _params = Object.assign({}, DRAW_DEFAULT_PARAMS, {
             clickTolerance: params?.clickTolerance,
             source: draw_source,
             features: undefined,
@@ -73,11 +73,11 @@ export default class Draw extends Interaction {
         if (!this._isInitialized('initDrawEvent')) return;
         (this._interaction as OlDrawInstanceType).on("drawend", (e) => {
             const feature: OlFeatureInstanceType = e.feature
-            console.log(this.layer?.getFeatures())
-            if(isDefined(feature)) {
+            // console.log(this.layer?.getFeatures())
+            if (isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
-                    let basicFeature = createBaseFeatureByOlFeature(feature as unknown as OlFeatureType)
-                if(basicFeature) {
+                let basicFeature = createBaseFeatureByOlFeature(feature as OlFeature<OlGeometry.Geometry>)
+                if (basicFeature) {
                     (this.layer as VectorLayer).addFeature(basicFeature)
                     console.log(this.layer?.getFeatures())
                 } else {
@@ -91,9 +91,9 @@ export default class Draw extends Interaction {
      * 追加坐标
      * @param coordinates 坐标
      */
-    appendCoordinates(coordinates: Array<OlCoordinateType | Lnglat>): void {
+    appendCoordinates(coordinates: Array<OMapCoordinateType>): void {
         if (!this._isInitialized('appendCoordinates')) return;
-        if(!isDefined(coordinates)) {
+        if (!isDefined(coordinates)) {
             warn_(createMessage('appendCoordinates', 'coordinates参数不能为空'));
             return;
         }

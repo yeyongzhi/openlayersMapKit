@@ -1,14 +1,13 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from '../../../utils/index'
-import OlPackage, { OlProj } from '../../../source/index'
+import Interaction from '../Interaction/index'
 
 const PACKAGE_NAME = 'Modify';
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
  * 修改类
- * @class Modify
+ * @class DragZoom
  * @classdesc 修改类
  * @author Aurora
  * @version 1.0.0
@@ -16,9 +15,9 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/8/25
  */
 
-export default class Modify {
+export default class DragZoom extends Interaction {
 
-    constructor() {
+    constructor(params: any) {
         
     }
 

@@ -1,6 +1,5 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from '../../../utils/index'
 import{ OlInteraction } from '../../../source/index'
 import type { OMapInteractionType, OlInteractionInstanceType } from './type'
 import Event from '../../../module/util/Event/index'

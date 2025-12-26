@@ -1,6 +1,6 @@
 import { isDefined, isFunction, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlExtentType } from '../../../utils/index'
+import type { OlExtentType } from '../../basic/Extent/type'
 import Interaction from '../Interaction/index'
 import Lnglat from '../../basic/Lnglat/index'
 import Pixel from '../../basic/Pixel/index'

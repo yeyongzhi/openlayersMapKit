@@ -52,7 +52,6 @@ import {
     OMAP_VIEW_FIT_DEFAULT_OPTIONS,
 } from './type'
 import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
-import { sign } from 'crypto';
 
 const PACKAGE_NAME = 'Map';
 const createMessage = getPackageMessage(PACKAGE_NAME);
