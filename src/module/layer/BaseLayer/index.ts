@@ -379,13 +379,17 @@ export default class BaseLayer implements BaseLayerLike {
      * 设置图层当前的对象
      * @param {Map | Draw | Modify | Measure} target 图层所属的对象
      */
-    setTarget(target: Map | Draw | Modify | Measure) {
+    setTarget(target: Map | Draw | Modify | Measure | null): void {
         this.target = target;
     }
 
-    getTarget(): Map | Draw | Modify | Measure | undefined {
-        if(!isDefined(this.target)) return;
-        return this.target;
+    /**
+     * 获取图层当前的对象
+     * @returns {Map | Draw | Modify | Measure | null} 图层所属的对象
+     */
+    getTarget(): Map | Draw | Modify | Measure | null | undefined {
+        if (!this._isInitialized('getProperties')) return;
+        return this.target
     }
 
     get groupId(): LayerGroupIdType | null {

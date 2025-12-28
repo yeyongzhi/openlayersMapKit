@@ -50,9 +50,9 @@ export type OMapOptionsType = OlMapOptionsOmitType & CustomerOlMapOptionsType;
  * 地图的默认交互
  */
 const defaultMapInteractions: Interaction[] = [
-    new MouseWheelZoom(),
-    new DoubleClickZoom(),
-    new DragPan(),
+    new MouseWheelZoom({ id: 'omap_default_mousewheelzoom' }),
+    new DoubleClickZoom({ id: 'omap_default_doubleclickzoom' }),
+    new DragPan({ id: 'omap_default_dragpan' }),
 ]
 
 /**

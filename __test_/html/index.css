@@ -4,10 +4,10 @@
 }
 
 :root {
-	--omap-primary-color: #0000fe;
-	--omap-success-color: #18a058;
-	--omap-warning-color: #f0a020;
-	--omap-error-color: #d03050;
+    --omap-primary-color: #0000fe;
+    --omap-success-color: #18a058;
+    --omap-warning-color: #f0a020;
+    --omap-error-color: #d03050;
 }
 
 html,
@@ -91,6 +91,84 @@ input[type="checkbox"] {
     height: 20px;
     margin: 0 10px;
 }
+
 input[type="checkbox"]:checked {
-    accent-color: var(--omap-primary-color); /* 使用主题色作为选中颜色 */
+    accent-color: var(--omap-primary-color);
+    /* 使用主题色作为选中颜色 */
+}
+
+
+#message-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+    /* 防止遮挡下方点击 */
+}
+
+.message {
+    pointer-events: auto;
+    /* 恢复内部元素交互 */
+    padding: 12px 20px;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    max-width: 80vw;
+    word-break: break-word;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.message.info {
+    background-color: #909399;
+}
+
+.message.success {
+    background-color: #67c23a;
+}
+
+.message.warning {
+    background-color: #e6a23c;
+}
+
+.message.error {
+    background-color: #f56c6c;
+}
+
+.message .close {
+    cursor: pointer;
+    font-weight: bold;
+    user-select: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+.message.fade-out {
+    animation: fadeOut 0.3s ease forwards;
 }

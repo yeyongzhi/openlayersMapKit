@@ -1,6 +1,7 @@
 import { isBoolean, isDefined, defaultValue, isFunction, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import Interaction from '../Interaction/index'
+import { OMapInteractionCommonParams } from '../Interaction/type'
 import { OlInteraction } from '../../../source/index'
 import type { OMapDoubleClickZoomParamsType } from './type'
 const PACKAGE_NAME = 'DoubleClickZoom';
@@ -13,7 +14,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/20
- * @updateDate 2025/9/20
+ * @updateDate 2025/12/27
  */
 
 const defaultDoubleClickZoomOptions = {
@@ -25,11 +26,11 @@ export default class DoubleClickZoom extends Interaction {
 
     constructor(params?: OMapDoubleClickZoomParamsType) {
         super("DoubleClickZoom")
-        this._interaction = new OlInteraction.DoubleClickZoom(Object.assign({
-            active: false
-        }, defaultDoubleClickZoomOptions, params || {}))
-        // 注册事件
+        this._interaction = new OlInteraction.DoubleClickZoom(Object.assign(OMapInteractionCommonParams, defaultDoubleClickZoomOptions, defaultValue(params, {})))
         this.initInteractionEvent()
+        if(isDefined(params) && isDefined(params.id)) {
+            this._initInteractionId(params.id)
+        }
     }
 
 }

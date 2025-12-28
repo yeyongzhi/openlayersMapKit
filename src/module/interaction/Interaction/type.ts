@@ -10,6 +10,23 @@ import type { OlInteractionMouseWheelZoomInstanceType } from '../MouseWheelZoom/
 import type { OlInteractionDoubleClickZoomInstanceType } from '../DoubleClickZoom/type'
 import type { OlInteractionKeyboardZoomInstanceType } from '../KeyboardZoom/type'
 
+/**
+ * 交互类通用参数
+ */
+export type OMapInteractionCommonParamsType = {
+    /**
+     * 交互实例id
+     */
+    id?: string | number | null;
+    /**
+     * 交互是否激活
+     */
+    active?: boolean;
+}
+
+export const OMapInteractionCommonParams: OMapInteractionCommonParamsType = {
+    active: false
+}
 
 export type OMapInteractionType = 'Draw' | 'DragBox' | 'DragPan' | 'Extent' | "Modify" | "Measure" | "Select" | "Link" | "MouseWheelZoom" | "DoubleClickZoom" | "KeyboardZoom"
 export type OlInteractionInstanceType = OlDrawInstanceType | OlDragBoxInstanceType | OlDragPanInstanceType |OlInteractionExtentInstanceType | OlModifyInstanceType | OlInteractionSelectInstanceType | OlInteractionLinkInstanceType | OlInteractionMouseWheelZoomInstanceType | OlInteractionDoubleClickZoomInstanceType | OlInteractionKeyboardZoomInstanceType

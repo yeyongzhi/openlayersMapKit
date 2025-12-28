@@ -1,7 +1,7 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import{ OlInteraction } from '../../../source/index'
-import type { OMapInteractionType, OlInteractionInstanceType } from './type'
+import type { OMapInteractionCommonParamsType, OMapInteractionType, OlInteractionInstanceType } from './type'
 import Event from '../../../module/util/Event/index'
 import Map from '../../core/Map/index'
 import VectorLayer from '../../layer/VectorLayer/index'
@@ -20,6 +20,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 interface InteractionLike {
+    id: OMapInteractionCommonParamsType['id'];
     type: OMapInteractionType | null;
     _interaction?: OlInteractionInstanceType;
     layer: VectorLayer | null;
@@ -30,6 +31,7 @@ interface InteractionLike {
 }
 
 interface InteractionInitialized {
+    id: OMapInteractionCommonParamsType['id'];
     type: OMapInteractionType | null;
     _interaction: OlInteractionInstanceType;
     layer: VectorLayer | null;
@@ -40,6 +42,10 @@ interface InteractionInitialized {
 }
 
 export default class Interaction implements InteractionLike {
+    /**
+     * 交互实例id
+     */
+    id: OMapInteractionCommonParamsType['id'] = null;
     /**
      * 交互类型
      * @type {OMapInteractionType | null}
@@ -95,6 +101,11 @@ export default class Interaction implements InteractionLike {
             return false;
         }
         return true;
+    }
+
+    protected _initInteractionId(id: OMapInteractionCommonParamsType['id']): void {
+        if (!isDefined(id)) return;
+        this.id = id
     }
 
     /**

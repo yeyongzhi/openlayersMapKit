@@ -38,9 +38,28 @@
         <div class="border"></div>
         <!-- 交互 -->
         <h3>交互</h3>
+        <p>以下三个交互默认自动开启</h5>
         <h5>
             DoubleClickZoom:
             <input type="checkbox" id="DoubleClickZoom">
+        </h5>
+        <h5>
+            MouseWheelZoom:
+            <input type="checkbox" id="MouseWheelZoom">
+        </h5>
+        <h5>
+            DragPan:
+            <input type="checkbox" id="DragPan">
+        </h5>
+        <div class="border"></div>
+        <h5>
+            Draw绘制功能：
+            <select id="drawType">
+                <option value="Point">点</option>
+                <option value="LineString">线</option>
+                <option value="Polygon">面</option>
+            </select>
+            <input type="checkbox" id="Draw">
         </h5>
         <h5>
             abortDrawing：
@@ -70,6 +89,7 @@
             <button id="switchBaseLayer">切换</button>
         </h5>
     </div>
+    <div id="message-container"></div>
     <div class="map_container" id="map_container"></div>
     <script src="./index.js"></script>
 </body>

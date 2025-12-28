@@ -18,3 +18,5 @@ export { default as DragZoom } from './DragZoom/index'
 
 export { DrawMode } from './Draw/type'
 export { MeasureMode } from './Measure/type'
+
+export { InteractionType } from './constant'

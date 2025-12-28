@@ -1,6 +1,7 @@
 // console.log(window.ol)
 // console.log(window.OMap);
 
+const container = document.getElementById('message-container');
 let map = null
 
 let clickLnglat = null
@@ -22,7 +23,8 @@ const endMeasureBtn = document.getElementById('endMeasure')
 
 const switchBaseLayer = document.getElementById('switchBaseLayer')
 
-const DoubleClickZoomInput = document.getElementById('DoubleClickZoom')
+const DrawInput = document.getElementById('drawType')
+const DrawInputChecked = document.getElementById('Draw')
 
 let distanceMeasure = null
 let areaMeasure = null
@@ -48,6 +50,36 @@ const polygonData2 = [
     ]
 ]
 
+/**
+ * 显示消息
+ * @param {string} text - 提示文本
+ * @param {string} type - 类型: 'info' | 'success' | 'warning' | 'error'
+ * @param {number} duration - 自动关闭时间（毫秒），默认 3000
+ */
+function showMessage(text, type = 'info', duration = 3000) {
+    const messageEl = document.createElement('div');
+    messageEl.className = `message ${type}`;
+
+    messageEl.innerHTML = `
+      <span>${text}</span>
+      <span class="close" onclick="this.parentElement.remove()">×</span>
+    `;
+
+    container.appendChild(messageEl);
+
+    // 自动关闭
+    setTimeout(() => {
+        if (messageEl.parentNode) {
+            messageEl.classList.add('fade-out');
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.remove();
+                }
+            }, 300); // 匹配 fadeOut 动画时长
+        }
+    }, duration);
+}
+
 function initDom() {
     clickLnglat = document.getElementById('click_lnglat')
     mapCenter = document.getElementById('map_center')
@@ -65,23 +97,21 @@ function initMap() {
     })
 
     console.log(map)
-    
+
 
     let interactions = map.getInteractions()
-    console.log(interactions)
-    let typeList = ['DoubleClickZoom', 'DragPan', 'DragZoom', 'KeyboardPan', 'KeyboardZoom', 'MouseWheelZoom', 'PinchZoom', 'ShiftDragZoom']
+
+    let typeList = Object.values(OMap.InteractionType)
     typeList.forEach(type => {
         let interaction = interactions.find(i => {
             return i.type === type
         })
-        if (interaction) {
-            if(type === 'DoubleClickZoom') {
-                DoubleClickZoomInput.checked = interaction.active
-            }
+        if (interaction && document.getElementById(type)) {
+            document.getElementById(type).checked = interaction.active
         }
     })
 
-    
+
 
     map.once('map:rendercomplete', (e) => {
         console.log('【地图渲染完成】')
@@ -157,6 +187,22 @@ function initMap() {
     map.on('view:change:center', (e) => {
         mapCenter.innerText = OMap.ProjUtil.toLonLat(map.getCenter()).toString(4)
     })
+}
+
+let drawTool = null
+function initDrawInteraction() {
+    DrawInputChecked.onchange = (e) => {
+        const value = e.target.checked
+        console.log(value)
+        if(value) {
+            if(!drawTool) {
+                drawTool = new OMap.Draw(DrawInput.value)
+                map.addInteraction(drawTool)
+            }
+        } else {
+            drawTool.setActive(false)
+        }
+    }
 }
 
 // 测试Popup
@@ -683,9 +729,32 @@ function initImageLayer() {
     map.addLayer(imagelayer)
 }
 
+const initInteractionChanged = () => {
+    ['DoubleClickZoom', 'MouseWheelZoom', 'DragPan'].forEach(type => {
+        if (document.getElementById(type)) {
+            document.getElementById(type).onchange = (e) => {
+                map.getInteractionById(`omap_default_${type.toLowerCase()}`).setActive(e.target.checked)
+                showMessage(`${type}已${e.target.checked ? '开启' : '关闭'}`, 'success')
+            }
+        }
+    })
+    // DoubleClickZoomInput.onchange = (e) => {
+    //     map.getInteractionById('omap_default_doubleclickzoom').setActive(e.target.checked)
+    //     showMessage(`双击缩放DoubleClickZoomInput已${e.target.checked ? '开启' : '关闭'}`, 'success')
+    // }
+    // MouseWheelZoomInput.onchange = (e) => {
+    //     map.getInteractionById('omap_default_mousewheelzoom').setActive(e.target.checked)
+    //     showMessage(`鼠标滚轮缩放MouseWheelZoomInput已${e.target.checked ? '开启' : '关闭'}`, 'success')
+    // }
+}
+
 function init() {
     initDom()
     initMap()
+
+    initInteractionChanged()
+
+    initDrawInteraction()
 
     // initPopup()
 

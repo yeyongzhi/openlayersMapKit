@@ -73,13 +73,14 @@ export default class Draw extends Interaction {
         if (!this._isInitialized('initDrawEvent')) return;
         (this._interaction as OlDrawInstanceType).on("drawend", (e) => {
             const feature: OlFeatureInstanceType = e.feature
-            // console.log(this.layer?.getFeatures())
+            console.log(feature)
             if (isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
                 let basicFeature = createBaseFeatureByOlFeature(feature as OlFeature<OlGeometry.Geometry>)
+                // console.log(basicFeature)
+                // console.log((this.layer as VectorLayer)._layer?.getSource()?.getFeatures())
                 if (basicFeature) {
                     (this.layer as VectorLayer).addFeature(basicFeature)
-                    console.log(this.layer?.getFeatures())
                 } else {
                     warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
                 }

@@ -26,7 +26,7 @@ import BaseFeature from '../Feature/BasicFeature/index'
 import type { OlFeatureInstanceType, OlGeomInstanceType, OlFeatureLike } from '../Feature/BasicFeature/type'
 import Interaction from '../../interaction/Interaction/index'
 import Control from '../../control/Control/index'
-import { type OlInteractionInstanceType } from '../../interaction/Interaction/type'
+import { type OlInteractionInstanceType, OMapInteractionCommonParamsType } from '../../interaction/Interaction/type'
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
 import Event from '../../../module/util/Event/index'
@@ -295,7 +295,9 @@ export default class Map implements MapLike {
         }
         if (isDefined(layer.getLayer())) {
             this.layers.push(layer);
-            layer.setTarget(this)
+            if(!isDefined(layer.getTarget())) {
+                layer.setTarget(this)
+            }
             this._map.addLayer(layer.getLayer() as OlAllLayerInstanceType); // 添加图层到地图中
         }
     }
@@ -615,7 +617,7 @@ export default class Map implements MapLike {
      */
     addInteraction(interaction: Interaction): void {
         let index = this.interactions.findIndex(i => {
-            return OlUtil.getUid(i._interaction) === OlUtil.getUid(interaction._interaction)
+            return OlUtil.getUid(i.getInteraction()) === OlUtil.getUid(interaction.getInteraction())
         })
         if (index !== -1) {
             warn_(createMessage('addInteraction', '该交互已添加到地图中'));
@@ -629,13 +631,15 @@ export default class Map implements MapLike {
                 this.addLayer(layer);
             }
         }
-        if (isDefined(interaction._interaction)) {
+        if (isDefined(interaction.getInteraction())) {
+            let olInteractionInstance = interaction.getInteraction() as OlInteractionInstanceType
             this.interactions.push(interaction)
-            this._map?.addInteraction(interaction._interaction)
+            this._map?.addInteraction(olInteractionInstance)
             if (interaction.setMap) {
                 interaction.setMap(this)
             }
             interaction.setActive(true) // 自动开启
+            olInteractionInstance.dispatchEvent('change:active')
         }
     }
 
@@ -646,6 +650,17 @@ export default class Map implements MapLike {
     getInteractions(): Interaction[] | undefined {
         if (!this._isInitialized('getInteractions')) return;
         return this.interactions
+    }
+
+    getInteractionById(id: OMapInteractionCommonParamsType['id']): Interaction | null {
+        if(this.interactions.length === 0) return null;
+        let index = this.interactions.findIndex(i => {
+            return i.id === id
+        })
+        if (index === -1) {
+            return null
+        }
+        return this.interactions[index]
     }
 
     /**
