@@ -53,11 +53,13 @@
         </h5>
         <div class="border"></div>
         <h5>
-            Draw绘制功能：
+            Draw绘制功能
             <select id="drawType">
                 <option value="Point">点</option>
                 <option value="LineString">线</option>
                 <option value="Polygon">面</option>
+                <option value="Rectangle">矩形</option>
+                <option value="Circle">圆</option>
             </select>
             <input type="checkbox" id="Draw">
             <div style="margin-top: 10px;">
@@ -65,6 +67,20 @@
                 <button id="removeLastPoint">撤销</button>
                 <button id="finishDrawing">完成绘制</button>
                 <button id="destroyDraw">销毁</button>
+                <button id="clearDraw">清空</button>
+            </div>
+        </h5>
+        <div class="border"></div>
+        <h5>
+            Select选择功能
+            <input type="checkbox" id="Select">交互开启
+            <input type="checkbox" id="SelectLayer">图层
+            <div style="margin-top: 10px;">
+                <button id="abortDrawing">取消绘制</button>
+                <button id="removeLastPoint">撤销</button>
+                <button id="finishDrawing">完成绘制</button>
+                <button id="destroyDraw">销毁</button>
+                <button id="clearDraw">清空</button>
             </div>
         </h5>
         <h5>

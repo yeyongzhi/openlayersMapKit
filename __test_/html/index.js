@@ -27,7 +27,10 @@ const abortDrawingBtn = document.getElementById('abortDrawing')
 const removeLastPointBtn = document.getElementById('removeLastPoint')
 const finishDrawingBtn = document.getElementById('finishDrawing')
 const destroyDrawBtn = document.getElementById('destroyDraw')
+const clearDrawBtn = document.getElementById('clearDraw')
 
+const SelectInputChecked = document.getElementById('Select')
+const SelectLayerInputChecked = document.getElementById('SelectLayer')
 
 let distanceMeasure = null
 let areaMeasure = null
@@ -223,7 +226,49 @@ function initDrawInteraction() {
         drawTool.destroy(false)
         DrawInputChecked.checked = false
     }
+    clearDrawBtn.onclick = () => {
+        drawTool.clear()
+    }
 }
+
+let selectTool = null
+let selectLayer = null
+function initSelectInteraction() {
+    SelectInputChecked.onchange = (e) => {
+        const value = e.target.checked
+        if (value) {
+            if (!selectTool) {
+                selectTool = new OMap.Select({
+                    layers: [selectLayer]
+                })
+                map.addInteraction(selectTool)
+            } else {
+                selectTool.setActive(true)
+            }
+            showMessage('选择工具已激活', 'success')
+        } else {
+            selectTool.setActive(false)
+            showMessage('选择工具已禁用', 'danger')
+        }
+    }
+    SelectLayerInputChecked.onchange = (e) => {
+        const value = e.target.checked
+        if (value) {
+            if (!selectLayer) {
+                selectLayer = initVectorLayer()
+                console.log(selectLayer)
+            } else {
+                selectLayer.setVisible(true)
+            }
+            showMessage('选择图层已激活', 'success')
+        } else {
+            selectLayer.setVisible(false)
+            showMessage('选择图层已禁用', 'danger')
+        }
+    }
+}
+
+
 
 // 测试Popup
 function initPopup() {
@@ -355,10 +400,11 @@ function initVectorLayer() {
         // l.translate(10000, 10000)
         // console.log(l.getCoordinates())
     }, 3000)
-    let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
+    // let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
     // console.log(re)
-    let extent2 = vlayer.getExtent()
+    // let extent2 = vlayer.getExtent()
     // console.log(extent2)
+    return vlayer
 
 }
 
@@ -767,6 +813,8 @@ function init() {
     initInteractionChanged()
 
     initDrawInteraction()
+
+    initSelectInteraction()
 
     // initPopup()
 

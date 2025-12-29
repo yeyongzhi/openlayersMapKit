@@ -8,7 +8,7 @@ import VectorLayer from '../../layer/VectorLayer/index'
 import {type OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
 import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
-import { OlInteraction, OlUtil } from '../../../source/index'
+import { OlGeometry, OlInteraction, OlUtil } from '../../../source/index'
 import { type OMapSelectParamsType, type OlInteractionSelectInstanceType, type OMapSelectEventType } from './type'
 import { getTargetFeature, updateSelectLayers, updateSelectFeatures, handleSelectEvent } from './handle'
 
@@ -22,7 +22,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/17
- * @updateDate 2025/9/20
+ * @updateDate 2025/12/29
  */
 
 const defaultSelectOptions = {
@@ -38,11 +38,11 @@ export default class Select extends Interaction {
     /**
      * 当前选择的要素
      */
-    selected: BaseFeature[] = [];
+    selected: BaseFeature<OlGeometry.Geometry>[] = [];
     /**
      * 当前未选择的要素
      */
-    deselected: BaseFeature[] = [];
+    deselected: BaseFeature<OlGeometry.Geometry>[] = [];
 
     constructor(params?: OMapSelectParamsType) {
         super("Select")
@@ -91,12 +91,12 @@ export default class Select extends Interaction {
         return _style
     }
 
-    protected initFilter(filter: ((feature: BaseFeature, layer: VectorLayer) => boolean) | undefined): ((feature: OlFeatureLike, layer: OlVectorLayerInstanceType) => boolean) | undefined {
+    protected initFilter(filter: ((feature: BaseFeature<OlGeometry.Geometry>, layer: VectorLayer) => boolean) | undefined): ((feature: OlFeatureLike, layer: OlVectorLayerInstanceType) => boolean) | undefined {
         if(isDefined(filter)) {
             return (feature: OlFeatureLike, layer: OlVectorLayerInstanceType) => {
                 let targetFeature = getTargetFeature(OlUtil.getUid(feature))
                 let targetLayer = this.map?.getAllLayers().find(l => OlUtil.getUid(l._layer) === OlUtil.getUid(layer))
-                return filter(targetFeature as BaseFeature, targetLayer as VectorLayer)
+                return filter(targetFeature as BaseFeature<OlGeometry.Geometry>, targetLayer as VectorLayer)
             }
         } else {
             return undefined
@@ -111,19 +111,19 @@ export default class Select extends Interaction {
         (this._interaction as OlInteractionSelectInstanceType).on("select", (e) => {
             const { selected, deselected } = e
             this.selected = selected.map(s => {
-                return getTargetFeature(OlUtil.getUid(s)) as BaseFeature | null
+                return getTargetFeature(OlUtil.getUid(s)) as BaseFeature<OlGeometry.Geometry> | null
             }).filter(f => f !== null)
             this.deselected = deselected.map(d => {
-                return getTargetFeature(OlUtil.getUid(d)) as BaseFeature | null
+                return getTargetFeature(OlUtil.getUid(d)) as BaseFeature<OlGeometry.Geometry> | null
             }).filter(f => f !== null)
         })
     }
 
-    getSelected(): BaseFeature[] {
+    getSelected(): BaseFeature<OlGeometry.Geometry>[] {
         return this.selected
     }
 
-    getDeselected(): BaseFeature[] {
+    getDeselected(): BaseFeature<OlGeometry.Geometry>[] {
         return this.deselected
     }
 

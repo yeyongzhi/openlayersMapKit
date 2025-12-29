@@ -164,7 +164,7 @@ export default class Interaction implements InteractionLike {
     //     return this._interaction.getPointerCount()
     // }
 
-    getLayer(): undefined | VectorLayer | null {
+    getLayer(): VectorLayer | null | undefined {
         if (!this._isInitialized('getInteraction')) return;
         return this.layer
     }
@@ -173,23 +173,39 @@ export default class Interaction implements InteractionLike {
         this.map = map
     }
 
+    /**
+     * 关闭交互(但是不移除图层)
+     */
     close(): void {
         this.destroy(false)
     }
 
     /**
-     * 销毁交互
+     * 清空交互图层
+     */
+    clear(): void {
+        const layer = this.getLayer();
+        if (isDefined<VectorLayer>(layer)) {
+            layer.clear()
+        }
+    }
+
+    /**
+     * 销毁交互(包括交互的图层)
      */
     protected destroy(destroyLayer: boolean = true): void {
         if (!this._isInitialized('destroy')) return;
-        if (destroyLayer && (this instanceof Draw || this instanceof Measure)) {
-            (this as Interaction).removeInteractionLayer();
+        if (destroyLayer && (isDefined(this.getLayer()))) {
+            this.removeInteractionLayer();
         }
         if (isDefined(this.map)) {
             this.map.removeInteraction(this);
         }
     }
 
+    /**
+     * 移除交互图层
+     */
     protected removeInteractionLayer() {
         const layer = this.getLayer();
         if (isDefined<VectorLayer>(layer) && isDefined(this.map)) {

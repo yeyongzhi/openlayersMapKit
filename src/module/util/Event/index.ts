@@ -82,7 +82,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         return this;
     }
 
-    remove(id: number): this {
+    remove(id: number | string): this {
         for (const [type, list] of this.events.entries()) {
             const idx = list.findIndex(item => item.id === id);
             if (idx !== -1) {

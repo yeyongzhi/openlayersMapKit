@@ -672,7 +672,7 @@ export default class Map implements MapLike {
     removeInteraction(interaction: Interaction): void {
         if (!this._isInitialized('removeInteraction')) return;
         let index = this.interactions.findIndex(i => {
-            return OlUtil.getUid(i._interaction) === OlUtil.getUid(interaction._interaction)
+            return OlUtil.getUid(i.getInteraction()) === OlUtil.getUid(interaction.getInteraction())
         })
         if (index === -1) {
             warn_(createMessage('removeInteraction', '该交互未添加到地图中'));
@@ -681,9 +681,7 @@ export default class Map implements MapLike {
         if (isDefined<OlInteractionInstanceType>(interaction.getInteraction())) {
             this.interactions.splice(index, 1)
             this._map.removeInteraction(interaction.getInteraction() as OlInteractionInstanceType)
-            if (interaction.setMap) {
-                interaction.setMap(null)
-            }
+            interaction.setMap(null)
         }
     }
 

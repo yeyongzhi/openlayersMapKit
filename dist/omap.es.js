@@ -1,7 +1,7 @@
 var Ei = Object.defineProperty;
 var Fi = (r, e, t) => e in r ? Ei(r, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : r[e] = t;
 var u = (r, e, t) => Fi(r, typeof e != "symbol" ? e + "" : e, t);
-import * as zt from "ol";
+import * as Et from "ol";
 import * as oe from "ol/layer";
 import * as se from "ol/source";
 import * as at from "ol/proj";
@@ -13,14 +13,14 @@ import * as w from "ol/geom";
 import * as K from "ol/style";
 import "ol/render/Feature";
 import "ol/coordinate";
-import * as xt from "ol/sphere";
+import * as Ft from "ol/sphere";
 import { createBox as xi } from "ol/interaction/Draw";
 import * as Qe from "ol/tilegrid";
 import * as tt from "ol/format";
 import * as Xe from "ol/control";
 import * as Ae from "ol/easing";
 import * as S from "ol/extent";
-import * as At from "ol/Observable";
+import * as zt from "ol/Observable";
 function n(r) {
   return r != null;
 }
@@ -64,7 +64,7 @@ function ve(r) {
 function F(r) {
   return Array.isArray(r);
 }
-function wt(r) {
+function xt(r) {
   return Array.isArray(r) && r.length === 0;
 }
 function m(r) {
@@ -119,7 +119,7 @@ function we(r) {
   const e = parseInt(r.slice(0, 2), 16), t = parseInt(r.slice(2, 4), 16), i = parseInt(r.slice(4, 6), 16);
   return [e, t, i];
 }
-function Pt(r) {
+function At(r) {
   const e = /rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/, t = r.match(e);
   if (t)
     return [parseInt(t[1], 10), parseInt(t[2], 10), parseInt(t[3], 10)];
@@ -134,7 +134,7 @@ function Di(r) {
 function Ti(r) {
   return (parseInt(r, 16) / 255).toPrecision(2);
 }
-function Ct() {
+function wt() {
   const r = /* @__PURE__ */ new Date(), e = r.getFullYear(), t = String(r.getMonth() + 1).padStart(2, "0"), i = String(r.getDate()).padStart(2, "0"), s = String(r.getHours()).padStart(2, "0"), a = String(r.getMinutes()).padStart(2, "0"), l = String(r.getSeconds()).padStart(2, "0");
   return `${e}-${t}-${i} ${s}:${a}:${l}`;
 }
@@ -464,7 +464,7 @@ class c {
     return !this._isInitialized("toString") || !G(this._lnglat) ? "" : `[${(t = this._lnglat[0]) == null ? void 0 : t.toFixed(e)}, ${(i = this._lnglat[1]) == null ? void 0 : i.toFixed(e)}]`;
   }
 }
-const Lt = {
+const Pt = {
   aliceblue: "#F0F8FF",
   antiquewhite: "#FAEBD7",
   aqua: "#00FFFF",
@@ -665,7 +665,7 @@ class Q {
           this._color = n(i.alpha) || n(i.opacity) ? `rgba(${s[0]}, ${s[1]}, ${s[2]}, ${i.alpha || i.opacity})` : `rgb(${s[0]}, ${s[1]}, ${s[2]})`;
         }
         if (bi(i.color)) {
-          let s = Pt(i.color).join(", ");
+          let s = At(i.color).join(", ");
           this._color = n(i.alpha) || n(i.opacity) ? `rgba(${s}, ${i.alpha || i.opacity})` : `rgb(${s})`;
         }
       } else if (n(i.r) && n(i.g) && n(i.b)) {
@@ -719,15 +719,15 @@ class Q {
       return;
     }
     if (this._color.startsWith("rgb") && !this._color.startsWith("rgba"))
-      this._initColor([...Pt(this._color), e]);
+      this._initColor([...At(this._color), e]);
     else if (this._color.startsWith("rgba"))
       this._initColor([...Di(this._color), e]);
     else {
-      if (!n(Lt[this._color])) {
+      if (!n(Pt[this._color])) {
         d(Be("withAlpha", "颜色值有误"));
         return;
       }
-      let t = we(Lt[this._color]);
+      let t = we(Pt[this._color]);
       if (!n(t)) {
         d(Be("withAlpha", "颜色值有误"));
         return;
@@ -991,7 +991,7 @@ function Ki(r) {
     color: i.color instanceof Q ? i.color.getColor() : i.color
   })), e;
 }
-const ci = (r, e) => {
+const li = (r, e) => {
   if (n(r)) {
     if (r.getType() === "Point")
       return new ne({
@@ -1051,7 +1051,7 @@ class ne {
     return this._style;
   }
 }
-const Hi = "Event", Mt = y(Hi);
+const Hi = "Event", Ct = y(Hi);
 class Ee {
   constructor(e) {
     u(this, "events", /* @__PURE__ */ new Map());
@@ -1086,7 +1086,7 @@ class Ee {
       try {
         a.callback.call(a.target, ...t);
       } catch (l) {
-        d(Mt("emit", `回调异常: ${String(l)}`));
+        d(Ct("emit", `回调异常: ${String(l)}`));
       }
       a.once ? i.splice(s, 1) : s++;
     }
@@ -1098,7 +1098,7 @@ class Ee {
       if (s !== -1)
         return i.splice(s, 1), i.length === 0 && this.events.delete(t), this;
     }
-    return o(Mt("remove", `未找到 id=${e} 的监听`)), this;
+    return o(Ct("remove", `未找到 id=${e} 的监听`)), this;
   }
   off(e) {
     return e === void 0 ? this.events.clear() : this.events.delete(e), this;
@@ -1120,7 +1120,7 @@ class Ee {
 function Yi(r) {
   return m(r) && r > 0;
 }
-const di = {
+const ui = {
   bottomLeft: "bottom-left",
   bottomCenter: "bottom-center",
   bottomRight: "bottom-right",
@@ -1132,20 +1132,20 @@ const di = {
   topRight: "top-right"
 };
 function Xi(r) {
-  return Object.values(di).includes(r);
+  return Object.values(ui).includes(r);
 }
 const qi = {
   offset: new R(0, 0),
-  positioning: di.bottomCenter,
+  positioning: ui.bottomCenter,
   stopEvent: !0,
   insertFirst: !0,
   autoPan: !1,
   className: "omap-popup-element"
 };
-function St(r) {
+function Lt(r) {
   return ["change:position", "change:positioning", "change:element", "change:offset"].includes(r);
 }
-function bt(r) {
+function Mt(r) {
   let e = document.createElement("div");
   return e.className = "omap-popup-default-element", e.innerHTML = r, e;
 }
@@ -1177,7 +1177,7 @@ function Oe(r, e, t) {
   return l;
 }
 const Ji = "Popup", ue = y(Ji);
-class fi {
+class ci {
   constructor(e) {
     u(this, "_popup");
     /**
@@ -1203,7 +1203,7 @@ class fi {
     var i;
     n(e.id) && (this.id = e.id);
     let t = Object.assign({}, qi, e);
-    delete t.id, n(t.content) && L(t.content) && !n(t.element) && (this.content = t.content, t.element = bt(t.content)), n(t.element) && t.element.classList.add("omap-popup-selectable"), this._popup = new zi({
+    delete t.id, n(t.content) && L(t.content) && !n(t.element) && (this.content = t.content, t.element = Mt(t.content)), n(t.element) && t.element.classList.add("omap-popup-selectable"), this._popup = new zi({
       ...t,
       offset: (i = t.offset) == null ? void 0 : i.toArray(),
       position: n(t.position) ? t.position instanceof c ? t.position.toArray() : t.position : void 0
@@ -1290,7 +1290,7 @@ class fi {
       oldValue: this.getContent(),
       key: "content",
       newValue: e
-    })), this.content = e, this.setElement(bt(e)));
+    })), this.content = e, this.setElement(Mt(e)));
   }
   getOffset() {
     if (!this._isInitialized("getOffset")) return;
@@ -1318,7 +1318,7 @@ class fi {
       o(ue("on", "参数不能为空"));
       return;
     }
-    if (St(e)) {
+    if (Lt(e)) {
       let s = this.events.get(e);
       (!n(s) || s.length === 0) && this._popup.on(e, (a) => {
         console.log(a), this.events.emit(e, Oe(this, e, a));
@@ -1345,7 +1345,7 @@ class fi {
       o(ue("on", "参数不能为空"));
       return;
     }
-    if (St(e)) {
+    if (Lt(e)) {
       let s = this.events.get(e);
       (!n(s) || s.length === 0) && this._popup.on(e, (a) => {
         console.log(a), this.events.emit(e, Oe(this, e, a));
@@ -1365,7 +1365,7 @@ function ce(r) {
   if (n(r))
     return r instanceof R ? r.toArray() : r;
 }
-const Qi = "Map", Gt = y(Qi);
+const Qi = "Map", St = y(Qi);
 class _e {
   constructor(e) {
     u(this, "_projection", null);
@@ -1377,13 +1377,13 @@ class _e {
     else {
       let i = e;
       if (!n(i.code)) {
-        d(Gt("constructor", "初始化参数有误"));
+        d(St("constructor", "初始化参数有误"));
         return;
       }
       t = i.code, t = t.startsWith("EPSG") ? t : "EPSG:" + t;
     }
     if (this.code = t, this._projection = at.get(t), !n(this._projection)) {
-      o(Gt("constructor", "坐标系不存在"));
+      o(St("constructor", "坐标系不存在"));
       return;
     }
     this.units = this._projection.getUnits();
@@ -1406,7 +1406,7 @@ class _e {
 }
 const ge = /* @__PURE__ */ new WeakMap();
 let lt = "BaseLayer", P = y(lt);
-const Dt = 1, Tt = !0, Rt = 0, kt = 22, $t = 0, Bt = 1 / 0, Ot = 1, jt = {};
+const bt = 1, Gt = !0, Dt = 0, Tt = 22, Rt = 0, kt = 1 / 0, $t = 1, Bt = {};
 class T {
   constructor(e, t) {
     /**
@@ -1428,23 +1428,23 @@ class T {
     u(this, "name", "");
     u(this, "className", "");
     // 图层样式类名，用于自定义图层样式，默认无
-    u(this, "opacity", Dt);
+    u(this, "opacity", bt);
     // 图层透明度，默认1
-    u(this, "visible", Tt);
+    u(this, "visible", Gt);
     // 图层是否可见，默认true
     u(this, "extent", null);
     // 图层范围，默认全局
-    u(this, "minZoom", Rt);
+    u(this, "minZoom", Dt);
     // 最小缩放级别，默认0
-    u(this, "maxZoom", kt);
+    u(this, "maxZoom", Tt);
     // 最大缩放级别，默认22
-    u(this, "minResolution", $t);
+    u(this, "minResolution", Rt);
     // 最小分辨率，默认0r
-    u(this, "maxResolution", Bt);
+    u(this, "maxResolution", kt);
     // 最大分辨率，默认Infinity
-    u(this, "zIndex", Ot);
+    u(this, "zIndex", $t);
     // 图层层级，默认0
-    u(this, "properties", jt);
+    u(this, "properties", Bt);
     // 图层属性，用于存储图层相关信息
     /**
      * 图层所属的地图对象
@@ -1455,7 +1455,7 @@ class T {
      */
     u(this, "target", null);
     let i = _(t, {});
-    this.type = e, lt = `${e}Layer`, P = y(lt), this.id = _(i.id, null), this.name = _(i.name, ""), this.className = _(i.className, ""), this.opacity = _(i.opacity, Dt), this.visible = _(i.visible, Tt), this.extent = _(i.extent, null), this.minZoom = _(i.minZoom, Rt), this.maxZoom = _(i.maxZoom, kt), this.minResolution = _(i.minResolution, $t), this.maxResolution = _(i.maxResolution, Bt), this.zIndex = _(i.zIndex, Ot), this.properties = _(i.properties, jt), this.map = _(i.map, null), ge.set(this, {
+    this.type = e, lt = `${e}Layer`, P = y(lt), this.id = _(i.id, null), this.name = _(i.name, ""), this.className = _(i.className, ""), this.opacity = _(i.opacity, bt), this.visible = _(i.visible, Gt), this.extent = _(i.extent, null), this.minZoom = _(i.minZoom, Dt), this.maxZoom = _(i.maxZoom, Tt), this.minResolution = _(i.minResolution, Rt), this.maxResolution = _(i.maxResolution, kt), this.zIndex = _(i.zIndex, $t), this.properties = _(i.properties, Bt), this.map = _(i.map, null), ge.set(this, {
       groupId: null
     });
   }
@@ -1740,7 +1740,137 @@ class H {
     return this.type;
   }
 }
-const tr = "Point", de = y(tr);
+const tr = "Interaction", ir = y(tr);
+class B {
+  constructor(e) {
+    /**
+     * 交互实例id
+     */
+    u(this, "id", null);
+    /**
+     * 交互类型
+     * @type {OMapInteractionType | null}
+     */
+    u(this, "type", null);
+    /**
+     * 交互实例
+     * @type {OlInteractionInstanceType}
+     */
+    u(this, "_interaction");
+    /**
+     * 交互所需要的图层
+     * @type {VectorLayer} layer
+     */
+    u(this, "layer", null);
+    /**
+     * 交互属性
+     * @type {Record<string, any>} 
+     */
+    u(this, "properties", {});
+    /**
+     * 交互是否激活
+     * @param type 
+     */
+    u(this, "active", !1);
+    /**
+     * 交互事件
+     * @type {Event}
+     */
+    u(this, "events", new Ee());
+    u(this, "map", null);
+    this.type = e;
+  }
+  initInteractionEvent() {
+    this._isInitialized("initInteractionEvent") && this._interaction.on("change:active", (e) => {
+      e.type === "change:active" && (this.active = this.getActive());
+    });
+  }
+  _isInitialized(e) {
+    return n(this._interaction) ? !0 : (o(ir(e, "未正确实例化")), !1);
+  }
+  _initInteractionId(e) {
+    n(e) && (this.id = e);
+  }
+  /**
+   * 返回当前交互是否处于激活状态
+   * @returns 激活状态
+   */
+  getActive() {
+    if (this._isInitialized("getActive"))
+      return this._interaction.getActive();
+  }
+  /**
+   * 设置当前交互是否处于激活状态
+   * @param active 激活状态
+   */
+  setActive(e) {
+    this._isInitialized("setActive") && this._interaction.setActive(e);
+  }
+  /**
+   * 获取交互实例
+   * @returns 
+   */
+  getInteraction() {
+    if (this._isInitialized("getInteraction"))
+      return this._interaction;
+  }
+  /**
+   * 获取交互属性
+   * @returns {Record<string, any>} 交互属性
+   */
+  getProperties() {
+    return this.properties;
+  }
+  /**
+   * 设置交互属性
+   * @param properties 交互属性
+   */
+  setProperties(e) {
+    this._isInitialized("getInteraction") && (this._interaction.setProperties(e), this.properties = e);
+  }
+  /**
+   * 返回交互中涉及的当前指针数，例如，当使用两个手指时为 2。
+   * @returns {number | undefined} 指针数
+   */
+  // getPointerCount(): number | undefined {
+  //     if (!this._isInitialized('getInteraction')) return;
+  //     return this._interaction.getPointerCount()
+  // }
+  getLayer() {
+    if (this._isInitialized("getInteraction"))
+      return this.layer;
+  }
+  setMap(e) {
+    this.map = e;
+  }
+  /**
+   * 关闭交互(但是不移除图层)
+   */
+  close() {
+    this.destroy(!1);
+  }
+  /**
+   * 清空交互图层
+   */
+  clear() {
+    const e = this.getLayer();
+    n(e) && e.clear();
+  }
+  /**
+   * 销毁交互(包括交互的图层)
+   */
+  destroy(e = !0) {
+    this._isInitialized("destroy") && (e && n(this.getLayer()) && this.removeInteractionLayer(), n(this.map) && this.map.removeInteraction(this));
+  }
+  /**
+   * 移除交互图层
+   */
+  removeInteractionLayer() {
+    const e = this.getLayer();
+    n(e) && n(this.map) && this.map.removeLayer(e);
+  }
+}
+const rr = "Point", de = y(rr);
 class Te extends H {
   constructor(e, t) {
     if (!n(e)) {
@@ -1832,7 +1962,7 @@ function ut(r) {
   let e = !0;
   return F(r) || (e = !1), r.some((i) => !(i instanceof c) && !G(i)) && (e = !1), e;
 }
-const ir = "LineString", O = y(ir);
+const nr = "LineString", O = y(nr);
 class yt extends H {
   constructor(e, t) {
     if (!n(e)) {
@@ -1990,7 +2120,7 @@ function dt(r) {
   let e = !0;
   return F(r) || (e = !1), r.some((i) => !(i instanceof c) && !G(i)) && (e = !1), e;
 }
-const rr = "LinearRing", Me = y(rr);
+const sr = "LinearRing", Me = y(sr);
 class Ye extends H {
   constructor(e, t) {
     if (!n(e)) {
@@ -2043,8 +2173,8 @@ class Ye extends H {
     this._geometry.setCoordinates(t);
   }
 }
-const nr = "Polygon", V = y(nr);
-class hi extends H {
+const or = "Polygon", V = y(or);
+class di extends H {
   constructor(e, t) {
     if (!n(e)) {
       d(V("constructor", "参数不能为空"));
@@ -2204,12 +2334,12 @@ class hi extends H {
     this._geometry.translate(e, t);
   }
 }
-function Vt(r) {
+function Ot(r) {
   let e = r.some((t) => !(t instanceof c) && !G(t));
   return F(r) && !e;
 }
-const sr = "MultiPoint", fe = y(sr);
-class or extends H {
+const ar = "MultiPoint", fe = y(ar);
+class lr extends H {
   constructor(e, t) {
     if (!n(e)) {
       d(fe("constructor", "参数不能为空"));
@@ -2218,7 +2348,7 @@ class or extends H {
     if (e instanceof M)
       super("MultiPoint", e);
     else {
-      if (!Vt(e)) {
+      if (!Ot(e)) {
         d(fe("constructor", "坐标格式有误"));
         return;
       }
@@ -2254,7 +2384,7 @@ class or extends H {
       d(fe("setCoordinates", "参数不能为空"));
       return;
     }
-    if (!Vt(e)) {
+    if (!Ot(e)) {
       d(fe("setCoordinates", "坐标格式有误"));
       return;
     }
@@ -2311,12 +2441,12 @@ class or extends H {
       return this._geometry.intersectsExtent(t);
   }
 }
-function Zt(r) {
+function jt(r) {
   let e = r.some((t) => !F(t) || F(t) && !ut(t));
   return F(r) && !e;
 }
-const ar = "MultiLineString", Se = y(ar);
-class lr extends H {
+const ur = "MultiLineString", Se = y(ur);
+class cr extends H {
   constructor(e, t) {
     if (!n(e)) {
       d(Se("constructor", "参数不能为空"));
@@ -2325,7 +2455,7 @@ class lr extends H {
     if (e instanceof M)
       super("MultiLineString", e);
     else {
-      if (!Zt(e)) {
+      if (!jt(e)) {
         d(Se("constructor", "坐标格式有误"));
         return;
       }
@@ -2361,7 +2491,7 @@ class lr extends H {
       d(Se("setCoordinates", "参数不能为空"));
       return;
     }
-    if (!Zt(e)) {
+    if (!jt(e)) {
       d(Se("setCoordinates", "坐标格式有误"));
       return;
     }
@@ -2369,12 +2499,12 @@ class lr extends H {
     this._geometry.setCoordinates(t);
   }
 }
-function Ut(r) {
+function Vt(r) {
   let e = r.some((t) => !F(t) || F(t) && !ct(t));
   return F(r) && !e;
 }
-const ur = "MultiPolygon", be = y(ur);
-class cr extends H {
+const dr = "MultiPolygon", be = y(dr);
+class fr extends H {
   constructor(e, t) {
     if (!n(e)) {
       d(be("constructor", "参数不能为空"));
@@ -2383,7 +2513,7 @@ class cr extends H {
     if (e instanceof M)
       super("MultiPolygon", e);
     else {
-      if (!Ut(e)) {
+      if (!Vt(e)) {
         d(be("constructor", "坐标格式有误"));
         return;
       }
@@ -2419,7 +2549,7 @@ class cr extends H {
       d(be("setCoordinates", "参数不能为空"));
       return;
     }
-    if (!Ut(e)) {
+    if (!Vt(e)) {
       d(be("setCoordinates", "坐标格式有误"));
       return;
     }
@@ -2427,8 +2557,8 @@ class cr extends H {
     this._geometry.setCoordinates(t);
   }
 }
-const dr = "Circle", Ge = y(dr);
-class fr extends H {
+const hr = "Circle", Ge = y(hr);
+class gr extends H {
   constructor(e, t, i) {
     if (!n(e)) {
       d(Ge("constructor", "参数不能为空"));
@@ -2484,22 +2614,379 @@ function ae(r) {
     case te.LineString:
       return new yt(r);
     case te.Polygon:
-      return new hi(r);
+      return new di(r);
     case te.MultiPoint:
-      return new or(r);
-    case te.MultiLineString:
       return new lr(r);
-    case te.MultiPolygon:
+    case te.MultiLineString:
       return new cr(r);
+    case te.MultiPolygon:
+      return new fr(r);
     case te.LinearRing:
       return new Ye(r);
     case te.Circle:
-      return new fr(r);
+      return new gr(r);
   }
   return null;
 }
-let hr = "VectorLayer", C = y(hr);
-class Fe extends T {
+const J = {
+  Distance: "Distance",
+  Area: "Area"
+}, _r = {
+  clickTolerance: 6,
+  dragVertexDelay: 500,
+  snapTolerance: 12,
+  stopClick: !1
+}, Ve = {
+  measureStart: "measure:start",
+  measureEnd: "measure:end"
+}, ft = {
+  /** 点 */
+  Point: "Point",
+  /** 线 */
+  LineString: "LineString",
+  /** 面 */
+  Polygon: "Polygon",
+  /** 矩形 */
+  Rectangle: "Rectangle",
+  /** 圆 */
+  Circle: "Circle"
+}, mr = {
+  clickTolerance: 6,
+  dragVertexDelay: 500,
+  snapTolerance: 12,
+  stopClick: !1
+}, It = "omap-measure-marker", ht = "omap-measure-marker-index";
+function pr(r) {
+  let e = "Point", t = null;
+  switch (r) {
+    case J.Distance:
+      e = ft.LineString;
+      break;
+    case J.Area:
+      e = ft.Polygon;
+      break;
+  }
+  return { type: e, geometryFunction: t };
+}
+let Z = null, U = null, Fe = null, vt = null, Ie = null, me = [], q = [];
+function yr(r, e, t) {
+  r === J.Distance ? Fe = e : r === J.Area && (vt = e), Ie = t;
+}
+function fi(r) {
+  let e = document.createElement("div");
+  return e.style.padding = "2px 5px", e.style.borderRadius = "5px", e.style.backgroundColor = "rgba(0, 0, 0, 0.5)", e.style.color = "#FFFFFF", e.style.fontSize = "12px", e.innerHTML = r, e;
+}
+function Ir(r, e) {
+  if (Z)
+    if (Z.children[0].innerHTML = qe("总长", r), !e || e === "")
+      Z.children.length > 1 && Z.removeChild(Z.children[1]);
+    else if (Z.children.length > 1)
+      Z.children[1].innerHTML = e;
+    else {
+      let t = document.createElement("p");
+      t.className = "omap-measure-tooltip-text", t.innerHTML = e, Z.appendChild(t);
+    }
+  else {
+    let t = document.createElement("div");
+    t.style.padding = "2px 5px", t.style.borderRadius = "5px", t.style.backgroundColor = "rgba(0, 0, 0, 0.5)", t.style.color = "#FFFFFF", t.style.fontSize = "12px";
+    let i = document.createElement("p");
+    if (i.innerHTML = qe("总长", r), t.appendChild(i), e && e !== "") {
+      let s = document.createElement("p");
+      s.className = "omap-measure-tooltip-text", s.innerHTML = e, t.appendChild(s);
+    }
+    Z = t;
+  }
+  return Z;
+}
+function Zt(r, e) {
+  if (U)
+    if (U.children[0].innerHTML = qe("面积", r), !e || e === "")
+      U.children.length > 1 && U.removeChild(U.children[1]);
+    else if (U.children.length > 1)
+      U.children[1].innerHTML = e;
+    else {
+      let t = document.createElement("p");
+      t.className = "omap-measure-tooltip-text", t.innerHTML = e, U.appendChild(t);
+    }
+  else {
+    let t = document.createElement("div");
+    t.style.padding = "2px 5px", t.style.borderRadius = "5px", t.style.backgroundColor = "rgba(0, 0, 0, 0.5)", t.style.color = "#FFFFFF", t.style.fontSize = "12px";
+    let i = document.createElement("p");
+    if (i.innerHTML = qe("总长", r), t.appendChild(i), e && e !== "") {
+      let s = document.createElement("p");
+      s.className = "omap-measure-tooltip-text", s.innerHTML = e, t.appendChild(s);
+    }
+    U = t;
+  }
+  return U;
+}
+function vr(r) {
+  let e = document.createElement("span");
+  return e.title = "删除", e.innerHTML = "×", e.style.color = "#FFFFFF", e.style.cursor = "pointer", e.addEventListener("click", (t) => {
+    n(r) && r();
+  }), e;
+}
+function Ut(r) {
+  let e = new ci(r);
+  return q.push(e), e;
+}
+function Nt(r, e) {
+  let t = document.createElement("div");
+  t.className = `${It}-${e}`, t.style.padding = "2px 5px", t.style.borderRadius = "5px", t.style.backgroundColor = "rgba(255, 255, 255, 0.8)", t.style.color = "#000000", t.style.boxShadow = "0 0 5px rgba(0, 0, 0, 0.5)";
+  let i = document.createElement("span");
+  if (i.style.color = "var(--omap-primary-color)", i.style.margin = "0 5px", i.innerHTML = r, t.appendChild(i), e !== 0) {
+    let s = document.createElement("span");
+    s.title = "删除", s.innerHTML = "×", s.style.color = "#000000", s.style.cursor = "pointer", t.setAttribute(ht, e.toString()), s.addEventListener("click", (a) => {
+      console.log("点击删除");
+      let l = t.getAttribute(ht);
+      console.log(l), n(l) && Er(Number(l));
+    }), t.appendChild(s);
+  }
+  return me.push(t), t;
+}
+function Er(r) {
+  if (q.length === 2)
+    return Wt(), me = [], q.forEach((e, t) => {
+      Kt(t), t === q.length - 1 && (q = []);
+    }), !1;
+  Wt(r), me.splice(r, 1), me.forEach((e, t) => {
+    e.className = `${It}-${t}`, e.setAttribute(ht, t.toString());
+  }), Kt(r), q.splice(r, 1), q.forEach((e, t) => {
+    e.id = _t(t);
+  }), Fr();
+}
+function Kt(r) {
+  if (n(Ie)) {
+    let e = Ie.getPopupById(`omap-measure-marker-${r}`);
+    n(e) && Ie.removePopup(e);
+  }
+}
+function Wt(r) {
+  let e = Fe || vt;
+  if (n(e)) {
+    let t = e.getGeometry();
+    if (n(t))
+      if (n(r)) {
+        let i = [];
+        (t instanceof w.LineString || t instanceof w.Polygon) && (i = t.getCoordinates()), i.splice(r, 1), (t instanceof w.LineString || t instanceof w.Polygon) && t.setCoordinates(i);
+      } else
+        t instanceof w.LineString ? t.setCoordinates([]) : t instanceof w.Polygon && t.setCoordinates([]);
+  }
+}
+function Fr() {
+  if (Fe) {
+    let r = Fe.getGeometry().getCoordinates();
+    me.forEach((e, t) => {
+      if (t > 0) {
+        let i = new yt(r.slice(0, t + 1)), s = Ie.getLength(i);
+        e.children[0].innerHTML = n(s) ? gt(s) : "-";
+      }
+    });
+  }
+}
+function gt(r) {
+  return (r / 1e3).toFixed(2) + " km";
+}
+function Ht(r) {
+  return (r / 1e6).toFixed(2) + " km²";
+}
+function _t(r) {
+  return `${It}-${r}`;
+}
+function qe(r, e) {
+  return `${r}：<span style="color: var(--omap-primary-color);margin: 0 5px;font-weight: bolder;">${e || "-"}</span>`;
+}
+function zr() {
+  me.forEach((r) => {
+    r.remove();
+  }), q.forEach((r) => {
+    Ie.removePopup(r);
+  }), Fe = null, vt = null, setTimeout(() => {
+    me = [], q = [];
+  }, 200);
+}
+class hi {
+  constructor(e) {
+    u(this, "popup");
+    this.initPopup(e || "");
+  }
+  _isInitialized() {
+    return !!n(this.popup);
+  }
+  initPopup(e) {
+    let t = fi(e);
+    this.popup = new ci({
+      id: "omap-measure-popup",
+      element: t,
+      offset: new R(0, -10)
+    });
+  }
+  getPopup() {
+    return this.popup;
+  }
+  updatePosition(e) {
+    this._isInitialized() && this.popup.setPosition(e);
+  }
+  setElement(e) {
+    this._isInitialized() && this.popup.setElement(e);
+  }
+  getElement() {
+    if (this._isInitialized())
+      return this.popup.getElement();
+  }
+}
+const ie = new hi("单击地图开始测量"), ye = new hi(""), xr = "Measure", Yt = y(xr);
+let Xt = null, he = null;
+class gi extends B {
+  constructor(t, i) {
+    if (!Object.values(J).includes(t)) {
+      d(Yt("constructor", "mode参数有误"));
+      return;
+    }
+    super("Measure");
+    u(this, "mode", null);
+    u(this, "result", {
+      value: 0,
+      unit: ""
+    });
+    let s = null;
+    this.layer = new ze({
+      style: li
+    }), s = this.layer.getSource();
+    let a = Object.assign({}, _r, {
+      clickTolerance: i == null ? void 0 : i.clickTolerance,
+      source: s,
+      features: void 0,
+      style: void 0
+    });
+    this._interaction = new j.Draw({
+      ...pr(t),
+      ...a
+    }), this.mode = t, t === J.Distance ? this.result.unit = "km" : t === J.Area && (this.result.unit = "km²"), this.initInteractionEvent(), this.initMeasureEvent();
+  }
+  /**
+   * 初始化 测量事件
+   */
+  initMeasureEvent() {
+    this._isInitialized("initMeasureEvent") && (this._interaction.on("change:active", (t) => {
+      this._interaction.getActive() ? this.onMeasureActive() : this.onMeasureInActive();
+    }), this._interaction.on("drawstart", (t) => {
+      this.events.emit(Ve.measureStart, {
+        target: this,
+        type: Ve.measureStart
+      }), this.onMeasureStart(t.feature);
+    }), this._interaction.on("drawend", (t) => {
+      this.onMeasureEnd();
+    }));
+  }
+  onMeasureActive() {
+    n(this.map) && (he || (he = this.map._map.on("pointermove", (t) => {
+      ie.updatePosition(t.coordinate);
+    }))), this.result.value = 0;
+  }
+  onMeasureInActive() {
+    he && (zt.unByKey(he), he = null);
+  }
+  /**
+   * 测量开始
+   * @param feature 测量开始的feature
+   */
+  onMeasureStart(t) {
+    var i;
+    if (n(t)) {
+      Xt = t, yr(this.mode, t, this.map);
+      let s = 0;
+      (i = Xt.getGeometry()) == null || i.on("change", (a) => {
+        var f, h;
+        const { target: l } = a;
+        if (n(l)) {
+          let v = l instanceof w.LineString ? l.getCoordinates().length : l.getCoordinates()[0].length;
+          if (s === 0 && (s = v, l instanceof w.LineString)) {
+            let k = Nt("起点", 0), X = Ut({
+              id: _t(0),
+              element: k,
+              offset: new R(0, -10)
+            });
+            X.setPosition(l.getCoordinates()[0]), this.map.addPopup(X);
+          }
+          let x;
+          if (l instanceof w.LineString ? x = (f = this.map) == null ? void 0 : f.getLength(new yt(new M({
+            geometry: l
+          }))) : l instanceof w.Polygon && (x = (h = this.map) == null ? void 0 : h.getArea(new di(new M({
+            geometry: l
+          })))), n(x) && m(x) && (this.result.value = x), n(x) && m(x) && l instanceof w.LineString) {
+            let k = v >= 2 ? Ir(gt(x), x === 0 ? "" : "单击继续，双击结束测量") : fi("单击地图开始测量");
+            ie.setElement(k);
+          }
+          if (l instanceof w.LineString) {
+            if (v > s) {
+              let k = v - 1 - 1, X = Nt(gt(x), k), ee = Ut({
+                id: _t(k),
+                element: X,
+                offset: new R(0, -10)
+              });
+              ee.setPosition(l.getCoordinates()[l.getCoordinates().length - 1]), this.map.addPopup(ee), s = v;
+            }
+          } else l instanceof w.Polygon && v >= 4 && (this.map.addPopup(ye.getPopup()), ye.setElement(Zt(Ht(x), "单击继续，双击结束测量")), ye.updatePosition(l.getInteriorPoint().getCoordinates()), ie.setElement(void 0), ie.updatePosition(void 0));
+        } else
+          o("target is undefined");
+      });
+    }
+  }
+  /**
+   * 测量结束
+   */
+  onMeasureEnd() {
+    if (this.setActive(!1), n(he) && zt.unByKey(he), this.mode, J.Distance, this.mode === J.Area) {
+      const t = Zt(Ht(this.result.value));
+      t.style.display = "flex", t.style.alignItems = "center", t.appendChild(vr(() => {
+        var i;
+        ye.updatePosition(void 0), ye.setElement(void 0), (i = this.layer) == null || i.clear();
+      })), ye.setElement(t);
+    }
+    ie.updatePosition(void 0), ie.setElement(void 0), this.events.emit(Ve.measureEnd, {
+      target: this,
+      type: Ve.measureEnd
+    });
+  }
+  /**
+   * 取消绘制，并结束当前未完成的绘制
+   */
+  cancel() {
+    this._isInitialized("cancel") && this._interaction.abortDrawing();
+  }
+  /**
+   * 删除最后一个点
+   */
+  revoke() {
+    this._isInitialized("revoke") && this._interaction.removeLastPoint();
+  }
+  /**
+   * 结束当前未完成的绘制
+   */
+  finish() {
+    this._isInitialized("finish") && this._interaction.finishDrawing();
+  }
+  setMap(t) {
+    this.map = t, this.map.addPopup(ie.getPopup()), this.onMeasureActive();
+  }
+  on(t, i) {
+    if (!this._isInitialized("on")) return;
+    if (!n(t) || !n(i)) {
+      o(Yt("on", "参数不能为空"));
+      return;
+    }
+    return this.events.on(t, i);
+  }
+  /**
+   * 该移除的都移除掉
+   */
+  destroy() {
+    ie.updatePosition(void 0), this.setActive(!1), n(this.layer) && this.layer.clear(), zr();
+  }
+}
+let Ar = "VectorLayer", C = y(Ar);
+class ze extends T {
   constructor(t = {}) {
     super("Vector", t);
     u(this, "features", []);
@@ -2521,7 +3008,7 @@ class Fe extends T {
   initVectorLyaerEvent() {
     this._isInitializedLayer("initVectorLyaerEvent") && this._layer.getSource().on("addfeature", (t) => {
       const { feature: i } = t;
-      if (n(i) && (this.target instanceof Ft || this.target instanceof Et)) {
+      if (n(i) && (this.target instanceof _i || this.target instanceof gi)) {
         let s = ae(i);
         s ? this.features.push(s) : o(C("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
       }
@@ -2604,7 +3091,7 @@ class Fe extends T {
         o(C("addFeatures", "参数格式有误不能为空"));
         return;
       }
-      wt(t) || t.forEach((i) => {
+      xt(t) || t.forEach((i) => {
         this.addFeature(i);
       });
     }
@@ -2627,7 +3114,7 @@ class Fe extends T {
         o(C("removeFeatures", "参数格式有误不能为空"));
         return;
       }
-      wt(t) || t.forEach((i) => {
+      xt(t) || t.forEach((i) => {
         this.removeFeature(i);
       });
     }
@@ -2737,480 +3224,6 @@ class Fe extends T {
     this._isInitializedLayer("setDeclutter") && this._layer.setDeclutter(t);
   }
 }
-const J = {
-  Distance: "Distance",
-  Area: "Area"
-}, gr = {
-  clickTolerance: 6,
-  dragVertexDelay: 500,
-  snapTolerance: 12,
-  stopClick: !1
-}, Ve = {
-  measureStart: "measure:start",
-  measureEnd: "measure:end"
-}, ft = {
-  /** 点 */
-  Point: "Point",
-  /** 线 */
-  LineString: "LineString",
-  /** 面 */
-  Polygon: "Polygon",
-  /** 矩形 */
-  Rectangle: "Rectangle",
-  /** 圆 */
-  Circle: "Circle"
-}, _r = {
-  clickTolerance: 6,
-  dragVertexDelay: 500,
-  snapTolerance: 12,
-  stopClick: !1
-}, It = "omap-measure-marker", ht = "omap-measure-marker-index";
-function mr(r) {
-  let e = "Point", t = null;
-  switch (r) {
-    case J.Distance:
-      e = ft.LineString;
-      break;
-    case J.Area:
-      e = ft.Polygon;
-      break;
-  }
-  return { type: e, geometryFunction: t };
-}
-let Z = null, U = null, ze = null, vt = null, Ie = null, me = [], q = [];
-function pr(r, e, t) {
-  r === J.Distance ? ze = e : r === J.Area && (vt = e), Ie = t;
-}
-function gi(r) {
-  let e = document.createElement("div");
-  return e.style.padding = "2px 5px", e.style.borderRadius = "5px", e.style.backgroundColor = "rgba(0, 0, 0, 0.5)", e.style.color = "#FFFFFF", e.style.fontSize = "12px", e.innerHTML = r, e;
-}
-function yr(r, e) {
-  if (Z)
-    if (Z.children[0].innerHTML = qe("总长", r), !e || e === "")
-      Z.children.length > 1 && Z.removeChild(Z.children[1]);
-    else if (Z.children.length > 1)
-      Z.children[1].innerHTML = e;
-    else {
-      let t = document.createElement("p");
-      t.className = "omap-measure-tooltip-text", t.innerHTML = e, Z.appendChild(t);
-    }
-  else {
-    let t = document.createElement("div");
-    t.style.padding = "2px 5px", t.style.borderRadius = "5px", t.style.backgroundColor = "rgba(0, 0, 0, 0.5)", t.style.color = "#FFFFFF", t.style.fontSize = "12px";
-    let i = document.createElement("p");
-    if (i.innerHTML = qe("总长", r), t.appendChild(i), e && e !== "") {
-      let s = document.createElement("p");
-      s.className = "omap-measure-tooltip-text", s.innerHTML = e, t.appendChild(s);
-    }
-    Z = t;
-  }
-  return Z;
-}
-function Nt(r, e) {
-  if (U)
-    if (U.children[0].innerHTML = qe("面积", r), !e || e === "")
-      U.children.length > 1 && U.removeChild(U.children[1]);
-    else if (U.children.length > 1)
-      U.children[1].innerHTML = e;
-    else {
-      let t = document.createElement("p");
-      t.className = "omap-measure-tooltip-text", t.innerHTML = e, U.appendChild(t);
-    }
-  else {
-    let t = document.createElement("div");
-    t.style.padding = "2px 5px", t.style.borderRadius = "5px", t.style.backgroundColor = "rgba(0, 0, 0, 0.5)", t.style.color = "#FFFFFF", t.style.fontSize = "12px";
-    let i = document.createElement("p");
-    if (i.innerHTML = qe("总长", r), t.appendChild(i), e && e !== "") {
-      let s = document.createElement("p");
-      s.className = "omap-measure-tooltip-text", s.innerHTML = e, t.appendChild(s);
-    }
-    U = t;
-  }
-  return U;
-}
-function Ir(r) {
-  let e = document.createElement("span");
-  return e.title = "删除", e.innerHTML = "×", e.style.color = "#FFFFFF", e.style.cursor = "pointer", e.addEventListener("click", (t) => {
-    n(r) && r();
-  }), e;
-}
-function Kt(r) {
-  let e = new fi(r);
-  return q.push(e), e;
-}
-function Wt(r, e) {
-  let t = document.createElement("div");
-  t.className = `${It}-${e}`, t.style.padding = "2px 5px", t.style.borderRadius = "5px", t.style.backgroundColor = "rgba(255, 255, 255, 0.8)", t.style.color = "#000000", t.style.boxShadow = "0 0 5px rgba(0, 0, 0, 0.5)";
-  let i = document.createElement("span");
-  if (i.style.color = "var(--omap-primary-color)", i.style.margin = "0 5px", i.innerHTML = r, t.appendChild(i), e !== 0) {
-    let s = document.createElement("span");
-    s.title = "删除", s.innerHTML = "×", s.style.color = "#000000", s.style.cursor = "pointer", t.setAttribute(ht, e.toString()), s.addEventListener("click", (a) => {
-      console.log("点击删除");
-      let l = t.getAttribute(ht);
-      console.log(l), n(l) && vr(Number(l));
-    }), t.appendChild(s);
-  }
-  return me.push(t), t;
-}
-function vr(r) {
-  if (q.length === 2)
-    return Yt(), me = [], q.forEach((e, t) => {
-      Ht(t), t === q.length - 1 && (q = []);
-    }), !1;
-  Yt(r), me.splice(r, 1), me.forEach((e, t) => {
-    e.className = `${It}-${t}`, e.setAttribute(ht, t.toString());
-  }), Ht(r), q.splice(r, 1), q.forEach((e, t) => {
-    e.id = _t(t);
-  }), Er();
-}
-function Ht(r) {
-  if (n(Ie)) {
-    let e = Ie.getPopupById(`omap-measure-marker-${r}`);
-    n(e) && Ie.removePopup(e);
-  }
-}
-function Yt(r) {
-  let e = ze || vt;
-  if (n(e)) {
-    let t = e.getGeometry();
-    if (n(t))
-      if (n(r)) {
-        let i = [];
-        (t instanceof w.LineString || t instanceof w.Polygon) && (i = t.getCoordinates()), i.splice(r, 1), (t instanceof w.LineString || t instanceof w.Polygon) && t.setCoordinates(i);
-      } else
-        t instanceof w.LineString ? t.setCoordinates([]) : t instanceof w.Polygon && t.setCoordinates([]);
-  }
-}
-function Er() {
-  if (ze) {
-    let r = ze.getGeometry().getCoordinates();
-    me.forEach((e, t) => {
-      if (t > 0) {
-        let i = new yt(r.slice(0, t + 1)), s = Ie.getLength(i);
-        e.children[0].innerHTML = n(s) ? gt(s) : "-";
-      }
-    });
-  }
-}
-function gt(r) {
-  return (r / 1e3).toFixed(2) + " km";
-}
-function Xt(r) {
-  return (r / 1e6).toFixed(2) + " km²";
-}
-function _t(r) {
-  return `${It}-${r}`;
-}
-function qe(r, e) {
-  return `${r}：<span style="color: var(--omap-primary-color);margin: 0 5px;font-weight: bolder;">${e || "-"}</span>`;
-}
-function Fr() {
-  me.forEach((r) => {
-    r.remove();
-  }), q.forEach((r) => {
-    Ie.removePopup(r);
-  }), ze = null, vt = null, setTimeout(() => {
-    me = [], q = [];
-  }, 200);
-}
-class _i {
-  constructor(e) {
-    u(this, "popup");
-    this.initPopup(e || "");
-  }
-  _isInitialized() {
-    return !!n(this.popup);
-  }
-  initPopup(e) {
-    let t = gi(e);
-    this.popup = new fi({
-      id: "omap-measure-popup",
-      element: t,
-      offset: new R(0, -10)
-    });
-  }
-  getPopup() {
-    return this.popup;
-  }
-  updatePosition(e) {
-    this._isInitialized() && this.popup.setPosition(e);
-  }
-  setElement(e) {
-    this._isInitialized() && this.popup.setElement(e);
-  }
-  getElement() {
-    if (this._isInitialized())
-      return this.popup.getElement();
-  }
-}
-const ie = new _i("单击地图开始测量"), ye = new _i(""), zr = "Measure", qt = y(zr);
-let Jt = null, he = null;
-class Et extends B {
-  constructor(t, i) {
-    if (!Object.values(J).includes(t)) {
-      d(qt("constructor", "mode参数有误"));
-      return;
-    }
-    super("Measure");
-    u(this, "mode", null);
-    u(this, "result", {
-      value: 0,
-      unit: ""
-    });
-    let s = null;
-    this.layer = new Fe({
-      style: ci
-    }), s = this.layer.getSource();
-    let a = Object.assign({}, gr, {
-      clickTolerance: i == null ? void 0 : i.clickTolerance,
-      source: s,
-      features: void 0,
-      style: void 0
-    });
-    this._interaction = new j.Draw({
-      ...mr(t),
-      ...a
-    }), this.mode = t, t === J.Distance ? this.result.unit = "km" : t === J.Area && (this.result.unit = "km²"), this.initInteractionEvent(), this.initMeasureEvent();
-  }
-  /**
-   * 初始化 测量事件
-   */
-  initMeasureEvent() {
-    this._isInitialized("initMeasureEvent") && (this._interaction.on("change:active", (t) => {
-      this._interaction.getActive() ? this.onMeasureActive() : this.onMeasureInActive();
-    }), this._interaction.on("drawstart", (t) => {
-      this.events.emit(Ve.measureStart, {
-        target: this,
-        type: Ve.measureStart
-      }), this.onMeasureStart(t.feature);
-    }), this._interaction.on("drawend", (t) => {
-      this.onMeasureEnd();
-    }));
-  }
-  onMeasureActive() {
-    n(this.map) && (he || (he = this.map._map.on("pointermove", (t) => {
-      ie.updatePosition(t.coordinate);
-    }))), this.result.value = 0;
-  }
-  onMeasureInActive() {
-    he && (At.unByKey(he), he = null);
-  }
-  /**
-   * 测量开始
-   * @param feature 测量开始的feature
-   */
-  onMeasureStart(t) {
-    var i;
-    if (n(t)) {
-      Jt = t, pr(this.mode, t, this.map);
-      let s = 0;
-      (i = Jt.getGeometry()) == null || i.on("change", (a) => {
-        var f, h;
-        const { target: l } = a;
-        if (n(l)) {
-          let v = l instanceof w.LineString ? l.getCoordinates().length : l.getCoordinates()[0].length;
-          if (s === 0 && (s = v, l instanceof w.LineString)) {
-            let k = Wt("起点", 0), X = Kt({
-              id: _t(0),
-              element: k,
-              offset: new R(0, -10)
-            });
-            X.setPosition(l.getCoordinates()[0]), this.map.addPopup(X);
-          }
-          let x;
-          if (l instanceof w.LineString ? x = (f = this.map) == null ? void 0 : f.getLength(new yt(new M({
-            geometry: l
-          }))) : l instanceof w.Polygon && (x = (h = this.map) == null ? void 0 : h.getArea(new hi(new M({
-            geometry: l
-          })))), n(x) && m(x) && (this.result.value = x), n(x) && m(x) && l instanceof w.LineString) {
-            let k = v >= 2 ? yr(gt(x), x === 0 ? "" : "单击继续，双击结束测量") : gi("单击地图开始测量");
-            ie.setElement(k);
-          }
-          if (l instanceof w.LineString) {
-            if (v > s) {
-              let k = v - 1 - 1, X = Wt(gt(x), k), ee = Kt({
-                id: _t(k),
-                element: X,
-                offset: new R(0, -10)
-              });
-              ee.setPosition(l.getCoordinates()[l.getCoordinates().length - 1]), this.map.addPopup(ee), s = v;
-            }
-          } else l instanceof w.Polygon && v >= 4 && (this.map.addPopup(ye.getPopup()), ye.setElement(Nt(Xt(x), "单击继续，双击结束测量")), ye.updatePosition(l.getInteriorPoint().getCoordinates()), ie.setElement(void 0), ie.updatePosition(void 0));
-        } else
-          o("target is undefined");
-      });
-    }
-  }
-  /**
-   * 测量结束
-   */
-  onMeasureEnd() {
-    if (this.setActive(!1), n(he) && At.unByKey(he), this.mode, J.Distance, this.mode === J.Area) {
-      const t = Nt(Xt(this.result.value));
-      t.style.display = "flex", t.style.alignItems = "center", t.appendChild(Ir(() => {
-        var i;
-        ye.updatePosition(void 0), ye.setElement(void 0), (i = this.layer) == null || i.clear();
-      })), ye.setElement(t);
-    }
-    ie.updatePosition(void 0), ie.setElement(void 0), this.events.emit(Ve.measureEnd, {
-      target: this,
-      type: Ve.measureEnd
-    });
-  }
-  /**
-   * 取消绘制，并结束当前未完成的绘制
-   */
-  cancel() {
-    this._isInitialized("cancel") && this._interaction.abortDrawing();
-  }
-  /**
-   * 删除最后一个点
-   */
-  revoke() {
-    this._isInitialized("revoke") && this._interaction.removeLastPoint();
-  }
-  /**
-   * 结束当前未完成的绘制
-   */
-  finish() {
-    this._isInitialized("finish") && this._interaction.finishDrawing();
-  }
-  setMap(t) {
-    this.map = t, this.map.addPopup(ie.getPopup()), this.onMeasureActive();
-  }
-  on(t, i) {
-    if (!this._isInitialized("on")) return;
-    if (!n(t) || !n(i)) {
-      o(qt("on", "参数不能为空"));
-      return;
-    }
-    return this.events.on(t, i);
-  }
-  /**
-   * 该移除的都移除掉
-   */
-  destroy() {
-    ie.updatePosition(void 0), this.setActive(!1), n(this.layer) && this.layer.clear(), Fr();
-  }
-}
-const xr = "Interaction", Ar = y(xr);
-class B {
-  constructor(e) {
-    /**
-     * 交互实例id
-     */
-    u(this, "id", null);
-    /**
-     * 交互类型
-     * @type {OMapInteractionType | null}
-     */
-    u(this, "type", null);
-    /**
-     * 交互实例
-     * @type {OlInteractionInstanceType}
-     */
-    u(this, "_interaction");
-    /**
-     * 交互所需要的图层
-     * @type {VectorLayer} layer
-     */
-    u(this, "layer", null);
-    /**
-     * 交互属性
-     * @type {Record<string, any>} 
-     */
-    u(this, "properties", {});
-    /**
-     * 交互是否激活
-     * @param type 
-     */
-    u(this, "active", !1);
-    /**
-     * 交互事件
-     * @type {Event}
-     */
-    u(this, "events", new Ee());
-    u(this, "map", null);
-    this.type = e;
-  }
-  initInteractionEvent() {
-    this._isInitialized("initInteractionEvent") && this._interaction.on("change:active", (e) => {
-      e.type === "change:active" && (this.active = this.getActive());
-    });
-  }
-  _isInitialized(e) {
-    return n(this._interaction) ? !0 : (o(Ar(e, "未正确实例化")), !1);
-  }
-  _initInteractionId(e) {
-    n(e) && (this.id = e);
-  }
-  /**
-   * 返回当前交互是否处于激活状态
-   * @returns 激活状态
-   */
-  getActive() {
-    if (this._isInitialized("getActive"))
-      return this._interaction.getActive();
-  }
-  /**
-   * 设置当前交互是否处于激活状态
-   * @param active 激活状态
-   */
-  setActive(e) {
-    this._isInitialized("setActive") && this._interaction.setActive(e);
-  }
-  /**
-   * 获取交互实例
-   * @returns 
-   */
-  getInteraction() {
-    if (this._isInitialized("getInteraction"))
-      return this._interaction;
-  }
-  /**
-   * 获取交互属性
-   * @returns {Record<string, any>} 交互属性
-   */
-  getProperties() {
-    return this.properties;
-  }
-  /**
-   * 设置交互属性
-   * @param properties 交互属性
-   */
-  setProperties(e) {
-    this._isInitialized("getInteraction") && (this._interaction.setProperties(e), this.properties = e);
-  }
-  /**
-   * 返回交互中涉及的当前指针数，例如，当使用两个手指时为 2。
-   * @returns {number | undefined} 指针数
-   */
-  // getPointerCount(): number | undefined {
-  //     if (!this._isInitialized('getInteraction')) return;
-  //     return this._interaction.getPointerCount()
-  // }
-  getLayer() {
-    if (this._isInitialized("getInteraction"))
-      return this.layer;
-  }
-  setMap(e) {
-    this.map = e;
-  }
-  close() {
-    this.destroy(!1);
-  }
-  /**
-   * 销毁交互
-   */
-  destroy(e = !0) {
-    this._isInitialized("destroy") && (e && (this instanceof Ft || this instanceof Et) && this.removeInteractionLayer(), n(this.map) && this.map.removeInteraction(this));
-  }
-  removeInteractionLayer() {
-    const e = this.getLayer();
-    n(e) && n(this.map) && this.map.removeLayer(e);
-  }
-}
 function wr(r) {
   let e = "Point", t = null;
   switch (r) {
@@ -3229,7 +3242,7 @@ function wr(r) {
   return { type: e, geometryFunction: t };
 }
 const Pr = "Draw", Ze = y(Pr);
-class Ft extends B {
+class _i extends B {
   constructor(e, t) {
     if (!Object.values(ft).includes(e)) {
       d(Ze("constructor", "mode参数有误"));
@@ -3237,10 +3250,10 @@ class Ft extends B {
     }
     super("Draw");
     let i = null;
-    t != null && t.layer && ((t == null ? void 0 : t.layer) instanceof Fe ? (this.layer = t == null ? void 0 : t.layer, i = t == null ? void 0 : t.layer.getSource()) : o(Ze("init", "layer参数不属于VectorLayer类型"))), n(i) || (this.layer = new Fe({
-      style: ci
+    t != null && t.layer && ((t == null ? void 0 : t.layer) instanceof ze ? (this.layer = t == null ? void 0 : t.layer, i = t == null ? void 0 : t.layer.getSource()) : o(Ze("init", "layer参数不属于VectorLayer类型"))), n(i) || (this.layer = new ze({
+      style: li
     }), i = this.layer.getSource());
-    let s = Object.assign({}, _r, {
+    let s = Object.assign({}, mr, {
       clickTolerance: t == null ? void 0 : t.clickTolerance,
       source: i,
       features: void 0,
@@ -3293,7 +3306,7 @@ class Ft extends B {
   }
 }
 let Cr = "LayerGroup", N = y(Cr);
-class Qt {
+class qt {
   constructor(e, t) {
     /**
      * 图层组id
@@ -3435,7 +3448,7 @@ const Tr = [
   controls: [],
   interactions: Tr,
   popups: Rr
-}, ei = {
+}, Jt = {
   hitTolerance: 0,
   checkWrapped: !0
 }, nt = {
@@ -3454,7 +3467,7 @@ const Tr = [
   duration: 1e3,
   easing: "easeOut"
 };
-function ti(r) {
+function Qt(r) {
   return r && r.startsWith("map:");
 }
 function Ne(r, e, t) {
@@ -3512,7 +3525,7 @@ let ps = class {
       // 中心点坐标
       extent: s.extent instanceof z ? s.extent._extent : s.extent,
       projection: a._projection
-    }, f = new zt.View(l);
+    }, f = new Et.View(l);
     let h = _(i.interactions, Ue.interactions), v = _(i.controls, Ue.controls), x = _(i.popups, Ue.popups), k = Object.assign({}, Ue, {
       ...i,
       interactions: [],
@@ -3520,7 +3533,7 @@ let ps = class {
       view: f
     });
     k.target = e;
-    const X = new zt.Map(k);
+    const X = new Et.Map(k);
     this._view = f, this._map = X, n(h) && h.length > 0 && h.forEach((ee) => {
       this.addInteraction(ee);
     }), n(v) && v.length > 0 && v.forEach((ee) => {
@@ -3741,7 +3754,7 @@ let ps = class {
       o(p("addLayerGroup", "参数layerGroup不能为空"));
       return;
     }
-    if (!(e instanceof Qt)) {
+    if (!(e instanceof qt)) {
       o(p("addLayerGroup", "参数layerGroup必须为LayerGroup实例"));
       return;
     }
@@ -3758,7 +3771,7 @@ let ps = class {
       o(p("removeLayerGroup", "参数layerGroup不能为空"));
       return;
     }
-    if (!(e instanceof Qt)) {
+    if (!(e instanceof qt)) {
       o(p("removeLayerGroup", "参数layerGroup必须为LayerGroup实例"));
       return;
     }
@@ -3821,7 +3834,7 @@ let ps = class {
       o(p("on", "参数不能为空"));
       return;
     }
-    let i = ti(e);
+    let i = Qt(e);
     const s = i ? this._map : this._view;
     let a = this.events.get(e);
     return (!n(a) || n(a) && a.length === 0) && (i ? s.on(e.replace("map:", ""), (f) => {
@@ -3849,7 +3862,7 @@ let ps = class {
       o(p("on", "参数不能为空"));
       return;
     }
-    let i = ti(e);
+    let i = Qt(e);
     const s = i ? this._map : this._view;
     let a = this.events.get(e);
     return (!n(a) || a.length === 0) && (i ? s.on(e.replace("map:", ""), (f) => {
@@ -3887,7 +3900,7 @@ let ps = class {
       o(p("addInteraction", "该交互已添加到地图中"));
       return;
     }
-    if (e instanceof Ft || e instanceof Et) {
+    if (e instanceof _i || e instanceof gi) {
       const i = e.getLayer();
       n(i) && (i.setTarget(e), this.addLayer(i));
     }
@@ -3916,12 +3929,12 @@ let ps = class {
    */
   removeInteraction(e) {
     if (!this._isInitialized("removeInteraction")) return;
-    let t = this.interactions.findIndex((i) => g.getUid(i._interaction) === g.getUid(e._interaction));
+    let t = this.interactions.findIndex((i) => g.getUid(i.getInteraction()) === g.getUid(e.getInteraction()));
     if (t === -1) {
       o(p("removeInteraction", "该交互未添加到地图中"));
       return;
     }
-    n(e.getInteraction()) && (this.interactions.splice(t, 1), this._map.removeInteraction(e.getInteraction()), e.setMap && e.setMap(null));
+    n(e.getInteraction()) && (this.interactions.splice(t, 1), this._map.removeInteraction(e.getInteraction()), e.setMap(null));
   }
   /**
    * 控件管理
@@ -4032,12 +4045,12 @@ let ps = class {
   }
   /** 几何图形计算 */
   getLength(e) {
-    return this._isInitialized("getLength") ? xt.getLength(e.getGeometry(), {
+    return this._isInitialized("getLength") ? Ft.getLength(e.getGeometry(), {
       projection: this._map.getView().getProjection()
     }) : void 0;
   }
   getArea(e) {
-    return this._isInitialized("getArea") ? xt.getArea(e.getGeometry(), {
+    return this._isInitialized("getArea") ? Ft.getArea(e.getGeometry(), {
       projection: this._map.getView().getProjection()
     }) : void 0;
   }
@@ -4049,11 +4062,11 @@ let ps = class {
    */
   forEachFeatureAtPixel(e, t, i) {
     if (!this._isInitialized("forEachFeatureAtPixel") || !ce(e)) return;
-    const s = Object.assign({}, ei, i);
+    const s = Object.assign({}, Jt, i);
     return this._map.forEachFeatureAtPixel(ce(e), (l, f) => {
       let h = null, v = null;
       return this.layers.forEach((x) => {
-        g.getUid(x.getLayer()) === g.getUid(f) && (v = x), x instanceof Fe && _(x.getFeatures(), []).forEach((X) => {
+        g.getUid(x.getLayer()) === g.getUid(f) && (v = x), x instanceof ze && _(x.getFeatures(), []).forEach((X) => {
           g.getUid(l) === g.getUid(X.getFeature()) && (h = X);
         });
       }), t(h, v);
@@ -4086,7 +4099,7 @@ let ps = class {
   }
   getFeaturesAtPixel(e, t) {
     if (!this._isInitialized("getFeaturesAtPixel") || !ce(e)) return;
-    const i = Object.assign({}, ei, t);
+    const i = Object.assign({}, Jt, t);
     let s = this._map.getFeaturesAtPixel(ce(e), {
       ...i,
       layerFilter: (f) => {
@@ -4098,7 +4111,7 @@ let ps = class {
     if (!n(s)) return [];
     const l = [];
     return this.layers.forEach((f) => {
-      f instanceof Fe && _(f.getFeatures(), []).forEach((v) => {
+      f instanceof ze && _(f.getFeatures(), []).forEach((v) => {
         a.includes(g.getUid(v.getFeature())) && l.push(v);
       });
     }), l;
@@ -4288,7 +4301,7 @@ const Is = {
     "http://webst04is.autonavi.com/appmaptile?x={x}&y={y}&z={z}&lang=zh_cn&size=1&scale=1&style=8"
   ]
 };
-function ii(r) {
+function ei(r) {
   return jr[r];
 }
 let Vr = "GaodeLayer", Zr = y(Vr);
@@ -4324,13 +4337,13 @@ class vs extends T {
         tileSizes: n(a.tileGrid.tileSizes) ? a.tileGrid.tileSizes.map((h) => h instanceof $ ? b(h) : h) : void 0
       })), l = new se.XYZ({
         ...a,
-        urls: ii(this.gaodeType),
+        urls: ei(this.gaodeType),
         tileGrid: f
       });
     } else
       l = new se.XYZ({
         ...a,
-        urls: ii(this.gaodeType)
+        urls: ei(this.gaodeType)
       });
     this._layer = new oe.Tile({
       ...s,
@@ -4340,11 +4353,11 @@ class vs extends T {
     }), this._initLayerEvent();
   }
 }
-const Ur = "ProjUtil", ri = y(Ur);
+const Ur = "ProjUtil", ti = y(Ur);
 class Es {
   static fromLonLat(e, t) {
     if (!n(e)) {
-      o(ri("fromLonLat", "coordinate参数不能为空"));
+      o(ti("fromLonLat", "coordinate参数不能为空"));
       return;
     }
     let i = e;
@@ -4354,7 +4367,7 @@ class Es {
   }
   static toLonLat(e, t) {
     if (!n(e)) {
-      o(ri("toLonLat", "coordinate参数不能为空"));
+      o(ti("toLonLat", "coordinate参数不能为空"));
       return;
     }
     let i = e;
@@ -4598,7 +4611,7 @@ const Pn = "http://t{0-7}.tianditu.com/DataServer?T={T}&tk={tk}&x={x}&y={y}&l={z
 function Cn(r, e) {
   return Pn.replace(/\{T\}/g, r + "_" + e).replace(/\{tk\}/g, pi.tdt);
 }
-let Ln = "TdtLayer", ni = y(Ln);
+let Ln = "TdtLayer", ii = y(Ln);
 class zs extends T {
   constructor(t, i) {
     var a, l, f;
@@ -4608,11 +4621,11 @@ class zs extends T {
      */
     u(this, "tdtType", null);
     if (!n(pi.tdt)) {
-      o(ni("constructor", "缺少天地图key，请提前申明"));
+      o(ii("constructor", "缺少天地图key，请提前申明"));
       return;
     }
     if (!n(t)) {
-      d(ni("constructor", "缺少参数天地图图层类型"));
+      d(ii("constructor", "缺少参数天地图图层类型"));
       return;
     }
     let s = i || {};
@@ -4863,7 +4876,7 @@ class Ls extends T {
     }), this._initLayerEvent();
   }
 }
-function si(r, e, t) {
+function ri(r, e, t) {
   return {
     target: r,
     type: e,
@@ -4897,7 +4910,7 @@ class Ms extends B {
     }
     let i = this.events.get(e);
     return (!n(i) || i.length === 0) && this._interaction.on(e, (a) => {
-      this.events.emit(e, si(this, e, a));
+      this.events.emit(e, ri(this, e, a));
     }), this.events.on(e, t);
   }
   un(e) {
@@ -4921,7 +4934,7 @@ class Ms extends B {
     }
     let i = this.events.get(e);
     return (!n(i) || i.length === 0) && this._interaction.on(e, (a) => {
-      this.events.emit(e, si(this, e, a));
+      this.events.emit(e, ri(this, e, a));
     }), this.events.once(e, t);
   }
 }
@@ -4948,7 +4961,7 @@ class Ss extends B {
     this._interaction.setExtent(t);
   }
 }
-function oi(r, e, t) {
+function ni(r, e, t) {
   return {
     target: r,
     type: e,
@@ -4972,7 +4985,7 @@ class bs extends B {
     super("Modify");
     u(this, "records", []);
     let i = null;
-    n(t.layer) || d(re("init", "layer参数不能为空")), n(t.layer) && !(t.layer instanceof Fe) && d(re("init", "layer参数不属于VectorLayer类型")), this.layer = t.layer, i = t.layer.getSource();
+    n(t.layer) || d(re("init", "layer参数不能为空")), n(t.layer) && !(t.layer instanceof ze) && d(re("init", "layer参数不属于VectorLayer类型")), this.layer = t.layer, i = t.layer.getSource();
     let s = Object.assign({}, Jn, {
       ...t,
       source: i
@@ -4988,7 +5001,7 @@ class bs extends B {
       coordinates: s.getCoordinates()
     }));
     this.records.push({
-      time: Ct(),
+      time: wt(),
       features: i,
       version: 1
     }), this._interaction.on("modifyend", (s) => {
@@ -5002,7 +5015,7 @@ class bs extends B {
           coordinates: h.getCoordinates()
         });
       }), this.records.push({
-        time: Ct(),
+        time: wt(),
         features: l,
         version: this.records.length + 1
       });
@@ -5077,7 +5090,7 @@ class bs extends B {
     }
     let s = this.events.get(t);
     return (!n(s) || s.length === 0) && this._interaction.on(t, (l) => {
-      this.events.emit(t, oi(this, t, l));
+      this.events.emit(t, ni(this, t, l));
     }), this.events.on(t, i);
   }
   un(t) {
@@ -5101,7 +5114,7 @@ class bs extends B {
     }
     let s = this.events.get(t);
     return (!n(s) || s.length === 0) && this._interaction.on(t, (l) => {
-      this.events.emit(t, oi(this, t, l));
+      this.events.emit(t, ni(this, t, l));
     }), this.events.once(t, i);
   }
 }
@@ -5123,7 +5136,7 @@ function We(r) {
     e = Ii.find((t) => g.getUid(t._feature) === r);
   return e;
 }
-function ai(r, e, t) {
+function si(r, e, t) {
   return {
     target: r,
     type: e,
@@ -5200,7 +5213,7 @@ class Gs extends B {
     }
     let s = this.events.get(t);
     return (!n(s) || s.length === 0) && this._interaction.on(t, (l) => {
-      console.log("select", l), this.events.emit(t, Object.assign({}, ai(this, t, l), {
+      console.log("select", l), this.events.emit(t, Object.assign({}, si(this, t, l), {
         selected: this.selected,
         deselected: this.deselected
       }));
@@ -5227,7 +5240,7 @@ class Gs extends B {
     }
     let s = this.events.get(t);
     return (!n(s) || s.length === 0) && this._interaction.on(t, (l) => {
-      this.events.emit(t, Object.assign({}, ai(this, t, l), {
+      this.events.emit(t, Object.assign({}, si(this, t, l), {
         selected: this.selected,
         deselected: this.deselected
       }));
@@ -5279,7 +5292,7 @@ const ks = {
   Measure: "Measure",
   Extent: "Extent",
   MouseWheelZoom: "MouseWheelZoom"
-}, li = {
+}, oi = {
   className: "ol-full-screen",
   activeClassName: "ol-full-screen-true",
   inactiveClassName: "ol-full-screen-false",
@@ -5341,13 +5354,13 @@ class vi {
 const as = "FullScreen", ls = y(as);
 class $s extends vi {
   constructor(e, t) {
-    super("FullScreen"), n(e) && (m(e) || L(e)) ? (this.id = e, this._control = new Xe.FullScreen(Object.assign({}, li, t))) : this._control = new Xe.FullScreen(Object.assign({}, li, e));
+    super("FullScreen"), n(e) && (m(e) || L(e)) ? (this.id = e, this._control = new Xe.FullScreen(Object.assign({}, oi, t))) : this._control = new Xe.FullScreen(Object.assign({}, oi, e));
   }
   _isInitialized(e) {
     return n(this._control) ? !0 : (o(ls(e, "未正确实例化")), !1);
   }
 }
-const ui = {
+const ai = {
   duration: 250,
   className: "ol-zoom",
   zoomInLabel: "+",
@@ -5360,20 +5373,20 @@ const ui = {
 }, us = "Zoom", cs = y(us);
 class Bs extends vi {
   constructor(e, t) {
-    super("Zoom"), n(e) && (m(e) || L(e)) ? (this.id = e, this._control = new Xe.Zoom(Object.assign({}, ui, t))) : this._control = new Xe.Zoom(Object.assign({}, ui, e));
+    super("Zoom"), n(e) && (m(e) || L(e)) ? (this.id = e, this._control = new Xe.Zoom(Object.assign({}, ai, t))) : this._control = new Xe.Zoom(Object.assign({}, ai, e));
   }
   _isInitialized(e) {
     return n(this._control) ? !0 : (o(cs(e, "未正确实例化")), !1);
   }
 }
 export {
-  fr as Circle,
+  gr as Circle,
   Q as Color,
   br as DoubleClickZoom,
   Ms as DragBox,
   Dr as DragPan,
   Rs as DragZoom,
-  Ft as Draw,
+  _i as Draw,
   ft as DrawMode,
   z as Extent,
   Fs as Format,
@@ -5385,25 +5398,25 @@ export {
   Ss as InteractionExtent,
   ks as InteractionType,
   Ts as KeyboardZoom,
-  Qt as LayerGroup,
+  qt as LayerGroup,
   yt as LineString,
   Ye as LinearRing,
   Ds as Link,
   c as Lnglat,
   ps as Map,
   pi as MapToken,
-  Et as Measure,
+  gi as Measure,
   J as MeasureMode,
   bs as Modify,
   Mr as MouseWheelZoom,
-  lr as MultiLineString,
-  or as MultiPoint,
-  cr as MultiPolygon,
+  cr as MultiLineString,
+  lr as MultiPoint,
+  fr as MultiPolygon,
   R as Pixel,
   Te as Point,
-  hi as Polygon,
-  fi as Popup,
-  di as PopupPositioning,
+  di as Polygon,
+  ci as Popup,
+  ui as PopupPositioning,
   Es as ProjUtil,
   _e as Projection,
   Gs as Select,
@@ -5412,7 +5425,7 @@ export {
   zs as TdtLayer,
   xs as TdtLayerType,
   As as TileLayer,
-  Fe as VectorLayer,
+  ze as VectorLayer,
   Cs as WMSLayer,
   Ps as WMTSLayer,
   ws as XYZLayer,

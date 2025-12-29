@@ -1,4 +1,4 @@
-import { OlInteraction } from '../../../source/index'
+import { OlGeometry, OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
@@ -11,8 +11,8 @@ type CustOlSelectParamsType = ManualOmit<OlInteractionSelectParamsType,
 export type OMapSelectParamsType = CustOlSelectParamsType & {
     layers?: VectorLayer[];
     style?: OMapStyleLike;
-    features?: BaseFeature[];
-    filter?: (feature: BaseFeature, layer: VectorLayer) => boolean;
+    features?: BaseFeature<OlGeometry.Geometry>[];
+    filter?: (feature: BaseFeature<OlGeometry.Geometry>, layer: VectorLayer) => boolean;
 }
 export type OlInteractionSelectInstanceType = InstanceType<typeof OlInteraction.Select>
 
