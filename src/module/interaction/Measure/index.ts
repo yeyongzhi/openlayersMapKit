@@ -1,10 +1,10 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlCoordinateType } from '../../../utils/index'
 import Interaction from '../Interaction/index'
 import { OlInteraction, OlGeometry, OlFeature, OlObservable } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import Lnglat from '../../basic/Lnglat/index'
+import type { OlCoordinateType } from '../../basic/Lnglat/type'
 import Map from '../../core/Map/index'
 import type { OlMapInstanceType } from '../../core/Map/type'
 import Popup from '../../basic/Popup/index'

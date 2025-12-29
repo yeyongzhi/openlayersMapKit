@@ -113,7 +113,7 @@ export default class Draw extends Interaction {
     }
 
     /**
-     * 删除最后一个点
+     * 撤销操作（会删除最后一个已经绘制的点位）
      */
     revoke(): void {
         if (!this._isInitialized('revoke')) return;
@@ -121,7 +121,7 @@ export default class Draw extends Interaction {
     }
 
     /**
-     * 结束当前未完成的绘制
+     * 结束当前未完成的绘制（并自动补全图形）
      */
     finish(): void {
         if (!this._isInitialized('finish')) return;

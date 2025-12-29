@@ -50,7 +50,7 @@ h5 {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    height: 30px;
+    flex-wrap: wrap;
     line-height: 30px;
     border: 1px solid var(--omap-primary-color);
     padding: 5px 10px;

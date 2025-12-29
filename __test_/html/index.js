@@ -10,9 +10,7 @@ let mapResolution = null
 let mapZoom = null
 let mapExtent = null
 
-const abortDrawingBtn = document.getElementById('abortDrawing')
-const removeLastPointBtn = document.getElementById('removeLastPoint')
-const finishDrawingBtn = document.getElementById('finishDrawing')
+
 const getExtentBtn = document.getElementById('getExtent')
 
 const ModifyrevokeBtn = document.getElementById('Modifyrevoke')
@@ -25,6 +23,11 @@ const switchBaseLayer = document.getElementById('switchBaseLayer')
 
 const DrawInput = document.getElementById('drawType')
 const DrawInputChecked = document.getElementById('Draw')
+const abortDrawingBtn = document.getElementById('abortDrawing')
+const removeLastPointBtn = document.getElementById('removeLastPoint')
+const finishDrawingBtn = document.getElementById('finishDrawing')
+const destroyDrawBtn = document.getElementById('destroyDraw')
+
 
 let distanceMeasure = null
 let areaMeasure = null
@@ -194,14 +197,31 @@ function initDrawInteraction() {
     DrawInputChecked.onchange = (e) => {
         const value = e.target.checked
         console.log(value)
-        if(value) {
-            if(!drawTool) {
+        if (value) {
+            if (!drawTool) {
                 drawTool = new OMap.Draw(DrawInput.value)
                 map.addInteraction(drawTool)
+            } else {
+                drawTool.setActive(true)
             }
+            showMessage('绘制工具已激活', 'success')
         } else {
             drawTool.setActive(false)
+            showMessage('绘制工具已禁用', 'danger')
         }
+    }
+    abortDrawingBtn.onclick = () => {
+        drawTool.cancel()
+    }
+    removeLastPointBtn.onclick = () => {
+        drawTool.revoke()
+    }
+    finishDrawingBtn.onclick = () => {
+        drawTool.finish()
+    }
+    destroyDrawBtn.onclick = () => {
+        drawTool.destroy(false)
+        DrawInputChecked.checked = false
     }
 }
 
@@ -382,15 +402,7 @@ function initDraw() {
     const draw = new OMap.Draw("LineString")
     console.log(draw)
     map.addInteraction(draw)
-    abortDrawingBtn.onclick = () => {
-        draw.cancel()
-    }
-    removeLastPointBtn.onclick = () => {
-        draw.revoke()
-    }
-    finishDrawingBtn.onclick = () => {
-        draw.finish()
-    }
+
 }
 
 function initDragBox() {

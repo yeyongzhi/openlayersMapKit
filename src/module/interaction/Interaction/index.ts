@@ -1,10 +1,12 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import{ OlInteraction } from '../../../source/index'
+import { OlInteraction } from '../../../source/index'
 import type { OMapInteractionCommonParamsType, OMapInteractionType, OlInteractionInstanceType } from './type'
 import Event from '../../../module/util/Event/index'
 import Map from '../../core/Map/index'
 import VectorLayer from '../../layer/VectorLayer/index'
+import Draw from '../Draw/index'
+import Measure from '../Measure/index'
 
 const PACKAGE_NAME = 'Interaction';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -89,7 +91,7 @@ export default class Interaction implements InteractionLike {
     protected initInteractionEvent() {
         if (!this._isInitialized('initInteractionEvent')) return;
         this._interaction.on("change:active", (e) => {
-            if(e.type === 'change:active') {
+            if (e.type === 'change:active') {
                 this.active = (this.getActive() as boolean)
             }
         })
@@ -157,10 +159,10 @@ export default class Interaction implements InteractionLike {
      * 返回交互中涉及的当前指针数，例如，当使用两个手指时为 2。
      * @returns {number | undefined} 指针数
      */
-    getPointerCount(): number | undefined {
-        if (!this._isInitialized('getInteraction')) return;
-        return this._interaction.getPointerCount()
-    }
+    // getPointerCount(): number | undefined {
+    //     if (!this._isInitialized('getInteraction')) return;
+    //     return this._interaction.getPointerCount()
+    // }
 
     getLayer(): undefined | VectorLayer | null {
         if (!this._isInitialized('getInteraction')) return;
@@ -169,6 +171,30 @@ export default class Interaction implements InteractionLike {
 
     setMap(map: Map | null) {
         this.map = map
+    }
+
+    close(): void {
+        this.destroy(false)
+    }
+
+    /**
+     * 销毁交互
+     */
+    protected destroy(destroyLayer: boolean = true): void {
+        if (!this._isInitialized('destroy')) return;
+        if (destroyLayer && (this instanceof Draw || this instanceof Measure)) {
+            (this as Interaction).removeInteractionLayer();
+        }
+        if (isDefined(this.map)) {
+            this.map.removeInteraction(this);
+        }
+    }
+
+    protected removeInteractionLayer() {
+        const layer = this.getLayer();
+        if (isDefined<VectorLayer>(layer) && isDefined(this.map)) {
+            (this.map as Map).removeLayer(layer);
+        }
     }
 
 }

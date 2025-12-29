@@ -616,6 +616,7 @@ export default class Map implements MapLike {
      * @param {Interaction} interaction 交互对象
      */
     addInteraction(interaction: Interaction): void {
+        if (!this._isInitialized('addInteraction')) return;
         let index = this.interactions.findIndex(i => {
             return OlUtil.getUid(i.getInteraction()) === OlUtil.getUid(interaction.getInteraction())
         })
@@ -634,7 +635,7 @@ export default class Map implements MapLike {
         if (isDefined(interaction.getInteraction())) {
             let olInteractionInstance = interaction.getInteraction() as OlInteractionInstanceType
             this.interactions.push(interaction)
-            this._map?.addInteraction(olInteractionInstance)
+            this._map.addInteraction(olInteractionInstance)
             if (interaction.setMap) {
                 interaction.setMap(this)
             }
@@ -652,7 +653,8 @@ export default class Map implements MapLike {
         return this.interactions
     }
 
-    getInteractionById(id: OMapInteractionCommonParamsType['id']): Interaction | null {
+    getInteractionById(id: OMapInteractionCommonParamsType['id']): Interaction | null | undefined {
+        if (!this._isInitialized('addInteraction')) return;
         if(this.interactions.length === 0) return null;
         let index = this.interactions.findIndex(i => {
             return i.id === id
@@ -668,6 +670,7 @@ export default class Map implements MapLike {
      * @param {Interaction} interaction 交互对象
      */
     removeInteraction(interaction: Interaction): void {
+        if (!this._isInitialized('removeInteraction')) return;
         let index = this.interactions.findIndex(i => {
             return OlUtil.getUid(i._interaction) === OlUtil.getUid(interaction._interaction)
         })
@@ -675,16 +678,9 @@ export default class Map implements MapLike {
             warn_(createMessage('removeInteraction', '该交互未添加到地图中'));
             return;
         }
-        if (isDefined(interaction._interaction)) {
+        if (isDefined<OlInteractionInstanceType>(interaction.getInteraction())) {
             this.interactions.splice(index, 1)
-            this._map?.removeInteraction(interaction._interaction)
-            // 是否有额外的图层
-            if (interaction instanceof Draw || interaction instanceof Measure) {
-                const layer = interaction.getLayer();
-                if (isDefined<VectorLayer>(layer)) {
-                    this.removeLayer(layer);
-                }
-            }
+            this._map.removeInteraction(interaction.getInteraction() as OlInteractionInstanceType)
             if (interaction.setMap) {
                 interaction.setMap(null)
             }
