@@ -13,7 +13,7 @@ export type OMapPopupParamsType = CustOlPopupParamsType & {
     position?: Lnglat | OlCoordinateType;
     content?: string;
     properties?: Record<string, any>;
-    positioning: PopupPositioningType;
+    positioning?: PopupPositioningType;
 }
 export type OlPopupInstanceType = InstanceType<typeof OlOverlay>
 

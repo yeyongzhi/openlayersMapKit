@@ -56,7 +56,7 @@ let pointMoveListener: any = null
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/5
- * @updateDate 2025/9/16
+ * @updateDate 2025/12/30
  */
 
 export default class Measure extends Interaction {
@@ -98,7 +98,7 @@ export default class Measure extends Interaction {
         }
         // 注册事件
         this.initInteractionEvent()
-        this.initMeasureEvent()
+        // this.initMeasureEvent()
     }
 
     /**
@@ -113,7 +113,7 @@ export default class Measure extends Interaction {
                 this.onMeasureInActive()
             }
         });
-        // 【测量开始】
+        // 测量开始
         (this._interaction as OlDrawInstanceType).on("drawstart", (e) => {
             // 派发测量开始的回调函数
             this.events.emit(MeasureEventType.measureStart, {
@@ -129,8 +129,9 @@ export default class Measure extends Interaction {
     }
 
     protected onMeasureActive() {
+        console.log("onMeasureActive")
         if (isDefined(this.map)) {
-            if(!pointMoveListener) {
+            if(!isDefined(pointMoveListener)) {
                 pointMoveListener = ((this.map as Map)._map as OlMapInstanceType).on("pointermove", (e) => {
                     tooltipPopup.updatePosition(e.coordinate)
                 });
@@ -141,7 +142,7 @@ export default class Measure extends Interaction {
     }
 
     protected onMeasureInActive() {
-        if(pointMoveListener) {
+        if(isDefined(pointMoveListener)) {
             OlObservable.unByKey(pointMoveListener)
             pointMoveListener = null
         }
@@ -151,7 +152,7 @@ export default class Measure extends Interaction {
      * 测量开始
      * @param feature 测量开始的feature
      */
-    protected onMeasureStart(feature: OlFeatureInstanceType | null) {
+    protected onMeasureStart(feature: OlFeatureInstanceType | null | undefined) {
         if (isDefined(feature)) {
             measureFeature = feature
             updateMeasureFeature(this.mode as OMapMeasureMode, feature, (this.map as Map))

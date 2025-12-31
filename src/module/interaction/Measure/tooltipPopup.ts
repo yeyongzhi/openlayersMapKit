@@ -2,7 +2,7 @@ import { isDefined } from '../../../utils/index';
 import Popup from '../../basic/Popup/index'
 import Pixel from '../../basic/Pixel/index'
 import Lnglat from '../../basic/Lnglat/index'
-import type { OlCoordinateType } from '../../../utils/index'
+import type { OlCoordinateType } from '../../basic/Lnglat/type'
 import { createMeasureTooltipElement } from './handle'
 
 interface TooltipPopupLike {

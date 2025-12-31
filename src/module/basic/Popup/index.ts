@@ -1,7 +1,7 @@
 import { isDefined, isFunction, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType, OlCoordinateType } from '../../../utils/index'
 import Lnglat from '../../basic/Lnglat/index'
+import type { OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
 import { type OMapPixelType, type OlPixelType } from '../../basic/Pixel/type'
 import Map from '../../core/Map/index'
@@ -32,7 +32,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/5
- * @updateDate 2025/10/9
+ * @updateDate 2025/12/30
  */
 
 interface PopupLike {

@@ -136,7 +136,6 @@ export default class Select extends Interaction {
         let list = (this.events as Event).get(type);
         if (!isDefined(list) || list.length === 0) {
             (this._interaction as OlInteractionSelectInstanceType).on(type, (e: any) => {
-                console.log('select', e);
                 (this.events as Event).emit(type, Object.assign({}, handleSelectEvent(this, type, e), {
                     selected: this.selected,
                     deselected: this.deselected,

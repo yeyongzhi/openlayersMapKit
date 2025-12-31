@@ -210,7 +210,7 @@ function initDrawInteraction() {
             showMessage('绘制工具已激活', 'success')
         } else {
             drawTool.setActive(false)
-            showMessage('绘制工具已禁用', 'danger')
+            showMessage('绘制工具已禁用', 'error')
         }
     }
     abortDrawingBtn.onclick = () => {
@@ -239,7 +239,30 @@ function initSelectInteraction() {
         if (value) {
             if (!selectTool) {
                 selectTool = new OMap.Select({
-                    layers: [selectLayer]
+                    layers: [selectLayer],
+                    style: (feature) => {
+                        return new OMap.Style({
+                            circle: {
+                                fill: {
+                                    color: '#a0d911'
+                                },
+                                radius: 20
+                            },
+                            stroke: {
+                                color: '#a0d911',
+                                width: 10
+                            },
+                            fill: {
+                                color: new OMap.Color({
+                                    color: '#a0d911',
+                                    opacity: 0.5
+                                })
+                            },
+                        })
+                    }
+                })
+                selectTool.on('select', (e) => {
+                    console.log(e)
                 })
                 map.addInteraction(selectTool)
             } else {
@@ -248,7 +271,7 @@ function initSelectInteraction() {
             showMessage('选择工具已激活', 'success')
         } else {
             selectTool.setActive(false)
-            showMessage('选择工具已禁用', 'danger')
+            showMessage('选择工具已禁用', 'error')
         }
     }
     SelectLayerInputChecked.onchange = (e) => {
@@ -256,609 +279,633 @@ function initSelectInteraction() {
         if (value) {
             if (!selectLayer) {
                 selectLayer = initVectorLayer()
-                console.log(selectLayer)
             } else {
                 selectLayer.setVisible(true)
             }
             showMessage('选择图层已激活', 'success')
         } else {
             selectLayer.setVisible(false)
-            showMessage('选择图层已禁用', 'danger')
+            showMessage('选择图层已禁用', 'error')
         }
+    }
+    document.getElementById('destroySelect').onclick = () => {
+        selectTool.destroy()
+        SelectInputChecked.checked = false
     }
 }
 
-
-
-// 测试Popup
-function initPopup() {
-    const popup = new OMap.Popup({
-        position: OMap.ProjUtil.fromLonLat([120.2, 30.3]),
-        content: '这是一个弹窗',
-        stopEvent: true
-    })
-    popup.setOffset([0, -20])
-    // console.log("------popup-----")
-    // console.log(popup)
-    map.addPopup(popup)
-    const vlayer = new OMap.VectorLayer({
-        style: new OMap.Style({
-            circle: {
-                fill: {
-                    color: 'red'
-                },
-                radius: 10
+let measureTool = null
+function initMeasureInteraction() {
+    document.getElementById('Measure').onchange = (e) => {
+        const value = e.target.checked
+        if (value) {
+            if (!measureTool) {
+                measureTool = new OMap.Measure(OMap.MeasureMode.Distance)
+                map.addInteraction(measureTool)
+            } else {
+                measureTool.setActive(true)
             }
-        })
-    })
-    const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
-    vlayer.addFeature(p)
-    map.addLayer(vlayer)
-}
+            showMessage('测量工具已激活', 'success')
 
-// 测试VectorLayer
-function initVectorLayer() {
-    const vlayer = new OMap.VectorLayer({
-        id: 'test-vector',
-        style: (feature, resolution) => {
-            // console.log(feature)
-            // console.log(resolution)
-            if (feature.getType() === 'Point') {
-                return new OMap.Style({
-                    circle: {
-                        fill: {
-                            color: resolution > 25 ? 'red' : 'green'
-                        },
-                        radius: 20
-                    }
-                })
-            } else if (feature.getType() === 'LineString') {
-                return new OMap.Style({
-                    stroke: {
-                        color: '#13c2c2',
-                        width: 10
-                    }
-                })
-            } else if (feature.getType() === 'Polygon') {
-                return new OMap.Style({
-                    stroke: {
-                        color: '#000000',
-                        width: 2
-                    },
-                    fill: {
-                        color: new OMap.Color({
-                            color: '#1890FF',
-                            opacity: 0.5
-                        })
-                    },
-                })
-            }
-            return undefined
+        } else {
+            measureTool.setActive(false)
+            showMessage('测量工具已禁用', 'danger')
         }
-        // style: [
-        //     new OMap.Style({
-        //         circle: {
-        //             fill: {
-        //                 color: 'red'
-        //             },
-        //             radius: 20
-        //         }
-        //     }),
-        //     new OMap.Style({
-        //         stroke: {
-        //             color: 'gray',
-        //             width: 10
-        //         }
-        //     }),
-        //     // 蓝色圆  会覆盖上面的红色圆
-        //     new OMap.Style({
-        //         circle: {
-        //             fill: {
-        //                 color: 'blue'
-        //             },
-        //             radius: 15
-        //         }
-        //     }),
-        //     new OMap.Style({
-        //         regularShape: {
-        //             fill: {
-        //                 color: 'green'
-        //             },
-        //             points: 5,
-        //             radius: 10,
-        //         }
-        //     }),
-        // ]
-    })
-    const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
-    p.setId("testPoint1")
-    const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
-    p2.setId("testPoint2")
-    // console.log(p2)
-    const l = new OMap.LineString([
-        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
-        OMap.ProjUtil.fromLonLat([120.1, 30.3])
-    ])
-    const polygon = new OMap.Polygon([
-        polygonData[0].map(item => OMap.ProjUtil.fromLonLat(item))
-    ])
-    map.addLayer(vlayer)
-    vlayer.addFeatures([p, p2, l, polygon])
-    // console.log(vlayer.getFeatures())
-    const extent = new OMap.Extent(...OMap.ProjUtil.fromLonLat([120.05, 30.2]).toArray(), ...OMap.ProjUtil.fromLonLat([120.15, 30.35]).toArray())
-    setTimeout(() => {
-        // vlayer.forEachFeatureInExtent(extent, (feature) => {
-        //     console.log(feature)
-        // })
-        // console.log("getFeaturesInExtent结果")
-        // console.log(vlayer.getFeaturesInExtent(extent))
-        // console.log('-----p-----')
-        // console.log(p.getFirstCoordinate())
-        // console.log(p.getLastCoordinate())
-        // console.log(p2.intersectsExtent(extent))
-        // console.log(l.getCoordinates())
-        // l.translate(10000, 10000)
-        // console.log(l.getCoordinates())
-    }, 3000)
-    // let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
-    // console.log(re)
-    // let extent2 = vlayer.getExtent()
-    // console.log(extent2)
-    return vlayer
+    }
 
 }
 
-
-// 测试feature
-function initFeature() {
-    const vlayer = new OMap.VectorLayer({
-        style: [
-            new OMap.Style({
-                fill: {
-                    color: 'red'
-                },
-            }),
-            new OMap.Style({
-                stroke: {
-                    color: 'gray',
-                    width: 2
+    // 测试Popup
+    function initPopup() {
+        const popup = new OMap.Popup({
+            position: OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+            content: '这是一个弹窗',
+            stopEvent: true
+        })
+        popup.setOffset([0, -20])
+        // console.log("------popup-----")
+        // console.log(popup)
+        map.addPopup(popup)
+        const vlayer = new OMap.VectorLayer({
+            style: new OMap.Style({
+                circle: {
+                    fill: {
+                        color: 'red'
+                    },
+                    radius: 10
                 }
-            }),
-        ]
-    })
-    const polygon = new OMap.Polygon([
-        polygonData2[0].map(item => OMap.ProjUtil.fromLonLat(item))
-    ])
-    vlayer.addFeatures([polygon])
-    map.addLayer(vlayer)
-    // 添加内环
-    polygon.appendLinearRing([
-        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
-        OMap.ProjUtil.fromLonLat([120.1, 30.3]),
-        OMap.ProjUtil.fromLonLat([120.1, 30.4]),
-        OMap.ProjUtil.fromLonLat([120.2, 30.4]),
-        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
-    ])
-    // console.log(polygon.getCoordinates())
-    // console.log(polygon.getFirstCoordinate())
-    // console.log(polygon.getLastCoordinate())
-}
-
-function initDraw() {
-    const draw = new OMap.Draw("LineString")
-    console.log(draw)
-    map.addInteraction(draw)
-
-}
-
-function initDragBox() {
-    const dragBox = new OMap.DragBox({
-        className: 'ol-test-dragbox',
-        onBoxEnd: (e) => {
-            // console.log(e)
-        }
-    })
-    map.addInteraction(dragBox)
-}
-
-function initDragPan() {
-    const dragPan = new OMap.DragPan({
-        className: 'ol-test-dragpan',
-    })
-    map.addInteraction(dragPan)
-}
-
-function initExtent() {
-    const extent = new OMap.InteractionExtent()
-    map.addInteraction(extent)
-    getExtentBtn.onclick = () => {
-        console.log(extent.getExtent())
+            })
+        })
+        const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+        vlayer.addFeature(p)
+        map.addLayer(vlayer)
     }
-}
 
-function initModify() {
-    const vlayer = new OMap.VectorLayer({
-        style: (feature, resolution) => {
-            if (feature.getType() === 'Point') {
-                return new OMap.Style({
-                    circle: {
-                        fill: {
-                            color: resolution > 25 ? 'red' : 'green'
+    // 测试VectorLayer
+    function initVectorLayer() {
+        const vlayer = new OMap.VectorLayer({
+            id: 'test-vector',
+            style: (feature, resolution) => {
+                // console.log(feature)
+                // console.log(resolution)
+                if (feature.getType() === 'Point') {
+                    return new OMap.Style({
+                        circle: {
+                            fill: {
+                                color: resolution > 25 ? 'red' : 'green'
+                            },
+                            radius: 20
+                        }
+                    })
+                } else if (feature.getType() === 'LineString') {
+                    return new OMap.Style({
+                        stroke: {
+                            color: '#13c2c2',
+                            width: 10
+                        }
+                    })
+                } else if (feature.getType() === 'Polygon') {
+                    return new OMap.Style({
+                        stroke: {
+                            color: '#000000',
+                            width: 2
                         },
-                        radius: 20
-                    }
-                })
-            } else if (feature.getType() === 'LineString') {
-                return new OMap.Style({
-                    stroke: {
-                        color: '#13c2c2',
-                        width: 10
-                    }
-                })
-            } else if (feature.getType() === 'Polygon') {
-                return new OMap.Style({
-                    stroke: {
-                        color: '#000000',
-                        width: 2
-                    },
+                        fill: {
+                            color: new OMap.Color({
+                                color: '#1890FF',
+                                opacity: 0.5
+                            })
+                        },
+                    })
+                }
+                return undefined
+            }
+            // style: [
+            //     new OMap.Style({
+            //         circle: {
+            //             fill: {
+            //                 color: 'red'
+            //             },
+            //             radius: 20
+            //         }
+            //     }),
+            //     new OMap.Style({
+            //         stroke: {
+            //             color: 'gray',
+            //             width: 10
+            //         }
+            //     }),
+            //     // 蓝色圆  会覆盖上面的红色圆
+            //     new OMap.Style({
+            //         circle: {
+            //             fill: {
+            //                 color: 'blue'
+            //             },
+            //             radius: 15
+            //         }
+            //     }),
+            //     new OMap.Style({
+            //         regularShape: {
+            //             fill: {
+            //                 color: 'green'
+            //             },
+            //             points: 5,
+            //             radius: 10,
+            //         }
+            //     }),
+            // ]
+        })
+        const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+        p.setId("testPoint1")
+        const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
+        p2.setId("testPoint2")
+        // console.log(p2)
+        const l = new OMap.LineString([
+            OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+            OMap.ProjUtil.fromLonLat([120.1, 30.3])
+        ])
+        const polygon = new OMap.Polygon([
+            polygonData[0].map(item => OMap.ProjUtil.fromLonLat(item))
+        ])
+        map.addLayer(vlayer)
+        vlayer.addFeatures([p, p2, l, polygon])
+        // console.log(vlayer.getFeatures())
+        const extent = new OMap.Extent(...OMap.ProjUtil.fromLonLat([120.05, 30.2]).toArray(), ...OMap.ProjUtil.fromLonLat([120.15, 30.35]).toArray())
+        setTimeout(() => {
+            // vlayer.forEachFeatureInExtent(extent, (feature) => {
+            //     console.log(feature)
+            // })
+            // console.log("getFeaturesInExtent结果")
+            // console.log(vlayer.getFeaturesInExtent(extent))
+            // console.log('-----p-----')
+            // console.log(p.getFirstCoordinate())
+            // console.log(p.getLastCoordinate())
+            // console.log(p2.intersectsExtent(extent))
+            // console.log(l.getCoordinates())
+            // l.translate(10000, 10000)
+            // console.log(l.getCoordinates())
+        }, 3000)
+        // let re = vlayer.getClosestFeatureToCoordinate(OMap.ProjUtil.fromLonLat([120.20004, 30.30004]))
+        // console.log(re)
+        // let extent2 = vlayer.getExtent()
+        // console.log(extent2)
+        return vlayer
+
+    }
+
+
+    // 测试feature
+    function initFeature() {
+        const vlayer = new OMap.VectorLayer({
+            style: [
+                new OMap.Style({
                     fill: {
-                        color: new OMap.Color({
-                            color: '#1890FF',
-                            opacity: 0.5
-                        })
+                        color: 'red'
                     },
+                }),
+                new OMap.Style({
+                    stroke: {
+                        color: 'gray',
+                        width: 2
+                    }
+                }),
+            ]
+        })
+        const polygon = new OMap.Polygon([
+            polygonData2[0].map(item => OMap.ProjUtil.fromLonLat(item))
+        ])
+        vlayer.addFeatures([polygon])
+        map.addLayer(vlayer)
+        // 添加内环
+        polygon.appendLinearRing([
+            OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+            OMap.ProjUtil.fromLonLat([120.1, 30.3]),
+            OMap.ProjUtil.fromLonLat([120.1, 30.4]),
+            OMap.ProjUtil.fromLonLat([120.2, 30.4]),
+            OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+        ])
+        // console.log(polygon.getCoordinates())
+        // console.log(polygon.getFirstCoordinate())
+        // console.log(polygon.getLastCoordinate())
+    }
+
+    function initDraw() {
+        const draw = new OMap.Draw("LineString")
+        console.log(draw)
+        map.addInteraction(draw)
+
+    }
+
+    function initDragBox() {
+        const dragBox = new OMap.DragBox({
+            className: 'ol-test-dragbox',
+            onBoxEnd: (e) => {
+                // console.log(e)
+            }
+        })
+        map.addInteraction(dragBox)
+    }
+
+    function initDragPan() {
+        const dragPan = new OMap.DragPan({
+            className: 'ol-test-dragpan',
+        })
+        map.addInteraction(dragPan)
+    }
+
+    function initExtent() {
+        const extent = new OMap.InteractionExtent()
+        map.addInteraction(extent)
+        getExtentBtn.onclick = () => {
+            console.log(extent.getExtent())
+        }
+    }
+
+    function initModify() {
+        const vlayer = new OMap.VectorLayer({
+            style: (feature, resolution) => {
+                if (feature.getType() === 'Point') {
+                    return new OMap.Style({
+                        circle: {
+                            fill: {
+                                color: resolution > 25 ? 'red' : 'green'
+                            },
+                            radius: 20
+                        }
+                    })
+                } else if (feature.getType() === 'LineString') {
+                    return new OMap.Style({
+                        stroke: {
+                            color: '#13c2c2',
+                            width: 10
+                        }
+                    })
+                } else if (feature.getType() === 'Polygon') {
+                    return new OMap.Style({
+                        stroke: {
+                            color: '#000000',
+                            width: 2
+                        },
+                        fill: {
+                            color: new OMap.Color({
+                                color: '#1890FF',
+                                opacity: 0.5
+                            })
+                        },
+                    })
+                }
+                return undefined
+            }
+        })
+        const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+        p.setId('p1')
+        const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
+        const l = new OMap.LineString([
+            OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+            OMap.ProjUtil.fromLonLat([120.1, 30.3])
+        ])
+        const polygon = new OMap.Polygon([
+            polygonData[0].map(item => OMap.ProjUtil.fromLonLat(item))
+        ])
+        map.addLayer(vlayer)
+        vlayer.addFeatures([p, p2, l, polygon])
+        // 初始化新的修改交互
+        const modify = new OMap.Modify({
+            layer: vlayer,
+        })
+        map.addInteraction(modify)
+        ModifyrevokeBtn.onclick = () => {
+            modify.revoke()
+        }
+    }
+
+    function initMeasure() {
+        // 测距
+        MeasureDistanceBtn.onclick = () => {
+            if (!distanceMeasure) {
+                distanceMeasure = new OMap.Measure(OMap.MeasureMode.Distance)
+                map.addInteraction(distanceMeasure)
+                distanceMeasure.on("measure:start", (e) => {
+                    console.log("测量开始")
+                    console.log(e)
+                })
+                distanceMeasure.on("measure:end", (e) => {
+                    console.log("测量结束")
+                    console.log(e)
                 })
             }
-            return undefined
+            distanceMeasure.setActive(true)
         }
-    })
-    const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
-    p.setId('p1')
-    const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
-    const l = new OMap.LineString([
-        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
-        OMap.ProjUtil.fromLonLat([120.1, 30.3])
-    ])
-    const polygon = new OMap.Polygon([
-        polygonData[0].map(item => OMap.ProjUtil.fromLonLat(item))
-    ])
-    map.addLayer(vlayer)
-    vlayer.addFeatures([p, p2, l, polygon])
-    // 初始化新的修改交互
-    const modify = new OMap.Modify({
-        layer: vlayer,
-    })
-    map.addInteraction(modify)
-    ModifyrevokeBtn.onclick = () => {
-        modify.revoke()
-    }
-}
-
-function initMeasure() {
-    // 测距
-    MeasureDistanceBtn.onclick = () => {
-        if (!distanceMeasure) {
-            distanceMeasure = new OMap.Measure(OMap.MeasureMode.Distance)
-            map.addInteraction(distanceMeasure)
-            distanceMeasure.on("measure:start", (e) => {
-                console.log("测量开始")
-                console.log(e)
-            })
-            distanceMeasure.on("measure:end", (e) => {
-                console.log("测量结束")
-                console.log(e)
-            })
-        }
-        distanceMeasure.setActive(true)
-    }
-    // 测面
-    MeasureAreaBtn.onclick = () => {
-        if (!areaMeasure) {
-            console.log("【测面】初始化")
-            areaMeasure = new OMap.Measure(OMap.MeasureMode.Area)
-            map.addInteraction(areaMeasure)
-            areaMeasure.on("measure:start", (e) => {
-                console.log("测量开始")
-                console.log(e)
-            })
-            areaMeasure.on("measure:end", (e) => {
-                console.log("测量结束")
-                console.log(e)
-            })
-        }
-        areaMeasure.setActive(true)
-    }
-    // 结束测量
-    endMeasureBtn.onclick = () => {
-        distanceMeasure.setActive(false)
-        areaMeasure.setActive(false)
-    }
-}
-
-
-function initSelect() {
-    const vlayer = new OMap.VectorLayer({
-        id: 'test-select-vector-layer',
-        style: (feature, resolution) => {
-            if (feature.getType() === 'Point') {
-                return new OMap.Style({
-                    circle: {
-                        fill: {
-                            color: 'green'
-                        },
-                        radius: 20
-                    }
+        // 测面
+        MeasureAreaBtn.onclick = () => {
+            if (!areaMeasure) {
+                console.log("【测面】初始化")
+                areaMeasure = new OMap.Measure(OMap.MeasureMode.Area)
+                map.addInteraction(areaMeasure)
+                areaMeasure.on("measure:start", (e) => {
+                    console.log("测量开始")
+                    console.log(e)
                 })
-            } else if (feature.getType() === 'LineString') {
-                return new OMap.Style({
-                    stroke: {
-                        color: '#13c2c2',
-                        width: 10
-                    }
-                })
-            } else if (feature.getType() === 'Polygon') {
-                return new OMap.Style({
-                    stroke: {
-                        color: '#000000',
-                        width: 2
-                    },
-                    fill: {
-                        color: new OMap.Color({
-                            color: '#1890FF',
-                            opacity: 0.5
-                        })
-                    },
+                areaMeasure.on("measure:end", (e) => {
+                    console.log("测量结束")
+                    console.log(e)
                 })
             }
-            return undefined
+            areaMeasure.setActive(true)
         }
-    })
-    const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
-    p.setId('p1')
-    const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
-    const l = new OMap.LineString([
-        OMap.ProjUtil.fromLonLat([120.2, 30.3]),
-        OMap.ProjUtil.fromLonLat([120.1, 30.3])
-    ])
-    const polygon = new OMap.Polygon([
-        polygonData[0].map(item => OMap.ProjUtil.fromLonLat(item))
-    ])
-    map.addLayer(vlayer)
-    vlayer.addFeatures([p, p2, l, polygon])
-    // 初始化新的修改交互
-    const select = new OMap.Select({
-        layers: [vlayer],
-        multi: false,
-        style: (feature, resolution) => {
-            if (feature.getType() === 'Point') {
-                return new OMap.Style({
-                    circle: {
-                        fill: {
-                            color: '#eb2f96'
+        // 结束测量
+        endMeasureBtn.onclick = () => {
+            distanceMeasure.setActive(false)
+            areaMeasure.setActive(false)
+        }
+    }
+
+
+    function initSelect() {
+        const vlayer = new OMap.VectorLayer({
+            id: 'test-select-vector-layer',
+            style: (feature, resolution) => {
+                if (feature.getType() === 'Point') {
+                    return new OMap.Style({
+                        circle: {
+                            fill: {
+                                color: 'green'
+                            },
+                            radius: 20
+                        }
+                    })
+                } else if (feature.getType() === 'LineString') {
+                    return new OMap.Style({
+                        stroke: {
+                            color: '#13c2c2',
+                            width: 10
+                        }
+                    })
+                } else if (feature.getType() === 'Polygon') {
+                    return new OMap.Style({
+                        stroke: {
+                            color: '#000000',
+                            width: 2
                         },
-                        radius: 20
-                    }
-                })
-            } else if (feature.getType() === 'LineString') {
-                return new OMap.Style({
-                    stroke: {
-                        color: '#eb2f96',
-                        width: 10
-                    }
-                })
-            } else if (feature.getType() === 'Polygon') {
-                return new OMap.Style({
-                    stroke: {
-                        color: '#000000',
-                        width: 2
-                    },
-                    fill: {
-                        color: new OMap.Color({
+                        fill: {
+                            color: new OMap.Color({
+                                color: '#1890FF',
+                                opacity: 0.5
+                            })
+                        },
+                    })
+                }
+                return undefined
+            }
+        })
+        const p = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]))
+        p.setId('p1')
+        const p2 = new OMap.Point(OMap.ProjUtil.fromLonLat([120.1, 30.3]))
+        const l = new OMap.LineString([
+            OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+            OMap.ProjUtil.fromLonLat([120.1, 30.3])
+        ])
+        const polygon = new OMap.Polygon([
+            polygonData[0].map(item => OMap.ProjUtil.fromLonLat(item))
+        ])
+        map.addLayer(vlayer)
+        vlayer.addFeatures([p, p2, l, polygon])
+        // 初始化新的修改交互
+        const select = new OMap.Select({
+            layers: [vlayer],
+            multi: false,
+            style: (feature, resolution) => {
+                if (feature.getType() === 'Point') {
+                    return new OMap.Style({
+                        circle: {
+                            fill: {
+                                color: '#eb2f96'
+                            },
+                            radius: 20
+                        }
+                    })
+                } else if (feature.getType() === 'LineString') {
+                    return new OMap.Style({
+                        stroke: {
                             color: '#eb2f96',
-                            opacity: 0.5
-                        })
-                    },
-                })
+                            width: 10
+                        }
+                    })
+                } else if (feature.getType() === 'Polygon') {
+                    return new OMap.Style({
+                        stroke: {
+                            color: '#000000',
+                            width: 2
+                        },
+                        fill: {
+                            color: new OMap.Color({
+                                color: '#eb2f96',
+                                opacity: 0.5
+                            })
+                        },
+                    })
+                }
+                return undefined
             }
-            return undefined
-        }
-    })
-    select.on('select', (e) => {
-        console.log(e)
-    })
-    map.addInteraction(select)
-}
-
-function initLink() {
-    const link = new OMap.Link()
-    map.addInteraction(link)
-}
-
-function initWMSLayer() {
-    // 美国区域
-    const wmslayer = new OMap.WMSLayer({
-        source: {
-            url: 'https://ahocevar.com/geoserver/wms',
-            params: { 'LAYERS': 'topp:states', 'TILED': true },
-            serverType: 'geoserver',
-            // Countries have transparency, so do not fade tiles:
-            transition: 0,
-        }
-    })
-    map.addLayer(wmslayer)
-}
-
-function initWMTSLayer() {
-    const projection = new OMap.Projection('EPSG:3857');
-    let projectionExtent = projection.getExtent();
-    console.log(projectionExtent)
-    projectionExtent = new OMap.Extent(...projectionExtent)
-    console.log(projectionExtent.getWidth())
-    const size = projectionExtent.getWidth() / 256
-    const resolutions = new Array(19);
-    const matrixIds = new Array(19);
-    for (let z = 0; z < 19; ++z) {
-        // generate resolutions and matrixIds arrays for this WMTS
-        resolutions[z] = size / Math.pow(2, z);
-        matrixIds[z] = z;
-    }
-    // 美国区域
-    const wmtslayer = new OMap.WMTSLayer({
-        opacity: 0.7,
-        source: {
-            attributions: 'Tiles © <a href="https://mrdata.usgs.gov/geology/state/"' + ' target="_blank">USGS</a>',
-            url: 'https://mrdata.usgs.gov/mapcache/wmts',
-            layer: 'sgmc2',
-            matrixSet: 'GoogleMapsCompatible',
-            format: 'image/png',
-            projection: projection,
-            tileGrid: {
-                origin: projectionExtent.getTopLeft(),
-                resolutions: resolutions,
-                matrixIds: matrixIds,
-            },
-            style: 'default',
-            wrapX: true,
-        }
-    })
-    map.addLayer(wmtslayer)
-}
-
-function initFormat() {
-    const format = new OMap.Format(OMap.FormatType.GeoJSON)
-    console.log(format)
-    const feature = format.readFeatures('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[120.2,30.3]},"properties":{}}]}')
-    console.log(feature)
-    // const point = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]), { id: 123, name: '测试 format' })
-    // const line = new OMap.LineString([
-    //     OMap.ProjUtil.fromLonLat([120.2, 30.3]),
-    //     OMap.ProjUtil.fromLonLat([120.1, 30.3])
-    // ], { id: 456, name: '测试 format' })
-    // const source = format.writeFeaturesObject([point, line])
-    // console.log(source)
-}
-
-function initControl() {
-    const control = new OMap.Zoom()
-    const control2 = new OMap.FullScreen()
-    map.addControl(control)
-    map.addControl(control2)
-}
-
-function initSwitchLayer() {
-    switchBaseLayer.onclick = (e) => {
-        console.log("switchBaseLayer")
-        const vecGroup = map.getLayerGroupById('tdt_vec')
-        vecGroup.getAllLayers().forEach(item => {
-            item.setVisible(false)
         })
-        const imgGroup = map.getLayerGroupById('tdt_img')
-        imgGroup.getAllLayers().forEach(item => {
-            item.setVisible(true)
+        select.on('select', (e) => {
+            console.log(e)
         })
+        map.addInteraction(select)
     }
-}
 
-function initImageLayer() {
-    const centerLonLat = [-74.006, 40.7128];
-    const center = OMap.ProjUtil.fromLonLat(centerLonLat); // [x, y] in EPSG:3857
+    function initLink() {
+        const link = new OMap.Link()
+        map.addInteraction(link)
+    }
 
-    // 2. 根据图片尺寸设定覆盖范围（单位：米）
-    const widthInMeters = 1000;   // 图片覆盖 1 公里宽
-    const heightInMeters = (968 / 1024) * widthInMeters; // 保持原图比例
-
-    const halfW = widthInMeters / 2;
-    const halfH = heightInMeters / 2;
-
-    const imageExtent = [
-        center[0] - halfW,
-        center[1] - halfH,
-        center[0] + halfW,
-        center[1] + halfH
-    ]; // [minX, minY, maxX, maxY]
-    const imagelayer = new OMap.ImageLayer({
-        source: {
-            url: 'https://imgs.xkcd.com/comics/online_communities.png',
-            // projection: 'EPSG:3857', // 关键：使用地图的投影
-            imageExtent: imageExtent
-        }
-    })
-    console.log(imagelayer)
-    map.addLayer(imagelayer)
-}
-
-const initInteractionChanged = () => {
-    ['DoubleClickZoom', 'MouseWheelZoom', 'DragPan'].forEach(type => {
-        if (document.getElementById(type)) {
-            document.getElementById(type).onchange = (e) => {
-                map.getInteractionById(`omap_default_${type.toLowerCase()}`).setActive(e.target.checked)
-                showMessage(`${type}已${e.target.checked ? '开启' : '关闭'}`, 'success')
+    function initWMSLayer() {
+        // 美国区域
+        const wmslayer = new OMap.WMSLayer({
+            source: {
+                url: 'https://ahocevar.com/geoserver/wms',
+                params: { 'LAYERS': 'topp:states', 'TILED': true },
+                serverType: 'geoserver',
+                // Countries have transparency, so do not fade tiles:
+                transition: 0,
             }
+        })
+        map.addLayer(wmslayer)
+    }
+
+    function initWMTSLayer() {
+        const projection = new OMap.Projection('EPSG:3857');
+        let projectionExtent = projection.getExtent();
+        console.log(projectionExtent)
+        projectionExtent = new OMap.Extent(...projectionExtent)
+        console.log(projectionExtent.getWidth())
+        const size = projectionExtent.getWidth() / 256
+        const resolutions = new Array(19);
+        const matrixIds = new Array(19);
+        for (let z = 0; z < 19; ++z) {
+            // generate resolutions and matrixIds arrays for this WMTS
+            resolutions[z] = size / Math.pow(2, z);
+            matrixIds[z] = z;
         }
-    })
-    // DoubleClickZoomInput.onchange = (e) => {
-    //     map.getInteractionById('omap_default_doubleclickzoom').setActive(e.target.checked)
-    //     showMessage(`双击缩放DoubleClickZoomInput已${e.target.checked ? '开启' : '关闭'}`, 'success')
-    // }
-    // MouseWheelZoomInput.onchange = (e) => {
-    //     map.getInteractionById('omap_default_mousewheelzoom').setActive(e.target.checked)
-    //     showMessage(`鼠标滚轮缩放MouseWheelZoomInput已${e.target.checked ? '开启' : '关闭'}`, 'success')
-    // }
-}
+        // 美国区域
+        const wmtslayer = new OMap.WMTSLayer({
+            opacity: 0.7,
+            source: {
+                attributions: 'Tiles © <a href="https://mrdata.usgs.gov/geology/state/"' + ' target="_blank">USGS</a>',
+                url: 'https://mrdata.usgs.gov/mapcache/wmts',
+                layer: 'sgmc2',
+                matrixSet: 'GoogleMapsCompatible',
+                format: 'image/png',
+                projection: projection,
+                tileGrid: {
+                    origin: projectionExtent.getTopLeft(),
+                    resolutions: resolutions,
+                    matrixIds: matrixIds,
+                },
+                style: 'default',
+                wrapX: true,
+            }
+        })
+        map.addLayer(wmtslayer)
+    }
 
-function init() {
-    initDom()
-    initMap()
+    function initFormat() {
+        const format = new OMap.Format(OMap.FormatType.GeoJSON)
+        console.log(format)
+        const feature = format.readFeatures('{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[120.2,30.3]},"properties":{}}]}')
+        console.log(feature)
+        // const point = new OMap.Point(OMap.ProjUtil.fromLonLat([120.2, 30.3]), { id: 123, name: '测试 format' })
+        // const line = new OMap.LineString([
+        //     OMap.ProjUtil.fromLonLat([120.2, 30.3]),
+        //     OMap.ProjUtil.fromLonLat([120.1, 30.3])
+        // ], { id: 456, name: '测试 format' })
+        // const source = format.writeFeaturesObject([point, line])
+        // console.log(source)
+    }
 
-    initInteractionChanged()
+    function initControl() {
+        const control = new OMap.Zoom()
+        const control2 = new OMap.FullScreen()
+        map.addControl(control)
+        map.addControl(control2)
+    }
 
-    initDrawInteraction()
+    function initSwitchLayer() {
+        switchBaseLayer.onclick = (e) => {
+            console.log("switchBaseLayer")
+            const vecGroup = map.getLayerGroupById('tdt_vec')
+            vecGroup.getAllLayers().forEach(item => {
+                item.setVisible(false)
+            })
+            const imgGroup = map.getLayerGroupById('tdt_img')
+            imgGroup.getAllLayers().forEach(item => {
+                item.setVisible(true)
+            })
+        }
+    }
 
-    initSelectInteraction()
+    function initImageLayer() {
+        const centerLonLat = [-74.006, 40.7128];
+        const center = OMap.ProjUtil.fromLonLat(centerLonLat); // [x, y] in EPSG:3857
 
-    // initPopup()
+        // 2. 根据图片尺寸设定覆盖范围（单位：米）
+        const widthInMeters = 1000;   // 图片覆盖 1 公里宽
+        const heightInMeters = (968 / 1024) * widthInMeters; // 保持原图比例
 
-    // initDraw()
-    // initVectorLayer()
-    // initFeature()
-    // initDragBox()
-    // initDragPan()
-    // initExtent()
-    // initModify()
-    // initMeasure()
-    // initSelect()
+        const halfW = widthInMeters / 2;
+        const halfH = heightInMeters / 2;
 
-    // initLink()
+        const imageExtent = [
+            center[0] - halfW,
+            center[1] - halfH,
+            center[0] + halfW,
+            center[1] + halfH
+        ]; // [minX, minY, maxX, maxY]
+        const imagelayer = new OMap.ImageLayer({
+            source: {
+                url: 'https://imgs.xkcd.com/comics/online_communities.png',
+                // projection: 'EPSG:3857', // 关键：使用地图的投影
+                imageExtent: imageExtent
+            }
+        })
+        console.log(imagelayer)
+        map.addLayer(imagelayer)
+    }
+
+    const initInteractionChanged = () => {
+        ['DoubleClickZoom', 'MouseWheelZoom', 'DragPan'].forEach(type => {
+            if (document.getElementById(type)) {
+                document.getElementById(type).onchange = (e) => {
+                    map.getInteractionById(`omap_default_${type.toLowerCase()}`).setActive(e.target.checked)
+                    showMessage(`${type}已${e.target.checked ? '开启' : '关闭'}`, 'success')
+                }
+            }
+        })
+        // DoubleClickZoomInput.onchange = (e) => {
+        //     map.getInteractionById('omap_default_doubleclickzoom').setActive(e.target.checked)
+        //     showMessage(`双击缩放DoubleClickZoomInput已${e.target.checked ? '开启' : '关闭'}`, 'success')
+        // }
+        // MouseWheelZoomInput.onchange = (e) => {
+        //     map.getInteractionById('omap_default_mousewheelzoom').setActive(e.target.checked)
+        //     showMessage(`鼠标滚轮缩放MouseWheelZoomInput已${e.target.checked ? '开启' : '关闭'}`, 'success')
+        // }
+    }
+
+    function init() {
+        initDom()
+        initMap()
+
+        initInteractionChanged()
+
+        initDrawInteraction()
+
+        initSelectInteraction()
+
+        initMeasureInteraction()
+
+        // initPopup()
+
+        // initDraw()
+        // initVectorLayer()
+        // initFeature()
+        // initDragBox()
+        // initDragPan()
+        // initExtent()
+        // initModify()
+        // initMeasure()
+        // initSelect()
+
+        // initLink()
 
 
-    // initWMSLayer()
-    // initWMTSLayer()
+        // initWMSLayer()
+        // initWMTSLayer()
 
-    // initFormat()
+        // initFormat()
 
-    initControl()
+        initControl()
 
-    // initSwitchLayer()
+        // initSwitchLayer()
 
-    console.log(OMap.ProjUtil.toLonLat([3320672.1131, 582130.269]))
+        console.log(OMap.ProjUtil.toLonLat([3320672.1131, 582130.269]))
 
-    initImageLayer()
+        initImageLayer()
 
-    setTimeout(() => {
-        // console.log(map.getAllLayers())
-        // const vlayer = map.getLayerById('test-vector')
-        // console.log(vlayer)
-        // console.log(vlayer.getFeatures()[0])
-        // map.fit(vlayer.getFeatures()[0], {
-        //     maxZoom: 18
-        // })
-        // map.animate({
-        //     center: vlayer.getFeatures()[0].getCoordinates(),
-        //     zoom: 18
-        // })
-        // map.adjustZoom(1)
-    }, 3000)
+        setTimeout(() => {
+            // console.log(map.getAllLayers())
+            // const vlayer = map.getLayerById('test-vector')
+            // console.log(vlayer)
+            // console.log(vlayer.getFeatures()[0])
+            // map.fit(vlayer.getFeatures()[0], {
+            //     maxZoom: 18
+            // })
+            // map.animate({
+            //     center: vlayer.getFeatures()[0].getCoordinates(),
+            //     zoom: 18
+            // })
+            // map.adjustZoom(1)
+        }, 3000)
 
-}
+    }
 
-init()
+    init()

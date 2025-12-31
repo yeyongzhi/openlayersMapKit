@@ -62,6 +62,8 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
 
     emit<K extends keyof Events>(type: K, ...args: Events[K]): this {
         const list = this.events.get(type as string);
+        console.log("emits")
+        console.log(list)
         if (!list || list.length === 0) return this;
         // 拷贝一份，防止在回调里增删时遍历出错
         for (let i = 0; i < list.length; ) {
