@@ -1,4 +1,4 @@
-import { OlSource, OlLayer, OlInteraction } from '../../../source/index'
+import { OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { OMapInteractionCommonParamsType } from '../Interaction/type'
 

@@ -1,6 +1,8 @@
-import { Pixel, Lnglat } from '../../../index'
+import { isDefined } from '../../../utils/index';
 import { type OMapEventType, type OMapEventTarget } from './type'
+import Lnglat from '../../basic/Lnglat/index'
 import { type OlCoordinateType } from '../../basic/Lnglat/type'
+import Pixel from '../../basic/Pixel/index'
 import Map from './index'
 
 export function MapEventTypeIsMap(type: OMapEventType): boolean {
@@ -12,12 +14,17 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
         target,
         type
     }
+    if(!isDefined(e)) return result
     switch (type) {
         case 'map:click':
         case 'map:singleclick':
         case 'map:dbclick':
-            if (e.pixel) result.pixel = new Pixel(...(e.pixel as OlCoordinateType))
-            if (e.coordinate) result.coordinate = new Lnglat(...(e.coordinate as OlCoordinateType))
+            if (isDefined(e.pixel)) {
+                result.pixel = new Pixel(...(e.pixel as OlCoordinateType))
+            }
+            if (isDefined(e.coordinate)) {
+                result.coordinate = new Lnglat(...(e.coordinate as OlCoordinateType))
+            }
             break;
         case 'map:propertychange':
             if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat(...(e.oldValue as OlCoordinateType)) : e.oldValue
@@ -27,6 +34,10 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
                 result.newValue = e.newValue
             }
             result.key = e.key
+            break;
+        case 'map:moveend':
+            if (e.oldCenter) result.oldValue = new Lnglat(...(e.oldCenter as OlCoordinateType))
+            result.newValue = e.newCenter || (target as Map).getCenter()
             break;
         case 'view:change:resolution':
             if (e.oldValue) result.oldValue = e.oldValue

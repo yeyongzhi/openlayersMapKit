@@ -531,6 +531,7 @@ export default class Map implements MapLike {
             warn_(createMessage('on', '参数不能为空'));
             return;
         }
+        // map:singleclick
         let isMapTarget = MapEventTypeIsMap(type)
         const target = (isMapTarget) ? this._map : this._view;
         let list = (this.events as Event).get(type)
@@ -575,11 +576,11 @@ export default class Map implements MapLike {
         // 初次注册ol原生事件
         if (!isDefined(list) || list.length === 0) {
             if (isMapTarget) {
-                (target as OlMapInstanceType).on(type.replace('map:', '') as unknown as OlMapOnEventType, (e) => {
+                (target as OlMapInstanceType).once(type.replace('map:', '') as unknown as OlMapOnEventType, (e) => {
                     (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
                 });
             } else {
-                (target as OlViewInstanceType).on(type.replace('view:', '') as unknown as OlViewOnEventType, (e) => {
+                (target as OlViewInstanceType).once(type.replace('view:', '') as unknown as OlViewOnEventType, (e) => {
                     (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
                 });
             }
@@ -869,13 +870,14 @@ export default class Map implements MapLike {
      */
     forEachFeatureAtPixel(pixel: Pixel, callback: (feature: BaseFeature<any> | null, layer: BaseLayer | null) => void, options?: OMapForEachFeatureAtPixelOptionsType): void {
         if (!this._isInitialized('forEachFeatureAtPixel')) return;
-        if (!handleGetPixelValue(pixel)) return;
+        let _pixel = handleGetPixelValue(pixel)
+        if (!isDefined(_pixel)) return;
         const params = Object.assign({}, DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS, options)
-        const result = this._map.forEachFeatureAtPixel(handleGetPixelValue(pixel) as OlPixelType, (feature: OlFeatureLike, layer: any) => {
+        const result = this._map.forEachFeatureAtPixel(_pixel as OlPixelType, (feature: OlFeatureLike, layer: any) => {
             let targetFeature: BaseFeature<any> | null = null
             let targetLayer: BaseLayer | null = null
             this.layers.forEach((item: BaseLayer) => {
-                if (OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer)) {
+                if (isDefined(layer) && (OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer))) {
                     targetLayer = (item as BaseLayer)
                 };
                 if (item instanceof VectorLayer) {

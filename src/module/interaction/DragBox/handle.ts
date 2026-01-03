@@ -1,4 +1,5 @@
-import { OMapDragBoxEventType } from "./type";
+import { isDefined } from '../../../utils/index'
+import type { OMapDragBoxEventType, DragBoxEndEventFunctionType, DragBoxEndEvent } from "./type";
 import DragBox from "./index";
 import Pixel from '../../basic/Pixel/index'
 import Lnglat from '../../basic/Lnglat/index'
@@ -18,4 +19,24 @@ export function handleDragBoxEvent(target: DragBox, type: OMapDragBoxEventType, 
         coordinate: new Lnglat(e.coordinate[0], e.coordinate[1]),
     }
     return result
+}
+
+export const DragBoxParamsBoxEndHandle: {
+    function: DragBoxEndEventFunctionType | null,
+    initFunction: (e: DragBoxEndEventFunctionType) => void,
+    emit: (e: DragBoxEndEvent) => void,
+    destroy: () => void,
+} = {
+    function: null,
+    initFunction: (e: DragBoxEndEventFunctionType) => {
+        DragBoxParamsBoxEndHandle.function = e
+    },
+    emit: (e: DragBoxEndEvent) => {
+        if(isDefined(DragBoxParamsBoxEndHandle.function)) {
+            DragBoxParamsBoxEndHandle.function(e)
+        }
+    },
+    destroy: () => {
+        DragBoxParamsBoxEndHandle.function = null
+    }
 }

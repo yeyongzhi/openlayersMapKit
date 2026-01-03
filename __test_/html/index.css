@@ -172,3 +172,8 @@ input[type="checkbox"]:checked {
 .message.fade-out {
     animation: fadeOut 0.3s ease forwards;
 }
+
+.omap-dragbox {
+    background-color: var(--omap-primary-color);
+    opacity: 0.2;
+}

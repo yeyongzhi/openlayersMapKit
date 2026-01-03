@@ -28,5 +28,5 @@ export const OMapInteractionCommonParams: OMapInteractionCommonParamsType = {
     active: false
 }
 
-export type OMapInteractionType = 'Draw' | 'DragBox' | 'DragPan' | 'Extent' | "Modify" | "Measure" | "Select" | "Link" | "MouseWheelZoom" | "DoubleClickZoom" | "KeyboardZoom"
+export type OMapInteractionType = 'Draw' | 'DragBox' | 'DragPan' | 'InteractionExtent' |  'Extent' | "Modify" | "Measure" | "Select" | "Link" | "MouseWheelZoom" | "DoubleClickZoom" | "KeyboardZoom" | "DragZoom"
 export type OlInteractionInstanceType = OlDrawInstanceType | OlDragBoxInstanceType | OlDragPanInstanceType |OlInteractionExtentInstanceType | OlModifyInstanceType | OlInteractionSelectInstanceType | OlInteractionLinkInstanceType | OlInteractionMouseWheelZoomInstanceType | OlInteractionDoubleClickZoomInstanceType | OlInteractionKeyboardZoomInstanceType

@@ -51,6 +51,14 @@
             DragPan:
             <input type="checkbox" id="DragPan">
         </h5>
+        <h5>
+            DragBox:
+            <input type="checkbox" id="DragBox">
+        </h5>
+        <h5>
+            InteractionExtent:
+            <input type="checkbox" id="InteractionExtent">
+        </h5>
         <div class="border"></div>
         <h5>
             Draw绘制功能
@@ -81,12 +89,16 @@
         </h5>
         <h5>
             Measure测量功能
+            <select id="measureType">
+                <option value="Distance">测距</option>
+                <option value="Area">测面</option>
+            </select>
             <input type="checkbox" id="Measure">交互开启
             <div>
-                <button id="destroySelect">销毁</button>
+                <button id="destroyMeasure">销毁</button>
             </div>
         </h5>
-        <h5>
+        <!-- <h5>
             extent：
             <button id="getExtent">getExtent</button>
         </h5>
@@ -100,13 +112,12 @@
             <button id="MeasureArea">测面</button>
             <button id="endMeasure">结束</button>
         </h5>
-        <!-- <div class="border"></div> -->
         <h3>图层</h3>
         <div class="border"></div>
         <h5>
             切换底图
             <button id="switchBaseLayer">切换</button>
-        </h5>
+        </h5> -->
     </div>
     <div id="message-container"></div>
     <div class="map_container" id="map_container"></div>

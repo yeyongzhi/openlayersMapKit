@@ -3,12 +3,9 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import Interaction from '../Interaction/index'
 import { OlInteraction, OlGeometry, OlFeature, OlObservable } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
-import Lnglat from '../../basic/Lnglat/index'
-import type { OlCoordinateType } from '../../basic/Lnglat/type'
 import Map from '../../core/Map/index'
 import type { OlMapInstanceType } from '../../core/Map/type'
 import Popup from '../../basic/Popup/index'
-import { type OlPopupInstanceType } from '../../basic/Popup/type'
 import {
     type OMapMeasureMode,
     type OMapMeasureParamsType,
@@ -32,7 +29,7 @@ import {
     transformArea,
     updateMeasureFeature,
     getOMapMeasureMarkerId,
-    destroy,
+    destroy as handleDestroy,
     createMeasureAreaCloseElement
 } from './handle'
 import Pixel from '../../basic/Pixel/index';
@@ -107,7 +104,7 @@ export default class Measure extends Interaction {
     protected initMeasureEvent() {
         if (!this._isInitialized('initMeasureEvent')) return;
         this._interaction.on("change:active", (e) => {
-            if(this._interaction.getActive()) {
+            if (this._interaction.getActive()) {
                 this.onMeasureActive()
             } else {
                 this.onMeasureInActive()
@@ -129,11 +126,12 @@ export default class Measure extends Interaction {
     }
 
     protected onMeasureActive() {
-        console.log("onMeasureActive")
         if (isDefined(this.map)) {
-            if(!isDefined(pointMoveListener)) {
+            if (!isDefined(pointMoveListener)) {
                 pointMoveListener = ((this.map as Map)._map as OlMapInstanceType).on("pointermove", (e) => {
-                    tooltipPopup.updatePosition(e.coordinate)
+                    if (isDefined(tooltipPopup)) {
+                        tooltipPopup.updatePosition(e.coordinate)
+                    }
                 });
             }
         }
@@ -142,7 +140,7 @@ export default class Measure extends Interaction {
     }
 
     protected onMeasureInActive() {
-        if(isDefined(pointMoveListener)) {
+        if (isDefined(pointMoveListener)) {
             OlObservable.unByKey(pointMoveListener)
             pointMoveListener = null
         }
@@ -232,6 +230,12 @@ export default class Measure extends Interaction {
         this.setActive(false)
         if (isDefined(pointMoveListener)) {
             OlObservable.unByKey(pointMoveListener)
+            pointMoveListener = null
+        }
+        if (isDefined(measureListener)) {
+            OlObservable.unByKey(measureListener);
+            OlObservable.unByKey(measureListener)
+            measureListener = null;
         }
         if (this.mode === MeasureMode.Distance) {
 
@@ -280,11 +284,11 @@ export default class Measure extends Interaction {
     }
 
     setMap(map: Map) {
-        this.map = map;
-        // this.initMeasureEvent()
-        // -----添加提示信息-----
-        (this.map as Map).addPopup(tooltipPopup.getPopup() as Popup);
-        this.onMeasureActive();
+        super.setMap(map)
+        if(isDefined(map)) {
+            this.initMeasureEvent();
+            (this.map as Map).addPopup(tooltipPopup.getPopup() as Popup);
+        }
     }
 
     on(type: OMapMeasureEventType, callback: () => void): number | string | undefined {
@@ -297,16 +301,15 @@ export default class Measure extends Interaction {
         return id
     }
 
-    /**
-     * 该移除的都移除掉
-     */
-    destroy() {
+
+    protected destroy(destroyLayer: boolean = true): void {
         tooltipPopup.updatePosition(undefined)
-        this.setActive(false)
-        if (isDefined(this.layer)) {
-            this.layer.clear()
+        measurePopup.updatePosition(undefined)
+        handleDestroy()
+        if (destroyLayer && (isDefined(this.getLayer()))) {
+            this._removeInteractionLayer();
         }
-        destroy()
+        super.destroy()
     }
 
 }

@@ -176,14 +176,14 @@ export default class Interaction implements InteractionLike {
     /**
      * 关闭交互(但是不移除图层)
      */
-    close(): void {
-        this.destroy(false)
+    protected close(): void {
+        this.destroy()
     }
 
     /**
      * 清空交互图层
      */
-    clear(): void {
+    protected clear(): void {
         const layer = this.getLayer();
         if (isDefined<VectorLayer>(layer)) {
             layer.clear()
@@ -193,11 +193,8 @@ export default class Interaction implements InteractionLike {
     /**
      * 销毁交互(包括交互的图层)
      */
-    protected destroy(destroyLayer: boolean = true): void {
+    protected destroy(): void {
         if (!this._isInitialized('destroy')) return;
-        if (destroyLayer && (isDefined(this.getLayer()))) {
-            this.removeInteractionLayer();
-        }
         if (isDefined(this.map)) {
             this.map.removeInteraction(this);
         }
@@ -206,7 +203,7 @@ export default class Interaction implements InteractionLike {
     /**
      * 移除交互图层
      */
-    protected removeInteractionLayer() {
+    protected _removeInteractionLayer() {
         const layer = this.getLayer();
         if (isDefined<VectorLayer>(layer) && isDefined(this.map)) {
             (this.map as Map).removeLayer(layer);

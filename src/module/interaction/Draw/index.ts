@@ -128,4 +128,11 @@ export default class Draw extends Interaction {
         (this._interaction as OlDrawInstanceType).finishDrawing()
     }
 
+    protected destroy(destroyLayer: boolean = true): void {
+        if (destroyLayer && (isDefined(this.getLayer()))) {
+            this._removeInteractionLayer();
+        }
+        super.destroy()
+    }
+
 }

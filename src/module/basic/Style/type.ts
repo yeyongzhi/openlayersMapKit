@@ -1,11 +1,13 @@
 import Style from './index'
 import { Color, Size, Pixel } from '../../../index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
+import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
 import { OlStyle } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/index'
 
-export type OMapStyleFunction = (feature: BaseFeature<any>, resolution: number) => Style | Array<Style> | undefined
+export type OlStyleLike = OlStyleInstanceType | Array<OlStyleInstanceType> | ((feature: OlFeatureLike, resolution: number) => (OlStyleInstanceType | undefined))
 
+export type OMapStyleFunction = (feature: BaseFeature<any>, resolution: number) => Style | Array<Style> | undefined
 export type OMapStyleLike = Style | Array<Style> | OMapStyleFunction
 
 export type OlStyleInstanceType = InstanceType<typeof OlStyle.Style>

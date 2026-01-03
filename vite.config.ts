@@ -3,6 +3,9 @@ import path from 'path'
 import * as JavaScriptObfuscator from 'javascript-obfuscator';
 import { createFilter } from '@rollup/pluginutils';
 
+// 🔑 判断是否启用混淆（通过环境变量 OBFUSCATE）
+const shouldObfuscate = process.env.OBFUSCATE === 'true';
+
 export default defineConfig({
   define: {
     __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
@@ -44,7 +47,7 @@ export default defineConfig({
           'ol/easing': 'ol.easing'
         }
       },
-      plugins: [
+      plugins: shouldObfuscate ? [
         // ✅ 自定义混淆插件（作用于 bundle 输出）
         {
           name: 'obfuscate-output',
@@ -79,7 +82,7 @@ export default defineConfig({
             }
           },
         },
-      ]
+      ] : []
     }
   },
   plugins: []
