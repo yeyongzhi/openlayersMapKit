@@ -891,9 +891,19 @@ const initInteractionChanged = () => {
                     }
                 })
             })
+            interaction.on('extentchanged', (e) => {
+                console.log(e)
+            })
             map.addInteraction(interaction)
         } else {
             interaction.setActive(value)
+        }
+    }
+    document.getElementById('InteractionExtentGetExtent').onclick = (e) => {
+        let interactionextent = map.getInteractionById('omap_default_interactionextent')
+        if (interactionextent) {
+            console.log(interactionextent.getExtent().toArray().join(', '))
+            showMessage(`范围获取成功`, 'success')
         }
     }
 }

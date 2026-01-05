@@ -19,7 +19,13 @@ import * as OlTileGrid from 'ol/tilegrid'
 import * as OlFormat from 'ol/format'
 import * as OlControl from 'ol/control'
 import * as OlEasing from 'ol/easing'
+import Target from 'ol/events/Target';
+import { listen, unlistenByKey } from 'ol/events'
 
+const OlEvent = {
+    listen,
+    unlistenByKey
+}
 
 /**
  * basic
@@ -53,5 +59,7 @@ export {
     OlExtent,
     OlFormat,
     OlControl,
-    OlEasing
+    OlEasing,
+    Target as OlTarget,
+    OlEvent
 }

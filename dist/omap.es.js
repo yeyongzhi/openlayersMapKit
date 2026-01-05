@@ -19,6 +19,8 @@ import * as OlTileGrid from "ol/tilegrid";
 import * as OlFormat from "ol/format";
 import * as OlControl from "ol/control";
 import * as OlEasing from "ol/easing";
+import "ol/events/Target";
+import { unlistenByKey, listen } from "ol/events";
 import * as OlExtent from "ol/extent";
 import * as OlObservable from "ol/Observable";
 function isDefined(value) {
@@ -164,8 +166,8 @@ function getCurrentDateTime() {
 function getDevicePixelRatio() {
   return defaultValue(window.devicePixelRatio, 1);
 }
-const PACKAGE_NAME$C = "Size";
-const createMessage$C = getPackageMessage(PACKAGE_NAME$C);
+const PACKAGE_NAME$D = "Size";
+const createMessage$D = getPackageMessage(PACKAGE_NAME$D);
 class Size {
   constructor(...args) {
     /**
@@ -180,14 +182,14 @@ class Size {
     } else if (args.length === 2 && isAllNumberArray(args)) {
       value = [args[0], args[1]];
     } else {
-      error_(createMessage$C("constructor", "初始化参数格式有误"));
+      error_(createMessage$D("constructor", "初始化参数格式有误"));
       return;
     }
     this._size = value;
   }
   _isInitialized(method) {
     if (!isDefined(this._size)) {
-      warn_(createMessage$C(method, "未正确实例化"));
+      warn_(createMessage$D(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -207,7 +209,7 @@ class Size {
   setSize(size) {
     if (!this._isInitialized("setSize")) return;
     if (!isNumber(size[0]) || !isNumber(size[1])) {
-      warn_(createMessage$C("setSize", "参数格式有误"));
+      warn_(createMessage$D("setSize", "参数格式有误"));
       return void 0;
     }
     this._size = size;
@@ -235,7 +237,7 @@ class Size {
   setWidth(width) {
     if (!this._isInitialized("setWidth")) return;
     if (!isNumber(width)) {
-      warn_(createMessage$C("setWidth", "参数格式有误"));
+      warn_(createMessage$D("setWidth", "参数格式有误"));
       return;
     }
     this._size[0] = width;
@@ -247,7 +249,7 @@ class Size {
   setHeight(height) {
     if (!this._isInitialized("setHeight")) return;
     if (!isNumber(height)) {
-      warn_(createMessage$C("setHeight", "参数格式有误"));
+      warn_(createMessage$D("setHeight", "参数格式有误"));
       return;
     }
     this._size[1] = height;
@@ -278,8 +280,8 @@ class Size {
     return `[${this._size[0]}, ${this._size[1]}]`;
   }
 }
-const PACKAGE_NAME$B = "Pixel";
-const createMessage$B = getPackageMessage(PACKAGE_NAME$B);
+const PACKAGE_NAME$C = "Pixel";
+const createMessage$C = getPackageMessage(PACKAGE_NAME$C);
 class Pixel {
   constructor(...args) {
     /**
@@ -294,14 +296,14 @@ class Pixel {
     } else if (args.length === 2 && isAllNumberArray(args)) {
       value = [args[0], args[1]];
     } else {
-      error_(createMessage$B("constructor", "初始化参数格式有误"));
+      error_(createMessage$C("constructor", "初始化参数格式有误"));
       return;
     }
     this._pixel = value;
   }
   _isInitialized(method) {
     if (!isDefined(this._pixel)) {
-      warn_(createMessage$B(method, "未正确实例化"));
+      warn_(createMessage$C(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -321,7 +323,7 @@ class Pixel {
   setPixel(pixel) {
     if (!this._isInitialized("setPixel")) return;
     if (!isNumber(pixel[0]) || !isNumber(pixel[1])) {
-      warn_(createMessage$B("setPixel", "参数格式有误"));
+      warn_(createMessage$C("setPixel", "参数格式有误"));
       return;
     }
     this._pixel = pixel;
@@ -349,7 +351,7 @@ class Pixel {
   setX(x) {
     if (!this._isInitialized("setX")) return;
     if (!isNumber(x)) {
-      warn_(createMessage$B("setX", "参数格式有误"));
+      warn_(createMessage$C("setX", "参数格式有误"));
       return;
     }
     this._pixel[0] = x;
@@ -361,7 +363,7 @@ class Pixel {
   setY(y) {
     if (!this._isInitialized("setY")) return;
     if (!isNumber(y)) {
-      warn_(createMessage$B("setY", "参数格式有误"));
+      warn_(createMessage$C("setY", "参数格式有误"));
       return;
     }
     this._pixel[1] = y;
@@ -374,7 +376,7 @@ class Pixel {
   equals(pixel) {
     if (!this._isInitialized("equals")) return void 0;
     if (!isDefined(pixel)) {
-      warn_(createMessage$B("equals", "参数未正确实例化"));
+      warn_(createMessage$C("equals", "参数未正确实例化"));
       return void 0;
     }
     const otherPixel = pixel.getPixel();
@@ -394,8 +396,8 @@ class Pixel {
     return `[${this._pixel[0]}, ${this._pixel[1]}]`;
   }
 }
-const PACKAGE_NAME$A = "Lnglat";
-const createMessage$A = getPackageMessage(PACKAGE_NAME$A);
+const PACKAGE_NAME$B = "Lnglat";
+const createMessage$B = getPackageMessage(PACKAGE_NAME$B);
 class Lnglat {
   constructor(...args) {
     /**
@@ -411,14 +413,14 @@ class Lnglat {
     } else if (args.length === 2 && isAllNumberArray(args)) {
       value = args;
     } else {
-      error_(createMessage$A("constructor", "初始化参数格式有误"));
+      error_(createMessage$B("constructor", "初始化参数格式有误"));
       return;
     }
     this._lnglat = value;
   }
   _isInitialized(method) {
     if (!isDefined(this._lnglat) || isDefined(this._lnglat) && this._lnglat.length !== 2) {
-      warn_(createMessage$A(method, "经纬度未正确初始化"));
+      warn_(createMessage$B(method, "经纬度未正确初始化"));
       return false;
     }
     return true;
@@ -430,7 +432,7 @@ class Lnglat {
   setLng(lng) {
     if (!this._isInitialized("setLng")) return;
     if (!isNumber(lng)) {
-      warn_(createMessage$A("setLng", "传入经度格式有误"));
+      warn_(createMessage$B("setLng", "传入经度格式有误"));
       return;
     }
     this._lnglat[0] = lng;
@@ -442,7 +444,7 @@ class Lnglat {
   setLat(lat) {
     if (!this._isInitialized("setLat")) return;
     if (!isNumber(lat)) {
-      warn_(createMessage$A("setLat", "传入纬度格式有误"));
+      warn_(createMessage$B("setLat", "传入纬度格式有误"));
       return;
     }
     this._lnglat[1] = lat;
@@ -471,7 +473,7 @@ class Lnglat {
   equals(lnglat) {
     if (!this._isInitialized("equals")) return void 0;
     if (!(lnglat instanceof Lnglat)) {
-      warn_(createMessage$A("equals", "传入经纬度格式错误，必须为Lnglat类型"));
+      warn_(createMessage$B("equals", "传入经纬度格式错误，必须为Lnglat类型"));
       return void 0;
     }
     const otherLnglat = lnglat.getLng() !== void 0 && lnglat.getLat() !== void 0 ? [lnglat.getLng(), lnglat.getLat()] : void 0;
@@ -642,8 +644,8 @@ const presetsColor = {
   "yellow": "#FFFF00",
   "yellowgreen": "#9ACD32"
 };
-const PACKAGE_NAME$z = "Color";
-const createMessage$z = getPackageMessage(PACKAGE_NAME$z);
+const PACKAGE_NAME$A = "Color";
+const createMessage$A = getPackageMessage(PACKAGE_NAME$A);
 class Color {
   constructor(color) {
     __publicField(this, "_color", "");
@@ -655,7 +657,7 @@ class Color {
    */
   _initColor(color) {
     const errorHandler = () => {
-      error_(createMessage$z("constructor", "初始化参数有误"));
+      error_(createMessage$A("constructor", "初始化参数有误"));
     };
     if (isArray(color)) {
       let _colorArr = color;
@@ -754,7 +756,7 @@ class Color {
    */
   withAlpha(alpha) {
     if (!isVaildOpacity(alpha)) {
-      error_(createMessage$z("withAlpha", "透明度参数有误"));
+      error_(createMessage$A("withAlpha", "透明度参数有误"));
       return;
     }
     if (this._color.startsWith("rgb") && !this._color.startsWith("rgba")) {
@@ -763,18 +765,22 @@ class Color {
       this._initColor([...extractRGBAValues(this._color), alpha]);
     } else {
       if (!isDefined(presetsColor[this._color])) {
-        error_(createMessage$z("withAlpha", "颜色值有误"));
+        error_(createMessage$A("withAlpha", "颜色值有误"));
         return;
       }
       let colorRGB = ColorhexToRGB(presetsColor[this._color]);
       if (!isDefined(colorRGB)) {
-        error_(createMessage$z("withAlpha", "颜色值有误"));
+        error_(createMessage$A("withAlpha", "颜色值有误"));
         return;
       }
       this._initColor([...colorRGB, alpha]);
     }
   }
 }
+const OlEvent = {
+  listen,
+  unlistenByKey
+};
 function handleGetExtentValue(extent) {
   if (isDefined(extent)) {
     return extent instanceof Extent ? extent.getExtent() : extent;
@@ -787,8 +793,8 @@ function handleGetLnglatValue(coordinates) {
   }
   return void 0;
 }
-const PACKAGE_NAME$y = "Extent";
-const createMessage$y = getPackageMessage(PACKAGE_NAME$y);
+const PACKAGE_NAME$z = "Extent";
+const createMessage$z = getPackageMessage(PACKAGE_NAME$z);
 class Extent {
   constructor(...args) {
     /**
@@ -804,14 +810,14 @@ class Extent {
     } else if (args.length === 4 && isAllNumberArray(args)) {
       value = args;
     } else {
-      error_(createMessage$y("constructor", "初始化参数格式有误"));
+      error_(createMessage$z("constructor", "初始化参数格式有误"));
       return;
     }
     this._extent = value;
   }
   _isInitialized(method) {
     if (!isDefined(this._extent) || this._extent.length !== 4) {
-      warn_(createMessage$y(method, "未正确实例化"));
+      warn_(createMessage$z(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -899,18 +905,18 @@ class Extent {
    */
   static boundingExtent(coordinates) {
     if (!isDefined(coordinates)) {
-      error_(createMessage$y("boundingExtent", "参数coordinates不能为空"));
+      error_(createMessage$z("boundingExtent", "参数coordinates不能为空"));
       return;
     }
     if (!isArray(coordinates)) {
-      error_(createMessage$y("boundingExtent", "参数coordinates格式错误，必须为数组"));
+      error_(createMessage$z("boundingExtent", "参数coordinates格式错误，必须为数组"));
       return;
     }
     let vaildList = coordinates.filter((c) => {
       return c instanceof Lnglat || isCoordinatesType(c);
     });
     if (vaildList.length < coordinates.length) {
-      warn_(createMessage$y("boundingExtent", "参数coordinates存在不合法格式，元素必须为Lnglat类型或者坐标数组类型"));
+      warn_(createMessage$z("boundingExtent", "参数coordinates存在不合法格式，元素必须为Lnglat类型或者坐标数组类型"));
     }
     let positions = vaildList.map((c) => {
       return c instanceof Lnglat ? c.toArray() : c;
@@ -1145,29 +1151,36 @@ class Style {
     return this._style;
   }
 }
-const PACKAGE_NAME$x = "Event";
-const createMessage$x = getPackageMessage(PACKAGE_NAME$x);
+const PACKAGE_NAME$y = "Event";
+const createMessage$y = getPackageMessage(PACKAGE_NAME$y);
 class Event {
   constructor(target) {
     __publicField(this, "events", /* @__PURE__ */ new Map());
+    // 记录事件类型和事件回调
+    /**
+     * 记录 OL 事件的 unlisten 函数
+     * ✅ 每个 type 一个 unlisten
+     */
+    __publicField(this, "olUnlisteners", /* @__PURE__ */ new Map());
     __publicField(this, "target", null);
     __publicField(this, "total", 0);
     this.events.clear();
     this.target = target;
   }
-  on(type, callback) {
+  on(type, callback, unlisten) {
     let _typeVals = this.events.get(type) || [];
     let valId = ++this.total;
     _typeVals.push({
       id: valId,
       target: this.target,
       type,
-      callback
+      callback,
+      unlisten
     });
     this.events.set(type, _typeVals);
     return valId;
   }
-  once(type, callback) {
+  once(type, callback, unlisten) {
     const list = this.events.get(type) || [];
     const id = ++this.total;
     list.push({
@@ -1175,7 +1188,8 @@ class Event {
       target: this.target,
       type,
       callback,
-      once: true
+      once: true,
+      unlisten
     });
     this.events.set(type, list);
     return id;
@@ -1188,7 +1202,7 @@ class Event {
       try {
         item.callback.call(item.target, ...args);
       } catch (e) {
-        error_(createMessage$x("emit", `回调异常: ${String(e)}`));
+        error_(createMessage$y("emit", `回调异常: ${String(e)}`));
       }
       if (item.once) {
         list.splice(i, 1);
@@ -1203,19 +1217,34 @@ class Event {
     for (const [type, list] of this.events.entries()) {
       const idx = list.findIndex((item) => item.id === id);
       if (idx !== -1) {
+        const item = list[idx];
+        if (isDefined(item.unlisten) && isFunction(item.unlisten)) {
+          item.unlisten();
+        }
         list.splice(idx, 1);
         if (list.length === 0) this.events.delete(type);
         return this;
       }
     }
-    warn_(createMessage$x("remove", `未找到 id=${id} 的监听`));
+    warn_(createMessage$y("remove", `未找到【id=${id}】的监听`));
     return this;
   }
   off(type) {
     if (type === void 0) {
+      for (const list of this.events.values()) {
+        for (const item of list) {
+          if (item.unlisten) OlEvent.unlistenByKey(item.unlisten);
+        }
+      }
       this.events.clear();
     } else {
-      this.events.delete(type);
+      const list = this.events.get(type);
+      if (list) {
+        for (const item of list) {
+          if (item.unlisten) OlEvent.unlistenByKey(item.unlisten);
+        }
+        this.events.delete(type);
+      }
     }
     return this;
   }
@@ -1300,8 +1329,8 @@ function handlePopupEvent(target, type, e) {
   }
   return result;
 }
-const PACKAGE_NAME$w = "Popup";
-const createMessage$w = getPackageMessage(PACKAGE_NAME$w);
+const PACKAGE_NAME$x = "Popup";
+const createMessage$x = getPackageMessage(PACKAGE_NAME$x);
 class Popup {
   constructor(params) {
     __publicField(this, "_popup");
@@ -1353,7 +1382,7 @@ class Popup {
   }
   _isInitialized(method) {
     if (!isDefined(this._popup)) {
-      warn_(createMessage$w(method, "未正确实例化"));
+      warn_(createMessage$x(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -1383,7 +1412,7 @@ class Popup {
   setPositioning(positioning) {
     if (!this._isInitialized("setPositioning")) return;
     if (!isVaildPopupPositioningType(positioning)) {
-      warn_(createMessage$w("setPositioning", "参数positioning值有误"));
+      warn_(createMessage$x("setPositioning", "参数positioning值有误"));
       return;
     }
     this._popup.setPositioning(positioning);
@@ -1403,7 +1432,7 @@ class Popup {
   setProperties(properties) {
     if (!this._isInitialized("setProperties")) return;
     if (!isDefined(properties)) {
-      warn_(createMessage$w("setProperties", "参数不能为空"));
+      warn_(createMessage$x("setProperties", "参数不能为空"));
       return;
     }
     this.events.emit("change:properties", handlePopupEvent(this, "change:properties", {
@@ -1460,7 +1489,7 @@ class Popup {
   on(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$w("on", "参数不能为空"));
+      warn_(createMessage$x("on", "参数不能为空"));
       return;
     }
     if (isOlOverlayEventType(type)) {
@@ -1478,11 +1507,11 @@ class Popup {
   un(id) {
     if (!this._isInitialized("un")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$w("un", "参数不能为空"));
+      warn_(createMessage$x("un", "参数不能为空"));
       return;
     }
     if (!isValidEventId(id)) {
-      warn_(createMessage$w("un", "事件ID应为number类型"));
+      warn_(createMessage$x("un", "事件ID应为number类型"));
       return;
     }
     this.events.remove(id);
@@ -1490,7 +1519,7 @@ class Popup {
   once(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$w("on", "参数不能为空"));
+      warn_(createMessage$x("on", "参数不能为空"));
       return;
     }
     if (isOlOverlayEventType(type)) {
@@ -1524,8 +1553,8 @@ function handleGetPixelValue(pixel) {
   }
   return void 0;
 }
-const PACKAGE_NAME$v = "Map";
-const createMessage$v = getPackageMessage(PACKAGE_NAME$v);
+const PACKAGE_NAME$w = "Map";
+const createMessage$w = getPackageMessage(PACKAGE_NAME$w);
 class Projection {
   constructor(proj) {
     __publicField(this, "_projection", null);
@@ -1537,7 +1566,7 @@ class Projection {
     } else {
       let _proj = proj;
       if (!isDefined(_proj.code)) {
-        error_(createMessage$v("constructor", "初始化参数有误"));
+        error_(createMessage$w("constructor", "初始化参数有误"));
         return;
       }
       result = _proj.code;
@@ -1546,7 +1575,7 @@ class Projection {
     this.code = result;
     this._projection = OlProj.get(result);
     if (!isDefined(this._projection)) {
-      warn_(createMessage$v("constructor", "坐标系不存在"));
+      warn_(createMessage$w("constructor", "坐标系不存在"));
       return;
     }
     this.units = this._projection.getUnits();
@@ -1568,8 +1597,8 @@ class Projection {
   }
 }
 const layerState = /* @__PURE__ */ new WeakMap();
-let PACKAGE_NAME$u = "BaseLayer";
-let createMessage$u = getPackageMessage(PACKAGE_NAME$u);
+let PACKAGE_NAME$v = "BaseLayer";
+let createMessage$v = getPackageMessage(PACKAGE_NAME$v);
 const DEFAULT_LAYER_OPACITY = 1;
 const DEFAULT_LAYER_VISIBLE = true;
 const DEFAULT_LAYER_MIN_ZOOM = 0;
@@ -1627,8 +1656,8 @@ class BaseLayer {
     __publicField(this, "target", null);
     let _options = defaultValue(options, {});
     this.type = type;
-    PACKAGE_NAME$u = `${type}Layer`;
-    createMessage$u = getPackageMessage(PACKAGE_NAME$u);
+    PACKAGE_NAME$v = `${type}Layer`;
+    createMessage$v = getPackageMessage(PACKAGE_NAME$v);
     this.id = defaultValue(_options.id, null);
     this.name = defaultValue(_options.name, "");
     this.className = defaultValue(_options.className, "");
@@ -1648,7 +1677,7 @@ class BaseLayer {
   }
   _isInitialized(method) {
     if (!isDefined(this._layer)) {
-      warn_(createMessage$u(method, "未正确实例化"));
+      warn_(createMessage$v(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -1702,11 +1731,11 @@ class BaseLayer {
   setOpacity(opacity) {
     if (!this._isInitialized("setOpacity")) return;
     if (!isDefined(opacity)) {
-      warn_(createMessage$u("setOpacity", commonMessage.paramsNotDefined("opacity")));
+      warn_(createMessage$v("setOpacity", commonMessage.paramsNotDefined("opacity")));
       return;
     }
     if (!isVaildOpacity(opacity)) {
-      warn_(createMessage$u("setOpacity", commonMessage.paramsInvaildFormat("opacity", "0~1的数字")));
+      warn_(createMessage$v("setOpacity", commonMessage.paramsInvaildFormat("opacity", "0~1的数字")));
       return;
     }
     this._layer.setOpacity(opacity);
@@ -1726,11 +1755,11 @@ class BaseLayer {
   setVisible(visible) {
     if (!this._isInitialized("setVisible")) return;
     if (!isDefined(visible)) {
-      warn_(createMessage$u("setVisible", commonMessage.paramsNotDefined("visible")));
+      warn_(createMessage$v("setVisible", commonMessage.paramsNotDefined("visible")));
       return;
     }
     if (!isBoolean(visible)) {
-      warn_(createMessage$u("setVisible", commonMessage.paramsInvaildFormat("visible", "boolean类型")));
+      warn_(createMessage$v("setVisible", commonMessage.paramsInvaildFormat("visible", "boolean类型")));
       return;
     }
     this._layer.setVisible(visible);
@@ -1759,11 +1788,11 @@ class BaseLayer {
   setExtent(extent) {
     if (!this._isInitialized("setExtent")) return;
     if (!isDefined(extent)) {
-      warn_(createMessage$u("setExtent", commonMessage.paramsNotDefined("extent")));
+      warn_(createMessage$v("setExtent", commonMessage.paramsNotDefined("extent")));
       return;
     }
     if (!(extent instanceof Extent) && !isExtentType(extent)) {
-      warn_(createMessage$u("setExtent", commonMessage.paramsInvaildFormat("extent", "Extent类型")));
+      warn_(createMessage$v("setExtent", commonMessage.paramsInvaildFormat("extent", "Extent类型")));
       return;
     }
     this._layer.setExtent(handleGetExtentValue(extent));
@@ -1771,11 +1800,11 @@ class BaseLayer {
   setMinZoom(minZoom) {
     if (!this._isInitialized("setMinZoom")) return;
     if (!isDefined(minZoom)) {
-      warn_(createMessage$u("setMinZoom", commonMessage.paramsNotDefined("minZoom")));
+      warn_(createMessage$v("setMinZoom", commonMessage.paramsNotDefined("minZoom")));
       return;
     }
     if (!isNumber(minZoom)) {
-      warn_(createMessage$u("setMinZoom", commonMessage.paramsInvaildFormat("minZoom", "number类型")));
+      warn_(createMessage$v("setMinZoom", commonMessage.paramsInvaildFormat("minZoom", "number类型")));
       return;
     }
     this._layer.setMinZoom(minZoom);
@@ -1787,11 +1816,11 @@ class BaseLayer {
   setMaxZoom(maxZoom) {
     if (!this._isInitialized("setMaxZoom")) return;
     if (!isDefined(maxZoom)) {
-      warn_(createMessage$u("setMaxZoom", commonMessage.paramsNotDefined("maxZoom")));
+      warn_(createMessage$v("setMaxZoom", commonMessage.paramsNotDefined("maxZoom")));
       return;
     }
     if (!isNumber(maxZoom)) {
-      warn_(createMessage$u("setMaxZoom", commonMessage.paramsInvaildFormat("maxZoom", "number类型")));
+      warn_(createMessage$v("setMaxZoom", commonMessage.paramsInvaildFormat("maxZoom", "number类型")));
       return;
     }
     this._layer.setMaxZoom(maxZoom);
@@ -1803,11 +1832,11 @@ class BaseLayer {
   setMinResolution(minResolution) {
     if (!this._isInitialized("setMinResolution")) return;
     if (!isDefined(minResolution)) {
-      warn_(createMessage$u("setMinResolution", commonMessage.paramsNotDefined("minResolution")));
+      warn_(createMessage$v("setMinResolution", commonMessage.paramsNotDefined("minResolution")));
       return;
     }
     if (!isNumber(minResolution)) {
-      warn_(createMessage$u("setMinResolution", commonMessage.paramsInvaildFormat("minResolution", "number类型")));
+      warn_(createMessage$v("setMinResolution", commonMessage.paramsInvaildFormat("minResolution", "number类型")));
       return;
     }
     this._layer.setMinResolution(minResolution);
@@ -1819,11 +1848,11 @@ class BaseLayer {
   setMaxResolution(maxResolution) {
     if (!this._isInitialized("setMaxResolution")) return;
     if (!isDefined(maxResolution)) {
-      warn_(createMessage$u("setMaxResolution", commonMessage.paramsNotDefined("maxResolution")));
+      warn_(createMessage$v("setMaxResolution", commonMessage.paramsNotDefined("maxResolution")));
       return;
     }
     if (!isNumber(maxResolution)) {
-      warn_(createMessage$u("setMaxResolution", commonMessage.paramsInvaildFormat("maxResolution", "number类型")));
+      warn_(createMessage$v("setMaxResolution", commonMessage.paramsInvaildFormat("maxResolution", "number类型")));
       return;
     }
     this._layer.setMaxResolution(maxResolution);
@@ -1835,11 +1864,11 @@ class BaseLayer {
   setZIndex(zIndex) {
     if (!this._isInitialized("setZIndex")) return;
     if (!isDefined(zIndex)) {
-      warn_(createMessage$u("setZIndex", commonMessage.paramsNotDefined("zIndex")));
+      warn_(createMessage$v("setZIndex", commonMessage.paramsNotDefined("zIndex")));
       return;
     }
     if (!isNumber(zIndex)) {
-      warn_(createMessage$u("setZIndex", commonMessage.paramsInvaildFormat("zIndex", "number类型")));
+      warn_(createMessage$v("setZIndex", commonMessage.paramsInvaildFormat("zIndex", "number类型")));
       return;
     }
     this._layer.setZIndex(zIndex);
@@ -1851,11 +1880,11 @@ class BaseLayer {
   setProperties(properties) {
     if (!this._isInitialized("setProperties")) return;
     if (!isDefined(properties)) {
-      warn_(createMessage$u("setProperties", commonMessage.paramsNotDefined("properties")));
+      warn_(createMessage$v("setProperties", commonMessage.paramsNotDefined("properties")));
       return;
     }
     if (isObject(properties)) {
-      warn_(createMessage$u("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
+      warn_(createMessage$v("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
       return;
     }
     let oldProperties = this.getProperties() || {};
@@ -1890,8 +1919,8 @@ class BaseLayer {
     return this.groupId;
   }
 }
-const PACKAGE_NAME$t = "BasicFeature";
-const createMessage$t = getPackageMessage(PACKAGE_NAME$t);
+const PACKAGE_NAME$u = "BasicFeature";
+const createMessage$u = getPackageMessage(PACKAGE_NAME$u);
 class BasicFeature {
   constructor(type, coordinatesOrFeature, radius) {
     __publicField(this, "id");
@@ -1919,11 +1948,11 @@ class BasicFeature {
   setProperties(properties) {
     if (!this._isInitialized("setProperties")) return;
     if (!isDefined(properties)) {
-      warn_(createMessage$t("setProperties", "参数不能为空"));
+      warn_(createMessage$u("setProperties", "参数不能为空"));
       return;
     }
     if (!isObject(properties)) {
-      warn_(createMessage$t("setProperties", "参数应为对象类型"));
+      warn_(createMessage$u("setProperties", "参数应为对象类型"));
       return;
     }
     this._feature.setProperties(properties || {});
@@ -1931,11 +1960,11 @@ class BasicFeature {
   setId(id) {
     if (!this._isInitialized("setId")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$t("setId", "参数id不能为空"));
+      warn_(createMessage$u("setId", "参数id不能为空"));
       return;
     }
     if (!isNumber(id) && !isString(id)) {
-      warn_(createMessage$t("setId", "参数id格式有误"));
+      warn_(createMessage$u("setId", "参数id格式有误"));
       return;
     }
     this.id = id;
@@ -1948,8 +1977,8 @@ class BasicFeature {
     return this.type;
   }
 }
-const PACKAGE_NAME$s = "Interaction";
-const createMessage$s = getPackageMessage(PACKAGE_NAME$s);
+const PACKAGE_NAME$t = "Interaction";
+const createMessage$t = getPackageMessage(PACKAGE_NAME$t);
 class Interaction {
   constructor(type) {
     /**
@@ -1999,7 +2028,7 @@ class Interaction {
   }
   _isInitialized(method) {
     if (!isDefined(this._interaction)) {
-      warn_(createMessage$s(method, "未正确实例化"));
+      warn_(createMessage$t(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2097,19 +2126,19 @@ class Interaction {
     }
   }
 }
-const PACKAGE_NAME$r = "Point";
-const createMessage$r = getPackageMessage(PACKAGE_NAME$r);
+const PACKAGE_NAME$s = "Point";
+const createMessage$s = getPackageMessage(PACKAGE_NAME$s);
 class Point extends BasicFeature {
   constructor(coordinatesOrFeature, properties) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(createMessage$r("constructor", "参数不能为空"));
+      error_(createMessage$s("constructor", "参数不能为空"));
       return;
     }
     if (coordinatesOrFeature instanceof OlFeature) {
       super("Point", coordinatesOrFeature);
     } else {
       if (!(coordinatesOrFeature instanceof Lnglat) && !isCoordinatesType(coordinatesOrFeature)) {
-        error_(createMessage$r("constructor", "坐标格式有误"));
+        error_(createMessage$s("constructor", "坐标格式有误"));
         return;
       }
       super("Point", coordinatesOrFeature);
@@ -2133,7 +2162,7 @@ class Point extends BasicFeature {
   }
   _isInitialized(method) {
     if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-      warn_(createMessage$r(method, "未正确实例化"));
+      warn_(createMessage$s(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2153,11 +2182,11 @@ class Point extends BasicFeature {
    */
   setCoordinates(coordinates) {
     if (!isDefined(coordinates)) {
-      error_(createMessage$r("setCoordinates", "参数不能为空"));
+      error_(createMessage$s("setCoordinates", "参数不能为空"));
       return;
     }
     if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-      error_(createMessage$r("setCoordinates", "坐标格式有误"));
+      error_(createMessage$s("setCoordinates", "坐标格式有误"));
       return;
     }
     let _coordinates = coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
@@ -2186,11 +2215,11 @@ class Point extends BasicFeature {
    */
   intersectsExtent(extent) {
     if (!isDefined(extent)) {
-      error_(createMessage$r("intersectsExtent", "参数extent不能为空"));
+      error_(createMessage$s("intersectsExtent", "参数extent不能为空"));
       return;
     }
     if (!(extent instanceof Extent) && !isExtentType(extent)) {
-      error_(createMessage$r("intersectsExtent", "坐标格式有误"));
+      error_(createMessage$s("intersectsExtent", "坐标格式有误"));
       return;
     }
     let _extent = extent instanceof Extent ? extent.getExtent() : extent;
@@ -2210,19 +2239,19 @@ function checkLineStringCoordinates(coordinates) {
   }
   return result;
 }
-const PACKAGE_NAME$q = "LineString";
-const createMessage$q = getPackageMessage(PACKAGE_NAME$q);
+const PACKAGE_NAME$r = "LineString";
+const createMessage$r = getPackageMessage(PACKAGE_NAME$r);
 class LineString extends BasicFeature {
   constructor(coordinatesOrFeature, properties) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(createMessage$q("constructor", "参数不能为空"));
+      error_(createMessage$r("constructor", "参数不能为空"));
       return;
     }
     if (coordinatesOrFeature instanceof OlFeature) {
       super("LineString", coordinatesOrFeature);
     } else {
       if (!checkLineStringCoordinates(coordinatesOrFeature)) {
-        error_(createMessage$q("constructor", "坐标格式有误"));
+        error_(createMessage$r("constructor", "坐标格式有误"));
         return;
       }
       super("LineString", coordinatesOrFeature);
@@ -2248,7 +2277,7 @@ class LineString extends BasicFeature {
   }
   _isInitialized(method) {
     if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-      warn_(createMessage$q(method, "未正确实例化"));
+      warn_(createMessage$r(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2270,11 +2299,11 @@ class LineString extends BasicFeature {
    */
   setCoordinates(coordinates) {
     if (!isDefined(coordinates)) {
-      error_(createMessage$q("setCoordinates", "参数不能为空"));
+      error_(createMessage$r("setCoordinates", "参数不能为空"));
       return;
     }
     if (!checkLineStringCoordinates(coordinates)) {
-      error_(createMessage$q("setCoordinates", "坐标格式有误"));
+      error_(createMessage$r("setCoordinates", "坐标格式有误"));
       return;
     }
     let _coordinates = coordinates.map((c) => {
@@ -2289,11 +2318,11 @@ class LineString extends BasicFeature {
    */
   appendCoordinate(coordinates) {
     if (!isDefined(coordinates)) {
-      error_(createMessage$q("setCoordinates", "参数不能为空"));
+      error_(createMessage$r("setCoordinates", "参数不能为空"));
       return;
     }
     if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-      error_(createMessage$q("setCoordinates", "坐标格式有误"));
+      error_(createMessage$r("setCoordinates", "坐标格式有误"));
       return;
     }
     let _coordinates = coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
@@ -2334,11 +2363,11 @@ class LineString extends BasicFeature {
    */
   getCoordinateAt(fraction, dest) {
     if (!isDefined(fraction)) {
-      error_(createMessage$q("getCoordinateAt", "参数不能为空"));
+      error_(createMessage$r("getCoordinateAt", "参数不能为空"));
       return;
     }
     if (!(isNumber(fraction) && fraction >= 0 && fraction <= 1)) {
-      error_(createMessage$q("getCoordinateAt", "参数格式有误"));
+      error_(createMessage$r("getCoordinateAt", "参数格式有误"));
       return;
     }
     let result = [];
@@ -2374,11 +2403,11 @@ class LineString extends BasicFeature {
    */
   intersectsExtent(extent) {
     if (!isDefined(extent)) {
-      error_(createMessage$q("intersectsExtent", "参数extent不能为空"));
+      error_(createMessage$r("intersectsExtent", "参数extent不能为空"));
       return;
     }
     if (!(extent instanceof Extent) && !isExtentType(extent)) {
-      error_(createMessage$q("intersectsExtent", "坐标格式有误"));
+      error_(createMessage$r("intersectsExtent", "坐标格式有误"));
       return;
     }
     let _extent = extent instanceof Extent ? extent.getExtent() : extent;
@@ -2416,19 +2445,19 @@ function checkLinearRingCoordinates(coordinates) {
   }
   return result;
 }
-const PACKAGE_NAME$p = "LinearRing";
-const createMessage$p = getPackageMessage(PACKAGE_NAME$p);
+const PACKAGE_NAME$q = "LinearRing";
+const createMessage$q = getPackageMessage(PACKAGE_NAME$q);
 class LinearRing extends BasicFeature {
   constructor(coordinatesOrFeature, properties) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(createMessage$p("constructor", "参数不能为空"));
+      error_(createMessage$q("constructor", "参数不能为空"));
       return;
     }
     if (coordinatesOrFeature instanceof OlFeature) {
       super("LinearRing", coordinatesOrFeature);
     } else {
       if (!checkLinearRingCoordinates(coordinatesOrFeature)) {
-        error_(createMessage$p("constructor", "坐标格式有误"));
+        error_(createMessage$q("constructor", "坐标格式有误"));
         return;
       }
       super("LinearRing", coordinatesOrFeature);
@@ -2454,7 +2483,7 @@ class LinearRing extends BasicFeature {
   }
   _isInitialized(method) {
     if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-      warn_(createMessage$p(method, "未正确实例化"));
+      warn_(createMessage$q(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2476,11 +2505,11 @@ class LinearRing extends BasicFeature {
    */
   setCoordinates(coordinates) {
     if (!isDefined(coordinates)) {
-      error_(createMessage$p("setCoordinates", "参数不能为空"));
+      error_(createMessage$q("setCoordinates", "参数不能为空"));
       return;
     }
     if (!checkLinearRingCoordinates(coordinates)) {
-      error_(createMessage$p("setCoordinates", "坐标格式有误"));
+      error_(createMessage$q("setCoordinates", "坐标格式有误"));
       return;
     }
     let _coordinates = coordinates.map((c) => {
@@ -2489,19 +2518,19 @@ class LinearRing extends BasicFeature {
     this._geometry.setCoordinates(_coordinates);
   }
 }
-const PACKAGE_NAME$o = "Polygon";
-const createMessage$o = getPackageMessage(PACKAGE_NAME$o);
+const PACKAGE_NAME$p = "Polygon";
+const createMessage$p = getPackageMessage(PACKAGE_NAME$p);
 class Polygon extends BasicFeature {
   constructor(coordinatesOrFeature, properties) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(createMessage$o("constructor", "参数不能为空"));
+      error_(createMessage$p("constructor", "参数不能为空"));
       return;
     }
     if (coordinatesOrFeature instanceof OlFeature) {
       super("Polygon", coordinatesOrFeature);
     } else {
       if (!checkPolygonCoordinates(coordinatesOrFeature)) {
-        error_(createMessage$o("constructor", "坐标格式有误"));
+        error_(createMessage$p("constructor", "坐标格式有误"));
         return;
       }
       super("Polygon", coordinatesOrFeature);
@@ -2529,7 +2558,7 @@ class Polygon extends BasicFeature {
   }
   _isInitialized(method) {
     if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-      warn_(createMessage$o(method, "未正确实例化"));
+      warn_(createMessage$p(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2554,11 +2583,11 @@ class Polygon extends BasicFeature {
    */
   setCoordinates(coordinates) {
     if (!isDefined(coordinates)) {
-      error_(createMessage$o("setCoordinates", "参数不能为空"));
+      error_(createMessage$p("setCoordinates", "参数不能为空"));
       return;
     }
     if (!checkPolygonCoordinates(coordinates)) {
-      error_(createMessage$o("setCoordinates", "坐标格式有误"));
+      error_(createMessage$p("setCoordinates", "坐标格式有误"));
       return;
     }
     let _coordinates = coordinates.map((c) => {
@@ -2574,11 +2603,11 @@ class Polygon extends BasicFeature {
    */
   appendLinearRing(linearRingParams) {
     if (!isDefined(linearRingParams)) {
-      error_(createMessage$o("appendLinearRing", "linearRing参数不能为空"));
+      error_(createMessage$p("appendLinearRing", "linearRing参数不能为空"));
       return;
     }
     if (!(linearRingParams instanceof LinearRing) && !checkLinearRingCoordinates(linearRingParams)) {
-      error_(createMessage$o("appendLinearRing", "linearRing参数格式有误"));
+      error_(createMessage$p("appendLinearRing", "linearRing参数格式有误"));
       return;
     }
     if (linearRingParams instanceof LinearRing) {
@@ -2648,7 +2677,7 @@ class Polygon extends BasicFeature {
    */
   intersectsCoordinate(coordinates) {
     if (!isDefined(coordinates)) {
-      error_(createMessage$o("intersectsCoordinate", "参数coordinates不能为空"));
+      error_(createMessage$p("intersectsCoordinate", "参数coordinates不能为空"));
       return;
     }
     let _coordinates = coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
@@ -2661,11 +2690,11 @@ class Polygon extends BasicFeature {
    */
   intersectsExtent(extent) {
     if (!isDefined(extent)) {
-      error_(createMessage$o("intersectsExtent", "参数extent不能为空"));
+      error_(createMessage$p("intersectsExtent", "参数extent不能为空"));
       return;
     }
     if (!(extent instanceof Extent) && !isExtentType(extent)) {
-      error_(createMessage$o("intersectsExtent", "坐标格式有误"));
+      error_(createMessage$p("intersectsExtent", "坐标格式有误"));
       return;
     }
     let _extent = extent instanceof Extent ? extent.getExtent() : extent;
@@ -2686,19 +2715,19 @@ function isVaildConrdinates(coordinates) {
   });
   return isArray(coordinates) && !isHaveInVaildItem;
 }
-const PACKAGE_NAME$n = "MultiPoint";
-const createMessage$n = getPackageMessage(PACKAGE_NAME$n);
+const PACKAGE_NAME$o = "MultiPoint";
+const createMessage$o = getPackageMessage(PACKAGE_NAME$o);
 class MultiPoint extends BasicFeature {
   constructor(coordinatesOrFeature, properties) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(createMessage$n("constructor", "参数不能为空"));
+      error_(createMessage$o("constructor", "参数不能为空"));
       return;
     }
     if (coordinatesOrFeature instanceof OlFeature) {
       super("MultiPoint", coordinatesOrFeature);
     } else {
       if (!isVaildConrdinates(coordinatesOrFeature)) {
-        error_(createMessage$n("constructor", "坐标格式有误"));
+        error_(createMessage$o("constructor", "坐标格式有误"));
         return;
       }
       super("MultiPoint", coordinatesOrFeature);
@@ -2724,7 +2753,7 @@ class MultiPoint extends BasicFeature {
   }
   _isInitialized(method) {
     if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-      warn_(createMessage$n(method, "未正确实例化"));
+      warn_(createMessage$o(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2748,11 +2777,11 @@ class MultiPoint extends BasicFeature {
   setCoordinates(coordinates) {
     if (!this._isInitialized("setCoordinates")) return;
     if (!isDefined(coordinates)) {
-      error_(createMessage$n("setCoordinates", "参数不能为空"));
+      error_(createMessage$o("setCoordinates", "参数不能为空"));
       return;
     }
     if (!isVaildConrdinates(coordinates)) {
-      error_(createMessage$n("setCoordinates", "坐标格式有误"));
+      error_(createMessage$o("setCoordinates", "坐标格式有误"));
       return;
     }
     let _coordinates = coordinates.map((c) => {
@@ -2772,7 +2801,7 @@ class MultiPoint extends BasicFeature {
       _point = new OlGeometry.Point(pointOrpointCoordinates);
     }
     if (!isDefined(_point)) {
-      error_(createMessage$n("appendPoint", "参数格式有误"));
+      error_(createMessage$o("appendPoint", "参数格式有误"));
       return;
     }
     this._geometry.appendPoint(_point);
@@ -2808,7 +2837,7 @@ class MultiPoint extends BasicFeature {
     if (!this._isInitialized("getPoint")) return;
     if (!isDefined(index)) return;
     if (!isNumber(index)) {
-      warn_(createMessage$n("getPoint", "参数index格式有误"));
+      warn_(createMessage$o("getPoint", "参数index格式有误"));
       return;
     }
     let point = this._geometry.getPoint(index);
@@ -2835,19 +2864,19 @@ function checkMultiLineStringCoordinates(coordinates) {
   });
   return isArray(coordinates) && !isHaveInVaildItem;
 }
-const PACKAGE_NAME$m = "MultiLineString";
-const createMessage$m = getPackageMessage(PACKAGE_NAME$m);
+const PACKAGE_NAME$n = "MultiLineString";
+const createMessage$n = getPackageMessage(PACKAGE_NAME$n);
 class MultiLineString extends BasicFeature {
   constructor(coordinatesOrFeature, properties) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(createMessage$m("constructor", "参数不能为空"));
+      error_(createMessage$n("constructor", "参数不能为空"));
       return;
     }
     if (coordinatesOrFeature instanceof OlFeature) {
       super("MultiLineString", coordinatesOrFeature);
     } else {
       if (!checkMultiLineStringCoordinates(coordinatesOrFeature)) {
-        error_(createMessage$m("constructor", "坐标格式有误"));
+        error_(createMessage$n("constructor", "坐标格式有误"));
         return;
       }
       super("MultiLineString", coordinatesOrFeature);
@@ -2875,7 +2904,7 @@ class MultiLineString extends BasicFeature {
   }
   _isInitialized(method) {
     if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-      warn_(createMessage$m(method, "未正确实例化"));
+      warn_(createMessage$n(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2901,11 +2930,11 @@ class MultiLineString extends BasicFeature {
   setCoordinates(coordinates) {
     if (!this._isInitialized("setCoordinates")) return;
     if (!isDefined(coordinates)) {
-      error_(createMessage$m("setCoordinates", "参数不能为空"));
+      error_(createMessage$n("setCoordinates", "参数不能为空"));
       return;
     }
     if (!checkMultiLineStringCoordinates(coordinates)) {
-      error_(createMessage$m("setCoordinates", "坐标格式有误"));
+      error_(createMessage$n("setCoordinates", "坐标格式有误"));
       return;
     }
     let _coordinates = coordinates.map((c) => {
@@ -2922,19 +2951,19 @@ function checkMultiPolygonCoordinates(coordinates) {
   });
   return isArray(coordinates) && !isHaveInVaildItem;
 }
-const PACKAGE_NAME$l = "MultiPolygon";
-const createMessage$l = getPackageMessage(PACKAGE_NAME$l);
+const PACKAGE_NAME$m = "MultiPolygon";
+const createMessage$m = getPackageMessage(PACKAGE_NAME$m);
 class MultiPolygon extends BasicFeature {
   constructor(coordinatesOrFeature, properties) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(createMessage$l("constructor", "参数不能为空"));
+      error_(createMessage$m("constructor", "参数不能为空"));
       return;
     }
     if (coordinatesOrFeature instanceof OlFeature) {
       super("MultiPolygon", coordinatesOrFeature);
     } else {
       if (!checkMultiPolygonCoordinates(coordinatesOrFeature)) {
-        error_(createMessage$l("constructor", "坐标格式有误"));
+        error_(createMessage$m("constructor", "坐标格式有误"));
         return;
       }
       super("MultiPolygon", coordinatesOrFeature);
@@ -2964,7 +2993,7 @@ class MultiPolygon extends BasicFeature {
   }
   _isInitialized(method) {
     if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-      warn_(createMessage$l(method, "未正确实例化"));
+      warn_(createMessage$m(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2992,11 +3021,11 @@ class MultiPolygon extends BasicFeature {
   setCoordinates(coordinates) {
     if (!this._isInitialized("setCoordinates")) return;
     if (!isDefined(coordinates)) {
-      error_(createMessage$l("setCoordinates", "参数不能为空"));
+      error_(createMessage$m("setCoordinates", "参数不能为空"));
       return;
     }
     if (!checkMultiPolygonCoordinates(coordinates)) {
-      error_(createMessage$l("setCoordinates", "坐标格式有误"));
+      error_(createMessage$m("setCoordinates", "坐标格式有误"));
       return;
     }
     let _coordinates = coordinates.map((c) => {
@@ -3009,27 +3038,27 @@ class MultiPolygon extends BasicFeature {
     this._geometry.setCoordinates(_coordinates);
   }
 }
-const PACKAGE_NAME$k = "Circle";
-const createMessage$k = getPackageMessage(PACKAGE_NAME$k);
+const PACKAGE_NAME$l = "Circle";
+const createMessage$l = getPackageMessage(PACKAGE_NAME$l);
 class Circle extends BasicFeature {
   constructor(centerOrFeature, radius, properties) {
     if (!isDefined(centerOrFeature)) {
-      error_(createMessage$k("constructor", "参数不能为空"));
+      error_(createMessage$l("constructor", "参数不能为空"));
       return;
     }
     if (centerOrFeature instanceof OlFeature) {
       super("Circle", centerOrFeature);
     } else {
       if (!(centerOrFeature instanceof Lnglat) && !isCoordinatesType(centerOrFeature)) {
-        error_(createMessage$k("constructor", "坐标格式有误"));
+        error_(createMessage$l("constructor", "坐标格式有误"));
         return;
       }
       if (!isDefined(radius)) {
-        error_(createMessage$k("constructor", "radius参数不能为空"));
+        error_(createMessage$l("constructor", "radius参数不能为空"));
         return;
       }
       if (!isNumber(radius)) {
-        error_(createMessage$k("constructor", "radius参数格式有误"));
+        error_(createMessage$l("constructor", "radius参数格式有误"));
         return;
       }
       super("Circle", centerOrFeature, radius);
@@ -3053,7 +3082,7 @@ class Circle extends BasicFeature {
   }
   _isInitialized(method) {
     if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-      warn_(createMessage$k(method, "未正确实例化"));
+      warn_(createMessage$l(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -3425,15 +3454,15 @@ class TooltipPopup {
 }
 const tooltipPopup = new TooltipPopup("单击地图开始测量");
 const measurePopup = new TooltipPopup("");
-const PACKAGE_NAME$j = "Measure";
-const createMessage$j = getPackageMessage(PACKAGE_NAME$j);
+const PACKAGE_NAME$k = "Measure";
+const createMessage$k = getPackageMessage(PACKAGE_NAME$k);
 let measureFeature = null;
 let measureListener = null;
 let pointMoveListener = null;
 class Measure extends Interaction {
   constructor(mode, params) {
     if (!Object.values(MeasureMode).includes(mode)) {
-      error_(createMessage$j("constructor", "mode参数有误"));
+      error_(createMessage$k("constructor", "mode参数有误"));
       return;
     }
     super("Measure");
@@ -3646,7 +3675,7 @@ class Measure extends Interaction {
   on(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$j("on", "参数不能为空"));
+      warn_(createMessage$k("on", "参数不能为空"));
       return;
     }
     const id = this.events.on(type, callback);
@@ -3662,8 +3691,8 @@ class Measure extends Interaction {
     super.destroy();
   }
 }
-let PACKAGE_NAME$i = "VectorLayer";
-let createMessage$i = getPackageMessage(PACKAGE_NAME$i);
+let PACKAGE_NAME$j = "VectorLayer";
+let createMessage$j = getPackageMessage(PACKAGE_NAME$j);
 class VectorLayer extends BaseLayer {
   constructor(options = {}) {
     super("Vector", options);
@@ -3685,7 +3714,7 @@ class VectorLayer extends BaseLayer {
   }
   _isInitializedLayer(method) {
     if (!this._isInitialized(method)) {
-      warn_(createMessage$i(method, "未正确实例化"));
+      warn_(createMessage$j(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -3703,7 +3732,7 @@ class VectorLayer extends BaseLayer {
           if (basicFeature) {
             this.features.push(basicFeature);
           } else {
-            warn_(createMessage$i("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
+            warn_(createMessage$j("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
           }
         }
       }
@@ -3729,7 +3758,7 @@ class VectorLayer extends BaseLayer {
           return styleFnResult ? styleFnResult.getStyle() : void 0;
         };
       } else {
-        warn_(createMessage$i("initStyle", "style格式有误"));
+        warn_(createMessage$j("initStyle", "style格式有误"));
       }
     }
     if (_style) {
@@ -3744,11 +3773,11 @@ class VectorLayer extends BaseLayer {
   getFeatureById(id) {
     if (!this._isInitializedLayer("getFeatureById")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$i("setId", "参数id不能为空"));
+      warn_(createMessage$j("setId", "参数id不能为空"));
       return;
     }
     if (!isNumber(id) && !isString(id)) {
-      warn_(createMessage$i("setId", "参数id格式有误"));
+      warn_(createMessage$j("setId", "参数id格式有误"));
       return;
     }
     let target = this.features.find((f) => {
@@ -3759,11 +3788,11 @@ class VectorLayer extends BaseLayer {
   getFeaturesInExtent(extent, projection) {
     if (!this._isInitializedLayer("getFeaturesInExtent")) return;
     if (!isDefined(extent)) {
-      warn_(createMessage$i("getFeaturesInExtent", "extent参数不能为空"));
+      warn_(createMessage$j("getFeaturesInExtent", "extent参数不能为空"));
       return;
     }
     if (!(extent instanceof Extent) && !isExtentType(extent)) {
-      warn_(createMessage$i("getFeaturesInExtent", "extent参数格式有误"));
+      warn_(createMessage$j("getFeaturesInExtent", "extent参数格式有误"));
       return;
     }
     let _extent = extent instanceof Extent ? extent.getExtent() : extent;
@@ -3781,11 +3810,11 @@ class VectorLayer extends BaseLayer {
   getFeaturesAtCoordinate(coordinates) {
     if (!this._isInitializedLayer("getFeaturesAtCoordinate")) return;
     if (!isDefined(coordinates)) {
-      warn_(createMessage$i("getFeaturesAtCoordinate", "coordinates参数不能为空"));
+      warn_(createMessage$j("getFeaturesAtCoordinate", "coordinates参数不能为空"));
       return;
     }
     if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-      warn_(createMessage$i("getFeaturesAtCoordinate", "coordinates参数格式有误"));
+      warn_(createMessage$j("getFeaturesAtCoordinate", "coordinates参数格式有误"));
       return;
     }
     let _coordinates = handleGetLnglatValue(coordinates);
@@ -3803,7 +3832,7 @@ class VectorLayer extends BaseLayer {
   addFeature(feature) {
     if (!this._isInitializedLayer("addFeature")) return;
     if (!isDefined(feature)) {
-      warn_(createMessage$i("addFeature", "参数不能为空"));
+      warn_(createMessage$j("addFeature", "参数不能为空"));
       return;
     }
     if (this._layer.getSource()) {
@@ -3814,7 +3843,7 @@ class VectorLayer extends BaseLayer {
   addFeatures(features) {
     if (!this._isInitializedLayer("addFeatures")) return;
     if (!isDefined(features) || !isArray(features)) {
-      warn_(createMessage$i("addFeatures", "参数格式有误不能为空"));
+      warn_(createMessage$j("addFeatures", "参数格式有误不能为空"));
       return;
     }
     if (!isEmptyArray(features)) {
@@ -3826,7 +3855,7 @@ class VectorLayer extends BaseLayer {
   removeFeature(feature) {
     if (!this._isInitializedLayer("removeFeature")) return;
     if (!isDefined(feature)) {
-      warn_(createMessage$i("removeFeature", "参数不能为空"));
+      warn_(createMessage$j("removeFeature", "参数不能为空"));
       return;
     }
     if (this._layer.getSource()) {
@@ -3838,7 +3867,7 @@ class VectorLayer extends BaseLayer {
   removeFeatures(features) {
     if (!this._isInitializedLayer("removeFeatures")) return;
     if (!isDefined(features) || !isArray(features)) {
-      warn_(createMessage$i("removeFeatures", "参数格式有误不能为空"));
+      warn_(createMessage$j("removeFeatures", "参数格式有误不能为空"));
       return;
     }
     if (!isEmptyArray(features)) {
@@ -3858,7 +3887,7 @@ class VectorLayer extends BaseLayer {
   forEachFeature(callback) {
     if (!this._isInitializedLayer("forEachFeature")) return;
     if (!isDefined(callback) || !isFunction(callback)) {
-      warn_(createMessage$i("forEachFeature", "参数格式有误"));
+      warn_(createMessage$j("forEachFeature", "参数格式有误"));
       return;
     }
     this.features.forEach((f, i) => {
@@ -3874,7 +3903,7 @@ class VectorLayer extends BaseLayer {
   forEachFeatureInExtent(extent, callback) {
     if (!this._isInitializedLayer("forEachFeatureInExtent")) return;
     if (!isDefined(callback)) {
-      warn_(createMessage$i("forEachFeatureInExtent", "callback参数不能为空"));
+      warn_(createMessage$j("forEachFeatureInExtent", "callback参数不能为空"));
       return;
     }
     this._layer.getSource().forEachFeatureInExtent(extent.getExtent(), (feature) => {
@@ -3894,7 +3923,7 @@ class VectorLayer extends BaseLayer {
   forEachFeatureIntersectingExtent(extent, callback) {
     if (!this._isInitializedLayer("forEachFeatureIntersectingExtent")) return;
     if (!isDefined(callback)) {
-      warn_(createMessage$i("forEachFeatureIntersectingExtent", "callback参数不能为空"));
+      warn_(createMessage$j("forEachFeatureIntersectingExtent", "callback参数不能为空"));
       return;
     }
     this._layer.getSource().forEachFeatureIntersectingExtent(extent.getExtent(), (feature) => {
@@ -3908,11 +3937,11 @@ class VectorLayer extends BaseLayer {
   getClosestFeatureToCoordinate(coordinates, filter) {
     if (!this._isInitializedLayer("getClosestFeatureToCoordinate")) return;
     if (!isDefined(coordinates)) {
-      warn_(createMessage$i("getClosestFeatureToCoordinate", "coordinates参数不能为空"));
+      warn_(createMessage$j("getClosestFeatureToCoordinate", "coordinates参数不能为空"));
       return;
     }
     if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-      warn_(createMessage$i("getClosestFeatureToCoordinate", "coordinates参数格式有误"));
+      warn_(createMessage$j("getClosestFeatureToCoordinate", "coordinates参数格式有误"));
       return;
     }
     let _coordinates = handleGetLnglatValue(coordinates);
@@ -3949,7 +3978,7 @@ class VectorLayer extends BaseLayer {
   setStyle(style) {
     if (!this._isInitializedLayer("setStyle")) return;
     if (!isDefined(style)) {
-      warn_(createMessage$i("setStyle", "style参数不能为空"));
+      warn_(createMessage$j("setStyle", "style参数不能为空"));
       return;
     }
     this.initStyle(style);
@@ -3983,12 +4012,12 @@ function getOlDrawType(mode) {
   }
   return { type, geometryFunction };
 }
-const PACKAGE_NAME$h = "Draw";
-const createMessage$h = getPackageMessage(PACKAGE_NAME$h);
+const PACKAGE_NAME$i = "Draw";
+const createMessage$i = getPackageMessage(PACKAGE_NAME$i);
 class Draw extends Interaction {
   constructor(mode, params) {
     if (!Object.values(DrawMode).includes(mode)) {
-      error_(createMessage$h("constructor", "mode参数有误"));
+      error_(createMessage$i("constructor", "mode参数有误"));
       return;
     }
     super("Draw");
@@ -3998,7 +4027,7 @@ class Draw extends Interaction {
         this.layer = params == null ? void 0 : params.layer;
         draw_source = params == null ? void 0 : params.layer.getSource();
       } else {
-        warn_(createMessage$h("init", "layer参数不属于VectorLayer类型"));
+        warn_(createMessage$i("init", "layer参数不属于VectorLayer类型"));
       }
     }
     if (!isDefined(draw_source)) {
@@ -4029,7 +4058,7 @@ class Draw extends Interaction {
         if (basicFeature) {
           this.layer.addFeature(basicFeature);
         } else {
-          warn_(createMessage$h("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
+          warn_(createMessage$i("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
         }
       }
     });
@@ -4041,7 +4070,7 @@ class Draw extends Interaction {
   appendCoordinates(coordinates) {
     if (!this._isInitialized("appendCoordinates")) return;
     if (!isDefined(coordinates)) {
-      warn_(createMessage$h("appendCoordinates", "coordinates参数不能为空"));
+      warn_(createMessage$i("appendCoordinates", "coordinates参数不能为空"));
       return;
     }
     let _coordinates = coordinates.map((c) => {
@@ -4077,8 +4106,8 @@ class Draw extends Interaction {
     super.destroy();
   }
 }
-let PACKAGE_NAME$g = "LayerGroup";
-let createMessage$g = getPackageMessage(PACKAGE_NAME$g);
+let PACKAGE_NAME$h = "LayerGroup";
+let createMessage$h = getPackageMessage(PACKAGE_NAME$h);
 class LayerGroup {
   constructor(idOrLayers, layers) {
     /**
@@ -4089,7 +4118,7 @@ class LayerGroup {
     __publicField(this, "layers", []);
     __publicField(this, "map", null);
     if (!isDefined(idOrLayers)) {
-      error_(createMessage$g("constructor", "参数不能为空"));
+      error_(createMessage$h("constructor", "参数不能为空"));
       return;
     }
     let _layers = defaultValue(layers, []);
@@ -4102,7 +4131,7 @@ class LayerGroup {
       return isDefined(item) && isDefined(item.getLayer()) && item instanceof BaseLayer;
     });
     if (vaildLayers.length !== _layers.length) {
-      warn_(createMessage$g("constructor", "图层参数错误，必须为BaseLayer实例，已进行过滤"));
+      warn_(createMessage$h("constructor", "图层参数错误，必须为BaseLayer实例，已进行过滤"));
     }
     vaildLayers.forEach((item) => {
       layerState.set(item, {
@@ -4122,18 +4151,18 @@ class LayerGroup {
    */
   add(layer) {
     if (!isDefined(layer)) {
-      warn_(createMessage$g("add", "参数layer不能为空"));
+      warn_(createMessage$h("add", "参数layer不能为空"));
       return;
     }
     if (!(layer instanceof BaseLayer)) {
-      warn_(createMessage$g("add", "参数layer必须为BaseLayer实例"));
+      warn_(createMessage$h("add", "参数layer必须为BaseLayer实例"));
       return;
     }
     let isExits = this.layers.some((item) => {
       return OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer.getLayer());
     });
     if (isExits) {
-      warn_(createMessage$g("add", "图层已存在"));
+      warn_(createMessage$h("add", "图层已存在"));
       return;
     }
     this.layers.push(layer);
@@ -4146,18 +4175,18 @@ class LayerGroup {
   }
   remove(layer) {
     if (!isDefined(layer)) {
-      warn_(createMessage$g("add", "参数layer不能为空"));
+      warn_(createMessage$h("add", "参数layer不能为空"));
       return;
     }
     if (!(layer instanceof BaseLayer)) {
-      warn_(createMessage$g("add", "参数layer必须为BaseLayer实例"));
+      warn_(createMessage$h("add", "参数layer必须为BaseLayer实例"));
       return;
     }
     let index = this.layers.findIndex((item) => {
       return OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer.getLayer());
     });
     if (index === -1) {
-      warn_(createMessage$g("remove", "图层不存在"));
+      warn_(createMessage$h("remove", "图层不存在"));
       return;
     }
     this.layers.splice(index, 1);
@@ -4170,14 +4199,14 @@ class LayerGroup {
   }
   removeById(id) {
     if (!isDefined(id)) {
-      warn_(createMessage$g("removeById", "参数id不能为空"));
+      warn_(createMessage$h("removeById", "参数id不能为空"));
       return;
     }
     let index = this.layers.findIndex((item) => {
       return isDefined(item.getId()) && item.getId() === id;
     });
     if (index === -1) {
-      warn_(createMessage$g("remove", "图层不存在"));
+      warn_(createMessage$h("remove", "图层不存在"));
       return;
     }
     let layer = this.layers[index];
@@ -4213,6 +4242,12 @@ class LayerGroup {
 const OMapInteractionCommonParams = {
   active: false
 };
+const OMapInteractionEventTypes = [
+  "change",
+  "change:active",
+  "error",
+  "propertychange"
+];
 const defaultMouseWheelZoomOptions = {
   condition: void 0,
   onFocusOnly: false,
@@ -4356,8 +4391,8 @@ function handleMapOnCallBack(target, type, e) {
   }
   return result;
 }
-const PACKAGE_NAME$f = "Map";
-const createMessage$f = getPackageMessage(PACKAGE_NAME$f);
+const PACKAGE_NAME$g = "Map";
+const createMessage$g = getPackageMessage(PACKAGE_NAME$g);
 let Map$1 = class Map2 {
   constructor(element, options) {
     __publicField(this, "_map");
@@ -4372,7 +4407,7 @@ let Map$1 = class Map2 {
     let _options = options;
     const view_options = _options.view;
     if (!isDefined(view_options)) {
-      error_(createMessage$f("constructor", "view参数不能为空"));
+      error_(createMessage$g("constructor", "view参数不能为空"));
       return;
     }
     let proj = view_options.projection || new Projection("EPSG:3857");
@@ -4421,7 +4456,7 @@ let Map$1 = class Map2 {
   /** 私有守卫：运行期检查 + 类型收窄 */
   _isInitialized(method) {
     if (this._map == null || this._view == null) {
-      warn_(createMessage$f(method, "未正确实例化"));
+      warn_(createMessage$g(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -4446,7 +4481,7 @@ let Map$1 = class Map2 {
   setCenter(center) {
     if (!this._isInitialized("setCenter")) return;
     if (!isDefined(center)) {
-      warn_(createMessage$f("setCenter", "参数center不能为空"));
+      warn_(createMessage$g("setCenter", "参数center不能为空"));
       return;
     }
     let _center = center instanceof Lnglat ? center._lnglat : center;
@@ -4459,11 +4494,11 @@ let Map$1 = class Map2 {
   setZoom(zoom) {
     if (!this._isInitialized("setZoom")) return;
     if (!isDefined(zoom)) {
-      warn_(createMessage$f("setZoom", "参数zoom不能为空"));
+      warn_(createMessage$g("setZoom", "参数zoom不能为空"));
       return;
     }
     if (!isNumber(zoom)) {
-      warn_(createMessage$f("setZoom", "参数zoom必须为number类型"));
+      warn_(createMessage$g("setZoom", "参数zoom必须为number类型"));
       return;
     }
     this._view.setZoom(zoom);
@@ -4475,11 +4510,11 @@ let Map$1 = class Map2 {
   setResolution(resolution) {
     if (!this._isInitialized("setResolution")) return;
     if (!isDefined(resolution)) {
-      warn_(createMessage$f("setResolution", "参数resolution不能为空"));
+      warn_(createMessage$g("setResolution", "参数resolution不能为空"));
       return;
     }
     if (!isNumber(resolution)) {
-      warn_(createMessage$f("setResolution", "参数resolution必须为number类型"));
+      warn_(createMessage$g("setResolution", "参数resolution必须为number类型"));
       return;
     }
     this._view.setResolution(resolution);
@@ -4491,11 +4526,11 @@ let Map$1 = class Map2 {
   setRotation(rotation) {
     if (!this._isInitialized("setRotation")) return;
     if (!isDefined(rotation)) {
-      warn_(createMessage$f("setRotation", "参数rotation不能为空"));
+      warn_(createMessage$g("setRotation", "参数rotation不能为空"));
       return;
     }
     if (!isNumber(rotation)) {
-      warn_(createMessage$f("setRotation", "参数rotation必须为number类型"));
+      warn_(createMessage$g("setRotation", "参数rotation必须为number类型"));
       return;
     }
     this._view.setRotation(rotation);
@@ -4509,7 +4544,7 @@ let Map$1 = class Map2 {
   zoomIn(delta = 1) {
     if (!this._isInitialized("zoomIn")) return;
     if (isDefined(delta) && !isNumber(delta)) {
-      warn_(createMessage$f("zoomIn", "参数delta必须为number类型"));
+      warn_(createMessage$g("zoomIn", "参数delta必须为number类型"));
       return;
     }
     this._view.adjustZoom(delta);
@@ -4517,7 +4552,7 @@ let Map$1 = class Map2 {
   zoomOut(delta = -1) {
     if (!this._isInitialized("zoomIn")) return;
     if (isDefined(delta) && !isNumber(delta)) {
-      warn_(createMessage$f("zoomIn", "参数delta必须为number类型"));
+      warn_(createMessage$g("zoomIn", "参数delta必须为number类型"));
       return;
     }
     this._view.adjustZoom(delta);
@@ -4530,11 +4565,11 @@ let Map$1 = class Map2 {
   addLayer(layer) {
     if (!this._isInitialized("addLayer")) return;
     if (!isDefined(layer)) {
-      warn_(createMessage$f("addLayer", "图层对象不能为空"));
+      warn_(createMessage$g("addLayer", "图层对象不能为空"));
       return;
     }
     if (!(layer instanceof BaseLayer)) {
-      warn_(createMessage$f("addLayer", "图层对象必须为BaseLayer类型"));
+      warn_(createMessage$g("addLayer", "图层对象必须为BaseLayer类型"));
       return;
     }
     const layerId = layer.getId();
@@ -4547,7 +4582,7 @@ let Map$1 = class Map2 {
       });
     }
     if (isExist) {
-      warn_(createMessage$f("addLayer", "图层已存在"));
+      warn_(createMessage$g("addLayer", "图层已存在"));
       return;
     }
     if (isDefined(layer.getLayer())) {
@@ -4565,11 +4600,11 @@ let Map$1 = class Map2 {
   addLayers(layers) {
     if (!this._isInitialized("addLayer")) return;
     if (!isDefined(layers)) {
-      warn_(createMessage$f("addLayer", "参数layers不能为空"));
+      warn_(createMessage$g("addLayer", "参数layers不能为空"));
       return;
     }
     if (!isArray(layers)) {
-      warn_(createMessage$f("addLayers", "参数layers必须为数组类型"));
+      warn_(createMessage$g("addLayers", "参数layers必须为数组类型"));
       return;
     }
     layers.forEach((item) => {
@@ -4583,7 +4618,7 @@ let Map$1 = class Map2 {
    */
   getLayerById(id) {
     if (!isDefined(id)) {
-      warn_(createMessage$f("getLayerById", "图层id不能为空"));
+      warn_(createMessage$g("getLayerById", "图层id不能为空"));
       return void 0;
     }
     let layer = void 0;
@@ -4632,12 +4667,12 @@ let Map$1 = class Map2 {
   removeLayerById(id) {
     if (!this._isInitialized("removeLayerById")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$f("removeLayerById", "图层id不能为空"));
+      warn_(createMessage$g("removeLayerById", "图层id不能为空"));
       return void 0;
     }
     let layer = this.getLayerById(id);
     if (!isDefined(layer)) {
-      warn_(createMessage$f("removeLayerById", `找不到id为${id}(${isString(id) ? "string" : "number"})的图层`));
+      warn_(createMessage$g("removeLayerById", `找不到id为${id}(${isString(id) ? "string" : "number"})的图层`));
       return false;
     }
     this.removeLayer(layer);
@@ -4658,11 +4693,11 @@ let Map$1 = class Map2 {
   addLayerGroup(group) {
     if (!this._isInitialized("addLayerGroup")) return;
     if (!isDefined(group)) {
-      warn_(createMessage$f("addLayerGroup", "参数layerGroup不能为空"));
+      warn_(createMessage$g("addLayerGroup", "参数layerGroup不能为空"));
       return;
     }
     if (!(group instanceof LayerGroup)) {
-      warn_(createMessage$f("addLayerGroup", "参数layerGroup必须为LayerGroup实例"));
+      warn_(createMessage$g("addLayerGroup", "参数layerGroup必须为LayerGroup实例"));
       return;
     }
     let isExist = false;
@@ -4684,11 +4719,11 @@ let Map$1 = class Map2 {
   removeLayerGroup(group) {
     if (!this._isInitialized("removeLayerGroup")) return;
     if (!isDefined(group)) {
-      warn_(createMessage$f("removeLayerGroup", "参数layerGroup不能为空"));
+      warn_(createMessage$g("removeLayerGroup", "参数layerGroup不能为空"));
       return;
     }
     if (!(group instanceof LayerGroup)) {
-      warn_(createMessage$f("removeLayerGroup", "参数layerGroup必须为LayerGroup实例"));
+      warn_(createMessage$g("removeLayerGroup", "参数layerGroup必须为LayerGroup实例"));
       return;
     }
     let index = -1;
@@ -4710,11 +4745,11 @@ let Map$1 = class Map2 {
   removeLayerGroupById(groupId) {
     if (!this._isInitialized("removeLayerGroupById")) return;
     if (!isDefined(groupId)) {
-      warn_(createMessage$f("removeLayerGroupById", "参数groupId不能为空"));
+      warn_(createMessage$g("removeLayerGroupById", "参数groupId不能为空"));
       return;
     }
     if (!isNumber(groupId) && !isString(groupId)) {
-      warn_(createMessage$f("removeLayerGroupById", "参数groupId必须为number或string类型"));
+      warn_(createMessage$g("removeLayerGroupById", "参数groupId必须为number或string类型"));
       return;
     }
     let index = this.layerGroups.findIndex((item) => {
@@ -4744,18 +4779,18 @@ let Map$1 = class Map2 {
   getLayerGroupById(groupId) {
     if (!this._isInitialized("getLayerGroupById")) return;
     if (!isDefined(groupId)) {
-      warn_(createMessage$f("removeLayerGroupById", "参数groupId不能为空"));
+      warn_(createMessage$g("removeLayerGroupById", "参数groupId不能为空"));
       return;
     }
     if (!isNumber(groupId) && !isString(groupId)) {
-      warn_(createMessage$f("removeLayerGroupById", "参数groupId必须为number或string类型"));
+      warn_(createMessage$g("removeLayerGroupById", "参数groupId必须为number或string类型"));
       return;
     }
     let index = this.layerGroups.findIndex((item) => {
       return isDefined(item.getId()) && item.getId() === groupId;
     });
     if (index === -1) {
-      warn_(createMessage$f("getLayerGroupById", "未找到图层组"));
+      warn_(createMessage$g("getLayerGroupById", "未找到图层组"));
       return;
     }
     return this.layerGroups[index];
@@ -4764,7 +4799,7 @@ let Map$1 = class Map2 {
   on(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$f("on", "参数不能为空"));
+      warn_(createMessage$g("on", "参数不能为空"));
       return;
     }
     let isMapTarget = MapEventTypeIsMap(type);
@@ -4787,11 +4822,11 @@ let Map$1 = class Map2 {
   un(id) {
     if (!this._isInitialized("un")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$f("un", "参数不能为空"));
+      warn_(createMessage$g("un", "参数不能为空"));
       return;
     }
     if (!isNumber(id)) {
-      warn_(createMessage$f("un", "事件ID应为number类型"));
+      warn_(createMessage$g("un", "事件ID应为number类型"));
       return;
     }
     this.events.remove(id);
@@ -4799,7 +4834,7 @@ let Map$1 = class Map2 {
   once(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$f("on", "参数不能为空"));
+      warn_(createMessage$g("on", "参数不能为空"));
       return;
     }
     let isMapTarget = MapEventTypeIsMap(type);
@@ -4827,11 +4862,11 @@ let Map$1 = class Map2 {
   setProperties(properties) {
     if (!this._isInitialized("setProperties")) return;
     if (!isDefined(properties)) {
-      warn_(createMessage$f("setProperties", commonMessage.paramsNotDefined("properties")));
+      warn_(createMessage$g("setProperties", commonMessage.paramsNotDefined("properties")));
       return;
     }
     if (!isObject(properties)) {
-      warn_(createMessage$f("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
+      warn_(createMessage$g("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
       return;
     }
     const newProperties = Object.assign({}, defaultValue(this.getProperties(), {}), properties);
@@ -4848,7 +4883,7 @@ let Map$1 = class Map2 {
       return OlUtil.getUid(i.getInteraction()) === OlUtil.getUid(interaction.getInteraction());
     });
     if (index !== -1) {
-      warn_(createMessage$f("addInteraction", "该交互已添加到地图中"));
+      warn_(createMessage$g("addInteraction", "该交互已添加到地图中"));
       return;
     }
     if (interaction instanceof Draw || interaction instanceof Measure) {
@@ -4898,7 +4933,7 @@ let Map$1 = class Map2 {
       return OlUtil.getUid(i.getInteraction()) === OlUtil.getUid(interaction.getInteraction());
     });
     if (index === -1) {
-      warn_(createMessage$f("removeInteraction", "该交互未添加到地图中"));
+      warn_(createMessage$g("removeInteraction", "该交互未添加到地图中"));
       return;
     }
     if (isDefined(interaction.getInteraction())) {
@@ -4920,7 +4955,7 @@ let Map$1 = class Map2 {
       return OlUtil.getUid(i.getControl()) === OlUtil.getUid(control.getControl());
     });
     if (index !== -1) {
-      warn_(createMessage$f("addControl", "该控件已添加到地图中"));
+      warn_(createMessage$g("addControl", "该控件已添加到地图中"));
       return;
     }
     if (isDefined(control.getControl())) {
@@ -4958,7 +4993,7 @@ let Map$1 = class Map2 {
       return OlUtil.getUid(i.getControl()) === OlUtil.getUid(control.getControl());
     });
     if (index === -1) {
-      warn_(createMessage$f("removeControl", "该控件未添加到地图中"));
+      warn_(createMessage$g("removeControl", "该控件未添加到地图中"));
       return;
     }
     if (isDefined(control.getControl())) {
@@ -4978,7 +5013,7 @@ let Map$1 = class Map2 {
       return OlUtil.getUid(i.getPopup()) === OlUtil.getUid(popup.getPopup());
     });
     if (index !== -1) {
-      warn_(createMessage$f("addPopup", "该弹窗已添加到地图中"));
+      warn_(createMessage$g("addPopup", "该弹窗已添加到地图中"));
       return;
     }
     if (isDefined(popup.getPopup())) {
@@ -4997,11 +5032,11 @@ let Map$1 = class Map2 {
   getPopupById(id) {
     if (!this._isInitialized("getPopupById")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$f("getPopupById", "参数不能为空"));
+      warn_(createMessage$g("getPopupById", "参数不能为空"));
       return;
     }
     if (!isNumber(id) && !isString(id)) {
-      warn_(createMessage$f("getPopupById", "参数必须为数字或字符串"));
+      warn_(createMessage$g("getPopupById", "参数必须为数字或字符串"));
       return;
     }
     let popup = this.popups.find((popup2) => {
@@ -5012,11 +5047,11 @@ let Map$1 = class Map2 {
   getPopupByProperties(filter) {
     if (!this._isInitialized("getPopupByProperties")) return;
     if (!isDefined(filter)) {
-      warn_(createMessage$f("getPopupById", "参数不能为空"));
+      warn_(createMessage$g("getPopupById", "参数不能为空"));
       return;
     }
     if (!isFunction(filter)) {
-      warn_(createMessage$f("getPopupById", "参数必须为数字或字符串"));
+      warn_(createMessage$g("getPopupById", "参数必须为数字或字符串"));
       return;
     }
     const popups = this.popups.filter((p) => {
@@ -5044,7 +5079,7 @@ let Map$1 = class Map2 {
       return OlUtil.getUid(i.getPopup()) === OlUtil.getUid(popup.getPopup());
     });
     if (index == -1) {
-      warn_(createMessage$f("removePopup", "该弹窗未添加到地图中"));
+      warn_(createMessage$g("removePopup", "该弹窗未添加到地图中"));
       return;
     }
     if (isDefined(popup.getPopup())) {
@@ -5227,7 +5262,7 @@ let Map$1 = class Map2 {
   centerOn(coordinate, size, position) {
     if (!this._isInitialized("centerOn")) return;
     if (!isDefined(coordinate) || !isDefined(size) || !isDefined(position)) {
-      warn_(createMessage$f("centerOn", commonMessage.paramsListHaveNotDefined("coordinate", "size", "position")));
+      warn_(createMessage$g("centerOn", commonMessage.paramsListHaveNotDefined("coordinate", "size", "position")));
       return;
     }
     this._view.centerOn(
@@ -5247,7 +5282,7 @@ let Map$1 = class Map2 {
   fit(featureOrExtent, options) {
     if (!this._isInitialized("fit")) return;
     if (!(featureOrExtent instanceof BasicFeature || featureOrExtent instanceof Extent)) {
-      warn_(createMessage$f("setProperties", commonMessage.paramsInvaildFormat("featureOrExtent", "BaseFeature或Extent类型")));
+      warn_(createMessage$g("setProperties", commonMessage.paramsInvaildFormat("featureOrExtent", "BaseFeature或Extent类型")));
       return;
     }
     let target = featureOrExtent instanceof BasicFeature ? featureOrExtent.getGeometry() : handleGetExtentValue(featureOrExtent);
@@ -5303,7 +5338,7 @@ let Map$1 = class Map2 {
   setConstrainResolution(enabled) {
     if (!this._isInitialized("setConstrainResolution")) return;
     if (!isBoolean(enabled)) {
-      warn_(createMessage$f("setProperties", commonMessage.paramsInvaildFormat("enabled", "boolean类型")));
+      warn_(createMessage$g("setProperties", commonMessage.paramsInvaildFormat("enabled", "boolean类型")));
       return;
     }
     return this._view.setConstrainResolution(enabled);
@@ -5369,8 +5404,8 @@ const GaodeLayerTypeUrls = {
 function getGaodeLayerUrlsByType(type) {
   return GaodeLayerTypeUrls[type];
 }
-let PACKAGE_NAME$e = "GaodeLayer";
-let createMessage$e = getPackageMessage(PACKAGE_NAME$e);
+let PACKAGE_NAME$f = "GaodeLayer";
+let createMessage$f = getPackageMessage(PACKAGE_NAME$f);
 class GaodeLayer extends BaseLayer {
   constructor(type, options) {
     super("Gaode", defaultValue(options, {}));
@@ -5379,7 +5414,7 @@ class GaodeLayer extends BaseLayer {
      */
     __publicField(this, "gaodeType", null);
     if (!isDefined(type)) {
-      error_(createMessage$e("GaodeLayer", "type参数不能为空"));
+      error_(createMessage$f("GaodeLayer", "type参数不能为空"));
       return;
     }
     let _layerParams = Object.assign({}, DEFAULT_GAODE_LAYER_PARAMS, {
@@ -5440,12 +5475,12 @@ class GaodeLayer extends BaseLayer {
     this._initLayerEvent();
   }
 }
-const PACKAGE_NAME$d = "ProjUtil";
-const createMessage$d = getPackageMessage(PACKAGE_NAME$d);
+const PACKAGE_NAME$e = "ProjUtil";
+const createMessage$e = getPackageMessage(PACKAGE_NAME$e);
 class ProjUtil {
   static fromLonLat(coordinate, projection) {
     if (!isDefined(coordinate)) {
-      warn_(createMessage$d("fromLonLat", "coordinate参数不能为空"));
+      warn_(createMessage$e("fromLonLat", "coordinate参数不能为空"));
       return void 0;
     }
     let _coords = coordinate;
@@ -5458,7 +5493,7 @@ class ProjUtil {
   }
   static toLonLat(coordinate, projection) {
     if (!isDefined(coordinate)) {
-      warn_(createMessage$d("toLonLat", "coordinate参数不能为空"));
+      warn_(createMessage$e("toLonLat", "coordinate参数不能为空"));
       return void 0;
     }
     let _coords = coordinate;
@@ -5669,7 +5704,7 @@ function handle(type, key, ...args) {
   if (isDefined(module) && isDefined(module[key])) {
     return module[key](...args);
   } else {
-    error_(createMessage$c(key, `当前格式化工具不支持${key}方法`));
+    error_(createMessage$d(key, `当前格式化工具不支持${key}方法`));
     return void 0;
   }
 }
@@ -5691,19 +5726,19 @@ function handleWriteFeatures(type, features, options) {
 function handleWriteFeaturesObject(type, features, options) {
   return handle(type, "writeFeaturesObject", features, options);
 }
-const PACKAGE_NAME$c = "Format";
-const createMessage$c = getPackageMessage(PACKAGE_NAME$c);
+const PACKAGE_NAME$d = "Format";
+const createMessage$d = getPackageMessage(PACKAGE_NAME$d);
 class Format {
   constructor(type, options) {
     __publicField(this, "type");
     __publicField(this, "options");
     __publicField(this, "_format");
     if (!isDefined(type)) {
-      error_(createMessage$c("constructor", "初始化参数有误"));
+      error_(createMessage$d("constructor", "初始化参数有误"));
       return;
     }
     if (!isVaildFormatType(type)) {
-      error_(createMessage$c("constructor", "初始化参数有误"));
+      error_(createMessage$d("constructor", "初始化参数有误"));
       return;
     }
     this.type = type;
@@ -5759,8 +5794,8 @@ const commonUrlTemplate = `http://t{0-7}.tianditu.com/DataServer?T={T}&tk={tk}&x
 function getTdtServiceUrl(type, proj) {
   return commonUrlTemplate.replace(/\{T\}/g, type + "_" + proj).replace(/\{tk\}/g, MapTokenProxy.tdt);
 }
-let PACKAGE_NAME$b = "TdtLayer";
-let createMessage$b = getPackageMessage(PACKAGE_NAME$b);
+let PACKAGE_NAME$c = "TdtLayer";
+let createMessage$c = getPackageMessage(PACKAGE_NAME$c);
 class TdtLayer extends BaseLayer {
   constructor(type, options) {
     var _a, _b, _c;
@@ -5770,11 +5805,11 @@ class TdtLayer extends BaseLayer {
      */
     __publicField(this, "tdtType", null);
     if (!isDefined(MapTokenProxy.tdt)) {
-      warn_(createMessage$b("constructor", "缺少天地图key，请提前申明"));
+      warn_(createMessage$c("constructor", "缺少天地图key，请提前申明"));
       return;
     }
     if (!isDefined(type)) {
-      error_(createMessage$b("constructor", "缺少参数天地图图层类型"));
+      error_(createMessage$c("constructor", "缺少参数天地图图层类型"));
       return;
     }
     let _layeroptions = options || {};
@@ -5810,13 +5845,13 @@ const DEFAULT_TILE_LAYER_PARAMS = {
   useInterimTilesOnError: true,
   cacheSize: 512
 };
-let PACKAGE_NAME$a = "TileLayer";
-let createMessage$a = getPackageMessage(PACKAGE_NAME$a);
+let PACKAGE_NAME$b = "TileLayer";
+let createMessage$b = getPackageMessage(PACKAGE_NAME$b);
 class TileLayer extends BaseLayer {
   constructor(options) {
     super("Tile", defaultValue(options, {}));
     if (!isDefined(options.source)) {
-      error_(createMessage$a("constructor", "source参数是必须的"));
+      error_(createMessage$b("constructor", "source参数是必须的"));
       return;
     }
     let _layerParams = Object.assign({}, {
@@ -5854,13 +5889,13 @@ const DEFAULT_XYZ_LAYER_SOURCE_PARAMS = {
   transition: 250,
   zDirection: 0
 };
-let PACKAGE_NAME$9 = "TileLayer";
-let createMessage$9 = getPackageMessage(PACKAGE_NAME$9);
+let PACKAGE_NAME$a = "TileLayer";
+let createMessage$a = getPackageMessage(PACKAGE_NAME$a);
 class XYZLayer extends BaseLayer {
   constructor(options) {
     super("XYZ", defaultValue(options, {}));
     if (!isDefined(options.source)) {
-      error_(createMessage$9("constructor", "source参数是必须的"));
+      error_(createMessage$a("constructor", "source参数是必须的"));
       return;
     }
     let _layerParams = Object.assign({}, DEFAULT_XYZ_LAYER_PARAMS, {
@@ -5934,13 +5969,13 @@ const DEFAULT_WMTS_LAYER_SOURCE_PARAMS = {
   transition: 250,
   zDirection: 0
 };
-let PACKAGE_NAME$8 = "WMTSLayer";
-let createMessage$8 = getPackageMessage(PACKAGE_NAME$8);
+let PACKAGE_NAME$9 = "WMTSLayer";
+let createMessage$9 = getPackageMessage(PACKAGE_NAME$9);
 class WMTSLayer extends BaseLayer {
   constructor(options) {
     super("WMS", defaultValue(options, {}));
     if (!isDefined(options.source)) {
-      warn_(createMessage$8("constructor", "缺少source参数"));
+      warn_(createMessage$9("constructor", "缺少source参数"));
       return;
     }
     let _layerParams = Object.assign({}, DEFAULT_WMTS_LAYER_PARAMS, {
@@ -6013,13 +6048,13 @@ const DEFAULT_WMS_LAYER_SOURCE_PARAMS = {
   transition: 250,
   zDirection: 0
 };
-let PACKAGE_NAME$7 = "WMSLayer";
-let createMessage$7 = getPackageMessage(PACKAGE_NAME$7);
+let PACKAGE_NAME$8 = "WMSLayer";
+let createMessage$8 = getPackageMessage(PACKAGE_NAME$8);
 class WMSLayer extends BaseLayer {
   constructor(options) {
     super("WMS", defaultValue(options, {}));
     if (!isDefined(options.source)) {
-      warn_(createMessage$7("constructor", "缺少source参数"));
+      warn_(createMessage$8("constructor", "缺少source参数"));
       return;
     }
     let _layerParams = Object.assign({}, DEFAULT_WMS_LAYER_PARAMS, {
@@ -6080,13 +6115,13 @@ const DEFAULT_IMAGE_STATIC_SOURCE_PARAMS = {
   imageExtent: new Extent(0, 0, 0, 0),
   url: ""
 };
-let PACKAGE_NAME$6 = "ImageLayer";
-let createMessage$6 = getPackageMessage(PACKAGE_NAME$6);
+let PACKAGE_NAME$7 = "ImageLayer";
+let createMessage$7 = getPackageMessage(PACKAGE_NAME$7);
 class ImageLayer extends BaseLayer {
   constructor(options) {
     super("Image", defaultValue(options, {}));
     if (!isDefined(options.source)) {
-      warn_(createMessage$6("constructor", "缺少source参数"));
+      warn_(createMessage$7("constructor", "缺少source参数"));
       return;
     }
     let _layerParams = Object.assign({}, DEFAULT_IMAGE_LAYER_PARAMS, {
@@ -6136,8 +6171,8 @@ const DragBoxParamsBoxEndHandle = {
     DragBoxParamsBoxEndHandle.function = null;
   }
 };
-const PACKAGE_NAME$5 = "DragBox";
-const createMessage$5 = getPackageMessage(PACKAGE_NAME$5);
+const PACKAGE_NAME$6 = "DragBox";
+const createMessage$6 = getPackageMessage(PACKAGE_NAME$6);
 class DragBox extends Interaction {
   constructor(params) {
     super("DragBox");
@@ -6170,7 +6205,7 @@ class DragBox extends Interaction {
   on(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$5("on", "参数不能为空"));
+      warn_(createMessage$6("on", "参数不能为空"));
       return;
     }
     let list = this.events.get(type);
@@ -6185,11 +6220,11 @@ class DragBox extends Interaction {
   un(id) {
     if (!this._isInitialized("un")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$5("un", "参数不能为空"));
+      warn_(createMessage$6("un", "参数不能为空"));
       return;
     }
     if (!isNumber(id)) {
-      warn_(createMessage$5("un", "事件ID应为number类型"));
+      warn_(createMessage$6("un", "事件ID应为number类型"));
       return;
     }
     this.events.remove(id);
@@ -6197,7 +6232,7 @@ class DragBox extends Interaction {
   once(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$5("on", "参数不能为空"));
+      warn_(createMessage$6("on", "参数不能为空"));
       return;
     }
     let list = this.events.get(type);
@@ -6214,6 +6249,19 @@ class DragBox extends Interaction {
     super.destroy();
   }
 }
+const OMapInteractionExtentEventTypes = [...OMapInteractionEventTypes, "extentchanged"];
+function isOMapInteractionExtentEventType(value) {
+  return typeof value === "string" && OMapInteractionExtentEventTypes.includes(value);
+}
+function handleInteractionExtentEvent(target, type, e) {
+  return {
+    target,
+    type,
+    extent: isDefined(e.extent) ? new Extent(e.extent) : null
+  };
+}
+const PACKAGE_NAME$5 = "InteractionExtent";
+const createMessage$5 = getPackageMessage(PACKAGE_NAME$5);
 const defaultExtentOptions = {
   condition: void 0,
   extent: void 0,
@@ -6237,15 +6285,53 @@ class InteractionExtent extends Interaction {
       this._initInteractionId(params.id);
     }
   }
+  /**
+   * 获取当前选框范围
+   * @returns {Extent | undefined} 当前选框范围
+   */
   getExtent() {
     if (!this._isInitialized("getExtent")) return;
     let extent = this._interaction.getExtent();
-    return extent ? new Extent(extent[0], extent[1], extent[2], extent[3]) : void 0;
+    return isDefined(extent) ? new Extent(...extent) : void 0;
   }
+  /**
+   * 设置当前选框范围
+   * @param {OMapExtentType} extent 选框范围
+   */
   setExtent(extent) {
     if (!this._isInitialized("setExtent")) return;
-    let _extent = extent instanceof Extent ? extent.toArray() : extent;
+    if (!isDefined(extent)) {
+      warn_(createMessage$5("setExtent", commonMessage.paramsNotDefined("extent")));
+      return;
+    }
+    if (!isExtentType(extent) || !(extent instanceof Extent)) {
+      warn_(createMessage$5("setExtent", commonMessage.paramsInvaildFormat("extent", "OMap.Extent 或者 Extent数组")));
+      return;
+    }
+    let _extent = handleGetExtentValue(extent);
     this._interaction.setExtent(_extent);
+  }
+  on(type, callback) {
+    if (!this._isInitialized("on")) return;
+    if (!isDefined(type) || !isDefined(callback)) {
+      warn_(createMessage$5("on", "参数不能为空"));
+      return;
+    }
+    if (!isOMapInteractionExtentEventType(type)) {
+      warn_(createMessage$5("on", "事件类型错误"));
+      return;
+    }
+    if (!isFunction(callback)) {
+      warn_(createMessage$5("on", "回调函数不能为空"));
+      return;
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleInteractionExtentEvent(this, type, e));
+    });
+    const id = this.events.on(type, callback, unlisten);
+    return id;
+  }
+  un(id) {
   }
 }
 function handleModifyEvent(target, type, e) {

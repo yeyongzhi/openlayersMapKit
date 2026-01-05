@@ -44,7 +44,9 @@ export default defineConfig({
           'ol/extent': 'ol.extent',
           'ol/format': 'ol.format',
           'ol/control': 'ol.control',
-          'ol/easing': 'ol.easing'
+          'ol/easing': 'ol.easing',
+          'ol/events/Target': 'ol.events.Target',
+          'ol/events': 'ol.events'
         }
       },
       plugins: shouldObfuscate ? [

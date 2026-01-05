@@ -221,7 +221,7 @@ export default class Modify extends Interaction implements ModifyLike {
         return id
     }
 
-    un(id: number): void {
+    un(id: number | string): void {
         if (!this._isInitialized('un')) return;
         if (!isDefined(id)) {
             warn_(createMessage('un', '参数不能为空'));

@@ -1,27 +1,26 @@
-import { isDefined, isNumber, isCoordinatesType } from '../../../utils/index';
+import { isDefined, isNumber, isCoordinatesType, isFunction } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import type { EventItem, EventIdType, OMapEventsKeyType } from './type'
+import { OlEvent } from '../../../source/index'
 
 const PACKAGE_NAME = 'Event';
 const createMessage = getPackageMessage(PACKAGE_NAME);
-
-interface EventItem<T extends readonly unknown[] = readonly unknown[]> {
-    id: string | number;
-    target?: any;
-    type?: string;
-    callback: (...args: T) => void;
-    once?: boolean;
-}
 
 /** 
  * @class Event事件处理类
  * @classdesc 全局通用的事件处理
  * @author yyz
  * @CreateDate 2025/7/11
- * @LastUpdateDate 2025/7/12
+ * @LastUpdateDate 2026/1/5
  */
 export default class Event<Events extends Record<string, readonly unknown[]> = Record<string, readonly unknown[]>> {
 
-    private events = new Map<string, Array<EventItem<any>>>();
+    private events = new Map<string, Array<EventItem<any>>>(); // 记录事件类型和事件回调
+    /**
+     * 记录 OL 事件的 unlisten 函数
+     * ✅ 每个 type 一个 unlisten
+     */
+    private olUnlisteners = new Map<string, () => void>();
     private target: any = null;
     private total: number = 0;
 
@@ -30,14 +29,15 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         this.target = target
     }
 
-    on<K extends keyof Events>(type: K, callback: (...args: Events[K]) => void): number {
+    on<K extends keyof Events>(type: K, callback: (...args: Events[K]) => void, unlisten?: OMapEventsKeyType): EventIdType {
         let _typeVals = this.events.get(type as string) || []
         let valId = ++this.total;
         _typeVals.push({
             id: valId,
             target: this.target,
             type: type as string,
-            callback
+            callback,
+            unlisten,
         })
         this.events.set(type as string, _typeVals)
         return valId
@@ -45,8 +45,9 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
 
     once<K extends keyof Events>(
         type: K,
-        callback: (...args: Events[K]) => void
-    ): number {
+        callback: (...args: Events[K]) => void,
+        unlisten?: OMapEventsKeyType,
+    ): EventIdType {
         const list = this.events.get(type as string) || [];
         const id = ++this.total;
         list.push({
@@ -54,7 +55,8 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
             target: this.target,
             type: type as string,
             callback,
-            once: true
+            once: true,
+            unlisten,
         });
         this.events.set(type as string, list);
         return id;
@@ -64,7 +66,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         const list = this.events.get(type as string);
         if (!list || list.length === 0) return this;
         // 拷贝一份，防止在回调里增删时遍历出错
-        for (let i = 0; i < list.length; ) {
+        for (let i = 0; i < list.length;) {
             const item = list[i];
             try {
                 item.callback.call(item.target, ...args);
@@ -82,29 +84,46 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         return this;
     }
 
-    remove(id: number | string): this {
+    remove(id: EventIdType): this {
         for (const [type, list] of this.events.entries()) {
             const idx = list.findIndex(item => item.id === id);
             if (idx !== -1) {
+                const item = list[idx];
+                // 👇 调用 unlisten（如果有）
+                if (isDefined(item.unlisten) && isFunction(item.unlisten)) {
+                    item.unlisten();
+                }
                 list.splice(idx, 1);
                 if (list.length === 0) this.events.delete(type);
                 return this;
             }
         }
-        warn_(createMessage('remove', `未找到 id=${id} 的监听`));
+        warn_(createMessage('remove', `未找到【id=${id}】的监听`));
         return this;
     }
 
     off<K extends keyof Events>(type?: K): this {
         if (type === undefined) {
+            // 清空全部
+            for (const list of this.events.values()) {
+                for (const item of list) {
+                    if (item.unlisten) OlEvent.unlistenByKey(item.unlisten);
+                }
+            }
             this.events.clear();
         } else {
-            this.events.delete(type as string);
+            const list = this.events.get(type as string);
+            if (list) {
+                for (const item of list) {
+                    if (item.unlisten) OlEvent.unlistenByKey(item.unlisten);
+                }
+                this.events.delete(type as string);
+            }
         }
         return this;
     }
 
-    getEventById(id: string | number): EventItem | undefined {
+    getEventById(id: EventIdType): EventItem | undefined {
         for (const list of this.events.values()) {
             const found = list.find(item => item.id === id);
             if (found) return found;
@@ -116,7 +135,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         return this.events.get(type as string) || [];
     }
 
-    listenerCount<K extends keyof Events>(type: K): number {
+    listenerCount<K extends keyof Events>(type: K): EventIdType {
         return this.events.get(type as string)?.length || 0;
     }
 
