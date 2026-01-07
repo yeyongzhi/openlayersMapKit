@@ -86,6 +86,7 @@ export default class Interaction implements InteractionLike {
 
     constructor(type: OMapInteractionType) {
         this.type = type;
+        this.events = new Event(this);
     }
 
     protected initInteractionEvent() {

@@ -1,20 +1,37 @@
-import { OlSource, OlLayer, OlInteraction } from '../../../source/index'
+import { OlSource, OlLayer, OlInteraction, OlGeometry } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
+import { isString } from '../../../utils/dataType'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
 import type { OMapPointGeometryCoordinatesType } from '../../core/Feature/Point/type'
 import type { OMapLineStringGeometryCoordinatesType } from '../../core/Feature/LineString/type'
 import type { OMapPolygonGeometryCoordinatesType } from '../../core/Feature/Polygon/type'
+import { type OMapInteractionCommonParamsType, type OMapInteractionEventType, OMapInteractionEventTypes } from '../Interaction/type'
 
 export type OlModifyParamsType = ConstructorParameters<typeof OlInteraction.Modify>[0]
 type CustOlModifyParamsType = ManualOmit<OlModifyParamsType,
-    ''
+    'source'
 >
 export type OMapModifyParamsType = CustOlModifyParamsType & {
     layer: VectorLayer;
-}
+} & OMapInteractionCommonParamsType
+
 export type OlModifyInstanceType = InstanceType<typeof OlInteraction.Modify>
-export type OMapModifyEventType = 'modifyend' | 'modifystart'
+export const OMapInteractionModifyEventTypes = [...OMapInteractionEventTypes, 'modifystart', 'modifyend'] as const
+export type OMapInteractionModifyEventType = typeof OMapInteractionModifyEventTypes[number] extends infer T
+    ? T extends string
+    ? T
+    : never
+    : never;
+
+export function isOMapInteractionModifyEventType(
+    value: unknown
+): value is OMapInteractionModifyEventType {
+    return (
+        isString(value) &&
+        OMapInteractionModifyEventTypes.includes(value as any)
+    );
+}
 
 export interface SampleRecordItem {
     /**
@@ -45,7 +62,7 @@ export interface ModifyRecordItem {
     /**
      * 要素集合
      */
-    features: Array<BasicFeature | SampleRecordItem>;
+    features: Array<BasicFeature<OlGeometry.Geometry> | SampleRecordItem>;
     /** 
      * 修改版本
      */

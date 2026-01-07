@@ -10,14 +10,7 @@ import type {
     BasicFeatureLike,
     BasicFeatureInitialized
 } from './type'
-import type { OMapPointGeometryCoordinatesType } from '../Point/type'
-import type { OMapLineStringGeometryCoordinatesType } from '../LineString/type'
-import type { OMapPolygonGeometryCoordinatesType } from '../Polygon/type'
-import type { OMapLinearRingGeometryCoordinatesType } from '../LinearRing/type'
 import type { PropertiesType } from '../../../../utils/type'
-import Lnglat from '../../../basic/Lnglat/index';
-import type { OlCoordinateType } from '../../../basic/Lnglat/type';
-import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 
 const PACKAGE_NAME = 'BasicFeature';
 const createMessage = getPackageMessage(PACKAGE_NAME);

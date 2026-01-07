@@ -1,5 +1,5 @@
-import { isDefined } from '../../../utils/index';
-import { type OMapEventType, type OMapEventTarget } from './type'
+import { isDefined, isString } from '../../../utils/index';
+import { type OMapEventType, type OMapEventTarget, OMapMapEventTypes } from './type'
 import Lnglat from '../../basic/Lnglat/index'
 import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
@@ -68,4 +68,8 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
             break;
     }
     return result
+}
+
+export function isOMapMapEventType(type: unknown): type is OMapEventType {
+    return isString(type) && OMapMapEventTypes.includes(type as any)
 }

@@ -4,12 +4,13 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { OMapStyleLike, OMapStyleOptionsType, OlStyleInstanceType } from './type'
 import { OMapStrokeStyleDefaultOptions } from './type'
 import { OlStyle } from '../../../source/index'
-import { 
+import {
     getOlFillSingleStyle,
     getOlStrokeSingleStyle,
     getOlCircleSingleStyle,
     getOlIconSingleStyle,
-    getOlRegularShapeSingleStyle
+    getOlRegularShapeSingleStyle,
+    getOlTextSingleStyle
 } from './handle'
 
 const PACKAGE_NAME = 'Style';
@@ -32,22 +33,20 @@ export default class Style {
     constructor(options: OMapStyleOptionsType) {
         const { fill, stroke, text, circle, icon, regularShape } = options
         let _image
-        if(circle) {
+        if (circle) {
             _image = getOlCircleSingleStyle(circle)
-        } else if(icon) {
+        } else if (icon) {
             _image = getOlIconSingleStyle(icon)
-        } else if(regularShape) {
+        } else if (regularShape) {
             _image = getOlRegularShapeSingleStyle(regularShape)
         }
-        this._style = new OlStyle.Style({
+        let _params = Object.assign({}, options, {
             fill: getOlFillSingleStyle(fill),
             stroke: getOlStrokeSingleStyle(stroke),
             image: _image,
+            text: getOlTextSingleStyle(text)
         })
-    }
-
-    private _isInitialized(method: string) {
-        
+        this._style = new OlStyle.Style(_params)
     }
 
     getStyle(): OlStyleInstanceType | undefined {

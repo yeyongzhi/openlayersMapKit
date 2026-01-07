@@ -1,7 +1,8 @@
-import { isDefined, isNumber, isCoordinatesType, isFunction } from '../../../utils/index';
+import { isDefined, defaultValue, isNumber, isCoordinatesType, isFunction } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { EventItem, EventIdType, OMapEventsKeyType } from './type'
 import { OlEvent } from '../../../source/index'
+import { getConstructorName } from './handle'
 
 const PACKAGE_NAME = 'Event';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -11,36 +12,38 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @classdesc 全局通用的事件处理
  * @author yyz
  * @CreateDate 2025/7/11
- * @LastUpdateDate 2026/1/5
+ * @LastUpdateDate 2026/1/7
  */
 export default class Event<Events extends Record<string, readonly unknown[]> = Record<string, readonly unknown[]>> {
 
+    protected instanceName: string = "";
+    private localCounter = 0; // 本实例内的递增序号
     private events = new Map<string, Array<EventItem<any>>>(); // 记录事件类型和事件回调
-    /**
-     * 记录 OL 事件的 unlisten 函数
-     * ✅ 每个 type 一个 unlisten
-     */
-    private olUnlisteners = new Map<string, () => void>();
     private target: any = null;
     private total: number = 0;
 
     constructor(target?: any) {
         this.events.clear()
         this.target = target
+        this.instanceName = getConstructorName(target) || ""
+    }
+
+    private generateId(): EventIdType {
+        return `${this.instanceName}-event-${++this.localCounter}` as const;
     }
 
     on<K extends keyof Events>(type: K, callback: (...args: Events[K]) => void, unlisten?: OMapEventsKeyType): EventIdType {
         let _typeVals = this.events.get(type as string) || []
-        let valId = ++this.total;
+        const id = this.generateId();
         _typeVals.push({
-            id: valId,
+            id,
             target: this.target,
             type: type as string,
             callback,
             unlisten,
         })
         this.events.set(type as string, _typeVals)
-        return valId
+        return id
     }
 
     once<K extends keyof Events>(
@@ -49,7 +52,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         unlisten?: OMapEventsKeyType,
     ): EventIdType {
         const list = this.events.get(type as string) || [];
-        const id = ++this.total;
+        const id = this.generateId();
         list.push({
             id,
             target: this.target,
@@ -135,7 +138,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
         return this.events.get(type as string) || [];
     }
 
-    listenerCount<K extends keyof Events>(type: K): EventIdType {
+    listenerCount<K extends keyof Events>(type: K): number {
         return this.events.get(type as string)?.length || 0;
     }
 

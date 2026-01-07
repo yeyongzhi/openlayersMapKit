@@ -1,5 +1,5 @@
 export interface EventItem<T extends readonly unknown[] = readonly unknown[]> {
-    id: number;
+    id: string;
     target?: any;
     type?: string;
     callback: (...args: T) => void;

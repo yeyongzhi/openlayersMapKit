@@ -107,8 +107,38 @@ export default class InteractionExtent extends Interaction {
         return id
     }
 
-    un(id: number): void {
+    once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
+        if (!this._isInitialized('once')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('once', '参数不能为空'));
+            return;
+        }
+        if (!isOMapInteractionExtentEventType(type)) {
+            warn_(createMessage('once', '事件类型错误'));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('once', '回调函数不能为空'));
+            return;
+        }
+        const unlisten = OlEvent.listen((this._interaction as OlInteractionExtentInstanceType), type, (e: any) => {
+            this.events.emit(type, handleInteractionExtentEvent(this, type, e))
+        })
+        const id = this.events.once(type, callback, unlisten)
+        return id
+    }
 
+    un(id: EventIdType): void {
+        if (!this._isInitialized('un')) return;
+        if (!isDefined(id)) {
+            warn_(createMessage('un', '参数不能为空'));
+            return;
+        }
+        if (!isNumber(id)) {
+            warn_(createMessage('un', '事件ID应为number类型'));
+            return;
+        }
+        this.events.remove(id)
     }
 
 }

@@ -35,6 +35,8 @@ const SelectLayerInputChecked = document.getElementById('SelectLayer')
 let distanceMeasure = null
 let areaMeasure = null
 
+let testVectorLayer = null
+
 const polygonData = [
     [
         [120.19715036, 30.27835874],
@@ -232,14 +234,13 @@ function initDrawInteraction() {
 }
 
 let selectTool = null
-let selectLayer = null
 function initSelectInteraction() {
     SelectInputChecked.onchange = (e) => {
         const value = e.target.checked
         if (value) {
             if (!selectTool) {
                 selectTool = new OMap.Select({
-                    layers: [selectLayer],
+                    layers: [testVectorLayer],
                     style: (feature) => {
                         return new OMap.Style({
                             circle: {
@@ -274,23 +275,46 @@ function initSelectInteraction() {
             showMessage('选择工具已禁用', 'error')
         }
     }
-    SelectLayerInputChecked.onchange = (e) => {
-        const value = e.target.checked
-        if (value) {
-            if (!selectLayer) {
-                selectLayer = initVectorLayer()
-            } else {
-                selectLayer.setVisible(true)
-            }
-            showMessage('选择图层已激活', 'success')
-        } else {
-            selectLayer.setVisible(false)
-            showMessage('选择图层已禁用', 'error')
-        }
-    }
     document.getElementById('destroySelect').onclick = () => {
         selectTool.destroy()
         SelectInputChecked.checked = false
+    }
+}
+
+let modifyTool = null
+function initModifyInteraction() {
+    document.getElementById('Modify').onchange = (e) => {
+        const value = e.target.checked
+        if (value) {
+            if (!modifyTool) {
+                modifyTool = new OMap.Modify({
+                    layer: testVectorLayer
+                })
+                modifyTool.on('modifystart', (e) => {
+                    console.log(e)
+                })
+                modifyTool.on('modifyend', (e) => {
+                    console.log(e)
+                })
+                map.addInteraction(modifyTool)
+            } else {
+                modifyTool.setActive(true)
+            }
+            showMessage('修改工具已激活', 'success')
+        } else {
+            modifyTool.setActive(false)
+            showMessage('修改工具已禁用', 'error')
+        }
+    }
+    document.getElementById('destroyModify').onclick = () => {
+        modifyTool.destroy()
+        document.getElementById('Modify').checked = false
+    }
+    document.getElementById('revokeModify').onclick = () => {
+        modifyTool.revoke()
+    }
+    document.getElementById('cancelModify').onclick = () => {
+        modifyTool.cancel()
     }
 }
 
@@ -465,7 +489,6 @@ function initVectorLayer() {
     // let extent2 = vlayer.getExtent()
     // console.log(extent2)
     return vlayer
-
 }
 
 
@@ -891,9 +914,12 @@ const initInteractionChanged = () => {
                     }
                 })
             })
-            interaction.on('extentchanged', (e) => {
+            const id = interaction.on('extentchanged', (e) => {
                 console.log(e)
             })
+            setTimeout(() => {
+                interaction.un(id)
+            }, 5000)
             map.addInteraction(interaction)
         } else {
             interaction.setActive(value)
@@ -904,6 +930,30 @@ const initInteractionChanged = () => {
         if (interactionextent) {
             console.log(interactionextent.getExtent().toArray().join(', '))
             showMessage(`范围获取成功`, 'success')
+        }
+    }
+    document.getElementById('InteractionLink').onchange = (e) => {
+        let value = e.target.checked
+        let interaction = map.getInteractionById('omap_default_interactionlink')
+        if (!interaction) {
+            interaction = new OMap.Link({
+                id: 'omap_default_interactionlink',
+            })
+            map.addInteraction(interaction)
+        } else {
+            interaction.setActive(value)
+        }
+    }
+    document.getElementById('testVectorLayer').onchange = (e) => {
+        let value = e.target.checked
+        if(value) {
+            if(!testVectorLayer) {
+                testVectorLayer = initVectorLayer()
+            } else {
+                testVectorLayer.setVisible(true)
+            }
+        } else {
+            testVectorLayer.setVisible(false)
         }
     }
 }
@@ -917,6 +967,8 @@ function init() {
     initDrawInteraction()
 
     initSelectInteraction()
+
+    initModifyInteraction()
 
     initMeasureInteraction()
 

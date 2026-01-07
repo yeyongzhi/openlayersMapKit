@@ -13,38 +13,59 @@ constructor() {
 ## 2. 事件监听
 
 ```javascript
-on(type: string, callback: () => void) {
+on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
     if (!this._isInitialized('on')) return;
     if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage('on', '参数不能为空'));
+        warn_(createMessage('on', commonMessage.paramsListHaveNotDefined('type or callback')));
         return;
     }
-    let list = (this.events as Event).get(type)
-    if (!isDefined(list) || list.length === 0) {
-        (this._interaction as OlModifyInstanceType).on(type, (e) => {
-            (this.events as Event).emit(type, handleModifyEvent(this, type, e))
-        })
+    if (!isOMapInteractionExtentEventType(type)) {
+        warn_(createMessage('on', commonMessage.paramsInvaildEnum('type')));
+        return;
+    };
+    if (!isFunction(callback)) {
+        warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+        return;
     }
-    const id = (this.events as Event).on(type, callback)
+    const unlisten = OlEvent.listen((this._interaction as OlInteractionExtentInstanceType), type, (e: any) => {
+        this.events.emit(type, handleInteractionExtentEvent(this, type, e))
+    })
+    const id = this.events.on(type, callback, unlisten)
     return id
 }
 
-un(id: number): void {
+once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
+    if (!this._isInitialized('once')) return;
+    if (!isDefined(type) || !isDefined(callback)) {
+        warn_(createMessage('once', '参数不能为空'));
+        return;
+    }
+    if (!isOMapInteractionExtentEventType(type)) {
+        warn_(createMessage('once', '事件类型错误'));
+        return;
+    };
+    if (!isFunction(callback)) {
+        warn_(createMessage('once', '回调函数不能为空'));
+        return;
+    }
+    const unlisten = OlEvent.listen((this._interaction as OlInteractionExtentInstanceType), type, (e: any) => {
+        this.events.emit(type, handleInteractionExtentEvent(this, type, e))
+    })
+    const id = this.events.once(type, callback, unlisten)
+    return id
+}
+
+un(id: EventIdType): void {
     if (!this._isInitialized('un')) return;
     if (!isDefined(id)) {
-        warn_(createMessage('un', '参数不能为空'));
+        warn_(createMessage('un', commonMessage.paramsNotDefined('id')));
         return;
     }
     if (!isNumber(id)) {
         warn_(createMessage('un', '事件ID应为number类型'));
         return;
     }
-    (this.events as Event).remove(id)
-}
-
-once() {
-    ...同上面的on，只需要修改下面这一行
-    const id = (this.events as Event).once(type, callback)
+    this.events.remove(id)
 }
 ```
 

@@ -19,7 +19,7 @@ export type OMapStyleOptionsType = {
     circle?: OMapCircleStyleOptionsType,
     icon?: OMapIconStyleOptionsType,
     regularShape?: OMapRegularShapeStyleOptionsType,
-    text?: {},
+    text?: OMapTextStyleOptionsType,
     stroke?: OMapStrokeStyleOptionsType;
     zIndex?: number;
     hitDetectionRenderer?: any;
@@ -82,4 +82,15 @@ type CustOlRegularShapeStyleOptionsType = ManualOmit<OlRegularShapeStyleOptionsT
 export type OMapRegularShapeStyleOptionsType = CustOlRegularShapeStyleOptionsType & {
     fill?: OMapFillStyleOptionsType,
     stroke?: OMapStrokeStyleOptionsType,
+}
+
+/** Text类型 */
+type OlTextStyleOptionsType = ConstructorParameters<typeof OlStyle.Text>[0]
+type CustOlTextStyleOptionsType = ManualOmit<OlTextStyleOptionsType, 'scale' | 'fill' | 'stroke' | 'backgroundFill' | 'backgroundStroke'>;
+export type OMapTextStyleOptionsType = CustOlTextStyleOptionsType & {
+    scale?: number | Size,
+    fill?: OMapFillStyleOptionsType,
+    stroke?: OMapStrokeStyleOptionsType,
+    backgroundFill?: OMapFillStyleOptionsType,
+    backgroundStroke?: OMapStrokeStyleOptionsType,
 }

@@ -8,13 +8,16 @@ import type {
     OMapIconStyleOptionsType,
     OMapRegularShapeStyleOptionsType,
     OlStyleInstanceType,
-    OMapStyleLike
+    OMapStyleLike,
+    OMapTextStyleOptionsType
 } from './type'
 import { OlStyle } from '../../../source/index'
 import { Color } from '../../../index'
 import Style from './index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import { isDefined, isFunction, isNumber } from '../../../utils/index'
+import { handleGetColorValue } from '../Color/handle'
+import Size from '../../basic/Size/index'
 
 export function getOlFillSingleStyle(options: OMapFillStyleOptionsType | undefined) {
     if (!isDefined(options)) {
@@ -153,4 +156,45 @@ export function handleGetStyleValue(style?: OMapStyleLike): OlStyleInstanceType 
         }
     }
     return undefined
+}
+
+export function getOlTextSingleStyle(options: OMapTextStyleOptionsType | undefined) {
+    if (!isDefined(options)) {
+        return undefined
+    }
+    let _style = new OlStyle.Text({
+        ...options,
+        fill: undefined,
+        stroke: undefined,
+        backgroundFill: undefined,
+        backgroundStroke: undefined,
+        scale: undefined
+    })
+    const { fill, scale, stroke, backgroundFill, backgroundStroke } = (options as OMapTextStyleOptionsType)
+    if (isDefined(fill)) {
+        _style.setFill(new OlStyle.Fill({
+            color: handleGetColorValue(fill.color)
+        }))
+    }
+    if (isDefined(stroke)) {
+        _style.setStroke(new OlStyle.Stroke({
+            ...stroke,
+            color: handleGetColorValue(stroke.color),
+        }))
+    }
+    if (isDefined(backgroundFill)) {
+        _style.setBackgroundFill(new OlStyle.Fill({
+            color: handleGetColorValue(backgroundFill.color)
+        }))
+    }
+    if (isDefined(backgroundStroke)) {
+        _style.setBackgroundStroke(new OlStyle.Stroke({
+            ...backgroundStroke,
+            color: handleGetColorValue(backgroundStroke.color),
+        }))
+    }
+    if (isDefined(scale)) {
+        _style.setScale(scale instanceof Size ? scale.getSize() : scale)
+    }
+    return _style
 }

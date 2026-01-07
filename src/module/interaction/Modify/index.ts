@@ -1,17 +1,26 @@
-import { isDefined, isNumber, isString } from '../../../utils/index';
+import { isDefined, isFunction, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { commonMessage } from '../../../utils/message'
 import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
 import { getCurrentDateTime } from '../../../utils/handle'
-import { OlInteraction, OlUtil, OlGeometry } from '../../../source/index'
+import { OlInteraction, OlUtil, OlGeometry, OlEvent } from '../../../source/index'
 import Interaction from '../Interaction/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
 import Lnglat from '../../basic/Lnglat/index'
 import Event from '../../util/Event/index'
 import { type OlVectorSourceInstanceType } from '../../layer/VectorLayer/type'
-import type { OMapModifyParamsType, OlModifyInstanceType, OMapModifyEventType, ModifyRecordItem, SampleRecordItem } from './type'
+import {
+    type OMapModifyParamsType,
+    type OlModifyInstanceType,
+    type OMapInteractionModifyEventType,
+    type ModifyRecordItem,
+    type SampleRecordItem,
+    isOMapInteractionModifyEventType
+} from './type'
 import { handleModifyEvent } from './handle'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
+import type { EventIdType } from '../../util/Event/type'
 
 const PACKAGE_NAME = 'Modify';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -23,10 +32,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/4
- * @updateDate 2025/9/4
+ * @updateDate 2026/1/7
  */
 
-const defaultDModifyOptions = {
+const defaultModifyOptions = {
     condition: undefined,
     deleteCondition: undefined,
     insertVertexCondition: undefined,
@@ -39,43 +48,43 @@ const defaultDModifyOptions = {
     snapToPointer: false
 }
 
-interface ModifyLike {
-    /**
-     * 存储修改记录
-     */
-    records: Array<ModifyRecordItem>;
-}
-
-export default class Modify extends Interaction implements ModifyLike {
+export default class Modify extends Interaction {
 
     records: Array<ModifyRecordItem> = [];
 
     constructor(params: OMapModifyParamsType) {
+        if (!isDefined(params)) {
+            error_(createMessage('init', 'params参数不能为空'));
+        }
         super("Modify")
         let modify_source: OlVectorSourceInstanceType | null = null
         if (!isDefined(params.layer)) {
-            error_(createMessage('init', 'layer参数不能为空'));
+            warn_(createMessage('init', 'layer参数不能为空'));
         }
         if (isDefined(params.layer) && !(params.layer instanceof VectorLayer)) {
-            error_(createMessage('init', 'layer参数不属于VectorLayer类型'));
+            warn_(createMessage('init', 'layer参数不属于VectorLayer类型'));
         }
         this.layer = params.layer
         modify_source = (params.layer.getSource() as OlVectorSourceInstanceType)
-        let _params = Object.assign({}, defaultDModifyOptions, {
+        let _params = Object.assign({}, defaultModifyOptions, {
             ...params,
             source: modify_source
         })
         this._interaction = new OlInteraction.Modify(_params)
-        // 注册事件
         this.initInteractionEvent()
+        if (isDefined(params) && isDefined(params.id)) {
+            this._initInteractionId(params.id)
+        }
         // 初始化Modify事件
-        this.initModifyEvent()
+        this._initModifyEvent()
     }
 
-    protected initModifyEvent(): void {
-        if (!this._isInitialized('initModifyEvent')) return;
+    protected _initModifyEvent(): void {
+        if (!this._isInitialized('_initModifyEvent')) return;
         let originFeatures = (this.layer as VectorLayer).getFeatures(); // 最初始的features
         // 这里不能直接放入originFeatures，因为originFeatures会在modify的过程中被修改
+        // 因此保存经纬度信息即可
+        // TODO：后续可能需要接入properties
         let originFeaturesList: SampleRecordItem[] = (originFeatures || []).map(o => {
             return {
                 id: o.id,
@@ -89,15 +98,12 @@ export default class Modify extends Interaction implements ModifyLike {
             features: originFeaturesList,
             version: 1,
         });
-        // (this._interaction as OlModifyInstanceType).on("modifystart", (e) => {
-        //     console.log(e)
-        // });
         (this._interaction as OlModifyInstanceType).on("modifyend", (e) => {
             let features = e.features.getArray()
             let newList: any[] = []
             features.forEach(f => {
                 let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature<OlGeometry.Geometry>[]).find(item => {
-                    return OlUtil.getUid(item._feature) === OlUtil.getUid(f)
+                    return OlUtil.getUid(item.getFeature()) === OlUtil.getUid(f)
                 })
                 if (target) {
                     newList.push({
@@ -164,7 +170,7 @@ export default class Modify extends Interaction implements ModifyLike {
         let nowIndex = this.records.length - 1
         let targetIndex = nowIndex - step
         // 回到初始的状态
-        if(targetIndex === 0) {
+        if (targetIndex === 0) {
             this.cancel()
             return false;
         }
@@ -205,49 +211,59 @@ export default class Modify extends Interaction implements ModifyLike {
         ]
     }
 
-    on(type: OMapModifyEventType, callback: () => void): number | string | undefined {
+    on(type: OMapInteractionModifyEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', '参数不能为空'));
+            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
         }
-        let list = (this.events as Event).get(type)
-        if (!isDefined(list) || list.length === 0) {
-            (this._interaction as OlModifyInstanceType).on(type, (e) => {
-                (this.events as Event).emit(type, handleModifyEvent(this, type, e))
-            })
+        if (!isOMapInteractionModifyEventType(type)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
         }
-        const id = (this.events as Event).on(type, callback)
+        const unlisten = OlEvent.listen((this._interaction as OlModifyInstanceType), type, (e: any) => {
+            this.events.emit(type, handleModifyEvent(this, type, e))
+        })
+        const id = this.events.on(type, callback, unlisten)
         return id
     }
 
-    un(id: number | string): void {
+    once(type: OMapInteractionModifyEventType, callback: () => void): EventIdType | undefined {
+        if (!this._isInitialized('on')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
+            return;
+        }
+        if (!isOMapInteractionModifyEventType(type)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
+        }
+        const unlisten = OlEvent.listen((this._interaction as OlModifyInstanceType), type, (e: any) => {
+            this.events.emit(type, handleModifyEvent(this, type, e))
+        })
+        const id = this.events.once(type, callback, unlisten)
+        return id
+    }
+
+    un(id: EventIdType): void {
         if (!this._isInitialized('un')) return;
         if (!isDefined(id)) {
-            warn_(createMessage('un', '参数不能为空'));
+            warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
             return;
         }
-        if (!isNumber(id)) {
-            warn_(createMessage('un', '事件ID应为number类型'));
+        if (!isString(id)) {
+            warn_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'string')));
             return;
         }
-        (this.events as Event).remove(id)
-    }
-
-    once(type: OMapModifyEventType, callback: () => void): number | string | undefined {
-        if (!this._isInitialized('on')) return;
-        if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', '参数不能为空'));
-            return;
-        }
-        let list = (this.events as Event).get(type)
-        if (!isDefined(list) || list.length === 0) {
-            (this._interaction as OlModifyInstanceType).on(type, (e) => {
-                (this.events as Event).emit(type, handleModifyEvent(this, type, e))
-            })
-        }
-        const id = (this.events as Event).once(type, callback)
-        return id
+        this.events.remove(id)
     }
 
 }

@@ -1,6 +1,6 @@
 import { isArray, isDefined, isEmptyString, isObject, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage, isVaildColorRGB, ColorhexToRGB, isVaildOpacity, isVaildColorHex, isVaildColorHexWithAlpha, isVaildColorRGBString, extractRGBValues, extractRGBAValues, opacityHexToNumber } from '../../../utils/index'
-import type { ColorType, ColorObjectType } from '../../../utils/index';
+import type { ColorType, ColorObjectType } from './type';
 import { presetsColor } from './presetsColor';
 
 const PACKAGE_NAME = 'Color';
@@ -15,7 +15,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * 6.rgba格式（数组）：[255, 0, 0, 0.8]
  * 7.rgba格式（数组）：[#ff0000, 0.8]
  * 8.对象格式：{ color: '#1890FF', alpha: 0.8 } 或者 { color: 'rgb(255, 0, 0)', alpha: 0.8 }
- * 9.快捷颜色：'red', 'blue'
+ * 9.快捷颜色：'red', 'blue' 参考 presetsColor
  */
 
 /**
@@ -29,6 +29,11 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Color {
+    /**
+     * 颜色值
+     * 所有的颜色值均以string的格式输出
+     * @type {string}
+     */
     _color: string = "";
 
     constructor(color: ColorType) {
@@ -140,10 +145,14 @@ export default class Color {
         }
     }
 
-    getColor() {
+    getColor(): string {
         return this._color;
     }
 
+    /**
+     * 设置颜色
+     * @param {ColorType} color 颜色值
+     */
     setColor(color: ColorType) {
         this._initColor(color);
     }

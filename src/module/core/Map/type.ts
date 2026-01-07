@@ -67,36 +67,34 @@ export const defaultMapOptions: OMapOptionsType = {
     interactions: defaultMapInteractions,
     popups: defaultMapPopups
 }
+export const OMapMapEventTypes = [
+    'map:change:size',
+    'map:click',
+    'map:dbclick',
+    'map:error',
+    'map:loadend',
+    'map:loadstart',
+    'map:moveend',
+    'map:movestart',
+    'map:pointerdrag',
+    'map:pointermove',
+    'map:postcompose',
+    'map:postrender',
+    'map:precompose',
+    'map:propertychange',
+    'map:rendercomplete',
+    'map:singleclick',
+    'view:change',
+    'view:change:center',
+    'view:change:resolution',
+    'view:change:rotation',
+    'view:error',
+    'view:propertychange',
+] as const;
+
+export type OMapEventType = typeof OMapMapEventTypes[number];
 
 
-export type OMapEventType = 
-// 'map:change'
-// 'map:change:layerGroup'
-'map:change:size' | 
-// 'map:change:target'
-// 'map:change:view'
-'map:click' |
-'map:dbclick' |
-'map:error' |
-'map:loadend' |
-'map:loadstart' |
-'map:moveend' |
-'map:movestart' |
-'map:pointerdrag' |
-'map:pointermove' |
-'map:postcompose' |
-'map:postrender' |
-'map:precompose' |
-'map:propertychange' |
-'map:rendercomplete' |
-'map:singleclick' |
-// view部分
-'view:change' |
-'view:change:center' |
-'view:change:resolution' |
-'view:change:rotation' |
-'view:error' |
-'view:propertychange'
 
 export type OMapEventTarget = {
     target: any;

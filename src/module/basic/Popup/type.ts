@@ -1,3 +1,4 @@
+import { isString } from '../../../utils/dataType'
 import { OlOverlay } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import Lnglat from '../../basic/Lnglat/index'
@@ -42,9 +43,25 @@ export const DEFAULT_POPUP_PARAMS: OMapPopupParamsType = {
     className: 'omap-popup-element',
 }
 
-type OlOverlayEventType = "change:position" | "change:positioning" | "change:element" | "change:offset"
+export const OMapPupupEventTypes = [
+    "change:position",
+    "change:positioning",
+    "change:element",
+    "change:offset",
+    "change:content",
+    "change:properties",
+] as const
+export type OMapPopupEventType = typeof OMapPupupEventTypes[number] extends infer T
+    ? T extends string
+    ? T
+    : never
+    : never;
 
-export function isOlOverlayEventType(type: string): type is OlOverlayEventType {
-    return ["change:position", "change:positioning", "change:element", "change:offset"].includes(type)
+export function isOMapPopupEventType(
+    value: unknown
+): value is OMapPopupEventType {
+    return (
+        isString(value) &&
+        OMapPupupEventTypes.includes(value as any)
+    );
 }
-export type OMapPopupEventType = OlOverlayEventType |"change:content" | "change:properties"

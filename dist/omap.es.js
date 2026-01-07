@@ -49,6 +49,9 @@ function paramsListHaveNotDefined(...paramsName) {
 function paramsInvaildFormat(paramsName, format) {
   return `参数${paramsName}格式错误` + (format ? `，正确格式为${format}` : "");
 }
+function paramsInvaildEnum(paramsName, enums) {
+  return `参数${paramsName}不在合法枚举值内`;
+}
 function paramsListInvaildFormat(...paramsName) {
   return `参数${paramsName.join("、")}格式错误`;
 }
@@ -59,6 +62,7 @@ const commonMessage = {
   paramsNotDefined,
   paramsListHaveNotDefined,
   paramsInvaildFormat,
+  paramsInvaildEnum,
   paramsListInvaildFormat,
   haveInvaildDataItem
 };
@@ -648,6 +652,11 @@ const PACKAGE_NAME$A = "Color";
 const createMessage$A = getPackageMessage(PACKAGE_NAME$A);
 class Color {
   constructor(color) {
+    /**
+     * 颜色值
+     * 所有的颜色值均以string的格式输出
+     * @type {string}
+     */
     __publicField(this, "_color", "");
     this._initColor(color);
   }
@@ -747,6 +756,10 @@ class Color {
   getColor() {
     return this._color;
   }
+  /**
+   * 设置颜色
+   * @param {ColorType} color 颜色值
+   */
   setColor(color) {
     this._initColor(color);
   }
@@ -999,6 +1012,12 @@ class Extent {
     return OlExtent.isEmpty(_extent);
   }
 }
+function handleGetColorValue(color) {
+  if (isDefined(color)) {
+    return color instanceof Color ? color.getColor() : color;
+  }
+  return void 0;
+}
 function getOlFillSingleStyle(options) {
   if (!isDefined(options)) {
     return void 0;
@@ -1127,6 +1146,46 @@ function handleGetStyleValue(style) {
   }
   return void 0;
 }
+function getOlTextSingleStyle(options) {
+  if (!isDefined(options)) {
+    return void 0;
+  }
+  let _style = new OlStyle.Text({
+    ...options,
+    fill: void 0,
+    stroke: void 0,
+    backgroundFill: void 0,
+    backgroundStroke: void 0,
+    scale: void 0
+  });
+  const { fill, scale, stroke, backgroundFill, backgroundStroke } = options;
+  if (isDefined(fill)) {
+    _style.setFill(new OlStyle.Fill({
+      color: handleGetColorValue(fill.color)
+    }));
+  }
+  if (isDefined(stroke)) {
+    _style.setStroke(new OlStyle.Stroke({
+      ...stroke,
+      color: handleGetColorValue(stroke.color)
+    }));
+  }
+  if (isDefined(backgroundFill)) {
+    _style.setBackgroundFill(new OlStyle.Fill({
+      color: handleGetColorValue(backgroundFill.color)
+    }));
+  }
+  if (isDefined(backgroundStroke)) {
+    _style.setBackgroundStroke(new OlStyle.Stroke({
+      ...backgroundStroke,
+      color: handleGetColorValue(backgroundStroke.color)
+    }));
+  }
+  if (isDefined(scale)) {
+    _style.setScale(scale instanceof Size ? scale.getSize() : scale);
+  }
+  return _style;
+}
 class Style {
   constructor(options) {
     __publicField(this, "_style");
@@ -1139,50 +1198,57 @@ class Style {
     } else if (regularShape) {
       _image = getOlRegularShapeSingleStyle(regularShape);
     }
-    this._style = new OlStyle.Style({
+    let _params = Object.assign({}, options, {
       fill: getOlFillSingleStyle(fill),
       stroke: getOlStrokeSingleStyle(stroke),
-      image: _image
+      image: _image,
+      text: getOlTextSingleStyle(text)
     });
-  }
-  _isInitialized(method) {
+    this._style = new OlStyle.Style(_params);
   }
   getStyle() {
     return this._style;
   }
 }
+function getConstructorName(target) {
+  if (target == null) return void 0;
+  const ctor = target.constructor;
+  return typeof ctor === "function" ? ctor.name : void 0;
+}
 const PACKAGE_NAME$y = "Event";
 const createMessage$y = getPackageMessage(PACKAGE_NAME$y);
 class Event {
   constructor(target) {
+    __publicField(this, "instanceName", "");
+    __publicField(this, "localCounter", 0);
+    // 本实例内的递增序号
     __publicField(this, "events", /* @__PURE__ */ new Map());
     // 记录事件类型和事件回调
-    /**
-     * 记录 OL 事件的 unlisten 函数
-     * ✅ 每个 type 一个 unlisten
-     */
-    __publicField(this, "olUnlisteners", /* @__PURE__ */ new Map());
     __publicField(this, "target", null);
     __publicField(this, "total", 0);
     this.events.clear();
     this.target = target;
+    this.instanceName = getConstructorName(target) || "";
+  }
+  generateId() {
+    return `${this.instanceName}-event-${++this.localCounter}`;
   }
   on(type, callback, unlisten) {
     let _typeVals = this.events.get(type) || [];
-    let valId = ++this.total;
+    const id = this.generateId();
     _typeVals.push({
-      id: valId,
+      id,
       target: this.target,
       type,
       callback,
       unlisten
     });
     this.events.set(type, _typeVals);
-    return valId;
+    return id;
   }
   once(type, callback, unlisten) {
     const list = this.events.get(type) || [];
-    const id = ++this.total;
+    const id = this.generateId();
     list.push({
       id,
       target: this.target,
@@ -1263,9 +1329,6 @@ class Event {
     return ((_a = this.events.get(type)) == null ? void 0 : _a.length) || 0;
   }
 }
-function isValidEventId(id) {
-  return isNumber(id) && id > 0;
-}
 const PopupPositioning = {
   bottomLeft: "bottom-left",
   bottomCenter: "bottom-center",
@@ -1288,8 +1351,16 @@ const DEFAULT_POPUP_PARAMS = {
   autoPan: false,
   className: "omap-popup-element"
 };
-function isOlOverlayEventType(type) {
-  return ["change:position", "change:positioning", "change:element", "change:offset"].includes(type);
+const OMapPupupEventTypes = [
+  "change:position",
+  "change:positioning",
+  "change:element",
+  "change:offset",
+  "change:content",
+  "change:properties"
+];
+function isOMapPopupEventType(value) {
+  return isString(value) && OMapPupupEventTypes.includes(value);
 }
 function createDefaultContentElement(content) {
   let div = document.createElement("div");
@@ -1489,50 +1560,50 @@ class Popup {
   on(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$x("on", "参数不能为空"));
+      warn_(createMessage$x("on", commonMessage.paramsListHaveNotDefined("type or callback")));
       return;
     }
-    if (isOlOverlayEventType(type)) {
-      let list = this.events.get(type);
-      if (!isDefined(list) || list.length === 0) {
-        this._popup.on(type, (e) => {
-          console.log(e);
-          this.events.emit(type, handlePopupEvent(this, type, e));
-        });
-      }
+    if (!isOMapPopupEventType(type)) {
+      warn_(createMessage$x("on", commonMessage.paramsInvaildEnum("type")));
+      return;
     }
-    const id = this.events.on(type, callback);
+    if (!isFunction(callback)) {
+      warn_(createMessage$x("on", commonMessage.paramsInvaildFormat("callback", "function")));
+      return;
+    }
+    const unlisten = OlEvent.listen(this._popup, type, (e) => {
+      this.events.emit(type, handlePopupEvent(this, type, e));
+    });
+    const id = this.events.on(type, callback, unlisten);
+    return id;
+  }
+  once(type, callback) {
+    if (!this._isInitialized("on")) return;
+    if (!isDefined(type) || !isDefined(callback)) {
+      warn_(createMessage$x("on", commonMessage.paramsListHaveNotDefined("type or callback")));
+      return;
+    }
+    if (!isOMapPopupEventType(type)) {
+      warn_(createMessage$x("on", commonMessage.paramsInvaildEnum("type")));
+      return;
+    }
+    if (!isFunction(callback)) {
+      warn_(createMessage$x("on", commonMessage.paramsInvaildFormat("callback", "function")));
+      return;
+    }
+    const unlisten = OlEvent.listen(this._popup, type, (e) => {
+      this.events.emit(type, handlePopupEvent(this, type, e));
+    });
+    const id = this.events.once(type, callback, unlisten);
     return id;
   }
   un(id) {
     if (!this._isInitialized("un")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$x("un", "参数不能为空"));
-      return;
-    }
-    if (!isValidEventId(id)) {
-      warn_(createMessage$x("un", "事件ID应为number类型"));
+      warn_(createMessage$x("un", commonMessage.paramsNotDefined("id")));
       return;
     }
     this.events.remove(id);
-  }
-  once(type, callback) {
-    if (!this._isInitialized("on")) return;
-    if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$x("on", "参数不能为空"));
-      return;
-    }
-    if (isOlOverlayEventType(type)) {
-      let list = this.events.get(type);
-      if (!isDefined(list) || list.length === 0) {
-        this._popup.on(type, (e) => {
-          console.log(e);
-          this.events.emit(type, handlePopupEvent(this, type, e));
-        });
-      }
-    }
-    const id = this.events.once(type, callback);
-    return id;
   }
   setMap(map) {
     this.map = map;
@@ -2017,6 +2088,7 @@ class Interaction {
     __publicField(this, "events", new Event());
     __publicField(this, "map", null);
     this.type = type;
+    this.events = new Event(this);
   }
   initInteractionEvent() {
     if (!this._isInitialized("initInteractionEvent")) return;
@@ -4308,6 +4380,30 @@ const defaultMapOptions = {
   interactions: defaultMapInteractions,
   popups: defaultMapPopups
 };
+const OMapMapEventTypes = [
+  "map:change:size",
+  "map:click",
+  "map:dbclick",
+  "map:error",
+  "map:loadend",
+  "map:loadstart",
+  "map:moveend",
+  "map:movestart",
+  "map:pointerdrag",
+  "map:pointermove",
+  "map:postcompose",
+  "map:postrender",
+  "map:precompose",
+  "map:propertychange",
+  "map:rendercomplete",
+  "map:singleclick",
+  "view:change",
+  "view:change:center",
+  "view:change:resolution",
+  "view:change:rotation",
+  "view:error",
+  "view:propertychange"
+];
 const DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS = {
   hitTolerance: 0,
   checkWrapped: true
@@ -4391,6 +4487,9 @@ function handleMapOnCallBack(target, type, e) {
   }
   return result;
 }
+function isOMapMapEventType(type) {
+  return isString(type) && OMapMapEventTypes.includes(type);
+}
 const PACKAGE_NAME$g = "Map";
 const createMessage$g = getPackageMessage(PACKAGE_NAME$g);
 let Map$1 = class Map2 {
@@ -4402,7 +4501,7 @@ let Map$1 = class Map2 {
     __publicField(this, "layerGroups", []);
     __publicField(this, "interactions", []);
     __publicField(this, "controls", []);
-    __publicField(this, "events", null);
+    __publicField(this, "events", new Event());
     __publicField(this, "popups", []);
     let _options = options;
     const view_options = _options.view;
@@ -4795,64 +4894,63 @@ let Map$1 = class Map2 {
     }
     return this.layerGroups[index];
   }
-  // 事件管理
+  /**
+   * 事件管理
+   * @param type 
+   * @param callback 
+   * @returns 
+   */
   on(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$g("on", "参数不能为空"));
+      warn_(createMessage$g("on", commonMessage.paramsNotDefined("type or callback")));
+      return;
+    }
+    if (!isOMapMapEventType(type)) {
+      warn_(createMessage$g("on", commonMessage.paramsInvaildEnum("type")));
+      return;
+    }
+    if (!isFunction(callback)) {
+      warn_(createMessage$g("on", commonMessage.paramsInvaildFormat("callback", "function")));
       return;
     }
     let isMapTarget = MapEventTypeIsMap(type);
     const target = isMapTarget ? this._map : this._view;
-    let list = this.events.get(type);
-    if (!isDefined(list) || isDefined(list) && list.length === 0) {
-      if (isMapTarget) {
-        target.on(type.replace("map:", ""), (e) => {
-          this.events.emit(type, handleMapOnCallBack(this, type, e));
-        });
-      } else {
-        target.on(type.replace("view:", ""), (e) => {
-          this.events.emit(type, handleMapOnCallBack(this, type, e));
-        });
-      }
+    const unlisten = OlEvent.listen(target, isMapTarget ? type.replace("map:", "") : type.replace("view:", ""), (e) => {
+      this.events.emit(type, handleMapOnCallBack(this, type, e));
+    });
+    const id = this.events.on(type, callback, unlisten);
+    return id;
+  }
+  once(type, callback) {
+    if (!this._isInitialized("once")) return;
+    if (!isDefined(type) || !isDefined(callback)) {
+      warn_(createMessage$g("on", commonMessage.paramsNotDefined("type or callback")));
+      return;
     }
-    const id = this.events.on(type, callback);
+    if (!isOMapMapEventType(type)) {
+      warn_(createMessage$g("once", commonMessage.paramsInvaildEnum("type")));
+      return;
+    }
+    if (!isFunction(callback)) {
+      warn_(createMessage$g("once", commonMessage.paramsInvaildFormat("callback", "function")));
+      return;
+    }
+    let isMapTarget = MapEventTypeIsMap(type);
+    const target = isMapTarget ? this._map : this._view;
+    const unlisten = OlEvent.listen(target, isMapTarget ? type.replace("map:", "") : type.replace("view:", ""), (e) => {
+      this.events.emit(type, handleMapOnCallBack(this, type, e));
+    });
+    const id = this.events.on(type, callback, unlisten);
     return id;
   }
   un(id) {
     if (!this._isInitialized("un")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$g("un", "参数不能为空"));
-      return;
-    }
-    if (!isNumber(id)) {
-      warn_(createMessage$g("un", "事件ID应为number类型"));
+      warn_(createMessage$g("un", commonMessage.paramsNotDefined("id")));
       return;
     }
     this.events.remove(id);
-  }
-  once(type, callback) {
-    if (!this._isInitialized("on")) return;
-    if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$g("on", "参数不能为空"));
-      return;
-    }
-    let isMapTarget = MapEventTypeIsMap(type);
-    const target = isMapTarget ? this._map : this._view;
-    let list = this.events.get(type);
-    if (!isDefined(list) || list.length === 0) {
-      if (isMapTarget) {
-        target.once(type.replace("map:", ""), (e) => {
-          this.events.emit(type, handleMapOnCallBack(this, type, e));
-        });
-      } else {
-        target.once(type.replace("view:", ""), (e) => {
-          this.events.emit(type, handleMapOnCallBack(this, type, e));
-        });
-      }
-    }
-    const id = this.events.once(type, callback);
-    return id;
   }
   /** 属性管理 */
   getProperties() {
@@ -5352,12 +5450,6 @@ let Map$1 = class Map2 {
     this._view.setMinZoom(minZoom);
   }
 };
-function handleGetColorValue(color) {
-  if (isDefined(color)) {
-    return color instanceof Color ? color.getColor() : color;
-  }
-  return void 0;
-}
 const GaodeLayerType = {
   Vec: "vec",
   Img: "img",
@@ -6331,8 +6423,42 @@ class InteractionExtent extends Interaction {
     const id = this.events.on(type, callback, unlisten);
     return id;
   }
-  un(id) {
+  once(type, callback) {
+    if (!this._isInitialized("once")) return;
+    if (!isDefined(type) || !isDefined(callback)) {
+      warn_(createMessage$5("once", "参数不能为空"));
+      return;
+    }
+    if (!isOMapInteractionExtentEventType(type)) {
+      warn_(createMessage$5("once", "事件类型错误"));
+      return;
+    }
+    if (!isFunction(callback)) {
+      warn_(createMessage$5("once", "回调函数不能为空"));
+      return;
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleInteractionExtentEvent(this, type, e));
+    });
+    const id = this.events.once(type, callback, unlisten);
+    return id;
   }
+  un(id) {
+    if (!this._isInitialized("un")) return;
+    if (!isDefined(id)) {
+      warn_(createMessage$5("un", "参数不能为空"));
+      return;
+    }
+    if (!isNumber(id)) {
+      warn_(createMessage$5("un", "事件ID应为number类型"));
+      return;
+    }
+    this.events.remove(id);
+  }
+}
+const OMapInteractionModifyEventTypes = [...OMapInteractionEventTypes, "modifystart", "modifyend"];
+function isOMapInteractionModifyEventType(value) {
+  return isString(value) && OMapInteractionModifyEventTypes.includes(value);
 }
 function handleModifyEvent(target, type, e) {
   let result = {
@@ -6344,7 +6470,7 @@ function handleModifyEvent(target, type, e) {
 }
 const PACKAGE_NAME$4 = "Modify";
 const createMessage$4 = getPackageMessage(PACKAGE_NAME$4);
-const defaultDModifyOptions = {
+const defaultModifyOptions = {
   condition: void 0,
   deleteCondition: void 0,
   insertVertexCondition: void 0,
@@ -6358,27 +6484,33 @@ const defaultDModifyOptions = {
 };
 class Modify extends Interaction {
   constructor(params) {
+    if (!isDefined(params)) {
+      error_(createMessage$4("init", "params参数不能为空"));
+    }
     super("Modify");
     __publicField(this, "records", []);
     let modify_source = null;
     if (!isDefined(params.layer)) {
-      error_(createMessage$4("init", "layer参数不能为空"));
+      warn_(createMessage$4("init", "layer参数不能为空"));
     }
     if (isDefined(params.layer) && !(params.layer instanceof VectorLayer)) {
-      error_(createMessage$4("init", "layer参数不属于VectorLayer类型"));
+      warn_(createMessage$4("init", "layer参数不属于VectorLayer类型"));
     }
     this.layer = params.layer;
     modify_source = params.layer.getSource();
-    let _params = Object.assign({}, defaultDModifyOptions, {
+    let _params = Object.assign({}, defaultModifyOptions, {
       ...params,
       source: modify_source
     });
     this._interaction = new OlInteraction.Modify(_params);
     this.initInteractionEvent();
-    this.initModifyEvent();
+    if (isDefined(params) && isDefined(params.id)) {
+      this._initInteractionId(params.id);
+    }
+    this._initModifyEvent();
   }
-  initModifyEvent() {
-    if (!this._isInitialized("initModifyEvent")) return;
+  _initModifyEvent() {
+    if (!this._isInitialized("_initModifyEvent")) return;
     let originFeatures = this.layer.getFeatures();
     let originFeaturesList = (originFeatures || []).map((o) => {
       return {
@@ -6398,7 +6530,7 @@ class Modify extends Interaction {
       let newList = [];
       features.forEach((f) => {
         let target = this.layer.getFeatures().find((item) => {
-          return OlUtil.getUid(item._feature) === OlUtil.getUid(f);
+          return OlUtil.getUid(item.getFeature()) === OlUtil.getUid(f);
         });
         if (target) {
           newList.push({
@@ -6500,44 +6632,54 @@ class Modify extends Interaction {
   on(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$4("on", "参数不能为空"));
+      warn_(createMessage$4("on", commonMessage.paramsNotDefined("type or callback")));
       return;
     }
-    let list = this.events.get(type);
-    if (!isDefined(list) || list.length === 0) {
-      this._interaction.on(type, (e) => {
-        this.events.emit(type, handleModifyEvent(this, type, e));
-      });
+    if (!isOMapInteractionModifyEventType(type)) {
+      warn_(createMessage$4("on", commonMessage.paramsInvaildEnum(type)));
+      return;
     }
-    const id = this.events.on(type, callback);
+    if (!isFunction(callback)) {
+      warn_(createMessage$4("on", commonMessage.paramsInvaildFormat("callback", "function")));
+      return;
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleModifyEvent(this, type, e));
+    });
+    const id = this.events.on(type, callback, unlisten);
+    return id;
+  }
+  once(type, callback) {
+    if (!this._isInitialized("on")) return;
+    if (!isDefined(type) || !isDefined(callback)) {
+      warn_(createMessage$4("on", commonMessage.paramsNotDefined("type or callback")));
+      return;
+    }
+    if (!isOMapInteractionModifyEventType(type)) {
+      warn_(createMessage$4("on", commonMessage.paramsInvaildEnum(type)));
+      return;
+    }
+    if (!isFunction(callback)) {
+      warn_(createMessage$4("on", commonMessage.paramsInvaildFormat("callback", "function")));
+      return;
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleModifyEvent(this, type, e));
+    });
+    const id = this.events.once(type, callback, unlisten);
     return id;
   }
   un(id) {
     if (!this._isInitialized("un")) return;
     if (!isDefined(id)) {
-      warn_(createMessage$4("un", "参数不能为空"));
+      warn_(createMessage$4("un", commonMessage.paramsNotDefined(id)));
       return;
     }
-    if (!isNumber(id)) {
-      warn_(createMessage$4("un", "事件ID应为number类型"));
+    if (!isString(id)) {
+      warn_(createMessage$4("un", commonMessage.paramsInvaildFormat(id, "string")));
       return;
     }
     this.events.remove(id);
-  }
-  once(type, callback) {
-    if (!this._isInitialized("on")) return;
-    if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$4("on", "参数不能为空"));
-      return;
-    }
-    let list = this.events.get(type);
-    if (!isDefined(list) || list.length === 0) {
-      this._interaction.on(type, (e) => {
-        this.events.emit(type, handleModifyEvent(this, type, e));
-      });
-    }
-    const id = this.events.once(type, callback);
-    return id;
   }
 }
 let selectLayers = [];
@@ -6726,7 +6868,7 @@ class Link extends Interaction {
   constructor(params) {
     super("Link");
     let _params = {
-      ...params,
+      ...defaultValue(params, {}),
       animate: isDefined(params == null ? void 0 : params.animate) && !isBoolean(params == null ? void 0 : params.animate) ? {
         ...params.animate,
         center: params.animate.center instanceof Lnglat ? params.animate.center.toArray() : params.animate.center
@@ -6734,6 +6876,9 @@ class Link extends Interaction {
     };
     this._interaction = new OlInteraction.Link(Object.assign({}, defaultLinkOptions, _params));
     this.initInteractionEvent();
+    if (isDefined(params) && isDefined(params.id)) {
+      this._initInteractionId(params.id);
+    }
   }
 }
 const defaultKeyboardZoomOptions = {

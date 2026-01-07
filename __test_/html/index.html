@@ -38,7 +38,7 @@
         <div class="border"></div>
         <!-- 交互 -->
         <h3>交互</h3>
-        <p>以下三个交互默认自动开启</h5>
+        <p>以下交互默认自动开启</h5>
         <h5>
             DoubleClickZoom:
             <input type="checkbox" id="DoubleClickZoom">
@@ -59,6 +59,10 @@
             InteractionExtent:
             <input type="checkbox" id="InteractionExtent">
             <button id="InteractionExtentGetExtent">获取范围</button>
+        </h5>
+        <h5>
+            Link:
+            <input type="checkbox" id="InteractionLink">
         </h5>
         <div class="border"></div>
         <h5>
@@ -81,11 +85,23 @@
         </h5>
         <div class="border"></div>
         <h5>
+            测试矢量图层
+            <input type="checkbox" id="testVectorLayer">开启
+        </h5>
+        <h5>
             Select选择功能
             <input type="checkbox" id="Select">交互开启
-            <input type="checkbox" id="SelectLayer">图层
             <div>
                 <button id="destroySelect">销毁</button>
+            </div>
+        </h5>
+        <h5>
+           Modify修改功能
+            <input type="checkbox" id="Modify">交互开启
+            <div>
+                <button id="destroyModify">销毁</button>
+                <button id="revokeModify">撤销</button>
+                <button id="cancelModify">取消全部修改</button>
             </div>
         </h5>
         <h5>

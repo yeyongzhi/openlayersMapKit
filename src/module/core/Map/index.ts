@@ -1,6 +1,6 @@
 import { isDefined, isNumber, isBoolean, isString, defaultValue, isFunction, isArray, isObject } from '../../../utils/index';
 import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
-import OlPackage, { OlUtil, OlSphere } from '../../../source/index'
+import OlPackage, { OlUtil, OlSphere, OlEvent } from '../../../source/index'
 import type {
     OlViewInstanceType,
     IdType,
@@ -30,6 +30,7 @@ import { type OlInteractionInstanceType, OMapInteractionCommonParamsType } from 
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
 import Event from '../../../module/util/Event/index'
+import type { EventIdType } from '../../../module/util/Event/type'
 import Popup from '../../basic/Popup/index'
 import LayerGroup from '../../layer/LayerGroup/index'
 import { type LayerGroupIdType } from '../../layer/LayerGroup/type'
@@ -51,7 +52,7 @@ import {
     type OMapViewFitOptionsType,
     OMAP_VIEW_FIT_DEFAULT_OPTIONS,
 } from './type'
-import { MapEventTypeIsMap, handleMapOnCallBack } from './handle'
+import { MapEventTypeIsMap, handleMapOnCallBack, isOMapMapEventType } from './handle'
 
 const PACKAGE_NAME = 'Map';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -88,7 +89,7 @@ export default class Map implements MapLike {
     layerGroups: Array<LayerGroup> = [];
     interactions: Array<Interaction> = [];
     controls: Array<Control> = [];
-    events: Event | null = null;
+    events: Event = new Event();
     popups: Array<Popup> = [];
 
     constructor(element: MapContainerType, options: OMapOptionsType) {
@@ -295,7 +296,7 @@ export default class Map implements MapLike {
         }
         if (isDefined(layer.getLayer())) {
             this.layers.push(layer);
-            if(!isDefined(layer.getTarget())) {
+            if (!isDefined(layer.getTarget())) {
                 layer.setTarget(this)
             }
             this._map.addLayer(layer.getLayer() as OlAllLayerInstanceType); // 添加图层到地图中
@@ -524,69 +525,65 @@ export default class Map implements MapLike {
         return this.layerGroups[index] as LayerGroup;
     }
 
-    // 事件管理
-    on(type: OMapEventType, callback: () => void): number | string | undefined {
+    /**
+     * 事件管理
+     * @param type 
+     * @param callback 
+     * @returns 
+     */
+    on(type: OMapEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', '参数不能为空'));
+            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
         }
-        // map:singleclick
+        if (!isOMapMapEventType(type)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum('type')));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
+        }
         let isMapTarget = MapEventTypeIsMap(type)
         const target = (isMapTarget) ? this._map : this._view;
-        let list = (this.events as Event).get(type)
-        // 初次注册ol原生事件
-        if (!isDefined(list) || (isDefined(list) && list.length === 0)) {
-            if (isMapTarget) {
-                (target as OlMapInstanceType).on(type.replace('map:', '') as unknown as OlMapOnEventType, (e) => {
-                    (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
-                });
-            } else {
-                (target as OlViewInstanceType).on(type.replace('view:', '') as unknown as OlViewOnEventType, (e) => {
-                    (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
-                });
-            }
-        }
-        const id = (this.events as Event).on(type, callback)
+        const unlisten = OlEvent.listen(target, (isMapTarget ? type.replace('map:', '') : type.replace('view:', '')), (e: any) => {
+            this.events.emit(type, handleMapOnCallBack(this, type, e))
+        })
+        const id = this.events.on(type, callback, unlisten)
         return id
     }
 
-    un(id: number): void {
-        if (!this._isInitialized('un')) return;
-        if (!isDefined(id)) {
-            warn_(createMessage('un', '参数不能为空'));
+    once(type: OMapEventType, callback: () => void): EventIdType | undefined {
+        if (!this._isInitialized('once')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
         }
-        if (!isNumber(id)) {
-            warn_(createMessage('un', '事件ID应为number类型'));
+        if (!isOMapMapEventType(type)) {
+            warn_(createMessage('once', commonMessage.paramsInvaildEnum('type')));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
+        }
+        let isMapTarget = MapEventTypeIsMap(type)
+        const target = (isMapTarget) ? this._map : this._view;
+        const unlisten = OlEvent.listen(target, (isMapTarget ? type.replace('map:', '') : type.replace('view:', '')), (e: any) => {
+            this.events.emit(type, handleMapOnCallBack(this, type, e))
+        })
+        const id = this.events.on(type, callback, unlisten)
+        return id
+    }
+
+    un(id: EventIdType): void {
+        if (!this._isInitialized('un')) return;
+        if (!isDefined(id)) {
+            warn_(createMessage('un', commonMessage.paramsNotDefined('id')));
             return;
         }
         (this.events as Event).remove(id)
-    }
-
-    once(type: OMapEventType, callback: () => void): number | string | undefined {
-        if (!this._isInitialized('on')) return;
-        if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', '参数不能为空'));
-            return;
-        }
-        let isMapTarget = MapEventTypeIsMap(type)
-        const target = (isMapTarget) ? this._map : this._view;
-        let list = (this.events as Event).get(type)
-        // 初次注册ol原生事件
-        if (!isDefined(list) || list.length === 0) {
-            if (isMapTarget) {
-                (target as OlMapInstanceType).once(type.replace('map:', '') as unknown as OlMapOnEventType, (e) => {
-                    (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
-                });
-            } else {
-                (target as OlViewInstanceType).once(type.replace('view:', '') as unknown as OlViewOnEventType, (e) => {
-                    (this.events as Event).emit(type, handleMapOnCallBack(this, type, e))
-                });
-            }
-        }
-        const id = (this.events as Event).once(type, callback)
-        return id
     }
 
     /** 属性管理 */
@@ -656,7 +653,7 @@ export default class Map implements MapLike {
 
     getInteractionById(id: OMapInteractionCommonParamsType['id']): Interaction | null | undefined {
         if (!this._isInitialized('addInteraction')) return;
-        if(this.interactions.length === 0) return null;
+        if (this.interactions.length === 0) return null;
         let index = this.interactions.findIndex(i => {
             return i.id === id
         })
@@ -1036,7 +1033,7 @@ export default class Map implements MapLike {
 
     centerOn(coordinate: OMapCoordinateType, size: OMapSizeType, position: OMapPixelType) {
         if (!this._isInitialized('centerOn')) return;
-        if(!isDefined(coordinate) || !isDefined(size) || !isDefined(position)) {
+        if (!isDefined(coordinate) || !isDefined(size) || !isDefined(position)) {
             warn_(createMessage('centerOn', commonMessage.paramsListHaveNotDefined('coordinate', 'size', 'position')));
             return;
         }
@@ -1058,7 +1055,7 @@ export default class Map implements MapLike {
 
     fit(featureOrExtent: BaseFeature<any> | Extent, options?: OMapViewFitOptionsType) {
         if (!this._isInitialized('fit')) return;
-        if(!(featureOrExtent instanceof BaseFeature || featureOrExtent instanceof Extent)) {
+        if (!(featureOrExtent instanceof BaseFeature || featureOrExtent instanceof Extent)) {
             warn_(createMessage('setProperties', commonMessage.paramsInvaildFormat('featureOrExtent', 'BaseFeature或Extent类型')));
             return;
         }
@@ -1111,7 +1108,7 @@ export default class Map implements MapLike {
         if (!this._isInitialized('getProjection')) return;
         return this.projection
     }
-    
+
     getResolutionForExtent() {
 
     }
@@ -1130,7 +1127,7 @@ export default class Map implements MapLike {
 
     setConstrainResolution(enabled: boolean): void {
         if (!this._isInitialized('setConstrainResolution')) return;
-        if(!isBoolean(enabled)) {
+        if (!isBoolean(enabled)) {
             warn_(createMessage('setProperties', commonMessage.paramsInvaildFormat('enabled', 'boolean类型')));
             return;
         }

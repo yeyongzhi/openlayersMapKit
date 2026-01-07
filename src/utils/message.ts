@@ -30,6 +30,10 @@ export function paramsInvaildFormat(paramsName: string, format?: string) {
     return `参数${paramsName}格式错误` + (format ? `，正确格式为${format}` : "")
 }
 
+export function paramsInvaildEnum(paramsName: string, enums?: string) {
+    return `参数${paramsName}不在合法枚举值内`
+}
+
 export function paramsListInvaildFormat(...paramsName: string[]) {
     return `参数${paramsName.join('、')}格式错误`
 }
@@ -42,6 +46,7 @@ const commonMessage = {
     paramsNotDefined,
     paramsListHaveNotDefined,
     paramsInvaildFormat,
+    paramsInvaildEnum,
     paramsListInvaildFormat,
     haveInvaildDataItem
 }

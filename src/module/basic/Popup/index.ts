@@ -1,4 +1,4 @@
-import { isDefined, isFunction, isNumber, isString } from '../../../utils/index';
+import { commonMessage, isDefined, isFunction, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import Lnglat from '../../basic/Lnglat/index'
 import type { OlCoordinateType } from '../../basic/Lnglat/type'
@@ -6,8 +6,8 @@ import Pixel from '../../basic/Pixel/index'
 import { type OMapPixelType, type OlPixelType } from '../../basic/Pixel/type'
 import Map from '../../core/Map/index'
 import Event from '../../util/Event/index'
-import { isValidEventId, type EventIdType } from '../../util/Event/handle'
-import { OlOverlay } from '../../../source/index'
+import { type EventIdType } from '../../util/Event/type'
+import { OlEvent, OlOverlay } from '../../../source/index'
 import {
     type OMapPopupParamsType,
     type OlPopupInstanceType,
@@ -18,7 +18,7 @@ import {
 import {
     PopupPositioning,
     type OMapPopupEventType,
-    isOlOverlayEventType
+    isOMapPopupEventType
 } from './type'
 import { createDefaultContentElement, handlePopupEvent } from './handle'
 
@@ -91,7 +91,7 @@ export default class Popup implements PopupLike {
             this.content = _params.content
             _params.element = createDefaultContentElement(_params.content)
         }
-        if(isDefined(_params.element)) {
+        if (isDefined(_params.element)) {
             _params.element.classList.add("omap-popup-selectable")
         }
         this._popup = new OlOverlay({
@@ -107,7 +107,7 @@ export default class Popup implements PopupLike {
      * @todo 暂不需要
      */
     protected _initElementEvent() {
-        
+
     }
 
     protected _isInitialized(method: string): this is PopupInitialized & this {
@@ -232,55 +232,55 @@ export default class Popup implements PopupLike {
         return this._popup
     }
 
-    on(type: OMapPopupEventType, callback: () => void): number | undefined {
+    on(type: OMapPopupEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', '参数不能为空'));
+            warn_(createMessage('on', commonMessage.paramsListHaveNotDefined('type or callback')));
             return;
         }
-        if (isOlOverlayEventType(type)) {
-            let list = (this.events as Event).get(type)
-            if (!isDefined(list) || list.length === 0) {
-                (this._popup as OlPopupInstanceType).on(type, (e) => {
-                    console.log(e);
-                    (this.events as Event).emit(type, handlePopupEvent(this, type, e))
-                })
-            }
+        if (!isOMapPopupEventType(type)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum('type')));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
         }
-        const id: EventIdType = (this.events as Event).on(type, callback)
+        const unlisten = OlEvent.listen((this._popup as OlPopupInstanceType), type, (e: any) => {
+            this.events.emit(type, handlePopupEvent(this, type, e))
+        })
+        const id = this.events.on(type, callback, unlisten)
+        return id
+    }
+
+    once(type: OMapPopupEventType, callback: () => void): EventIdType | undefined {
+        if (!this._isInitialized('on')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', commonMessage.paramsListHaveNotDefined('type or callback')));
+            return;
+        }
+        if (!isOMapPopupEventType(type)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum('type')));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
+        }
+        const unlisten = OlEvent.listen((this._popup as OlPopupInstanceType), type, (e: any) => {
+            this.events.emit(type, handlePopupEvent(this, type, e))
+        })
+        const id = this.events.once(type, callback, unlisten)
         return id
     }
 
     un(id: EventIdType): void {
         if (!this._isInitialized('un')) return;
         if (!isDefined(id)) {
-            warn_(createMessage('un', '参数不能为空'));
+            warn_(createMessage('un', commonMessage.paramsNotDefined('id')));
             return;
         }
-        if (!isValidEventId(id)) {
-            warn_(createMessage('un', '事件ID应为number类型'));
-            return;
-        }
-        (this.events as Event).remove(id)
-    }
-
-    once(type: OMapPopupEventType, callback: () => void): number | undefined {
-        if (!this._isInitialized('on')) return;
-        if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', '参数不能为空'));
-            return;
-        }
-        if (isOlOverlayEventType(type)) {
-            let list = (this.events as Event).get(type)
-            if (!isDefined(list) || list.length === 0) {
-                (this._popup as OlPopupInstanceType).on(type, (e) => {
-                    console.log(e);
-                    (this.events as Event).emit(type, handlePopupEvent(this, type, e))
-                })
-            }
-        }
-        const id: EventIdType = (this.events as Event).once(type, callback)
-        return id
+        this.events.remove(id)
     }
 
     setMap(map: Map | null) {

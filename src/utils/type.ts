@@ -17,17 +17,6 @@ export type EmptyArray = [];
 
 export type LnglatType = number[];
 
-export interface ColorObjectType {
-    color?: string;
-    opacity?: number;
-    alpha?: number;
-    r?: number;
-    g?: number;
-    b?: number;
-}
-
-export type ColorType = string | Array<number | string> | ColorObjectType;
-
 export type PropertiesType = Record<string, any>
 
 /** View */
