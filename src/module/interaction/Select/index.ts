@@ -4,6 +4,7 @@ import BaseFeature from '../../core/Feature/BasicFeature/index'
 import Style from '../../basic/Style/index'
 import Interaction from '../Interaction/index'
 import Event from '../../util/Event/index'
+import { type EventIdType } from '../../util/Event/type'
 import VectorLayer from '../../layer/VectorLayer/index'
 import {type OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
@@ -119,15 +120,17 @@ export default class Select extends Interaction {
         })
     }
 
-    getSelected(): BaseFeature<OlGeometry.Geometry>[] {
+    getSelected(): BaseFeature<OlGeometry.Geometry>[] | undefined {
+        if (!this._isInitialized('getSelected')) return;
         return this.selected
     }
 
-    getDeselected(): BaseFeature<OlGeometry.Geometry>[] {
+    getDeselected(): BaseFeature<OlGeometry.Geometry>[] | undefined {
+        if (!this._isInitialized('getDeselected')) return;
         return this.deselected
     }
 
-    on(type: OMapSelectEventType, callback: () => void): number | string | undefined {
+    on(type: OMapSelectEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', '参数不能为空'));
@@ -146,7 +149,7 @@ export default class Select extends Interaction {
         return id
     }
 
-    un(id: number | string): void {
+    un(id: EventIdType): void {
         if (!this._isInitialized('un')) return;
         if (!isDefined(id)) {
             warn_(createMessage('un', '参数不能为空'));
@@ -159,7 +162,7 @@ export default class Select extends Interaction {
         (this.events as Event).remove(id)
     }
 
-    once(type: OMapSelectEventType, callback: () => void): number | string | undefined {
+    once(type: OMapSelectEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', '参数不能为空'));

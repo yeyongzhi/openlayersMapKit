@@ -89,15 +89,15 @@ export default class InteractionExtent extends Interaction {
     on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', '参数不能为空'));
+            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
         }
         if (!isOMapInteractionExtentEventType(type)) {
-            warn_(createMessage('on', '事件类型错误'));
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
             return;
         };
         if (!isFunction(callback)) {
-            warn_(createMessage('on', '回调函数不能为空'));
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
             return;
         }
         const unlisten = OlEvent.listen((this._interaction as OlInteractionExtentInstanceType), type, (e: any) => {
@@ -110,15 +110,15 @@ export default class InteractionExtent extends Interaction {
     once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('once')) return;
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('once', '参数不能为空'));
+            warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
             return;
         }
         if (!isOMapInteractionExtentEventType(type)) {
-            warn_(createMessage('once', '事件类型错误'));
+            warn_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
             return;
         };
         if (!isFunction(callback)) {
-            warn_(createMessage('once', '回调函数不能为空'));
+            warn_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
             return;
         }
         const unlisten = OlEvent.listen((this._interaction as OlInteractionExtentInstanceType), type, (e: any) => {
@@ -131,11 +131,11 @@ export default class InteractionExtent extends Interaction {
     un(id: EventIdType): void {
         if (!this._isInitialized('un')) return;
         if (!isDefined(id)) {
-            warn_(createMessage('un', '参数不能为空'));
+            warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
             return;
         }
         if (!isNumber(id)) {
-            warn_(createMessage('un', '事件ID应为number类型'));
+            warn_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'string')));
             return;
         }
         this.events.remove(id)

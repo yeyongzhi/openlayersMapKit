@@ -7,8 +7,7 @@ import { OlInteraction, OlUtil, OlGeometry, OlEvent } from '../../../source/inde
 import Interaction from '../Interaction/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
-import Lnglat from '../../basic/Lnglat/index'
-import Event from '../../util/Event/index'
+import type { EventIdType } from '../../util/Event/type'
 import { type OlVectorSourceInstanceType } from '../../layer/VectorLayer/type'
 import {
     type OMapModifyParamsType,
@@ -20,7 +19,6 @@ import {
 } from './type'
 import { handleModifyEvent } from './handle'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
-import type { EventIdType } from '../../util/Event/type'
 
 const PACKAGE_NAME = 'Modify';
 const createMessage = getPackageMessage(PACKAGE_NAME);

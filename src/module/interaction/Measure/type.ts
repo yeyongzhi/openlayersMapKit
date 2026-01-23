@@ -1,9 +1,8 @@
-import { OlSource, OlLayer, OlInteraction } from '../../../source/index'
+import { OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
-import { Style, VectorLayer } from '../../../index'
+import { isString } from '../../../utils/dataType'
 import type { OMapStyleLike } from '../../basic/Style/type'
-
-export type OlDrawType = 'Point' | 'LineString' | 'Polygon' | 'LinearRing' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon' | 'GeometryCollection' | 'Circle'
+import { OMapInteractionEventTypes } from '../Interaction/type'
 
 /**
  * 绘制模式
@@ -32,12 +31,28 @@ export const DRAW_DEFAULT_PARAMS = {
     stopClick: false
 }
 
+/**
+ * 测量事件类型
+ */
 export const MeasureEventType = {
     measureStart: "measure:start",
     measureEnd: "measure:end",
 } as const
 
-export type OMapMeasureEventType = (typeof MeasureEventType)[keyof typeof MeasureEventType]
+export const OMapInteractionMeasureEventTypes = [...OMapInteractionEventTypes, ...Object.values(MeasureEventType)] as const
+export type OMapInteractionMeasureEventType = typeof OMapInteractionMeasureEventTypes[number] extends infer T
+    ? T extends string
+    ? T
+    : never
+    : never;
+export function isOMapInteractionMeasureEventType(
+    value: unknown
+): value is OMapInteractionMeasureEventType {
+    return (
+        isString(value) &&
+        OMapInteractionMeasureEventTypes.includes(value as any)
+    );
+}
 
 export interface OMapMeasureResult {
     value: number;

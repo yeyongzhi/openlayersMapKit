@@ -1,16 +1,19 @@
-import { isDefined, isNumber, isString } from '../../../utils/index';
+import { isDefined, isNumber, isFunction, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
 import { OlInteraction, OlGeometry, OlFeature, OlObservable } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import Map from '../../core/Map/index'
 import type { OlMapInstanceType } from '../../core/Map/type'
 import Popup from '../../basic/Popup/index'
+import { type EventIdType } from '../../util/Event/type';
 import {
     type OMapMeasureMode,
     type OMapMeasureParamsType,
     type OlDrawInstanceType,
-    type OMapMeasureEventType,
+    type OMapInteractionMeasureEventType,
+    isOMapInteractionMeasureEventType,
     type OMapMeasureResult,
     DRAW_DEFAULT_PARAMS,
     MeasureMode,
@@ -291,16 +294,56 @@ export default class Measure extends Interaction {
         }
     }
 
-    on(type: OMapMeasureEventType, callback: () => void): number | string | undefined {
+    on(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', '参数不能为空'));
+            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
         }
+        if (!isOMapInteractionMeasureEventType(type)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
+        }
+        // measure事件是由自己触发的，无需再绑定到this._interaction的原生事件上
         const id = this.events.on(type, callback);
         return id
     }
 
+    once(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
+        if (!this._isInitialized('on')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
+            return;
+        }
+        if (!isOMapInteractionMeasureEventType(type)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
+        }
+        // measure事件是由自己触发的，无需再绑定到this._interaction的原生事件上
+        const id = this.events.once(type, callback);
+        return id
+    }
+
+    un(id: EventIdType): void {
+        if (!this._isInitialized('un')) return;
+        if (!isDefined(id)) {
+            warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
+            return;
+        }
+        if (!isString(id)) {
+            warn_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'string')));
+            return;
+        }
+        this.events.remove(id)
+    }
 
     protected destroy(destroyLayer: boolean = true): void {
         tooltipPopup.updatePosition(undefined)
