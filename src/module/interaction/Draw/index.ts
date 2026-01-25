@@ -1,22 +1,26 @@
-import { isDefined, isNumber, isString } from '../../../utils/index';
+import { isDefined, isNumber, isString, isFunction } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { commonMessage } from '../../../utils/message'
 import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlLayer, OlFeature, OlGeometry } from '../../../source/index'
+import { OlInteraction, OlEvent, OlFeature, OlGeometry } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 import type { OlFeatureType, OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
 import Lnglat from '../../basic/Lnglat/index'
+import { type EventIdType } from '../../util/Event/type'
 import {
     type OMapDrawMode,
     type OMapDrawParamsType,
     type OlDrawInstanceType,
+    type OMapInteractionDrawEventType,
+    isOMapInteractionDrawEventType,
     DRAW_DEFAULT_PARAMS,
     DrawMode
 } from './type'
 import type { OlVectorSourceInstanceType, OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
-import { getOlDrawType } from './handle'
+import { getOlDrawType, handleInteractionDrawEvent } from './handle'
 
 const PACKAGE_NAME = 'Draw';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -133,6 +137,27 @@ export default class Draw extends Interaction {
             this._removeInteractionLayer();
         }
         super.destroy()
+    }
+
+    on(type: OMapInteractionDrawEventType, callback: () => void): EventIdType | undefined {
+        if (!this._isInitialized('on')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
+            return;
+        }
+        if (!isOMapInteractionDrawEventType(type)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
+        }
+        const unlisten = OlEvent.listen((this._interaction as OlDrawInstanceType), type, (e: any) => {
+            this.events.emit(type, handleInteractionDrawEvent(this, type, e))
+        })
+        const id = this.events.on(type, callback, unlisten)
+        return id
     }
 
 }

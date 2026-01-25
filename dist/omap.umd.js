@@ -3206,6 +3206,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return null;
   }
+  const OMapInteractionCommonParams = {
+    active: false
+  };
+  const OMapInteractionEventTypes = [
+    "change",
+    "change:active",
+    "error",
+    "propertychange"
+  ];
   const MeasureMode = {
     Distance: "Distance",
     Area: "Area"
@@ -3220,6 +3229,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     measureStart: "measure:start",
     measureEnd: "measure:end"
   };
+  const OMapInteractionMeasureEventTypes = [...OMapInteractionEventTypes, ...Object.values(MeasureEventType)];
+  function isOMapInteractionMeasureEventType(value) {
+    return isString(value) && OMapInteractionMeasureEventTypes.includes(value);
+  }
   const DrawMode = {
     /** 点 */
     Point: "Point",
@@ -3238,6 +3251,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     snapTolerance: 12,
     stopClick: false
   };
+  const DrawEventType = {
+    drawStart: "drawstart",
+    drawEnd: "drawend",
+    drawAbort: "drawabort"
+  };
+  const OMapInteractionDrawEventTypes = [...OMapInteractionEventTypes, ...Object.values(DrawEventType)];
+  function isOMapInteractionDrawEventType(value) {
+    return isString(value) && OMapInteractionDrawEventTypes.includes(value);
+  }
   const MeasureMarkerIdSuffix = "omap-measure-marker";
   const MEASURE_MERKER_INDEX_NAME = "omap-measure-marker-index";
   function getOlDrawType$1(mode) {
@@ -3760,11 +3782,48 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     on(type, callback) {
       if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$k("on", "参数不能为空"));
+        warn_(createMessage$k("on", commonMessage.paramsNotDefined("type or callback")));
+        return;
+      }
+      if (!isOMapInteractionMeasureEventType(type)) {
+        warn_(createMessage$k("on", commonMessage.paramsInvaildEnum(type)));
+        return;
+      }
+      if (!isFunction(callback)) {
+        warn_(createMessage$k("on", commonMessage.paramsInvaildFormat("callback", "function")));
         return;
       }
       const id = this.events.on(type, callback);
       return id;
+    }
+    once(type, callback) {
+      if (!this._isInitialized("on")) return;
+      if (!isDefined(type) || !isDefined(callback)) {
+        warn_(createMessage$k("on", commonMessage.paramsNotDefined("type or callback")));
+        return;
+      }
+      if (!isOMapInteractionMeasureEventType(type)) {
+        warn_(createMessage$k("on", commonMessage.paramsInvaildEnum(type)));
+        return;
+      }
+      if (!isFunction(callback)) {
+        warn_(createMessage$k("on", commonMessage.paramsInvaildFormat("callback", "function")));
+        return;
+      }
+      const id = this.events.once(type, callback);
+      return id;
+    }
+    un(id) {
+      if (!this._isInitialized("un")) return;
+      if (!isDefined(id)) {
+        warn_(createMessage$k("un", commonMessage.paramsNotDefined(id)));
+        return;
+      }
+      if (!isString(id)) {
+        warn_(createMessage$k("un", commonMessage.paramsInvaildFormat(id, "string")));
+        return;
+      }
+      this.events.remove(id);
     }
     destroy(destroyLayer = true) {
       tooltipPopup.updatePosition(void 0);
@@ -4097,6 +4156,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return { type, geometryFunction };
   }
+  function handleInteractionDrawEvent(target, type, e) {
+    const layer = target.getLayer();
+    let layerFeatures = [];
+    if (isDefined(layer)) {
+      layerFeatures = defaultValue(layer.getFeatures(), []);
+    }
+    const { feature } = e;
+    let targetFeature = null;
+    if (isDefined(feature)) {
+      targetFeature = createBaseFeatureByOlFeature(feature);
+    }
+    return {
+      type,
+      target,
+      features: layerFeatures,
+      feature: targetFeature
+    };
+  }
   const PACKAGE_NAME$i = "Draw";
   const createMessage$i = getPackageMessage(PACKAGE_NAME$i);
   class Draw extends Interaction {
@@ -4189,6 +4266,26 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         this._removeInteractionLayer();
       }
       super.destroy();
+    }
+    on(type, callback) {
+      if (!this._isInitialized("on")) return;
+      if (!isDefined(type) || !isDefined(callback)) {
+        warn_(createMessage$i("on", commonMessage.paramsNotDefined("type or callback")));
+        return;
+      }
+      if (!isOMapInteractionDrawEventType(type)) {
+        warn_(createMessage$i("on", commonMessage.paramsInvaildEnum(type)));
+        return;
+      }
+      if (!isFunction(callback)) {
+        warn_(createMessage$i("on", commonMessage.paramsInvaildFormat("callback", "function")));
+        return;
+      }
+      const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+        this.events.emit(type, handleInteractionDrawEvent(this, type, e));
+      });
+      const id = this.events.on(type, callback, unlisten);
+      return id;
     }
   }
   let PACKAGE_NAME$h = "LayerGroup";
@@ -4324,15 +4421,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.map = map;
     }
   }
-  const OMapInteractionCommonParams = {
-    active: false
-  };
-  const OMapInteractionEventTypes = [
-    "change",
-    "change:active",
-    "error",
-    "propertychange"
-  ];
   const defaultMouseWheelZoomOptions = {
     condition: void 0,
     onFocusOnly: false,
@@ -6419,15 +6507,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     on(type, callback) {
       if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$5("on", "参数不能为空"));
+        warn_(createMessage$5("on", commonMessage.paramsNotDefined("type or callback")));
         return;
       }
       if (!isOMapInteractionExtentEventType(type)) {
-        warn_(createMessage$5("on", "事件类型错误"));
+        warn_(createMessage$5("on", commonMessage.paramsInvaildEnum(type)));
         return;
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$5("on", "回调函数不能为空"));
+        warn_(createMessage$5("on", commonMessage.paramsInvaildFormat("callback", "function")));
         return;
       }
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
@@ -6439,15 +6527,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     once(type, callback) {
       if (!this._isInitialized("once")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$5("once", "参数不能为空"));
+        warn_(createMessage$5("once", commonMessage.paramsNotDefined("type or callback")));
         return;
       }
       if (!isOMapInteractionExtentEventType(type)) {
-        warn_(createMessage$5("once", "事件类型错误"));
+        warn_(createMessage$5("once", commonMessage.paramsInvaildEnum(type)));
         return;
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$5("once", "回调函数不能为空"));
+        warn_(createMessage$5("once", commonMessage.paramsInvaildFormat("callback", "function")));
         return;
       }
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
@@ -6459,11 +6547,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     un(id) {
       if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$5("un", "参数不能为空"));
+        warn_(createMessage$5("un", commonMessage.paramsNotDefined(id)));
         return;
       }
       if (!isNumber(id)) {
-        warn_(createMessage$5("un", "事件ID应为number类型"));
+        warn_(createMessage$5("un", commonMessage.paramsInvaildFormat(id, "string")));
         return;
       }
       this.events.remove(id);
@@ -6817,9 +6905,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       });
     }
     getSelected() {
+      if (!this._isInitialized("getSelected")) return;
       return this.selected;
     }
     getDeselected() {
+      if (!this._isInitialized("getDeselected")) return;
       return this.deselected;
     }
     on(type, callback) {

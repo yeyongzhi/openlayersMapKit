@@ -201,11 +201,20 @@ let drawTool = null
 function initDrawInteraction() {
     DrawInputChecked.onchange = (e) => {
         const value = e.target.checked
-        console.log(value)
+        console.log("DrawInput.value", value)
         if (value) {
             if (!drawTool) {
                 drawTool = new OMap.Draw(DrawInput.value)
                 map.addInteraction(drawTool)
+                drawTool.on('drawstart', (e) => {
+                    console.log(e)
+                })
+                drawTool.on('drawend', (e) => {
+                    console.log(e)
+                })
+                drawTool.on('drawabout', (e) => {
+                    console.log("取消绘制")
+                })
             } else {
                 drawTool.setActive(true)
             }
