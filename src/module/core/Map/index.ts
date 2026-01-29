@@ -51,8 +51,9 @@ import {
     OMapEasing,
     type OMapViewFitOptionsType,
     OMAP_VIEW_FIT_DEFAULT_OPTIONS,
+    OMapMapInteractionIgnoreEventTypes,
 } from './type'
-import { MapEventTypeIsMap, handleMapOnCallBack, isOMapMapEventType } from './handle'
+import { MapEventTypeIsMap, handleMapOnCallBack, isOMapMapEventType, isMapDrawing, isMapMeasuring } from './handle'
 
 const PACKAGE_NAME = 'Map';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -548,6 +549,10 @@ export default class Map implements MapLike {
         let isMapTarget = MapEventTypeIsMap(type)
         const target = (isMapTarget) ? this._map : this._view;
         const unlisten = OlEvent.listen(target, (isMapTarget ? type.replace('map:', '') : type.replace('view:', '')), (e: any) => {
+            let isInteracting = isMapMeasuring(defaultValue(this.getInteractions(), [])) || isMapDrawing(defaultValue(this.getInteractions(), []));
+            if(isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)){
+                return false;
+            }
             this.events.emit(type, handleMapOnCallBack(this, type, e))
         })
         const id = this.events.on(type, callback, unlisten)
@@ -557,7 +562,7 @@ export default class Map implements MapLike {
     once(type: OMapEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('once')) return;
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
+            warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
             return;
         }
         if (!isOMapMapEventType(type)) {
@@ -571,9 +576,13 @@ export default class Map implements MapLike {
         let isMapTarget = MapEventTypeIsMap(type)
         const target = (isMapTarget) ? this._map : this._view;
         const unlisten = OlEvent.listen(target, (isMapTarget ? type.replace('map:', '') : type.replace('view:', '')), (e: any) => {
+            let isInteracting = isMapMeasuring(defaultValue(this.getInteractions(), [])) || isMapDrawing(defaultValue(this.getInteractions(), []));
+            if(isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)){
+                return false;
+            }
             this.events.emit(type, handleMapOnCallBack(this, type, e))
-        })
-        const id = this.events.on(type, callback, unlisten)
+        }, target, true)
+        const id = this.events.once(type, callback, unlisten)
         return id
     }
 

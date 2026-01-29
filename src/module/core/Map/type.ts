@@ -91,7 +91,11 @@ export const OMapMapEventTypes = [
     'view:error',
     'view:propertychange',
 ] as const;
-
+export const OMapMapInteractionIgnoreEventTypes = [
+    'map:click',
+    'map:dbclick',
+    'map:singleclick',
+];
 export type OMapEventType = typeof OMapMapEventTypes[number];
 
 

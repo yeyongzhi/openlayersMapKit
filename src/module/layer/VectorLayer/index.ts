@@ -13,6 +13,8 @@ import { OlLayer, OlSource, OlUtil, OlFeature, OlGeometry } from '../../../sourc
 import BaseLayer from '../BaseLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import Draw from '../../interaction/Draw/index'
+import { DrawEventType } from '../../interaction/Draw/type'
+import { handleInteractionDrawEvent } from '../../interaction/Draw/handle'
 import Measure from '../../interaction/Measure/index'
 import Extent from '../../basic/Extent/index'
 import type { OlExtentType, OMapExtentType } from '../../basic/Extent/type'
@@ -31,7 +33,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/12/20
+ * @updateDate 2026/1/29
  */
 
 export default class VectorLayer extends BaseLayer {
@@ -72,6 +74,9 @@ export default class VectorLayer extends BaseLayer {
         if (!this._isInitializedLayer('initVectorLyaerEvent')) return;
         (this._layer.getSource() as OlVectorSourceInstanceType).on("addfeature", (e) => {
             const { feature } = e
+            console.log("添加feature事件")
+            console.log(feature)
+            console.log(this.target)
             if(isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
                 if(this.target instanceof Draw || this.target instanceof Measure) {
@@ -82,6 +87,10 @@ export default class VectorLayer extends BaseLayer {
                         this.features.push(basicFeature) // 这里是把 feature 同步一份到 this.features 里面
                     } else {
                         warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
+                    }
+                    // 绘制结束事件 需要在 addfeature 事件之后 触发，才能获取到完整的 feature
+                    if(this.target.getActive() && this.target instanceof Draw) {
+                        this.target.events.emit(DrawEventType.drawEnd, handleInteractionDrawEvent(this.target, DrawEventType.drawEnd, { feature }))
                     }
                 }
             }

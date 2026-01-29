@@ -3,9 +3,6 @@ import { OlGeometry } from '../../../../source/index'
 import type { OMapCoordinateType } from '../../../basic/Lnglat/type'
 import type { BasicFeatureLike, BasicFeatureInitialized } from '../BasicFeature/type'
 
-export type OMapPointGeometryCoordinatesType = OMapCoordinateType
-export type OMapCircleGeometryCoordinatesType = OMapCoordinateType
-
 export type OlCircleGeomInstanceType = InstanceType<typeof OlGeometry.Circle>
 
 export type CircleLike = BasicFeatureLike & {

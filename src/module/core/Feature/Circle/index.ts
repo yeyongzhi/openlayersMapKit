@@ -4,11 +4,11 @@ import type { OlCoordinateType } from '../../../basic/Lnglat/type'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type {
-    OMapPointGeometryCoordinatesType,
     OlCircleGeomInstanceType,
     CircleLike,
     CircleInitialized,
 } from './type'
+import { OMapPointGeometryCoordinatesType } from '../Point/type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import Lnglat from '../../../basic/Lnglat/index'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
@@ -39,11 +39,11 @@ export default class Circle extends BasicFeature<OlCircleGeomInstanceType> imple
                 error_(createMessage('constructor', '坐标格式有误'));
                 return
             }
-            if(!isDefined(radius)) {
+            if (!isDefined(radius)) {
                 error_(createMessage('constructor', 'radius参数不能为空'));
                 return
             }
-            if(!isNumber(radius)) {
+            if (!isNumber(radius)) {
                 error_(createMessage('constructor', 'radius参数格式有误'));
                 return
             }
@@ -75,6 +75,31 @@ export default class Circle extends BasicFeature<OlCircleGeomInstanceType> imple
             return false;
         }
         return true;
+    }
+
+    getCenter(): Lnglat | void {
+        if (!this._isInitialized("getCenter")) return;
+        let center = this._geometry.getCenter()
+        return new Lnglat(...center)
+    }
+
+    getRadius(): number | void {
+        if (!this._isInitialized("getRadius")) return;
+        return this._geometry.getRadius()
+    }
+
+    /**
+     * 获取坐标
+     */
+    getCoordinates(): Lnglat | void {
+        return this.getCenter()
+    }
+
+    /**
+     * 设置线的坐标
+     */
+    setCoordinates(): void {
+
     }
 
 }

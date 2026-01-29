@@ -59,7 +59,7 @@ export default abstract class BasicFeature<T extends OlGeometryType> implements 
      * 获取坐标
      * @returns {OMapBasicFeatureCoordinatesType} 坐标
      */
-    abstract getCoordinates(): OMapBasicFeatureCoordinatesType;
+    abstract getCoordinates(): OMapBasicFeatureCoordinatesType | void;
 
     /**
      * 设置坐标

@@ -4,6 +4,10 @@ import Lnglat from '../../basic/Lnglat/index'
 import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
 import Map from './index'
+import Interaction from '../../interaction/Interaction/index'
+import Draw from '../../interaction/Draw/index'
+import Measure from '../../interaction/Measure/index'
+
 
 export function MapEventTypeIsMap(type: OMapEventType): boolean {
     return type && type.startsWith('map:')
@@ -72,4 +76,26 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
 
 export function isOMapMapEventType(type: unknown): type is OMapEventType {
     return isString(type) && OMapMapEventTypes.includes(type as any)
+}
+
+/**
+ * 判断地图是否正在绘制
+ * @param mapInteractions 地图交互事件
+ * @returns {boolean} 是否正在绘制
+ */
+export function isMapDrawing(mapInteractions: Interaction[]): boolean {
+    return mapInteractions.some((interaction) => {
+        return isDefined(interaction) && interaction instanceof Draw && interaction.getActive()
+    })
+}
+
+/**
+ * 判断地图是否正在测量
+ * @param mapInteractions 地图交互事件
+ * @returns {boolean} 是否正在测量
+ */
+export function isMapMeasuring(mapInteractions: Interaction[]): boolean {
+    return mapInteractions.some((interaction) => {
+        return isDefined(interaction) && interaction instanceof Measure && interaction.getActive()
+    })
 }

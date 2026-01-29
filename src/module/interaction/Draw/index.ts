@@ -5,6 +5,7 @@ import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/ty
 import Interaction from '../Interaction/index'
 import { OlInteraction, OlEvent, OlFeature, OlGeometry } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
+import BasicFeature from '../../core/Feature/BasicFeature/index'
 import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 import type { OlFeatureType, OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
 import Lnglat from '../../basic/Lnglat/index'
@@ -14,6 +15,7 @@ import {
     type OMapDrawParamsType,
     type OlDrawInstanceType,
     type OMapInteractionDrawEventType,
+    DrawEventType,
     isOMapInteractionDrawEventType,
     DRAW_DEFAULT_PARAMS,
     DrawMode
@@ -32,7 +34,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/8/25
- * @updateDate 2025/9/4
+ * @updateDate 2026/1/29
  */
 
 export default class Draw extends Interaction {
@@ -70,7 +72,6 @@ export default class Draw extends Interaction {
         })
         // 注册事件
         this.initInteractionEvent()
-        // this.initDrawEvent()
     }
 
     protected initDrawEvent() {
@@ -139,6 +140,15 @@ export default class Draw extends Interaction {
         super.destroy()
     }
 
+    /**
+     * 获取当前绘制的所有特征
+     * @returns 特征数组
+     */
+    getFeatures(): BasicFeature<OlGeometry.Geometry>[] | undefined {
+        if (!this._isInitialized('getFeatures')) return;
+        return (this.getLayer() as VectorLayer).getFeatures()
+    }
+
     on(type: OMapInteractionDrawEventType, callback: () => void): EventIdType | undefined {
         if (!this._isInitialized('on')) return;
         if (!isDefined(type) || !isDefined(callback)) {
@@ -154,10 +164,48 @@ export default class Draw extends Interaction {
             return;
         }
         const unlisten = OlEvent.listen((this._interaction as OlDrawInstanceType), type, (e: any) => {
-            this.events.emit(type, handleInteractionDrawEvent(this, type, e))
+            if(type !== DrawEventType.drawEnd) {
+                this.events.emit(type, handleInteractionDrawEvent(this, type, e))
+            }
         })
         const id = this.events.on(type, callback, unlisten)
         return id
+    }
+
+    once(type: OMapInteractionDrawEventType, callback: () => void): EventIdType | undefined {
+        if (!this._isInitialized('once')) return;
+        if (!isDefined(type) || !isDefined(callback)) {
+            warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
+            return;
+        }
+        if (!isOMapInteractionDrawEventType(type)) {
+            warn_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
+            return;
+        };
+        if (!isFunction(callback)) {
+            warn_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
+            return;
+        }
+        const unlisten = OlEvent.listen((this._interaction as OlDrawInstanceType), type, (e: any) => {
+            if(type !== DrawEventType.drawEnd) {
+                this.events.emit(type, handleInteractionDrawEvent(this, type, e))
+            }
+        })
+        const id = this.events.once(type, callback, unlisten)
+        return id
+    }
+
+    un(id: EventIdType): void {
+        if (!this._isInitialized('un')) return;
+        if (!isDefined(id)) {
+            warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
+            return;
+        }
+        if (!isString(id)) {
+            warn_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'string')));
+            return;
+        }
+        this.events.remove(id)
     }
 
 }

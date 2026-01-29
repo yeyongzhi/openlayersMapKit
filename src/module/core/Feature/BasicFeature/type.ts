@@ -6,7 +6,7 @@ import type { OMapMultiLineStringGeometryCoordinatesType, OlMultiLineStringGeomI
 import type { OMapPolygonGeometryCoordinatesType, OlPolygonGeomInstanceType } from '../Polygon/type'
 import type { OMapMultiPolygonGeometryCoordinatesType, OlMultiPolygonGeomInstanceType } from '../MultiPolygon/type'
 import type { OMapLinearRingGeometryCoordinatesType, OlLinearRingGeomInstanceType } from '../LinearRing/type'
-import type { OMapCircleGeometryCoordinatesType, OlCircleGeomInstanceType } from '../Circle/type'
+import type { OlCircleGeomInstanceType } from '../Circle/type'
 
 
 export interface BasicFeatureLike {
@@ -84,5 +84,4 @@ OMapLineStringGeometryCoordinatesType |
 OMapMultiLineStringGeometryCoordinatesType |
 OMapPolygonGeometryCoordinatesType | 
 OMapMultiPolygonGeometryCoordinatesType | 
-OMapLinearRingGeometryCoordinatesType | 
-OMapCircleGeometryCoordinatesType
+OMapLinearRingGeometryCoordinatesType

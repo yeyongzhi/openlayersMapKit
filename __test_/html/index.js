@@ -210,9 +210,12 @@ function initDrawInteraction() {
                     console.log(e)
                 })
                 drawTool.on('drawend', (e) => {
+                    console.log("绘制结束")
                     console.log(e)
+                    console.log(drawTool.getFeatures())
+                    console.log(drawTool.getFeatures().length)
                 })
-                drawTool.on('drawabout', (e) => {
+                drawTool.on('drawabort', (e) => {
                     console.log("取消绘制")
                 })
             } else {

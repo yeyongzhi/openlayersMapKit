@@ -314,17 +314,17 @@ export default class Measure extends Interaction {
     }
 
     once(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+        if (!this._isInitialized('once')) return;
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
+            warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
             return;
         }
         if (!isOMapInteractionMeasureEventType(type)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
+            warn_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
             return;
         };
         if (!isFunction(callback)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+            warn_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
             return;
         }
         // measure事件是由自己触发的，无需再绑定到this._interaction的原生事件上

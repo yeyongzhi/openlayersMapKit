@@ -3202,24 +3202,6 @@ const OMapInteractionEventTypes = [
   "error",
   "propertychange"
 ];
-const MeasureMode = {
-  Distance: "Distance",
-  Area: "Area"
-};
-const DRAW_DEFAULT_PARAMS$1 = {
-  clickTolerance: 6,
-  dragVertexDelay: 500,
-  snapTolerance: 12,
-  stopClick: false
-};
-const MeasureEventType = {
-  measureStart: "measure:start",
-  measureEnd: "measure:end"
-};
-const OMapInteractionMeasureEventTypes = [...OMapInteractionEventTypes, ...Object.values(MeasureEventType)];
-function isOMapInteractionMeasureEventType(value) {
-  return isString(value) && OMapInteractionMeasureEventTypes.includes(value);
-}
 const DrawMode = {
   /** 点 */
   Point: "Point",
@@ -3232,7 +3214,7 @@ const DrawMode = {
   /** 圆 */
   Circle: "Circle"
 };
-const DRAW_DEFAULT_PARAMS = {
+const DRAW_DEFAULT_PARAMS$1 = {
   clickTolerance: 6,
   dragVertexDelay: 500,
   snapTolerance: 12,
@@ -3247,9 +3229,64 @@ const OMapInteractionDrawEventTypes = [...OMapInteractionEventTypes, ...Object.v
 function isOMapInteractionDrawEventType(value) {
   return isString(value) && OMapInteractionDrawEventTypes.includes(value);
 }
+function getOlDrawType$1(mode) {
+  let type = "Point";
+  let geometryFunction = null;
+  switch (mode) {
+    case "Point":
+    case "LineString":
+    case "Polygon":
+      type = mode;
+      break;
+    case "Circle":
+      type = "Circle";
+      break;
+    case "Rectangle":
+      type = "Circle";
+      geometryFunction = createBox();
+      break;
+  }
+  return { type, geometryFunction };
+}
+function handleInteractionDrawEvent(target, type, e) {
+  const layer = target.getLayer();
+  let layerFeatures = [];
+  if (isDefined(layer)) {
+    layerFeatures = defaultValue(layer.getFeatures(), []);
+  }
+  const { feature } = e;
+  let targetFeature = null;
+  if (isDefined(feature)) {
+    targetFeature = createBaseFeatureByOlFeature(feature);
+  }
+  return {
+    type,
+    target,
+    features: layerFeatures,
+    feature: targetFeature
+  };
+}
+const MeasureMode = {
+  Distance: "Distance",
+  Area: "Area"
+};
+const DRAW_DEFAULT_PARAMS = {
+  clickTolerance: 6,
+  dragVertexDelay: 500,
+  snapTolerance: 12,
+  stopClick: false
+};
+const MeasureEventType = {
+  measureStart: "measure:start",
+  measureEnd: "measure:end"
+};
+const OMapInteractionMeasureEventTypes = [...OMapInteractionEventTypes, ...Object.values(MeasureEventType)];
+function isOMapInteractionMeasureEventType(value) {
+  return isString(value) && OMapInteractionMeasureEventTypes.includes(value);
+}
 const MeasureMarkerIdSuffix = "omap-measure-marker";
 const MEASURE_MERKER_INDEX_NAME = "omap-measure-marker-index";
-function getOlDrawType$1(mode) {
+function getOlDrawType(mode) {
   let type = "Point";
   let geometryFunction = null;
   switch (mode) {
@@ -3570,14 +3607,14 @@ class Measure extends Interaction {
       style: DEFAULT_STYLE
     });
     draw_source = this.layer.getSource();
-    let _params = Object.assign({}, DRAW_DEFAULT_PARAMS$1, {
+    let _params = Object.assign({}, DRAW_DEFAULT_PARAMS, {
       clickTolerance: params == null ? void 0 : params.clickTolerance,
       source: draw_source,
       features: void 0,
       style: void 0
     });
     this._interaction = new OlInteraction.Draw({
-      ...getOlDrawType$1(mode),
+      ...getOlDrawType(mode),
       ..._params
     });
     this.mode = mode;
@@ -3784,17 +3821,17 @@ class Measure extends Interaction {
     return id;
   }
   once(type, callback) {
-    if (!this._isInitialized("on")) return;
+    if (!this._isInitialized("once")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$k("on", commonMessage.paramsNotDefined("type or callback")));
+      warn_(createMessage$k("once", commonMessage.paramsNotDefined("type or callback")));
       return;
     }
     if (!isOMapInteractionMeasureEventType(type)) {
-      warn_(createMessage$k("on", commonMessage.paramsInvaildEnum(type)));
+      warn_(createMessage$k("once", commonMessage.paramsInvaildEnum(type)));
       return;
     }
     if (!isFunction(callback)) {
-      warn_(createMessage$k("on", commonMessage.paramsInvaildFormat("callback", "function")));
+      warn_(createMessage$k("once", commonMessage.paramsInvaildFormat("callback", "function")));
       return;
     }
     const id = this.events.once(type, callback);
@@ -3857,6 +3894,9 @@ class VectorLayer extends BaseLayer {
     if (!this._isInitializedLayer("initVectorLyaerEvent")) return;
     this._layer.getSource().on("addfeature", (e) => {
       const { feature } = e;
+      console.log("添加feature事件");
+      console.log(feature);
+      console.log(this.target);
       if (isDefined(feature)) {
         if (this.target instanceof Draw || this.target instanceof Measure) {
           let basicFeature = createBaseFeatureByOlFeature(feature);
@@ -3864,6 +3904,9 @@ class VectorLayer extends BaseLayer {
             this.features.push(basicFeature);
           } else {
             warn_(createMessage$j("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
+          }
+          if (this.target.getActive() && this, this.target instanceof Draw) {
+            this.target.events.emit(DrawEventType.drawEnd, handleInteractionDrawEvent(this.target, DrawEventType.drawEnd, { feature }));
           }
         }
       }
@@ -4124,43 +4167,6 @@ class VectorLayer extends BaseLayer {
     this._layer.setDeclutter(declutter);
   }
 }
-function getOlDrawType(mode) {
-  let type = "Point";
-  let geometryFunction = null;
-  switch (mode) {
-    case "Point":
-    case "LineString":
-    case "Polygon":
-      type = mode;
-      break;
-    case "Circle":
-      type = "Circle";
-      break;
-    case "Rectangle":
-      type = "Circle";
-      geometryFunction = createBox();
-      break;
-  }
-  return { type, geometryFunction };
-}
-function handleInteractionDrawEvent(target, type, e) {
-  const layer = target.getLayer();
-  let layerFeatures = [];
-  if (isDefined(layer)) {
-    layerFeatures = defaultValue(layer.getFeatures(), []);
-  }
-  const { feature } = e;
-  let targetFeature = null;
-  if (isDefined(feature)) {
-    targetFeature = createBaseFeatureByOlFeature(feature);
-  }
-  return {
-    type,
-    target,
-    features: layerFeatures,
-    feature: targetFeature
-  };
-}
 const PACKAGE_NAME$i = "Draw";
 const createMessage$i = getPackageMessage(PACKAGE_NAME$i);
 class Draw extends Interaction {
@@ -4185,14 +4191,14 @@ class Draw extends Interaction {
       });
       draw_source = this.layer.getSource();
     }
-    let _params = Object.assign({}, DRAW_DEFAULT_PARAMS, {
+    let _params = Object.assign({}, DRAW_DEFAULT_PARAMS$1, {
       clickTolerance: params == null ? void 0 : params.clickTolerance,
       source: draw_source,
       features: void 0,
       style: void 0
     });
     this._interaction = new OlInteraction.Draw({
-      ...getOlDrawType(mode),
+      ...getOlDrawType$1(mode),
       ..._params
     });
     this.initInteractionEvent();
@@ -4254,6 +4260,14 @@ class Draw extends Interaction {
     }
     super.destroy();
   }
+  /**
+   * 获取当前绘制的所有特征
+   * @returns 特征数组
+   */
+  getFeatures() {
+    if (!this._isInitialized("getFeatures")) return;
+    return this.getLayer().getFeatures();
+  }
   on(type, callback) {
     if (!this._isInitialized("on")) return;
     if (!isDefined(type) || !isDefined(callback)) {
@@ -4269,10 +4283,46 @@ class Draw extends Interaction {
       return;
     }
     const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(type, handleInteractionDrawEvent(this, type, e));
+      if (type !== DrawEventType.drawEnd) {
+        this.events.emit(type, handleInteractionDrawEvent(this, type, e));
+      }
     });
     const id = this.events.on(type, callback, unlisten);
     return id;
+  }
+  once(type, callback) {
+    if (!this._isInitialized("once")) return;
+    if (!isDefined(type) || !isDefined(callback)) {
+      warn_(createMessage$i("once", commonMessage.paramsNotDefined("type or callback")));
+      return;
+    }
+    if (!isOMapInteractionDrawEventType(type)) {
+      warn_(createMessage$i("once", commonMessage.paramsInvaildEnum(type)));
+      return;
+    }
+    if (!isFunction(callback)) {
+      warn_(createMessage$i("once", commonMessage.paramsInvaildFormat("callback", "function")));
+      return;
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      if (type !== DrawEventType.drawEnd) {
+        this.events.emit(type, handleInteractionDrawEvent(this, type, e));
+      }
+    });
+    const id = this.events.once(type, callback, unlisten);
+    return id;
+  }
+  un(id) {
+    if (!this._isInitialized("un")) return;
+    if (!isDefined(id)) {
+      warn_(createMessage$i("un", commonMessage.paramsNotDefined(id)));
+      return;
+    }
+    if (!isString(id)) {
+      warn_(createMessage$i("un", commonMessage.paramsInvaildFormat(id, "string")));
+      return;
+    }
+    this.events.remove(id);
   }
 }
 let PACKAGE_NAME$h = "LayerGroup";
@@ -4492,6 +4542,11 @@ const OMapMapEventTypes = [
   "view:error",
   "view:propertychange"
 ];
+const OMapMapInteractionIgnoreEventTypes = [
+  "map:click",
+  "map:dbclick",
+  "map:singleclick"
+];
 const DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS = {
   hitTolerance: 0,
   checkWrapped: true
@@ -4577,6 +4632,16 @@ function handleMapOnCallBack(target, type, e) {
 }
 function isOMapMapEventType(type) {
   return isString(type) && OMapMapEventTypes.includes(type);
+}
+function isMapDrawing(mapInteractions) {
+  return mapInteractions.some((interaction) => {
+    return isDefined(interaction) && interaction instanceof Draw && interaction.getActive();
+  });
+}
+function isMapMeasuring(mapInteractions) {
+  return mapInteractions.some((interaction) => {
+    return isDefined(interaction) && interaction instanceof Measure && interaction.getActive();
+  });
 }
 const PACKAGE_NAME$g = "Map";
 const createMessage$g = getPackageMessage(PACKAGE_NAME$g);
@@ -5005,6 +5070,10 @@ let Map$1 = class Map2 {
     let isMapTarget = MapEventTypeIsMap(type);
     const target = isMapTarget ? this._map : this._view;
     const unlisten = OlEvent.listen(target, isMapTarget ? type.replace("map:", "") : type.replace("view:", ""), (e) => {
+      let isInteracting = isMapMeasuring(defaultValue(this.getInteractions(), [])) || isMapDrawing(defaultValue(this.getInteractions(), []));
+      if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) {
+        return false;
+      }
       this.events.emit(type, handleMapOnCallBack(this, type, e));
     });
     const id = this.events.on(type, callback, unlisten);
@@ -5013,7 +5082,7 @@ let Map$1 = class Map2 {
   once(type, callback) {
     if (!this._isInitialized("once")) return;
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$g("on", commonMessage.paramsNotDefined("type or callback")));
+      warn_(createMessage$g("once", commonMessage.paramsNotDefined("type or callback")));
       return;
     }
     if (!isOMapMapEventType(type)) {
@@ -5027,9 +5096,13 @@ let Map$1 = class Map2 {
     let isMapTarget = MapEventTypeIsMap(type);
     const target = isMapTarget ? this._map : this._view;
     const unlisten = OlEvent.listen(target, isMapTarget ? type.replace("map:", "") : type.replace("view:", ""), (e) => {
+      let isInteracting = isMapMeasuring(defaultValue(this.getInteractions(), [])) || isMapDrawing(defaultValue(this.getInteractions(), []));
+      if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) {
+        return false;
+      }
       this.events.emit(type, handleMapOnCallBack(this, type, e));
-    });
-    const id = this.events.on(type, callback, unlisten);
+    }, target, true);
+    const id = this.events.once(type, callback, unlisten);
     return id;
   }
   un(id) {
