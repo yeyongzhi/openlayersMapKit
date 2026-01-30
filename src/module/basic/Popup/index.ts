@@ -9,6 +9,7 @@ import Event from '../../util/Event/index'
 import { type EventIdType } from '../../util/Event/type'
 import { OlEvent, OlOverlay } from '../../../source/index'
 import {
+    type OMapPopupType,
     type OMapPopupParamsType,
     type OlPopupInstanceType,
     type PopupPositioningType,
@@ -35,28 +36,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/12/30
  */
 
-interface PopupLike {
-    _popup?: OlPopupInstanceType;
-    id: number | string | null;
-    content: string;
-    map: Map | null;
-    events: Event;
-    properties: Record<string, any>;
-}
 
-// 精确类型：保证一定已初始化
-interface PopupInitialized {
-    _popup: OlPopupInstanceType;
-    id: number | string | null;
-    content: string;
-    map: Map | null;
-    events: Event;
-    properties: Record<string, any>;
-}
+export default class Popup {
 
-export default class Popup implements PopupLike {
-
-    _popup?: OlPopupInstanceType;
+    _popup: OMapPopupType;
 
     /**
      * Popup 的唯一ID
@@ -110,20 +93,12 @@ export default class Popup implements PopupLike {
 
     }
 
-    protected _isInitialized(method: string): this is PopupInitialized & this {
-        if (!isDefined(this._popup)) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
-    }
-
     /**
      * 获取弹窗位置
      * @returns {Lnglat | undefined} 弹窗位置
      */
     getPosition(): Lnglat | undefined {
-        if (!this._isInitialized("getPosition")) return;
+
         let coordinates = this._popup.getPosition()
         return isDefined(coordinates) ? new Lnglat(coordinates[0], coordinates[1]) : undefined
     }
@@ -133,18 +108,18 @@ export default class Popup implements PopupLike {
      * @param {Lnglat | OlCoordinateType} coordinates 弹窗位置
      */
     setPosition(coordinates: Lnglat | OlCoordinateType | undefined): void {
-        if (!this._isInitialized("setPosition")) return;
+
         let _coordinates = (coordinates instanceof Lnglat) ? coordinates.toArray() : coordinates
         this._popup.setPosition(_coordinates)
     }
 
     getPositioning(): PopupPositioningType | undefined {
-        if (!this._isInitialized("getPositioning")) return;
+
         return this._popup.getPositioning()
     }
 
     setPositioning(positioning: PopupPositioningType): void {
-        if (!this._isInitialized("setPositioning")) return;
+
         if (!isVaildPopupPositioningType(positioning)) {
             warn_(createMessage("setPositioning", "参数positioning值有误"));
             return;
@@ -157,7 +132,7 @@ export default class Popup implements PopupLike {
      * @returns {Record<string, any> | undefined} 弹窗属性
      */
     getProperties(): Record<string, any> | undefined {
-        if (!this._isInitialized("getProperties")) return;
+
         return this.properties
     }
 
@@ -166,7 +141,7 @@ export default class Popup implements PopupLike {
      * @param {Record<string, any>} properties 弹窗属性
      */
     setProperties(properties: Record<string, any>): void {
-        if (!this._isInitialized("setProperties")) return;
+
         if (!isDefined(properties)) {
             warn_(createMessage("setProperties", "参数不能为空"));
             return;
@@ -180,24 +155,23 @@ export default class Popup implements PopupLike {
     }
 
     getElement(): HTMLElement | undefined {
-        if (!this._isInitialized("getElement")) return;
+
         return this._popup.getElement()
     }
 
     setElement(element: HTMLElement | undefined): void {
-        if (!this._isInitialized("getElement")) return;
+
         if (!isDefined(element)) return;
         element.classList.add("omap-popup-selectable")
         return this._popup.setElement(element)
     }
 
     getContent(): string {
-        if (!this._isInitialized("getContent")) return "";
         return this.content
     }
 
     setContent(content: string): void {
-        if (!this._isInitialized("setContent")) return;
+
         this.events.emit('change:content', handlePopupEvent(this, 'change:content', {
             oldValue: this.getContent(),
             key: "content",
@@ -208,19 +182,19 @@ export default class Popup implements PopupLike {
     }
 
     getOffset(): Pixel | undefined {
-        if (!this._isInitialized("getOffset")) return;
+
         let offset = this._popup.getOffset()
         return new Pixel(offset[0], offset[1])
     }
 
     setOffset(offset: OMapPixelType): void {
-        if (!this._isInitialized("setOffset")) return;
+
         let _offset = (offset instanceof Pixel) ? (offset.toArray() as OlPixelType) : offset;
         this._popup.setOffset(_offset)
     }
 
     getId(): number | string | null | undefined {
-        if (!this._isInitialized("getId")) return;
+
         return this.id
     }
 
@@ -233,7 +207,7 @@ export default class Popup implements PopupLike {
     }
 
     on(type: OMapPopupEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', commonMessage.paramsListHaveNotDefined('type or callback')));
             return;
@@ -254,7 +228,7 @@ export default class Popup implements PopupLike {
     }
 
     once(type: OMapPopupEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', commonMessage.paramsListHaveNotDefined('type or callback')));
             return;
@@ -275,7 +249,7 @@ export default class Popup implements PopupLike {
     }
 
     un(id: EventIdType): void {
-        if (!this._isInitialized('un')) return;
+
         if (!isDefined(id)) {
             warn_(createMessage('un', commonMessage.paramsNotDefined('id')));
             return;

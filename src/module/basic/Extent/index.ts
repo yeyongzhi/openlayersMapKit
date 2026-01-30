@@ -60,7 +60,7 @@ export default class Extent implements ExtentLike {
     }
 
     getExtent(): OlExtentType | undefined {
-        if (!this._isInitialized('getExtent')) return;
+
         return this._extent
     }
 
@@ -69,7 +69,7 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 左上方位置
      */
     getTopLeft(): Lnglat | undefined {
-        if (!this._isInitialized('getTopLeft')) return;
+
         return new Lnglat(...OlExtent.getTopLeft(this._extent));
     }
 
@@ -78,7 +78,7 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 右上方位置
      */
     getTopRight(): Lnglat | undefined {
-        if (!this._isInitialized('getTopRight')) return;
+
         return new Lnglat(...OlExtent.getTopRight(this._extent));
     }
 
@@ -87,7 +87,7 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 左下角位置
      */
     getBottomLeft(): Lnglat | undefined {
-        if (!this._isInitialized('getBottomLeft')) return;
+
         return new Lnglat(...OlExtent.getBottomLeft(this._extent));
     }
 
@@ -96,7 +96,7 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 右下角位置
      */
     getBottomRight(): Lnglat | undefined {
-        if (!this._isInitialized('getBottomRight')) return;
+
         return new Lnglat(...OlExtent.getBottomRight(this._extent));
     }
 
@@ -105,7 +105,7 @@ export default class Extent implements ExtentLike {
      * @return {Lnglat} 中心点位置
      */
     getCenter(): Lnglat | undefined {
-        if (!this._isInitialized('getCenter')) return;
+
         return new Lnglat(...OlExtent.getCenter(this._extent));
     }
 
@@ -114,7 +114,7 @@ export default class Extent implements ExtentLike {
      * @returns {number} 宽度
      */
     getWidth(): number | undefined {
-        if (!this._isInitialized('getWidth')) return;
+
         return OlExtent.getWidth(this._extent);
     }
 
@@ -123,12 +123,12 @@ export default class Extent implements ExtentLike {
      * @returns {number} 高度
      */
     getHeight(): number | undefined {
-        if (!this._isInitialized('getHeight')) return;
+
         return OlExtent.getHeight(this._extent);
     }
 
     getSize(): Size | undefined {
-        if (!this._isInitialized('getHeight')) return;
+
         return new Size(...OlExtent.getSize(this._extent));
     }
 

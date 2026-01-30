@@ -1,7 +1,7 @@
-import { isDefined, isCoordinatesType, isExtentType, isNumber } from '../../../../utils/index'
+import { isDefined, isCoordinatesType, isNumber } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../../utils/index'
-import type { OlCoordinateType } from '../../../basic/Lnglat/type'
-import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
+import { commonMessage } from '../../../../utils/message'
+import { OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type {
     OlCircleGeomInstanceType,
@@ -11,6 +11,7 @@ import type {
 import { OMapPointGeometryCoordinatesType } from '../Point/type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import Lnglat from '../../../basic/Lnglat/index'
+import { type OMapCoordinateType, type OlCoordinateType } from '../../../basic/Lnglat/type'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 
 const PACKAGE_NAME = 'Circle';
@@ -78,14 +79,41 @@ export default class Circle extends BasicFeature<OlCircleGeomInstanceType> imple
     }
 
     getCenter(): Lnglat | void {
-        if (!this._isInitialized("getCenter")) return;
+
         let center = this._geometry.getCenter()
         return new Lnglat(...center)
     }
 
+    setCenter(center: OMapCoordinateType): void {
+
+        if (!isDefined(center)) {
+            error_(createMessage('setCenter', commonMessage.paramsNotDefined('center')));
+            return
+        }
+        if (!isCoordinatesType(center) && !(center instanceof Lnglat)) {
+            error_(createMessage('setCenter', commonMessage.paramsInvaildFormat('center', 'coordinates')));
+            return
+        }
+        let _center = handleGetLnglatValue(center) as OlCoordinateType
+        this._geometry.setCenter(_center)
+    }
+
     getRadius(): number | void {
-        if (!this._isInitialized("getRadius")) return;
+
         return this._geometry.getRadius()
+    }
+
+    setRadius(radius: number): void {
+
+        if (!isDefined(radius)) {
+            error_(createMessage('setRadius', commonMessage.paramsNotDefined('radius')));
+            return
+        }
+        if (!isNumber(radius)) {
+            error_(createMessage('setRadius', commonMessage.paramsInvaildFormat('radius', 'number')));
+            return
+        }
+        this._geometry.setRadius(radius)
     }
 
     /**
@@ -98,8 +126,26 @@ export default class Circle extends BasicFeature<OlCircleGeomInstanceType> imple
     /**
      * 设置线的坐标
      */
-    setCoordinates(): void {
+    setCoordinates(center: OMapCoordinateType): void {
+        this.setCenter(center)
+    }
 
+    setCenterAndRadius(center: OMapCoordinateType, radius: number): void {
+
+        if (!isDefined(center) || !isDefined(radius)) {
+            error_(createMessage('setCenterAndRadius', commonMessage.paramsListHaveNotDefined('center', 'radius')));
+            return
+        }
+        if (!isCoordinatesType(center) && !(center instanceof Lnglat)) {
+            error_(createMessage('setCenterAndRadius', commonMessage.paramsInvaildFormat('center', 'coordinates')));
+            return
+        }
+        if (!isNumber(radius)) {
+            error_(createMessage('setCenterAndRadius', commonMessage.paramsInvaildFormat('radius', 'number')));
+            return
+        }
+        let _center = handleGetLnglatValue(center) as OlCoordinateType
+        this._geometry.setCenterAndRadius(_center, radius)
     }
 
 }

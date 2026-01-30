@@ -77,7 +77,7 @@ export default class MultiLineString extends BasicFeature<OlMultiLineStringGeomI
      * @returns {Array<Array<Lnglat>>} 坐标
      */
     getCoordinates(): Array<Array<Lnglat>> | undefined {
-        if (!this._isInitialized('getCoordinates')) return;
+
         let coordinates = (this._geometry as OlMultiLineStringGeomInstanceType).getCoordinates() as Array<Array<OlCoordinateType>>
         let _coordinates = coordinates.map((c: Array<OlCoordinateType>) => {
             return c.map(c2 => {
@@ -92,7 +92,7 @@ export default class MultiLineString extends BasicFeature<OlMultiLineStringGeomI
      * @param {OMapMultiLineStringGeometryCoordinatesType} coordinates 坐标
      */
     setCoordinates(coordinates: OMapMultiLineStringGeometryCoordinatesType): void {
-        if (!this._isInitialized('setCoordinates')) return;
+
         if (!isDefined(coordinates)) {
             error_(createMessage('setCoordinates', '参数不能为空'));
             return

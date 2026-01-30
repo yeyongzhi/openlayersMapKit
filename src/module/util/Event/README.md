@@ -14,7 +14,7 @@ constructor() {
 
 ```javascript
 on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
-    if (!this._isInitialized('on')) return;
+
     if (!isDefined(type) || !isDefined(callback)) {
         warn_(createMessage('on', commonMessage.paramsListHaveNotDefined('type or callback')));
         return;
@@ -35,7 +35,7 @@ on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | un
 }
 
 once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
-    if (!this._isInitialized('once')) return;
+
     if (!isDefined(type) || !isDefined(callback)) {
         warn_(createMessage('once', '参数不能为空'));
         return;
@@ -56,7 +56,7 @@ once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | 
 }
 
 un(id: EventIdType): void {
-    if (!this._isInitialized('un')) return;
+
     if (!isDefined(id)) {
         warn_(createMessage('un', commonMessage.paramsNotDefined('id')));
         return;

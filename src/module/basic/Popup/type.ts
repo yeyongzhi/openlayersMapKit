@@ -16,6 +16,7 @@ export type OMapPopupParamsType = CustOlPopupParamsType & {
     properties?: Record<string, any>;
     positioning?: PopupPositioningType;
 }
+export type OMapPopupType = OlOverlay
 export type OlPopupInstanceType = InstanceType<typeof OlOverlay>
 
 export const PopupPositioning = {

@@ -72,7 +72,7 @@ export default class Size implements SizeLike {
      * @param {OlSizeType} size
      */
     setSize(size: OlSizeType): void {
-        if(!this._isInitialized("setSize")) return;
+
         if(!isNumber(size[0]) || !isNumber(size[1])) {
             warn_(createMessage("setSize", "参数格式有误"))
             return undefined
@@ -103,7 +103,7 @@ export default class Size implements SizeLike {
      * @param {number} width
      */
     setWidth(width: number): void {
-        if(!this._isInitialized("setWidth")) return;
+
         if(!isNumber(width)) {
             warn_(createMessage("setWidth", "参数格式有误"))
             return;
@@ -116,7 +116,7 @@ export default class Size implements SizeLike {
      * @param {number} height
      */
     setHeight(height: number): void {
-        if(!this._isInitialized("setHeight")) return;
+
         if(!isNumber(height)) {
             warn_(createMessage("setHeight", "参数格式有误"))
             return;
@@ -130,7 +130,7 @@ export default class Size implements SizeLike {
      * @returns {boolean} 判断结果
      */
     equals(size: Size): boolean | undefined {
-        if(!this._isInitialized("equals")) return;
+
         return this._size[0] === size._size[0] && this._size[1] === size._size[1]
     }
 
@@ -139,7 +139,7 @@ export default class Size implements SizeLike {
      * @returns {OlSizeType | undefined} size
      */
     toArray(): OlSizeType | undefined {
-        if(!this._isInitialized("toArray")) return;
+
         return this._size
     }
 

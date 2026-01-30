@@ -1,6 +1,6 @@
 import { OlFeature, OlGeometry } from '../../../../source/index'
 import { isDefined, isNumber, isObject, isString } from '../../../../utils/index'
-import { warn_, error_, getPackageMessage } from '../../../../utils/message'
+import { warn_, error_, getPackageMessage, commonMessage } from '../../../../utils/message'
 import type {
     OlFeatureInstanceType,
     OMapBasicFeatureType,
@@ -10,7 +10,11 @@ import type {
     BasicFeatureLike,
     BasicFeatureInitialized
 } from './type'
+import Extent from '../../../basic/Extent/index'
+import { type OlStyleInstanceType, type  OMapStyleLike } from '../../../basic/Style/type'
+import { handleGetStyleValue } from '../../../basic/Style/handle'
 import type { PropertiesType } from '../../../../utils/type'
+import { type OlFeatureLike } from '../../../core/Feature/BasicFeature/type'
 
 const PACKAGE_NAME = 'BasicFeature';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -24,12 +28,12 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/10/6
  */
 
-export default abstract class BasicFeature<T extends OlGeometryType> implements BasicFeatureLike {
+export default abstract class BasicFeature<T extends OlGeometryType> {
 
-    id?: number | string | null;
-    type?: OMapBasicFeatureType;
-    _feature?: OlFeatureInstanceType;
-    _geometry?: T;
+    protected id: number | string | null;
+    protected type: OMapBasicFeatureType;
+    protected _feature: OlFeatureInstanceType;
+    protected _geometry: T;
 
     constructor(type: OMapBasicFeatureType, coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType, radius?: number) {
         this.type = type;
@@ -44,15 +48,13 @@ export default abstract class BasicFeature<T extends OlGeometryType> implements 
 
     protected abstract _initByFeature(feature: OlFeatureInstanceType): void;
 
-    protected abstract _isInitialized(method: string): boolean;
-
+    /**
+     * 获取原生的Openlayers Feature对象
+     * @returns {OlFeatureInstanceType | undefined} 原生的Openlayers Feature对象
+     */
     getFeature(): OlFeatureInstanceType | undefined {
-        if (!this._isInitialized('getFeature')) return;
-        return this._feature
-    }
 
-    getGeometry() {
-        return this._geometry
+        return this._feature
     }
 
     /**
@@ -67,26 +69,9 @@ export default abstract class BasicFeature<T extends OlGeometryType> implements 
      */
     abstract setCoordinates(coordinates: OMapBasicFeatureCoordinatesType): void;
 
-    getProperties(): PropertiesType | undefined {
-        if (!this._isInitialized('getProperties')) return;
-        return (this._feature as OlFeatureInstanceType).getProperties()
-    }
-
-    setProperties(properties: PropertiesType) {
-        if (!this._isInitialized('setProperties')) return;
-        if (!isDefined(properties)) {
-            warn_(createMessage('setProperties', '参数不能为空'));
-            return;
-        }
-        if (!isObject(properties)) {
-            warn_(createMessage('setProperties', '参数应为对象类型'));
-            return;
-        }
-        (this._feature as OlFeatureInstanceType).setProperties(properties || {})
-    }
 
     setId(id: number | string): void {
-        if (!this._isInitialized('setId')) return;
+
         if (!isDefined(id)) {
             warn_(createMessage('setId', '参数id不能为空'));
             return;
@@ -99,12 +84,94 @@ export default abstract class BasicFeature<T extends OlGeometryType> implements 
     }
 
     getId(): number | string | null | undefined {
-        if (!this._isInitialized('getId')) return;
+
         return this.id
     }
 
     getType() {
         return this.type
+    }
+
+    changed(): void {
+        this._feature.changed()
+    }
+
+    dispatchEvent() {
+
+    }
+
+    clone() {
+
+    }
+
+    get(key: string): any | void {
+
+        if (!isDefined(key)) {
+            error_(createMessage('get', commonMessage.paramsNotDefined('key')))
+            return
+        }
+        if (!isString(key)) {
+            error_(createMessage('get', commonMessage.paramsInvaildFormat('key', 'string')))
+            return 
+        }
+        return this._feature.get(key)
+    }
+
+    /**
+     * 获取原生的Openlayers Geometry对象
+     * @returns {OlGeometryType | undefined} 原生的Openlayers Geometry对象
+     */
+    getGeometry(): OlGeometryType | void {
+
+        return this._geometry
+    }
+
+    getGeometryName() : string | void {
+
+    }
+
+    getKeys() : string[] | void {
+
+        return this._feature.getKeys()
+    }
+
+    getStyle() {
+
+    }
+
+    setStyle(style?: OMapStyleLike) {
+        let _style = handleGetStyleValue(style)
+        if (isDefined(_style)) {
+            this._feature.setStyle(_style)
+        }
+    }
+
+    /**
+     * 获取要素的范围
+     * @returns {Extent | undefined} 要素的范围
+     */
+    getExtent(): Extent | void {
+
+        let extent = this._geometry.getExtent()
+        return new Extent(extent)
+    }
+
+    getProperties(): PropertiesType | undefined {
+
+        return this._feature.getProperties()
+    }
+
+    setProperties(properties: PropertiesType) {
+
+        if (!isDefined(properties)) {
+            warn_(createMessage('setProperties', '参数不能为空'));
+            return;
+        }
+        if (!isObject(properties)) {
+            warn_(createMessage('setProperties', '参数应为对象类型'));
+            return;
+        }
+        this._feature.setProperties(properties)
     }
 
 }

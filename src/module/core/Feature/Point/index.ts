@@ -1,13 +1,15 @@
-import { isDefined, isCoordinatesType, isExtentType, isObject } from '../../../../utils/index'
-import { warn_, error_, getPackageMessage } from '../../../../utils/index'
-import { type OlCoordinateType } from '../../../basic/Lnglat/type'
+import { isDefined, isObject } from '../../../../utils/index'
+import { warn_, error_, getPackageMessage, commonMessage } from '../../../../utils/message'
 import { OlExtentType, OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
-import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType, PointLike, PointInitialized } from './type'
+import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType, OMapPointType } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import Lnglat from '../../../basic/Lnglat/index'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
+import { isValidCoordinate } from '../../../basic/Lnglat/type'
 import Extent from '../../../basic/Extent/index'
+import { handleGetExtentValue } from '@/module/basic/Extent/handle'
+import { isValidExtent } from '@/module/basic/Extent/type'
 
 const PACKAGE_NAME = 'Point';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -19,25 +21,23 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/12/20
+ * @updateDate 2026/1/30
  */
 
-export default class Point extends BasicFeature<OlPointGeomInstanceType> implements PointLike {
+export default class Point extends BasicFeature<OMapPointType> {
 
     constructor(args: OMapPointGeometryCoordinatesType, properties?: Record<string, any>)
-    constructor(args: OlFeatureInstanceType, properties?: Record<string, any>)
+    constructor(args: OlFeatureInstanceType)
 
     constructor(coordinatesOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
         if (!isDefined(coordinatesOrFeature)) {
-            error_(createMessage('constructor', '参数不能为空'));
-            return
+            error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')));
         }
         if (coordinatesOrFeature instanceof OlFeature) {
             super("Point", coordinatesOrFeature as OlFeatureInstanceType)
         } else {
-            if ((!(coordinatesOrFeature instanceof Lnglat)) && (!isCoordinatesType(coordinatesOrFeature))) {
-                error_(createMessage('constructor', '坐标格式有误'));
-                return
+            if (!isValidCoordinate(coordinatesOrFeature)) {
+                error_(createMessage('constructor', commonMessage.paramsInvaildFormat('coordinatesOrFeature', 'Lnglat or [x, y]')));
             }
             super("Point", coordinatesOrFeature as OMapPointGeometryCoordinatesType)
             if (isDefined(properties) && isObject(properties)) {
@@ -46,7 +46,7 @@ export default class Point extends BasicFeature<OlPointGeomInstanceType> impleme
         }
     }
 
-    protected _init(coordinates: OMapPointGeometryCoordinatesType, radius?: number) {
+    protected _init(coordinates: OMapPointGeometryCoordinatesType) {
         let geometryCoordinates = handleGetLnglatValue(coordinates)
         if (geometryCoordinates) {
             this._geometry = new OlGeometry.Point(geometryCoordinates)
@@ -61,21 +61,13 @@ export default class Point extends BasicFeature<OlPointGeomInstanceType> impleme
         this._geometry = feature.getGeometry() as OlPointGeomInstanceType
     }
 
-    protected _isInitialized(method: string): this is PointInitialized & this {
-        if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
-    }
-
     /**
      * 获取点的坐标
      * @returns {Lnglat} 点的坐标
      */
     getCoordinates(): Lnglat {
-        let coordinates = (this._geometry as OlPointGeomInstanceType).getCoordinates() as OlCoordinateType
-        return new Lnglat(coordinates[0], coordinates[1])
+        let coordinates = this._geometry.getCoordinates()
+        return new Lnglat(coordinates)
     }
 
     /**
@@ -85,15 +77,13 @@ export default class Point extends BasicFeature<OlPointGeomInstanceType> impleme
      */
     setCoordinates(coordinates: OMapPointGeometryCoordinatesType): void {
         if (!isDefined(coordinates)) {
-            error_(createMessage('setCoordinates', '参数不能为空'));
-            return
+            error_(createMessage('setCoordinates', commonMessage.paramsNotDefined('coordinates')));
         }
-        if ((!(coordinates instanceof Lnglat)) && (!isCoordinatesType(coordinates))) {
-            error_(createMessage('setCoordinates', '坐标格式有误'));
-            return
+        if (!isValidCoordinate(coordinates)) {
+            error_(createMessage('setCoordinates', commonMessage.paramsInvaildFormat('coordinates', 'Lnglat or [x, y]')));
         }
-        let _coordinates = (coordinates instanceof Lnglat) ? coordinates.toArray() : coordinates;
-        (this._geometry as OlPointGeomInstanceType).setCoordinates(_coordinates as any[])
+        let _coordinates = handleGetLnglatValue(coordinates)
+        this._geometry.setCoordinates(_coordinates)
     }
 
     /**
@@ -121,17 +111,15 @@ export default class Point extends BasicFeature<OlPointGeomInstanceType> impleme
      * @param {Extent | OlExtentType} extent 
      * @returns {boolean | undefined}
      */
-    intersectsExtent(extent: Extent): boolean | undefined {
+    intersectsExtent(extent: Extent): boolean {
         if (!isDefined(extent)) {
-            error_(createMessage('intersectsExtent', '参数extent不能为空'));
-            return
+            error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')));
         }
-        if ((!(extent instanceof Extent)) && (!isExtentType(extent))) {
-            error_(createMessage('intersectsExtent', '坐标格式有误'));
-            return
+        if (!isValidExtent(extent)) {
+            error_(createMessage('intersectsExtent', commonMessage.paramsInvaildFormat('extent', 'Extent or [xmin, ymin, xmax, ymax]')));
         }
-        let _extent = extent instanceof Extent ? extent.getExtent() : extent;
-        return (this._geometry as OlPointGeomInstanceType).intersectsExtent(_extent as OlExtentType)
+        let _extent = handleGetExtentValue(extent);
+        return this._geometry.intersectsExtent(_extent)
     }
 
 }

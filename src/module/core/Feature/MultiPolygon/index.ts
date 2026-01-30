@@ -79,7 +79,7 @@ export default class MultiPolygon extends BasicFeature<OlMultiPolygonGeomInstanc
      * @returns {Array<Array<Array<Lnglat>>>} 坐标
      */
     getCoordinates(): Array<Array<Array<Lnglat>>> | undefined {
-        if (!this._isInitialized('getCoordinates')) return;
+
         let coordinates = (this._geometry as OlMultiPolygonGeomInstanceType).getCoordinates() as Array<Array<Array<OlCoordinateType>>>
         let _coordinates = coordinates.map((c: Array<Array<OlCoordinateType>>) => {
             return c.map(c2 => {
@@ -96,7 +96,7 @@ export default class MultiPolygon extends BasicFeature<OlMultiPolygonGeomInstanc
      * @param {OMapMultiPolygonGeometryCoordinatesType} coordinates 坐标
      */
     setCoordinates(coordinates: OMapMultiPolygonGeometryCoordinatesType): void {
-        if (!this._isInitialized('setCoordinates')) return;
+
         if (!isDefined(coordinates)) {
             error_(createMessage('setCoordinates', '参数不能为空'));
             return

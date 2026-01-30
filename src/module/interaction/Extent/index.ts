@@ -63,7 +63,7 @@ export default class InteractionExtent extends Interaction {
      * @returns {Extent | undefined} 当前选框范围
      */
     getExtent(): Extent | undefined {
-        if (!this._isInitialized('getExtent')) return;
+
         let extent = (this._interaction as OlInteractionExtentInstanceType).getExtent()
         return isDefined(extent) ? new Extent(...extent) : undefined
     }
@@ -73,7 +73,7 @@ export default class InteractionExtent extends Interaction {
      * @param {OMapExtentType} extent 选框范围
      */
     setExtent(extent: OMapExtentType): void {
-        if (!this._isInitialized('setExtent')) return;
+
         if (!isDefined(extent)) {
             warn_(createMessage("setExtent", commonMessage.paramsNotDefined('extent')));
             return;
@@ -87,7 +87,7 @@ export default class InteractionExtent extends Interaction {
     }
 
     on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
@@ -108,7 +108,7 @@ export default class InteractionExtent extends Interaction {
     }
 
     once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('once')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
             return;
@@ -129,7 +129,7 @@ export default class InteractionExtent extends Interaction {
     }
 
     un(id: EventIdType): void {
-        if (!this._isInitialized('un')) return;
+
         if (!isDefined(id)) {
             warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
             return;

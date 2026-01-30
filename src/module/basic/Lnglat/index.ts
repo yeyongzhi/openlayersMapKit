@@ -50,7 +50,7 @@ export default class Lnglat {
      * @param {number} lng 经度
      */
     setLng(lng: number): void {
-        if (!this._isInitialized("setLng")) return;
+
         if (!isNumber(lng)) {
             warn_(createMessage("setLng", "传入经度格式有误"));
             return;
@@ -63,7 +63,7 @@ export default class Lnglat {
      * @param {number} lat 纬度
      */
     setLat(lat: number): void {
-        if (!this._isInitialized("setLat")) return;
+
         if (!isNumber(lat)) {
             warn_(createMessage("setLat", "传入纬度格式有误"));
             return;

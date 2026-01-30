@@ -105,7 +105,7 @@ export default class Measure extends Interaction {
      * 初始化 测量事件
      */
     protected initMeasureEvent() {
-        if (!this._isInitialized('initMeasureEvent')) return;
+
         this._interaction.on("change:active", (e) => {
             if (this._interaction.getActive()) {
                 this.onMeasureActive()
@@ -266,7 +266,7 @@ export default class Measure extends Interaction {
      * 取消绘制，并结束当前未完成的绘制
      */
     cancel(): void {
-        if (!this._isInitialized('cancel')) return;
+
         (this._interaction as OlDrawInstanceType).abortDrawing()
     }
 
@@ -274,7 +274,7 @@ export default class Measure extends Interaction {
      * 删除最后一个点
      */
     revoke(): void {
-        if (!this._isInitialized('revoke')) return;
+
         (this._interaction as OlDrawInstanceType).removeLastPoint()
     }
 
@@ -282,7 +282,7 @@ export default class Measure extends Interaction {
      * 结束当前未完成的绘制
      */
     finish(): void {
-        if (!this._isInitialized('finish')) return;
+
         (this._interaction as OlDrawInstanceType).finishDrawing()
     }
 
@@ -295,7 +295,7 @@ export default class Measure extends Interaction {
     }
 
     on(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
@@ -314,7 +314,7 @@ export default class Measure extends Interaction {
     }
 
     once(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('once')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
             return;
@@ -333,7 +333,7 @@ export default class Measure extends Interaction {
     }
 
     un(id: EventIdType): void {
-        if (!this._isInitialized('un')) return;
+
         if (!isDefined(id)) {
             warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
             return;

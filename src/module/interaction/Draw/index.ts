@@ -75,7 +75,7 @@ export default class Draw extends Interaction {
     }
 
     protected initDrawEvent() {
-        if (!this._isInitialized('initDrawEvent')) return;
+
         (this._interaction as OlDrawInstanceType).on("drawend", (e) => {
             const feature: OlFeatureInstanceType = e.feature
             console.log(feature)
@@ -98,7 +98,7 @@ export default class Draw extends Interaction {
      * @param coordinates 坐标
      */
     appendCoordinates(coordinates: Array<OMapCoordinateType>): void {
-        if (!this._isInitialized('appendCoordinates')) return;
+
         if (!isDefined(coordinates)) {
             warn_(createMessage('appendCoordinates', 'coordinates参数不能为空'));
             return;
@@ -113,7 +113,7 @@ export default class Draw extends Interaction {
      * 取消绘制，并结束当前未完成的绘制
      */
     cancel(): void {
-        if (!this._isInitialized('cancel')) return;
+
         (this._interaction as OlDrawInstanceType).abortDrawing()
     }
 
@@ -121,7 +121,7 @@ export default class Draw extends Interaction {
      * 撤销操作（会删除最后一个已经绘制的点位）
      */
     revoke(): void {
-        if (!this._isInitialized('revoke')) return;
+
         (this._interaction as OlDrawInstanceType).removeLastPoint()
     }
 
@@ -129,7 +129,7 @@ export default class Draw extends Interaction {
      * 结束当前未完成的绘制（并自动补全图形）
      */
     finish(): void {
-        if (!this._isInitialized('finish')) return;
+
         (this._interaction as OlDrawInstanceType).finishDrawing()
     }
 
@@ -145,12 +145,12 @@ export default class Draw extends Interaction {
      * @returns 特征数组
      */
     getFeatures(): BasicFeature<OlGeometry.Geometry>[] | undefined {
-        if (!this._isInitialized('getFeatures')) return;
+
         return (this.getLayer() as VectorLayer).getFeatures()
     }
 
     on(type: OMapInteractionDrawEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
@@ -173,7 +173,7 @@ export default class Draw extends Interaction {
     }
 
     once(type: OMapInteractionDrawEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('once')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
             return;
@@ -196,7 +196,7 @@ export default class Draw extends Interaction {
     }
 
     un(id: EventIdType): void {
-        if (!this._isInitialized('un')) return;
+
         if (!isDefined(id)) {
             warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
             return;

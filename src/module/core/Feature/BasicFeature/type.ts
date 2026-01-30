@@ -16,7 +16,8 @@ export interface BasicFeatureLike {
 
 export interface BasicFeatureInitialized {
     type: OMapBasicFeatureType;
-    _feature: OlFeatureInstanceType
+    _feature: OlFeatureInstanceType;
+    _geometry: OlGeometryType;
 }
 
 export type OlRenderFeatureInstanceType = InstanceType<typeof RenderFeature>

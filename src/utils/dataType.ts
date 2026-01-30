@@ -4,7 +4,7 @@ function isFunction<T extends Function>(value: T | any): value is T {
     return typeof value === 'function';
 }
 
-function isArray(value: any): boolean {
+function isArray(value: unknown): value is Array<unknown> {
     return Array.isArray(value);
 }
 
@@ -48,7 +48,7 @@ function isExtentType(value: any): boolean {
     return isArray(value) && value.length === 4 && isNumber(value[0]) && isNumber(value[1]) && isNumber(value[2]) && isNumber(value[3]);
 }
 
-function isArrayLength2(value: any) {
+function isArrayLength2(value: unknown): value is Array<unknown> {
     return isArray(value) && value.length === 2
 }
 

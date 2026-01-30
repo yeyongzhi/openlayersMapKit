@@ -16,6 +16,7 @@ import { type OMapSizeType } from '../../basic/Size/type'
 import BaseLayer from '../../layer/BaseLayer/index'
 
 /** View */
+export type OMapViewType = OlPackage.View
 export type OlViewInstanceType = InstanceType<typeof OlPackage.View>
 export type OlViewOptionsType = ConstructorParameters<typeof OlPackage.View>[0];
 type OlViewOptionsTypeKeysToOmit = 'center' | 'extent' | 'projection';
@@ -29,8 +30,9 @@ export type OlViewOptionsFinalType = OlViewOptionsOmitType & CustomerOlViewOptio
 
 
 /** Map */
+export type OMapMapType = OlPackage.Map
 export type OlMapInstanceType = InstanceType<typeof OlPackage.Map>
-export type MapContainerType = string | HTMLElement | HTMLDivElement; // 容器类型，支持字符串、HTMLElement、HTMLDivElement
+export type OMapElementType = string | HTMLElement | HTMLDivElement; // 容器类型，支持字符串、HTMLElement、HTMLDivElement
 export type OlMapOptionsType = ConstructorParameters<typeof OlPackage.Map>[0];
 type OlMapOptionsTypeKeysToOmit = 'layers' | 'controls' | 'interactions' | 'overlays' | 'target' | 'view';
 

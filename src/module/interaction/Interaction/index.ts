@@ -90,7 +90,7 @@ export default class Interaction implements InteractionLike {
     }
 
     protected initInteractionEvent() {
-        if (!this._isInitialized('initInteractionEvent')) return;
+
         this._interaction.on("change:active", (e) => {
             if (e.type === 'change:active') {
                 this.active = (this.getActive() as boolean)
@@ -116,7 +116,7 @@ export default class Interaction implements InteractionLike {
      * @returns 激活状态
      */
     getActive(): boolean | undefined {
-        if (!this._isInitialized('getActive')) return;
+
         return this._interaction.getActive()
     }
 
@@ -125,7 +125,7 @@ export default class Interaction implements InteractionLike {
      * @param active 激活状态
      */
     setActive(active: boolean): void {
-        if (!this._isInitialized('setActive')) return;
+
         this._interaction.setActive(active)
     }
 
@@ -134,7 +134,7 @@ export default class Interaction implements InteractionLike {
      * @returns 
      */
     getInteraction(): OlInteractionInstanceType | undefined {
-        if (!this._isInitialized('getInteraction')) return;
+
         return this._interaction
     }
 
@@ -151,7 +151,7 @@ export default class Interaction implements InteractionLike {
      * @param properties 交互属性
      */
     setProperties(properties: Record<string, any>): void {
-        if (!this._isInitialized('getInteraction')) return;
+
         this._interaction.setProperties(properties)
         this.properties = properties
     }
@@ -166,7 +166,7 @@ export default class Interaction implements InteractionLike {
     // }
 
     getLayer(): VectorLayer | null | undefined {
-        if (!this._isInitialized('getInteraction')) return;
+
         return this.layer
     }
 
@@ -195,7 +195,7 @@ export default class Interaction implements InteractionLike {
      * 销毁交互(包括交互的图层)
      */
     protected destroy(): void {
-        if (!this._isInitialized('destroy')) return;
+
         if (isDefined(this.map)) {
             this.map.removeInteraction(this);
         }

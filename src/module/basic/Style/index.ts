@@ -28,7 +28,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class Style {
 
-    _style?: OlStyleInstanceType;
+    _style: OlStyleInstanceType;
 
     constructor(options: OMapStyleOptionsType) {
         const { fill, stroke, text, circle, icon, regularShape } = options
@@ -49,7 +49,7 @@ export default class Style {
         this._style = new OlStyle.Style(_params)
     }
 
-    getStyle(): OlStyleInstanceType | undefined {
+    getStyle(): OlStyleInstanceType {
         return this._style
     }
 

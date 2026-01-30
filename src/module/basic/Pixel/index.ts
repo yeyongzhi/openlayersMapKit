@@ -61,7 +61,7 @@ export default class Pixel {
      * @param {number[]} pixel 像素坐标
      */
     setPixel(pixel: number[]): void {
-        if (!this._isInitialized("setPixel")) return;
+
         if (!isNumber(pixel[0]) || !isNumber(pixel[1])) {
             warn_(createMessage("setPixel", "参数格式有误"));
             return;
@@ -92,7 +92,7 @@ export default class Pixel {
      * @param {number} x x 坐标
      */
     setX(x: number): void {
-        if (!this._isInitialized("setX")) return;
+
         if (!isNumber(x)) {
             warn_(createMessage("setX", "参数格式有误"));
             return;
@@ -105,7 +105,7 @@ export default class Pixel {
      * @param {number} y y 坐标
      */
     setY(y: number): void {
-        if (!this._isInitialized("setY")) return;
+
         if (!isNumber(y)) {
             warn_(createMessage("setY", "参数格式有误"));
             return;
@@ -130,7 +130,7 @@ export default class Pixel {
     }
     
     toArray(): number[] | undefined {
-        if (!this._isInitialized("toArray")) return;
+
         return this._pixel;
     }
 

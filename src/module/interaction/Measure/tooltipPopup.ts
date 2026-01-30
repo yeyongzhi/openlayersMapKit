@@ -42,17 +42,17 @@ export default class TooltipPopup implements TooltipPopupLike {
     }
 
     updatePosition(position: Lnglat | OlCoordinateType | undefined): void {
-        if(!this._isInitialized()) return;
+
         this.popup.setPosition(position)
     }
 
     setElement(element: HTMLElement | undefined): void {
-        if(!this._isInitialized()) return;
+
         this.popup.setElement(element as HTMLElement)
     }
 
     getElement(): HTMLElement | undefined {
-        if(!this._isInitialized()) return;
+
         return this.popup.getElement()
     }
 }

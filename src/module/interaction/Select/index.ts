@@ -108,7 +108,7 @@ export default class Select extends Interaction {
      * 初始化Select事件
      */
     protected initSelectEvent() {
-        if (!this._isInitialized('initSelectEvent')) return;
+
         (this._interaction as OlInteractionSelectInstanceType).on("select", (e) => {
             const { selected, deselected } = e
             this.selected = selected.map(s => {
@@ -121,17 +121,17 @@ export default class Select extends Interaction {
     }
 
     getSelected(): BaseFeature<OlGeometry.Geometry>[] | undefined {
-        if (!this._isInitialized('getSelected')) return;
+
         return this.selected
     }
 
     getDeselected(): BaseFeature<OlGeometry.Geometry>[] | undefined {
-        if (!this._isInitialized('getDeselected')) return;
+
         return this.deselected
     }
 
     on(type: OMapSelectEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', '参数不能为空'));
             return;
@@ -150,7 +150,7 @@ export default class Select extends Interaction {
     }
 
     un(id: EventIdType): void {
-        if (!this._isInitialized('un')) return;
+
         if (!isDefined(id)) {
             warn_(createMessage('un', '参数不能为空'));
             return;
@@ -163,7 +163,7 @@ export default class Select extends Interaction {
     }
 
     once(type: OMapSelectEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', '参数不能为空'));
             return;

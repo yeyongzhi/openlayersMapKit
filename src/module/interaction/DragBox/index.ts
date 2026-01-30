@@ -57,7 +57,7 @@ export default class DragBox extends Interaction {
     }
 
     on(type: OMapDragBoxEventType, callback: () => void): number | string | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', '参数不能为空'));
             return;
@@ -73,7 +73,7 @@ export default class DragBox extends Interaction {
     }
 
     un(id: number): void {
-        if (!this._isInitialized('un')) return;
+
         if (!isDefined(id)) {
             warn_(createMessage('un', '参数不能为空'));
             return;
@@ -86,7 +86,7 @@ export default class DragBox extends Interaction {
     }
 
     once(type: OMapDragBoxEventType, callback: () => void): number | string | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', '参数不能为空'));
             return;

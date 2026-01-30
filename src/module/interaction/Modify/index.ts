@@ -78,7 +78,7 @@ export default class Modify extends Interaction {
     }
 
     protected _initModifyEvent(): void {
-        if (!this._isInitialized('_initModifyEvent')) return;
+
         let originFeatures = (this.layer as VectorLayer).getFeatures(); // 最初始的features
         // 这里不能直接放入originFeatures，因为originFeatures会在modify的过程中被修改
         // 因此保存经纬度信息即可
@@ -122,12 +122,12 @@ export default class Modify extends Interaction {
     }
 
     canInsertPoint(): boolean | undefined {
-        if (!this._isInitialized('canInsertPoint')) return;
+
         return (this._interaction as OlModifyInstanceType).canInsertPoint()
     }
 
     canRemovePoint(): boolean | undefined {
-        if (!this._isInitialized('canRemovePoint')) return;
+
         return (this._interaction as OlModifyInstanceType).canRemovePoint()
     }
 
@@ -136,7 +136,7 @@ export default class Modify extends Interaction {
      * @param {OMapCoordinateType} coordinates 点的坐标
      */
     insertPoint(coordinates: OMapCoordinateType): boolean | undefined {
-        if (!this._isInitialized('insertPoint')) return;
+
         if (!isDefined(coordinates)) {
             warn_(createMessage('insertPoint', 'coordinates参数不能为空'));
             return;
@@ -150,7 +150,7 @@ export default class Modify extends Interaction {
      * @param {OMapCoordinateType} coordinates 点的坐标
      */
     removePoint(coordinates: OMapCoordinateType): boolean | undefined {
-        if (!this._isInitialized('removePoint')) return;
+
         if (!isDefined(coordinates)) {
             warn_(createMessage('removePoint', 'coordinates参数不能为空'));
             return;
@@ -163,7 +163,7 @@ export default class Modify extends Interaction {
      * 撤销修改
      */
     revoke(step = 1): boolean | undefined {
-        if (!this._isInitialized('revoke')) return;
+
         if (this.records.length === 1) return false;
         let nowIndex = this.records.length - 1
         let targetIndex = nowIndex - step
@@ -210,7 +210,7 @@ export default class Modify extends Interaction {
     }
 
     on(type: OMapInteractionModifyEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
@@ -231,7 +231,7 @@ export default class Modify extends Interaction {
     }
 
     once(type: OMapInteractionModifyEventType, callback: () => void): EventIdType | undefined {
-        if (!this._isInitialized('on')) return;
+
         if (!isDefined(type) || !isDefined(callback)) {
             warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
             return;
@@ -252,7 +252,7 @@ export default class Modify extends Interaction {
     }
 
     un(id: EventIdType): void {
-        if (!this._isInitialized('un')) return;
+
         if (!isDefined(id)) {
             warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
             return;
