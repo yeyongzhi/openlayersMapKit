@@ -97,41 +97,32 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/5
- * @updateDate 2025/10/11
+ * @updateDate 2026/2/1
  */
-
-interface MapLike {
-  _map?: OlMapInstanceType;
-  _view?: OlViewInstanceType;
-  layers: Array<BaseLayer>;
-  interactions: Array<Interaction>;
-}
-
-// 精确类型：保证一定已初始化
-interface MapLikeInitialized {
-  _map: OlMapInstanceType;
-  _view: OlViewInstanceType;
-}
 
 export default class Map {
   private _map: OMapMapType;
   private _view: OMapViewType;
-  projection?: Projection;
-  layers: Array<BaseLayer> = [];
-  layerGroups: Array<LayerGroup> = [];
-  interactions: Array<Interaction> = [];
-  controls: Array<Control> = [];
-  events: Event = new Event();
-  popups: Array<Popup> = [];
+  private projection?: Projection;
+  private layers: Array<BaseLayer> = [];
+  private layerGroups: Array<LayerGroup> = [];
+  private interactions: Array<Interaction> = [];
+  private controls: Array<Control> = [];
+  private events: Event = new Event();
+  private popups: Array<Popup> = [];
 
   constructor(element: OMapElementType, options?: OMapOptionsType) {
     if (!isDefined(element)) {
-      error_(createMessage("constructor", "element参数不能为空"));
+      error_(
+        createMessage("constructor", commonMessage.paramsNotDefined("element")),
+      );
     }
     let _options = defaultValue(options, {});
     const view_options = _options.view;
     if (!isDefined(view_options)) {
-      error_(createMessage("constructor", "view参数不能为空"));
+      error_(
+        createMessage("constructor", commonMessage.paramsNotDefined("view")),
+      );
     }
     let proj: Projection | string =
       view_options.projection || new Projection("EPSG:3857"); // 默认为3857
@@ -192,30 +183,32 @@ export default class Map {
     this.events = new Event<Record<OMapEventType, unknown[]>>(this);
   }
 
-  getSize(): Size {
-    let size = (this._map as OlMapInstanceType).getSize();
-    return new Size(...(size as OlSizeType));
+  getSize(): Size | undefined {
+    let size = this._map.getSize();
+    return isDefined(size) ? new Size(size) : undefined;
   }
 
-  setSize(size: Size | OlSizeType): void {
-    let _size: OlSizeType =
-      size instanceof Size ? (size._size as OlSizeType) : (size as OlSizeType);
-    (this._map as OlMapInstanceType).setSize(_size);
+  setSize(size?: OMapSizeType) {
+    if (!isDefined(size)) {
+      error_(createMessage("setSize", commonMessage.paramsNotDefined("size")));
+    }
+    let _size = handleGetSizeValue(size as OMapSizeType);
+    this._map.setSize(_size);
   }
 
   // 地图信息相关
   getCenter(): Lnglat | undefined {
     let center = this._view.getCenter();
-    if (!center) return;
-    return new Lnglat(center[0], center[1]);
+    return isDefined(center) ? new Lnglat(center) : undefined;
   }
 
-  setCenter(center: Lnglat | OlCoordinateType): void {
+  setCenter(center?: OMapCoordinateType) {
     if (!isDefined(center)) {
-      warn_(createMessage("setCenter", "参数center不能为空"));
-      return;
+      error_(
+        createMessage("setCenter", commonMessage.paramsNotDefined("center")),
+      );
     }
-    let _center = center instanceof Lnglat ? center._lnglat : center;
+    let _center = handleGetLnglatValue(center as OMapCoordinateType);
     this._view.setCenter(_center);
   }
 
@@ -223,68 +216,91 @@ export default class Map {
     return this._view.getZoom();
   }
 
-  setZoom(zoom: number): void {
+  setZoom(zoom?: number) {
     if (!isDefined(zoom)) {
-      warn_(createMessage("setZoom", "参数zoom不能为空"));
-      return;
+      error_(createMessage("setZoom", commonMessage.paramsNotDefined("zoom")));
     }
     if (!isNumber(zoom)) {
-      warn_(createMessage("setZoom", "参数zoom必须为number类型"));
-      return;
+      error_(
+        createMessage("setZoom", commonMessage.paramsInvaildFormat("zoom")),
+      );
     }
-    this._view.setZoom(zoom);
+    this._view.setZoom(zoom as number);
   }
 
   getResolution(): number | undefined {
     return this._view.getResolution();
   }
 
-  setResolution(resolution: number): void {
+  setResolution(resolution?: number) {
     if (!isDefined(resolution)) {
-      warn_(createMessage("setResolution", "参数resolution不能为空"));
-      return;
+      error_(
+        createMessage(
+          "setResolution",
+          commonMessage.paramsNotDefined("resolution"),
+        ),
+      );
     }
     if (!isNumber(resolution)) {
-      warn_(createMessage("setResolution", "参数resolution必须为number类型"));
-      return;
+      error_(
+        createMessage(
+          "setResolution",
+          commonMessage.paramsInvaildFormat("resolution"),
+        ),
+      );
     }
-    this._view.setResolution(resolution);
+    this._view.setResolution(resolution as number);
   }
 
-  getRotation(): number | undefined {
+  getRotation(): number {
     return this._view.getRotation();
   }
 
-  setRotation(rotation: number): void {
+  setRotation(rotation: number) {
     if (!isDefined(rotation)) {
-      warn_(createMessage("setRotation", "参数rotation不能为空"));
-      return;
+      error_(
+        createMessage(
+          "setRotation",
+          commonMessage.paramsNotDefined("rotation"),
+        ),
+      );
     }
     if (!isNumber(rotation)) {
-      warn_(createMessage("setRotation", "参数rotation必须为number类型"));
-      return;
+      error_(
+        createMessage(
+          "setRotation",
+          commonMessage.paramsInvaildFormat("rotation"),
+        ),
+      );
     }
     this._view.setRotation(rotation);
   }
 
-  getExtent(): Extent | undefined {
+  getExtent(): Extent {
     let _extent = this._view.calculateExtent();
-    let [minX, minY, maxX, maxY] = _extent;
-    return new Extent(minX, minY, maxX, maxY);
+    return new Extent(_extent);
   }
 
-  zoomIn(delta: number = 1): void {
+  zoomIn(delta: number = 1) {
     if (isDefined(delta) && !isNumber(delta)) {
-      warn_(createMessage("zoomIn", "参数delta必须为number类型"));
-      return;
+      warn_(
+        createMessage(
+          "zoomIn",
+          commonMessage.paramsInvaildFormat("delta", "number"),
+        ),
+      );
     }
     this._view.adjustZoom(delta);
   }
 
   zoomOut(delta: number = -1) {
     if (isDefined(delta) && !isNumber(delta)) {
-      warn_(createMessage("zoomIn", "参数delta必须为number类型"));
-      return;
+      warn_(
+        createMessage(
+          "zoomOut",
+          commonMessage.paramsInvaildFormat("delta", "number"),
+        ),
+      );
     }
     this._view.adjustZoom(delta);
   }
@@ -295,36 +311,29 @@ export default class Map {
    * 添加图层
    * @param {BaseLayer} layer 图层对象
    */
-  addLayer(layer: BaseLayer): void {
-    if (!isDefined(layer)) {
-      warn_(createMessage("addLayer", "图层对象不能为空"));
-      return;
-    }
+  addLayer(layer: BaseLayer) {
     if (!(layer instanceof BaseLayer)) {
-      warn_(createMessage("addLayer", "图层对象必须为BaseLayer类型"));
-      return;
+      error_(
+        createMessage("addLayer", commonMessage.paramsInvaildFormat("layer")),
+      );
     }
-    const layerId = layer.getId();
     let isExist: boolean = false;
-    if (isDefined(layerId)) {
-      isExist = this.getLayerById(layerId) !== undefined;
-    } else {
-      isExist = this.layers.some((item: BaseLayer) => {
-        return (
-          OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer.getLayer())
-        );
-      });
-    }
+    const layerId = layer.getId();
+    isExist = isDefined(layerId)
+      ? isDefined(this.getLayerById(layerId))
+      : this.layers.some((item: BaseLayer) => {
+          return (
+            OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer.getLayer())
+          );
+        });
     if (isExist) {
       warn_(createMessage("addLayer", "图层已存在"));
-      return;
-    }
-    if (isDefined(layer.getLayer())) {
+    } else {
       this.layers.push(layer);
       if (!isDefined(layer.getTarget())) {
         layer.setTarget(this);
       }
-      this._map.addLayer(layer.getLayer() as OlAllLayerInstanceType); // 添加图层到地图中
+      this._map.addLayer(layer.getLayer() as OlAllLayerInstanceType);
     }
   }
 
@@ -332,18 +341,8 @@ export default class Map {
    * 添加多个图层
    * @param {Array<BaseLayer>} layers 图层数组
    */
-  addLayers(layers: Array<BaseLayer>): void {
-    if (!isDefined(layers)) {
-      warn_(createMessage("addLayer", "参数layers不能为空"));
-      return;
-    }
-    if (!isArray(layers)) {
-      warn_(createMessage("addLayers", "参数layers必须为数组类型"));
-      return;
-    }
-    layers.forEach((item: BaseLayer) => {
-      this.addLayer(item);
-    });
+  addLayers(layers: Array<BaseLayer>) {
+    
   }
 
   /**
@@ -352,29 +351,7 @@ export default class Map {
    * @returns {BaseLayer | undefined} 图层对象
    */
   getLayerById(id: BaseLayerIdType): BaseLayer | undefined {
-    if (!isDefined(id)) {
-      warn_(createMessage("getLayerById", "图层id不能为空"));
-      return undefined;
-    }
-    let layer: BaseLayer | undefined = undefined;
-    this.layers.forEach((item) => {
-      // if (item instanceof LayerGroup) {
-      //     (item as LayerGroup).getAll().forEach((layerItem) => {
-      //         if (isDefined(layerItem.getId()) && layerItem.getId() === id) {
-      //             layer = layerItem
-      //         }
-      //     })
-      // }
-      if (item instanceof BaseLayer) {
-        if (
-          isDefined((item as BaseLayer).getId()) &&
-          (item as BaseLayer).getId() === id
-        ) {
-          layer = item;
-        }
-      }
-    });
-    return layer;
+    
   }
 
   /**
@@ -382,13 +359,7 @@ export default class Map {
    * @param {BaseLayer} layer 图层对象
    */
   removeLayer(layer: BaseLayer) {
-    let index = this.layers.indexOf(layer);
-    if (index !== -1) {
-      if (layer._layer) {
-        this.layers.splice(index, 1);
-        this._map.removeLayer(layer._layer);
-      }
-    }
+    
   }
 
   /**
@@ -396,14 +367,7 @@ export default class Map {
    * @param {Array<BaseLayer>} layers 图层数组
    */
   removeLayers(layers: BaseLayer[]) {
-    this.layers.forEach((l, index) => {
-      if (layers.includes(l)) {
-        if (l._layer) {
-          this.layers.splice(index, 1);
-          this._map.removeLayer(l._layer);
-        }
-      }
-    });
+    
   }
 
   /**

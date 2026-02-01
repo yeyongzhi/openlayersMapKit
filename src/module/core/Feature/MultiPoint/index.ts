@@ -20,6 +20,7 @@ import type {
 } from "./type";
 import type { OlFeatureInstanceType } from "../BasicFeature/type";
 import Extent from "../../../basic/Extent/index";
+import { OMapExtentType } from "../../../basic/Extent/type";
 import {
   isValidCoordinate,
   type OlCoordinateType,
@@ -27,7 +28,7 @@ import {
 import Lnglat from "../../../basic/Lnglat/index";
 import Point from "../Point/index";
 import {
-  OlPointGeomInstanceType,
+  type OMapPointType,
   type OMapPointGeometryCoordinatesType,
 } from "../Point/type";
 import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
@@ -113,7 +114,7 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
    */
   getCoordinates(): Lnglat[] {
     let coordinates = this._geometry.getCoordinates();
-    let _coordinates = coordinates.map((c: OlCoordinateType) => {
+    let _coordinates = coordinates.map((c) => {
       return new Lnglat(c);
     });
     return _coordinates;
@@ -131,7 +132,6 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
           commonMessage.paramsNotDefined("coordinates"),
         ),
       );
-      return;
     }
     if (!coordinates.every((item) => isValidCoordinate(item))) {
       error_(
@@ -143,9 +143,8 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
           ),
         ),
       );
-      return;
     }
-    let _coordinates: OlCoordinateType[] = coordinates.map((c) => {
+    let _coordinates = coordinates.map((c) => {
       return handleGetLnglatValue(c);
     });
     this._geometry.setCoordinates(_coordinates);
@@ -153,7 +152,7 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
 
   appendPoint(
     pointOrpointCoordinates: Point | OMapPointGeometryCoordinatesType,
-  ): void {
+  ) {
     if (!isDefined(pointOrpointCoordinates)) {
       error_(
         createMessage(
@@ -161,86 +160,88 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
           commonMessage.paramsNotDefined("pointOrpointCoordinates"),
         ),
       );
-      return;
     }
     let _point = null;
     if (pointOrpointCoordinates instanceof Point) {
-      _point = (pointOrpointCoordinates as Point).getGeometry();
+      _point = pointOrpointCoordinates.getGeometry();
     } else {
       _point = new OlGeometry.Point(
-        handleGetLnglatValue(pointOrpointCoordinates) as OlCoordinateType,
+        handleGetLnglatValue(pointOrpointCoordinates),
       );
     }
-    this._geometry.appendPoint(_point as OlPointGeomInstanceType);
+    this._geometry.appendPoint(_point);
   }
 
   getClosestPoint(
     pointOrpointCoordinates: Point | OMapPointGeometryCoordinatesType,
-  ): Lnglat | undefined {
-    if (!isDefined(pointOrpointCoordinates)) return;
+  ): Lnglat {
+    if (!isDefined(pointOrpointCoordinates)) {
+      error_(
+        createMessage(
+          "getClosestPoint",
+          commonMessage.paramsNotDefined("pointOrpointCoordinates"),
+        ),
+      );
+    }
     let _point = null;
     if (pointOrpointCoordinates instanceof Point) {
-      _point = pointOrpointCoordinates
-        .getCoordinates()
-        .toArray() as OlCoordinateType;
-    } else if (pointOrpointCoordinates instanceof Lnglat) {
-      _point = pointOrpointCoordinates.toArray() as OlCoordinateType;
-    } else if (isCoordinatesType(pointOrpointCoordinates)) {
-      _point = pointOrpointCoordinates as OlCoordinateType;
+      _point = pointOrpointCoordinates.getCoordinates().toArray();
+    } else {
+      _point = handleGetLnglatValue(pointOrpointCoordinates);
     }
-    if (!isDefined(_point)) return;
-    let _closestPoint = (
-      this._geometry as OlMultiPointGeomInstanceType
-    ).getClosestPoint(_point);
+    let _closestPoint = this._geometry.getClosestPoint(_point);
     return new Lnglat(_closestPoint);
   }
 
-  // getExtent(): Extent | undefined {
-  //     if (!this._isInitialized('getExtent')) return;
-  //     return new Extent(...(this._geometry as OlMultiPointGeomInstanceType).getExtent())
-  // }
-
-  getFirstCoordinate(): Lnglat | undefined {
-    return new Lnglat(
-      ...(this._geometry as OlMultiPointGeomInstanceType).getFirstCoordinate(),
-    );
+  getFirstCoordinate(): Lnglat {
+    return new Lnglat(...this._geometry.getFirstCoordinate());
   }
 
-  getLastCoordinate(): Lnglat | undefined {
-    return new Lnglat(
-      ...(this._geometry as OlMultiPointGeomInstanceType).getLastCoordinate(),
-    );
+  getLastCoordinate(): Lnglat {
+    return new Lnglat(...this._geometry.getLastCoordinate());
   }
 
-  getPoint(index: number): Point | undefined {
-    if (!isDefined(index)) return;
-    if (!isNumber(index)) {
-      warn_(createMessage("getPoint", "参数index格式有误"));
-      return;
+  getPoint(index: number): Point {
+    if (!isDefined(index)) {
+      error_(
+        createMessage("getPoint", commonMessage.paramsNotDefined("index")),
+      );
     }
-    let point = (this._geometry as OlMultiPointGeomInstanceType).getPoint(
-      index,
-    );
-    return new Point(point.getCoordinates() as OlCoordinateType);
+    if (!isNumber(index)) {
+      error_(
+        createMessage(
+          "getPoint",
+          commonMessage.paramsInvaildFormat("index", "number"),
+        ),
+      );
+    }
+    let point = this._geometry.getPoint(index);
+    return new Point(point.getCoordinates());
   }
 
-  intersectsCoordinate(
-    coordinate: OlCoordinateType | Lnglat,
-  ): boolean | undefined {
-    if (!isDefined(coordinate)) return;
+  intersectsCoordinate(coordinate: OMapPointGeometryCoordinatesType): boolean {
+    if (!isDefined(coordinate)) {
+      error_(
+        createMessage(
+          "intersectsCoordinate",
+          commonMessage.paramsNotDefined("coordinate"),
+        ),
+      );
+    }
     let _coordinate = handleGetLnglatValue(coordinate);
-    if (!isDefined(_coordinate)) return;
-    return (
-      this._geometry as OlMultiPointGeomInstanceType
-    ).intersectsCoordinate(_coordinate);
+    return this._geometry.intersectsCoordinate(_coordinate);
   }
 
-  intersectsExtent(extent: OlExtentType | Extent): boolean | undefined {
-    if (!isDefined(extent)) return;
+  intersectsExtent(extent: OMapExtentType): boolean {
+    if (!isDefined(extent)) {
+      error_(
+        createMessage(
+          "intersectsExtent",
+          commonMessage.paramsNotDefined("extent"),
+        ),
+      );
+    }
     let _extent = handleGetExtentValue(extent);
-    if (!isDefined(_extent)) return;
-    return (this._geometry as OlMultiPointGeomInstanceType).intersectsExtent(
-      _extent,
-    );
+    return this._geometry.intersectsExtent(_extent);
   }
 }

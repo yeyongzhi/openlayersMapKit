@@ -1,31 +1,15 @@
-import { Lnglat } from '../../../../index'
+import Lnglat from '../../../basic/Lnglat/index'
+import { isValidCoordinate, type OMapCoordinateType } from '../../../basic/Lnglat/type'
 import { OlGeometry } from '../../../../source/index'
-import type { OlCoordinateType } from '../../../../utils/type'
-import { isArray, isCoordinatesType } from '../../../../utils/index'
-import type { BasicFeatureLike, BasicFeatureInitialized } from '../BasicFeature/type'
+import { isArray } from '../../../../utils/dataType'
 
-export type OMapLinearRingGeometryCoordinatesType = Array<OlCoordinateType | Lnglat>
+export type OMapLinearRingGeometryCoordinatesType = Array<OMapCoordinateType>
 
+export type OMapLinearRingType = OlGeometry.LinearRing
 export type OlLinearRingGeomInstanceType = InstanceType<typeof OlGeometry.LinearRing>
 
-export type LinearRingLike = BasicFeatureLike & {
-    _geometry?: OlLinearRingGeomInstanceType
-}
-
-export type LinearRingInitialized = BasicFeatureInitialized & {
-    _geometry: OlLinearRingGeomInstanceType
-}
-
-export function checkLinearRingCoordinates(coordinates: OMapLinearRingGeometryCoordinatesType) {
-    let result = true
-    if (!isArray(coordinates)) {
-        result = false
-    }
-    let isInVaildItem = coordinates.some(c => {
-        return (!(c instanceof Lnglat)) && (!isCoordinatesType(c))
-    })
-    if (isInVaildItem) {
-        result = false
-    }
-    return result
+export function isValidLinearRingCoordinates(
+  value: unknown,
+): value is OMapLinearRingGeometryCoordinatesType {
+  return isArray(value) && value.every((item) => isValidCoordinate(item));
 }

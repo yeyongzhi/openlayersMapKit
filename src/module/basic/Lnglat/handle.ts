@@ -3,9 +3,9 @@ import { isDefined } from "../../../utils/define";
 import Lnglat from "./index";
 
 export function handleGetLnglatValue(
-  extent: OMapCoordinateType,
+  lnglat: OMapCoordinateType,
 ): OlCoordinateType;
-export function handleGetLnglatValue(extent?: undefined): undefined;
+export function handleGetLnglatValue(lnglat?: undefined): undefined;
 
 export function handleGetLnglatValue(
   coordinates?: OMapCoordinateType,

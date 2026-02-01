@@ -1,29 +1,43 @@
-import { isDefined, isCoordinatesType, isArray, isExtentType, isObject } from '../../../../utils/index'
-import { warn_, error_, getPackageMessage } from '../../../../utils/index'
-import { OlFeature, OlGeometry } from '../../../../source/index'
-import BasicFeature from '../BasicFeature'
 import {
-    type OMapPolygonGeometryCoordinatesType,
-    type OlPolygonGeomInstanceType,
-    type PolygonLike,
-    type PolygonInitialized,
-} from './type'
-import { checkPolygonCoordinates } from './handle'
-import type { OlFeatureInstanceType } from '../BasicFeature/type'
+  isDefined,
+  isCoordinatesType,
+  isArray,
+  isExtentType,
+  isObject,
+} from "../../../../utils/index";
 import {
-    type OlLinearRingGeomInstanceType,
-    type OMapLinearRingGeometryCoordinatesType,
-    checkLinearRingCoordinates
-} from '../LinearRing/type'
-import Point from '../Point/index'
-import LinearRing from '../LinearRing/index'
-import Lnglat from '../../../basic/Lnglat/index'
-import type { OlCoordinateType } from '../../../basic/Lnglat/type'
-import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
-import Extent from '../../../basic/Extent/index'
-import type { OlExtentType, OMapExtentType } from '../../../basic/Extent/type'
+  warn_,
+  error_,
+  getPackageMessage,
+  commonMessage,
+} from "../../../../utils/message";
+import { OlFeature, OlGeometry } from "../../../../source/index";
+import BasicFeature from "../BasicFeature";
+import {
+  type OMapPolygonGeometryCoordinatesType,
+  type OlPolygonGeomInstanceType,
+  type OMapPolygonType,
+  isValidPolygonCoordinates,
+} from "./type";
+import type { OlFeatureInstanceType } from "../BasicFeature/type";
+import {
+  type OlLinearRingGeomInstanceType,
+  type OMapLinearRingGeometryCoordinatesType,
+  checkLinearRingCoordinates,
+} from "../LinearRing/type";
+import Point from "../Point/index";
+import LinearRing from "../LinearRing/index";
+import Lnglat from "../../../basic/Lnglat/index";
+import {
+  type OlCoordinateType,
+  type OMapCoordinateType,
+} from "../../../basic/Lnglat/type";
+import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import Extent from "../../../basic/Extent/index";
+import type { OlExtentType, OMapExtentType } from "../../../basic/Extent/type";
+import { handleGetExtentValue } from "../../../basic/Extent/handle";
 
-const PACKAGE_NAME = 'Polygon';
+const PACKAGE_NAME = "Polygon";
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
@@ -33,219 +47,262 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/14
- * @updateDate 2025/10/9
+ * @updateDate 2026/2/1
  */
 
-export default class Polygon extends BasicFeature<OlPolygonGeomInstanceType> implements PolygonLike {
+export default class Polygon extends BasicFeature<OMapPolygonType> {
+  constructor(
+    args: OMapPolygonGeometryCoordinatesType,
+    properties?: Record<string, any>,
+  );
+  constructor(args: OlFeatureInstanceType);
 
-    constructor(args: OMapPolygonGeometryCoordinatesType, properties?: Record<string, any>)
-    constructor(args: OlFeatureInstanceType, properties?: Record<string, any>)
-
-    constructor(coordinatesOrFeature: OMapPolygonGeometryCoordinatesType | OlFeatureInstanceType, properties?: Record<string, any>) {
-        if (!isDefined(coordinatesOrFeature)) {
-            error_(createMessage('constructor', '参数不能为空'));
-            return
-        }
-        if (coordinatesOrFeature instanceof OlFeature) {
-            super("Polygon", coordinatesOrFeature as OlFeatureInstanceType)
-        } else {
-            if (!checkPolygonCoordinates(coordinatesOrFeature)) {
-                error_(createMessage('constructor', '坐标格式有误'));
-                return
-            }
-            super("Polygon", coordinatesOrFeature)
-            if (isDefined(properties) && isObject(properties)) {
-                this.setProperties(properties)
-            }
-        }
+  constructor(
+    coordinatesOrFeature:
+      | OMapPolygonGeometryCoordinatesType
+      | OlFeatureInstanceType,
+    properties?: Record<string, any>,
+  ) {
+    if (!isDefined(coordinatesOrFeature)) {
+      error_(
+        createMessage(
+          "constructor",
+          commonMessage.paramsNotDefined("coordinatesOrFeature"),
+        ),
+      );
     }
-
-    protected _init(coordinates: OMapPolygonGeometryCoordinatesType, radius?: number) {
-        let geometryCoordinates = coordinates.map(c => {
-            return c.map(c2 => {
-                return handleGetLnglatValue(c2) as OlCoordinateType
-            })
-        });
-        if (geometryCoordinates) {
-            this._geometry = new OlGeometry.Polygon(geometryCoordinates)
-            this._feature = new OlFeature({
-                geometry: this._geometry
-            })
-        }
+    if (coordinatesOrFeature instanceof OlFeature) {
+      super("Polygon", coordinatesOrFeature as OlFeatureInstanceType);
+    } else {
+      if (!isValidPolygonCoordinates(coordinatesOrFeature)) {
+        error_(
+          createMessage(
+            "constructor",
+            commonMessage.paramsInvaildFormat("coordinatesOrFeature"),
+          ),
+        );
+      }
+      super("Polygon", coordinatesOrFeature);
+      if (isDefined(properties) && isObject(properties)) {
+        this.setProperties(properties);
+      }
     }
+  }
 
-    protected _initByFeature(feature: OlFeatureInstanceType) {
-        this._feature = feature
-        this._geometry = feature.getGeometry() as OlPolygonGeomInstanceType
+  protected _init(
+    coordinates: OMapPolygonGeometryCoordinatesType,
+    radius?: number,
+  ) {
+    let geometryCoordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return handleGetLnglatValue(c2) as OlCoordinateType;
+      });
+    });
+    this._geometry = new OlGeometry.Polygon(geometryCoordinates);
+    this._feature = new OlFeature({
+      geometry: this._geometry,
+    });
+  }
+
+  protected _initByFeature(feature: OlFeatureInstanceType) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry() as OlPolygonGeomInstanceType;
+  }
+
+  /**
+   * 获取多边形的坐标
+   * @param {boolean} rightHanded 是否右手坐标系
+   * @returns {Array<Array<Lnglat>>} 多边形的坐标
+   */
+  getCoordinates(rightHanded?: boolean): Array<Array<Lnglat>> {
+    let coordinates = this._geometry.getCoordinates(rightHanded);
+    let _coordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return new Lnglat(c2);
+      });
+    });
+    return _coordinates;
+  }
+
+  /**
+   * 设置多边形的坐标
+   * @param {OMapPolygonGeometryCoordinatesType} coordinates 多边形的坐标
+   */
+  setCoordinates(coordinates: OMapPolygonGeometryCoordinatesType): void {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage(
+          "setCoordinates",
+          commonMessage.paramsNotDefined("coordinates"),
+        ),
+      );
     }
-
-    protected _isInitialized(method: string): this is PolygonInitialized & this {
-        if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
+    if (!isValidPolygonCoordinates(coordinates)) {
+      error_(
+        createMessage(
+          "setCoordinates",
+          commonMessage.paramsInvaildFormat("coordinates"),
+        ),
+      );
     }
+    let _coordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return handleGetLnglatValue(c2);
+      });
+    });
+    this._geometry.setCoordinates(_coordinates);
+  }
 
-    /**
-     * 获取多边形的坐标
-     * @param {boolean | undefined} rightHanded 是否右手坐标系
-     * @returns {Array<Array<Lnglat>>} 多边形的坐标
-     */
-    getCoordinates(rightHanded: boolean | undefined = undefined): Array<Array<Lnglat>> {
-        let coordinates = (this._geometry as OlPolygonGeomInstanceType).getCoordinates(rightHanded)
-        let _coordinates = coordinates.map(c => {
-            return c.map(c2 => {
-                return new Lnglat(c2[0], c2[1])
-            })
-        })
-        return _coordinates
+  /**
+   * 向Polygon中添加LinearRing（内环）
+   * @param {LinearRing | OMapLinearRingGeometryCoordinatesType} linearRing 内环
+   */
+  appendLinearRing(
+    linearRingParams: LinearRing | OMapLinearRingGeometryCoordinatesType,
+  ) {
+    if (!isDefined(linearRingParams)) {
+      error_(
+        createMessage(
+          "appendLinearRing",
+          commonMessage.paramsNotDefined("linearRingParams"),
+        ),
+      );
     }
-
-    /**
-     * 设置多边形的坐标
-     * @param {OMapPolygonGeometryCoordinatesType} coordinates 多边形的坐标
-     */
-    setCoordinates(coordinates: OMapPolygonGeometryCoordinatesType): void {
-        if (!isDefined(coordinates)) {
-            error_(createMessage('setCoordinates', '参数不能为空'));
-            return
-        }
-        if (!checkPolygonCoordinates(coordinates)) {
-            error_(createMessage('setCoordinates', '坐标格式有误'));
-            return
-        }
-        let _coordinates = coordinates.map(c => {
-            return c.map(c2 => {
-                return (c2 instanceof Lnglat) ? c2.toArray() as OlCoordinateType : c2
-            })
-        });
-        (this._geometry as OlPolygonGeomInstanceType).setCoordinates(_coordinates)
+    if (
+      !(linearRingParams instanceof LinearRing) &&
+      !checkLinearRingCoordinates(linearRingParams)
+    ) {
+      error_(
+        createMessage(
+          "appendLinearRing",
+          commonMessage.paramsInvaildFormat("linearRingParams"),
+        ),
+      );
     }
-
-    /**
-     * 向Polygon中添加LinearRing（内环）
-     * @param {LinearRing | OMapLinearRingGeometryCoordinatesType} linearRing 内环
-     */
-    appendLinearRing(linearRingParams: LinearRing | OMapLinearRingGeometryCoordinatesType): void {
-        if (!isDefined(linearRingParams)) {
-            error_(createMessage('appendLinearRing', 'linearRing参数不能为空'));
-            return
-        }
-        if (!(linearRingParams instanceof LinearRing) && !checkLinearRingCoordinates(linearRingParams)) {
-            error_(createMessage('appendLinearRing', 'linearRing参数格式有误'));
-            return
-        }
-        if (linearRingParams instanceof LinearRing) {
-            (this._geometry as OlPolygonGeomInstanceType).appendLinearRing(linearRingParams._geometry as OlLinearRingGeomInstanceType)
-        } else {
-            let coordinates = (linearRingParams as OMapLinearRingGeometryCoordinatesType).map(l => {
-                return (l instanceof Lnglat) ? l.toArray() as OlCoordinateType : l
-            });
-            (this._geometry as OlPolygonGeomInstanceType).appendLinearRing(new LinearRing(coordinates)._geometry as OlLinearRingGeomInstanceType)
-        }
+    if (linearRingParams instanceof LinearRing) {
+      this._geometry.appendLinearRing(linearRingParams.getGeometry());
+    } else {
+      let coordinates = linearRingParams.map((l) => {
+        return handleGetLnglatValue(l);
+      });
+      this._geometry.appendLinearRing(
+        new LinearRing(coordinates).getGeometry(),
+      );
     }
+  }
 
-    /**
-     * 获取多边形的第一个坐标（包含内环）
-     * @returns {Lnglat} 多边形的第一个坐标
-     */
-    getFirstCoordinate(): Lnglat {
-        let coordinates = (this._geometry as OlPolygonGeomInstanceType).getFirstCoordinate()
-        return new Lnglat(coordinates[0], coordinates[1])
+  /**
+   * 获取多边形的第一个坐标（包含内环）
+   * @returns {Lnglat} 多边形的第一个坐标
+   */
+  getFirstCoordinate(): Lnglat {
+    let coordinates = this._geometry.getFirstCoordinate();
+    return new Lnglat(coordinates);
+  }
+
+  /**
+   * 获取多边形的最后一个坐标（包含内环）
+   * @returns {Lnglat} 多边形的最后一个坐标
+   */
+  getLastCoordinate(): Lnglat {
+    let coordinates = this._geometry.getLastCoordinate();
+    return new Lnglat(coordinates);
+  }
+
+  /**
+   * 获取多边形的范围
+   * @returns {Extent} 多边形的范围
+   */
+  getExtent(): Extent {
+    let extent = this._geometry.getExtent();
+    return new Extent(extent);
+  }
+
+  /**
+   * 返回投影平面上多边形的面积
+   * @returns {number} 投影平面上多边形的面积
+   */
+  getArea(): number {
+    return this._geometry.getArea();
+  }
+
+  /**
+   * 将几何图形中距离传递点最近的点作为坐标返回
+   * @param {OMapCoordinateType} point 传递点
+   * @param {OMapCoordinateType} closestPoint 最近点
+   * @returns {Lnglat} 最近点
+   */
+  getClosestPoint(
+    point: OMapCoordinateType,
+    closestPoint?: OMapCoordinateType,
+  ): Lnglat {
+    let coordinates = handleGetLnglatValue(point);
+    let result = this._geometry.getClosestPoint(coordinates);
+    let _result = new Lnglat(result);
+    closestPoint = _result;
+    return _result;
+  }
+
+  /**
+   * 返回多边形的内点
+   * @returns {Point} 多边形的内点
+   */
+  getInteriorPoint(): Point {
+    let result = this._geometry.getInteriorPoint().getCoordinates();
+    return new Point(result);
+  }
+
+  /**
+   * 如果该几何形状包含指定的坐标，则返回 true。如果坐标位于几何形状的边界上，则返回 false。
+   * @param {OMapCoordinateType} coordinates
+   * @returns {boolean}
+   */
+  intersectsCoordinate(coordinates: OMapCoordinateType): boolean {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage(
+          "intersectsCoordinate",
+          commonMessage.paramsNotDefined("coordinates"),
+        ),
+      );
     }
+    let _coordinates = handleGetLnglatValue(coordinates);
+    return this._geometry.intersectsCoordinate(_coordinates);
+  }
 
-    /**
-     * 获取多边形的最后一个坐标（包含内环）
-     * @returns {Lnglat} 多边形的最后一个坐标
-     */
-    getLastCoordinate(): Lnglat {
-        let coordinates = (this._geometry as OlPolygonGeomInstanceType).getLastCoordinate()
-        return new Lnglat(coordinates[0], coordinates[1])
+  /**
+   * 线是否在extent范围内
+   * @param {OMapExtentType} extent
+   * @returns {boolean}
+   */
+  intersectsExtent(extent: Extent): boolean {
+    if (!isDefined(extent)) {
+      error_(
+        createMessage(
+          "intersectsExtent",
+          commonMessage.paramsNotDefined("extent"),
+        ),
+      );
     }
-
-    /**
-     * 获取多边形的范围
-     * @returns {Extent} 多边形的范围
-     */
-    getExtent(): Extent {
-        let extent = (this._geometry as OlPolygonGeomInstanceType).getExtent()
-        return new Extent(extent[0], extent[1], extent[2], extent[3])
+    if (!(extent instanceof Extent) && !isExtentType(extent)) {
+      error_(
+        createMessage(
+          "intersectsExtent",
+          commonMessage.paramsInvaildFormat("extent"),
+        ),
+      );
     }
+    let _extent = handleGetExtentValue(extent);
+    return this._geometry.intersectsExtent(_extent);
+  }
 
-    /**
-     * 返回投影平面上多边形的面积
-     * @returns {number} 投影平面上多边形的面积
-     */
-    getArea(): number {
-        return (this._geometry as OlPolygonGeomInstanceType).getArea()
-    }
+  simplify(tolerance: number = 0) {
+    this._geometry.simplify(tolerance);
+  }
 
-    /**
-     * 将几何图形中距离传递点最近的点作为坐标返回
-     * @param {Lnglat | OlCoordinateType} point 传递点
-     * @param {*} closestPoint 最近点
-     * @returns {Lnglat} 最近点
-     */
-    getClosestPoint(point: Lnglat | OlCoordinateType, closestPoint?: any): Lnglat {
-        let coordinates = (point instanceof Lnglat) ? point.toArray() as OlCoordinateType : point;
-        let result = (this._geometry as OlPolygonGeomInstanceType).getClosestPoint(coordinates)
-        let _result = new Lnglat(result[0], result[1])
-        closestPoint = _result
-        return _result
-    }
+  transform() {}
 
-    /**
-     * 返回多边形的内点
-     * @returns {Point} 多边形的内点
-     */
-    getInteriorPoint(): Point {
-        let result = (this._geometry as OlPolygonGeomInstanceType).getInteriorPoint().getCoordinates();
-        return new Point(result)
-    }
-
-    /**
-     * 如果该几何形状包含指定的坐标，则返回 true。如果坐标位于几何形状的边界上，则返回 false。
-     * @param {Lnglat | OlCoordinateType} coordinates 
-     * @returns {boolean | undefined}
-     */
-    intersectsCoordinate(coordinates: Lnglat | OlCoordinateType): boolean | undefined {
-        if (!isDefined(coordinates)) {
-            error_(createMessage('intersectsCoordinate', '参数coordinates不能为空'));
-            return
-        }
-        let _coordinates = (coordinates instanceof Lnglat) ? coordinates.toArray() as OlCoordinateType : coordinates;
-        return (this._geometry as OlPolygonGeomInstanceType).intersectsCoordinate(_coordinates)
-    }
-
-    /**
-     * 线是否在extent范围内
-     * @param {OMapExtentType} extent 
-     * @returns {boolean | undefined}
-     */
-    intersectsExtent(extent: Extent): boolean | undefined {
-        if (!isDefined(extent)) {
-            error_(createMessage('intersectsExtent', '参数extent不能为空'));
-            return
-        }
-        if ((!(extent instanceof Extent)) && (!isExtentType(extent))) {
-            error_(createMessage('intersectsExtent', '坐标格式有误'));
-            return
-        }
-        let _extent = extent instanceof Extent ? extent.getExtent() : extent;
-        return (this._geometry as OlPolygonGeomInstanceType).intersectsExtent(_extent as OlExtentType)
-    }
-
-    simplify(tolerance: number = 0): void {
-        (this._geometry as OlPolygonGeomInstanceType).simplify(tolerance)
-    }
-
-    transform() {
-
-    }
-
-    translate(deltaX: number = 0, deltaY: number = 0): void {
-        (this._geometry as OlPolygonGeomInstanceType).translate(deltaX, deltaY)
-    }
-
+  translate(deltaX: number = 0, deltaY: number = 0): void {
+    this._geometry.translate(deltaX, deltaY);
+  }
 }

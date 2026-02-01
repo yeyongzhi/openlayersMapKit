@@ -1,7 +1,7 @@
 
 import { isDefined, isNumber, isArray, isAllNumberArray } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlSizeType } from '../../../utils/index';
+import { type OlSizeType } from './type';
 
 const PACKAGE_NAME = 'Size';
 const createMessage = getPackageMessage(PACKAGE_NAME);

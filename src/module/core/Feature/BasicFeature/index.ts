@@ -30,15 +30,16 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default abstract class BasicFeature<T extends OlGeometryType> {
 
-    protected id: number | string | null;
+    protected id: number | string | null = null;
     protected type: OMapBasicFeatureType;
-    protected _feature: OlFeatureInstanceType;
-    protected _geometry: T;
+    // 非空断言操作符 !（推荐用于抽象类）
+    protected _feature!: OlFeatureInstanceType;
+    protected _geometry!: T;
 
     constructor(type: OMapBasicFeatureType, coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType, radius?: number) {
         this.type = type;
         if (coordinatesOrFeature instanceof OlFeature) {
-            this._initByFeature(coordinatesOrFeature)
+            this._initByFeature(coordinatesOrFeature as OlFeatureInstanceType)
         } else {
             this._init(coordinatesOrFeature as OMapBasicFeatureCoordinatesType, radius)
         }
@@ -50,10 +51,9 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
 
     /**
      * 获取原生的Openlayers Feature对象
-     * @returns {OlFeatureInstanceType | undefined} 原生的Openlayers Feature对象
+     * @returns {OlFeatureInstanceType} 原生的Openlayers Feature对象
      */
-    getFeature(): OlFeatureInstanceType | undefined {
-
+    getFeature(): OlFeatureInstanceType {
         return this._feature
     }
 
@@ -70,21 +70,17 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
     abstract setCoordinates(coordinates: OMapBasicFeatureCoordinatesType): void;
 
 
-    setId(id: number | string): void {
-
+    setId(id: number | string) {
         if (!isDefined(id)) {
-            warn_(createMessage('setId', '参数id不能为空'));
-            return;
+            error_(createMessage('setId', '参数id不能为空'));
         }
         if (!isNumber(id) && !isString(id)) {
-            warn_(createMessage('setId', '参数id格式有误'));
-            return;
+            error_(createMessage('setId', '参数id格式有误'));
         }
         this.id = id
     }
 
-    getId(): number | string | null | undefined {
-
+    getId(): number | string | null {
         return this.id
     }
 
@@ -92,7 +88,7 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
         return this.type
     }
 
-    changed(): void {
+    changed() {
         this._feature.changed()
     }
 
@@ -104,25 +100,21 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
 
     }
 
-    get(key: string): any | void {
-
+    get(key: string): any {
         if (!isDefined(key)) {
             error_(createMessage('get', commonMessage.paramsNotDefined('key')))
-            return
         }
         if (!isString(key)) {
             error_(createMessage('get', commonMessage.paramsInvaildFormat('key', 'string')))
-            return 
         }
         return this._feature.get(key)
     }
 
     /**
      * 获取原生的Openlayers Geometry对象
-     * @returns {OlGeometryType | undefined} 原生的Openlayers Geometry对象
+     * @returns {T} 原生的Openlayers Geometry对象
      */
-    getGeometry(): OlGeometryType | void {
-
+    getGeometry(): T {
         return this._geometry
     }
 
@@ -130,8 +122,7 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
 
     }
 
-    getKeys() : string[] | void {
-
+    getKeys() : string[] {
         return this._feature.getKeys()
     }
 
@@ -150,26 +141,21 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
      * 获取要素的范围
      * @returns {Extent | undefined} 要素的范围
      */
-    getExtent(): Extent | void {
-
+    getExtent(): Extent {
         let extent = this._geometry.getExtent()
         return new Extent(extent)
     }
 
-    getProperties(): PropertiesType | undefined {
-
+    getProperties(): PropertiesType {
         return this._feature.getProperties()
     }
 
-    setProperties(properties: PropertiesType) {
-
+    setProperties(properties?: PropertiesType) {
         if (!isDefined(properties)) {
-            warn_(createMessage('setProperties', '参数不能为空'));
-            return;
+            return false;
         }
         if (!isObject(properties)) {
-            warn_(createMessage('setProperties', '参数应为对象类型'));
-            return;
+            error_(createMessage('setProperties', commonMessage.paramsInvaildFormat('properties', 'object')));
         }
         this._feature.setProperties(properties)
     }

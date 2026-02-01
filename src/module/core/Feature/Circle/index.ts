@@ -1,20 +1,28 @@
-import { isDefined, isCoordinatesType, isNumber } from '../../../../utils/index'
-import { warn_, error_, getPackageMessage } from '../../../../utils/index'
-import { commonMessage } from '../../../../utils/message'
-import { OlFeature, OlGeometry } from '../../../../source/index'
-import BasicFeature from '../BasicFeature'
-import type {
-    OlCircleGeomInstanceType,
-    CircleLike,
-    CircleInitialized,
-} from './type'
-import { OMapPointGeometryCoordinatesType } from '../Point/type'
-import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import Lnglat from '../../../basic/Lnglat/index'
-import { type OMapCoordinateType, type OlCoordinateType } from '../../../basic/Lnglat/type'
-import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
+import {
+  isDefined,
+  isCoordinatesType,
+  isNumber,
+} from "../../../../utils/index";
+import {
+  warn_,
+  error_,
+  getPackageMessage,
+  commonMessage,
+} from "../../../../utils/message";
+import { OlFeature, OlGeometry } from "../../../../source/index";
+import BasicFeature from "../BasicFeature";
+import { type OMapCircleType, type OlCircleGeomInstanceType } from "./type";
+import { OMapPointGeometryCoordinatesType } from "../Point/type";
+import type { OlFeatureInstanceType } from "../BasicFeature/type";
+import Lnglat from "../../../basic/Lnglat/index";
+import {
+  type OMapCoordinateType,
+  type OlCoordinateType,
+  isValidCoordinate,
+} from "../../../basic/Lnglat/type";
+import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
 
-const PACKAGE_NAME = 'Circle';
+const PACKAGE_NAME = "Circle";
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
@@ -23,129 +31,155 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/1
- * @updateDate 2025/10/6
+ * @updateDate 2026/2/1
  */
 
-export default class Circle extends BasicFeature<OlCircleGeomInstanceType> implements CircleLike {
-
-    constructor(centerOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType, radius?: number, properties?: Record<string, any>) {
-        if (!isDefined(centerOrFeature)) {
-            error_(createMessage('constructor', '参数不能为空'));
-            return
-        }
-        if (centerOrFeature instanceof OlFeature) {
-            super("Circle", centerOrFeature as OlFeatureInstanceType)
-        } else {
-            if ((!(centerOrFeature instanceof Lnglat)) && (!isCoordinatesType(centerOrFeature))) {
-                error_(createMessage('constructor', '坐标格式有误'));
-                return
-            }
-            if (!isDefined(radius)) {
-                error_(createMessage('constructor', 'radius参数不能为空'));
-                return
-            }
-            if (!isNumber(radius)) {
-                error_(createMessage('constructor', 'radius参数格式有误'));
-                return
-            }
-            super("Circle", centerOrFeature as OMapPointGeometryCoordinatesType, radius)
-            if (properties) {
-                this.setProperties(properties)
-            }
-        }
+export default class Circle extends BasicFeature<OMapCircleType> {
+  constructor(
+    centerOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType,
+    radius?: number,
+    properties?: Record<string, any>,
+  ) {
+    if (!isDefined(centerOrFeature)) {
+      error_(
+        createMessage(
+          "constructor",
+          commonMessage.paramsNotDefined("centerOrFeature"),
+        ),
+      );
     }
-
-    protected _init(coordinates: OMapPointGeometryCoordinatesType, radius?: number) {
-        let geometryCoordinates = handleGetLnglatValue(coordinates) as OlCoordinateType
-        if (geometryCoordinates) {
-            this._geometry = new OlGeometry.Circle(geometryCoordinates, radius)
-            this._feature = new OlFeature({
-                geometry: this._geometry
-            })
-        }
+    if (centerOrFeature instanceof OlFeature) {
+      super("Circle", centerOrFeature as OlFeatureInstanceType);
+    } else {
+      if (!isValidCoordinate(centerOrFeature)) {
+        error_(
+          createMessage(
+            "constructor",
+            commonMessage.paramsInvaildFormat("centerOrFeature"),
+          ),
+        );
+      }
+      if (!(isDefined(radius) && isNumber(radius))) {
+        error_(
+          createMessage(
+            "constructor",
+            commonMessage.paramsInvaildFormat("radius"),
+          ),
+        );
+      }
+      super(
+        "Circle",
+        centerOrFeature as OMapPointGeometryCoordinatesType,
+        radius,
+      );
+      if (isDefined(properties)) {
+        this.setProperties(properties);
+      }
     }
+  }
 
-    protected _initByFeature(feature: OlFeatureInstanceType) {
-        this._feature = feature
-        this._geometry = feature.getGeometry() as OlCircleGeomInstanceType
+  protected _init(
+    coordinates: OMapPointGeometryCoordinatesType,
+    radius?: number,
+  ) {
+    let geometryCoordinates = handleGetLnglatValue(
+      coordinates,
+    ) as OlCoordinateType;
+    this._geometry = new OlGeometry.Circle(geometryCoordinates, radius);
+    this._feature = new OlFeature({
+      geometry: this._geometry,
+    });
+  }
+
+  protected _initByFeature(feature: OlFeatureInstanceType) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry() as OlCircleGeomInstanceType;
+  }
+
+  getCenter(): Lnglat {
+    let center = this._geometry.getCenter();
+    return new Lnglat(center);
+  }
+
+  setCenter(center: OMapCoordinateType) {
+    if (!isDefined(center)) {
+      error_(
+        createMessage("setCenter", commonMessage.paramsNotDefined("center")),
+      );
     }
-
-    protected _isInitialized(method: string): this is CircleInitialized & this {
-        if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
+    if (!isValidCoordinate(center)) {
+      error_(
+        createMessage(
+          "setCenter",
+          commonMessage.paramsInvaildFormat("center", "coordinates"),
+        ),
+      );
     }
+    let _center = handleGetLnglatValue(center);
+    this._geometry.setCenter(_center);
+  }
 
-    getCenter(): Lnglat | void {
+  getRadius(): number {
+    return this._geometry.getRadius();
+  }
 
-        let center = this._geometry.getCenter()
-        return new Lnglat(...center)
+  setRadius(radius: number) {
+    if (!isDefined(radius)) {
+      error_(
+        createMessage("setRadius", commonMessage.paramsNotDefined("radius")),
+      );
     }
-
-    setCenter(center: OMapCoordinateType): void {
-
-        if (!isDefined(center)) {
-            error_(createMessage('setCenter', commonMessage.paramsNotDefined('center')));
-            return
-        }
-        if (!isCoordinatesType(center) && !(center instanceof Lnglat)) {
-            error_(createMessage('setCenter', commonMessage.paramsInvaildFormat('center', 'coordinates')));
-            return
-        }
-        let _center = handleGetLnglatValue(center) as OlCoordinateType
-        this._geometry.setCenter(_center)
+    if (!isNumber(radius)) {
+      error_(
+        createMessage(
+          "setRadius",
+          commonMessage.paramsInvaildFormat("radius", "number"),
+        ),
+      );
     }
+    this._geometry.setRadius(radius);
+  }
 
-    getRadius(): number | void {
+  /**
+   * 获取坐标
+   */
+  getCoordinates(): Lnglat {
+    return this.getCenter();
+  }
 
-        return this._geometry.getRadius()
+  /**
+   * 设置线的坐标
+   */
+  setCoordinates(center: OMapCoordinateType) {
+    this.setCenter(center);
+  }
+
+  setCenterAndRadius(center: OMapCoordinateType, radius: number) {
+    if (!isDefined(center) || !isDefined(radius)) {
+      error_(
+        createMessage(
+          "setCenterAndRadius",
+          commonMessage.paramsListHaveNotDefined("center", "radius"),
+        ),
+      );
     }
-
-    setRadius(radius: number): void {
-
-        if (!isDefined(radius)) {
-            error_(createMessage('setRadius', commonMessage.paramsNotDefined('radius')));
-            return
-        }
-        if (!isNumber(radius)) {
-            error_(createMessage('setRadius', commonMessage.paramsInvaildFormat('radius', 'number')));
-            return
-        }
-        this._geometry.setRadius(radius)
+    if (!isValidCoordinate(center)) {
+      error_(
+        createMessage(
+          "setCenterAndRadius",
+          commonMessage.paramsInvaildFormat("center"),
+        ),
+      );
     }
-
-    /**
-     * 获取坐标
-     */
-    getCoordinates(): Lnglat | void {
-        return this.getCenter()
+    if (!isNumber(radius)) {
+      error_(
+        createMessage(
+          "setCenterAndRadius",
+          commonMessage.paramsInvaildFormat("radius", "number"),
+        ),
+      );
     }
-
-    /**
-     * 设置线的坐标
-     */
-    setCoordinates(center: OMapCoordinateType): void {
-        this.setCenter(center)
-    }
-
-    setCenterAndRadius(center: OMapCoordinateType, radius: number): void {
-
-        if (!isDefined(center) || !isDefined(radius)) {
-            error_(createMessage('setCenterAndRadius', commonMessage.paramsListHaveNotDefined('center', 'radius')));
-            return
-        }
-        if (!isCoordinatesType(center) && !(center instanceof Lnglat)) {
-            error_(createMessage('setCenterAndRadius', commonMessage.paramsInvaildFormat('center', 'coordinates')));
-            return
-        }
-        if (!isNumber(radius)) {
-            error_(createMessage('setCenterAndRadius', commonMessage.paramsInvaildFormat('radius', 'number')));
-            return
-        }
-        let _center = handleGetLnglatValue(center) as OlCoordinateType
-        this._geometry.setCenterAndRadius(_center, radius)
-    }
-
+    let _center = handleGetLnglatValue(center);
+    this._geometry.setCenterAndRadius(_center, radius);
+  }
 }
