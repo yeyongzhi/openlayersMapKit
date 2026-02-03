@@ -26,6 +26,7 @@ export type OMapDragBoxParamsType = CustOlDragBoxParamsType & {
     onBoxEnd?: DragBoxEndEventFunctionType;
 } & OMapInteractionCommonParamsType
 
+export type OMapDragBoxType = OlInteraction.DragBox
 export type OlDragBoxInstanceType = InstanceType<typeof OlInteraction.DragBox>
 
 export type OMapDragBoxEventType = 'boxcancel' | 'boxdrag' | 'boxend' | 'boxstart'

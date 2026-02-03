@@ -1,9 +1,13 @@
 import { isBoolean, isDefined, defaultValue, isFunction, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import Interaction from '../Interaction/index'
-import { OMapInteractionCommonParams } from '../Interaction/type'
+import { OMAP_INTERACTION_DEFAULT_PARAMS, OMapInteractionCommonType } from '../Interaction/type'
 import { OlInteraction } from '../../../source/index'
-import type { OMapMouseWheelZoomParamsType } from './type'
+import {
+    type OMapMouseWheelZoomParamsType,
+    type OMapMouseWheelZoomType
+} from './type'
+
 const PACKAGE_NAME = 'MouseWheelZoom';
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
@@ -27,15 +31,12 @@ const defaultMouseWheelZoomOptions: OMapMouseWheelZoomParamsType = {
     constrainResolution: false
 }
 
-export default class MouseWheelZoom extends Interaction {
+export default class MouseWheelZoom extends Interaction<OMapMouseWheelZoomType> {
 
     constructor(params?: OMapMouseWheelZoomParamsType) {
-        super("MouseWheelZoom")
-        this._interaction = new OlInteraction.MouseWheelZoom(Object.assign(OMapInteractionCommonParams, defaultMouseWheelZoomOptions, defaultValue(params, {})))
+        super("MouseWheelZoom", { id: params?.id })
+        this._interaction = new OlInteraction.MouseWheelZoom(Object.assign(OMAP_INTERACTION_DEFAULT_PARAMS, defaultMouseWheelZoomOptions, defaultValue(params, {})))
         this.initInteractionEvent()
-        if(isDefined(params) && isDefined(params.id)) {
-            this._initInteractionId(params.id)
-        }
     }
 
 }

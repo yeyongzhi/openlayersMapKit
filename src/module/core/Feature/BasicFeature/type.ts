@@ -51,6 +51,15 @@ OlFeature<OlGeometry.MultiPolygon> |
 OlFeature<OlGeometry.LinearRing> |
 OlFeature<OlGeometry.Circle>
 
+export type OMapSimpleGeometryType = OlGeometry.Point | 
+OlGeometry.MultiPoint | 
+OlGeometry.LineString | 
+OlGeometry.MultiLineString |
+OlGeometry.Polygon | 
+OlGeometry.MultiPolygon |
+OlGeometry.LinearRing | 
+OlGeometry.Circle
+
 export type OlGeometryType = OlGeometry.Point | 
 OlGeometry.MultiPoint | 
 OlGeometry.LineString | 

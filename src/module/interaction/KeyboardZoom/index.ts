@@ -2,7 +2,10 @@ import { isBoolean, isDefined, defaultValue, isFunction, isNumber, isString } fr
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import Interaction from '../Interaction/index'
 import { OlInteraction } from '../../../source/index'
-import type { OMapKeyboardZoomParamsType } from './type'            
+import {
+    type OMapKeyboardZoomParamsType,
+    type OMapKeyboardZoomType
+} from './type'            
 const PACKAGE_NAME = 'KeyboardZoom';
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
@@ -21,12 +24,11 @@ const defaultKeyboardZoomOptions = {
     delta: 1
 }
 
-export default class KeyboardZoom extends Interaction {
+export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
 
     constructor(params?: OMapKeyboardZoomParamsType) {
-        super("KeyboardZoom")
+        super("KeyboardZoom", { id: params?.id })
         this._interaction = new OlInteraction.KeyboardZoom(Object.assign({}, defaultKeyboardZoomOptions, params || {}))
-        // 注册事件
         this.initInteractionEvent()
     }
 

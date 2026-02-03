@@ -5,4 +5,5 @@ import { OMapInteractionCommonParamsType } from '../Interaction/type'
 export type OlMouseWheelZoomParamsType = ConstructorParameters<typeof OlInteraction.MouseWheelZoom>[0]
 type CustOlMouseWheelZoomParamsType = ManualOmit<OlMouseWheelZoomParamsType, ''>
 export type OMapMouseWheelZoomParamsType = CustOlMouseWheelZoomParamsType & OMapInteractionCommonParamsType
+export type OMapMouseWheelZoomType = OlInteraction.MouseWheelZoom
 export type OlInteractionMouseWheelZoomInstanceType = InstanceType<typeof OlInteraction.MouseWheelZoom>

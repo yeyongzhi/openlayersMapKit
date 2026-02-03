@@ -6,7 +6,7 @@ import BasicFeature from '../../core/Feature/BasicFeature/index'
 import type { OMapPointGeometryCoordinatesType } from '../../core/Feature/Point/type'
 import type { OMapLineStringGeometryCoordinatesType } from '../../core/Feature/LineString/type'
 import type { OMapPolygonGeometryCoordinatesType } from '../../core/Feature/Polygon/type'
-import { type OMapInteractionCommonParamsType, type OMapInteractionEventType, OMapInteractionEventTypes } from '../Interaction/type'
+import { type OMapInteractionCommonParamsType, OMapInteractionCommonEventTypes } from '../Interaction/type'
 
 export type OlModifyParamsType = ConstructorParameters<typeof OlInteraction.Modify>[0]
 type CustOlModifyParamsType = ManualOmit<OlModifyParamsType,
@@ -16,8 +16,9 @@ export type OMapModifyParamsType = CustOlModifyParamsType & {
     layer: VectorLayer;
 } & OMapInteractionCommonParamsType
 
+export type OMapModifyType = OlInteraction.Modify
 export type OlModifyInstanceType = InstanceType<typeof OlInteraction.Modify>
-export const OMapInteractionModifyEventTypes = [...OMapInteractionEventTypes, 'modifystart', 'modifyend'] as const
+export const OMapInteractionModifyEventTypes = [...OMapInteractionCommonEventTypes, 'modifystart', 'modifyend'] as const
 export type OMapInteractionModifyEventType = typeof OMapInteractionModifyEventTypes[number] extends infer T
     ? T extends string
     ? T

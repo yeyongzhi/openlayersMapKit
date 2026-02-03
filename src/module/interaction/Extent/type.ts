@@ -1,15 +1,16 @@
 import { OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
-import { type OMapInteractionCommonParamsType, type OMapInteractionEventType, OMapInteractionEventTypes } from '../Interaction/type'
+import { type OMapInteractionCommonParamsType, OMapInteractionCommonEventTypes } from '../Interaction/type'
 
 export type OlInteractionExtentParamsType = ConstructorParameters<typeof OlInteraction.Extent>[0]
 type CustOlExtentParamsType = ManualOmit<OlInteractionExtentParamsType,
     ''
 >
 export type OMapExtentParamsType = CustOlExtentParamsType & OMapInteractionCommonParamsType
+export type OMapInteractionExtentType = OlInteraction.Extent
 export type OlInteractionExtentInstanceType = InstanceType<typeof OlInteraction.Extent>
 
-export const OMapInteractionExtentEventTypes = [...OMapInteractionEventTypes, "extentchanged"] as const
+export const OMapInteractionExtentEventTypes = [...OMapInteractionCommonEventTypes, "extentchanged"] as const
 export type OMapInteractionExtentEventType = typeof OMapInteractionExtentEventTypes[number] extends infer T
     ? T extends string
     ? T

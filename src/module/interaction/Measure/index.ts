@@ -17,7 +17,8 @@ import {
     type OMapMeasureResult,
     DRAW_DEFAULT_PARAMS,
     MeasureMode,
-    MeasureEventType
+    MeasureEventType,
+    type OMapMeasureType,
 } from './type'
 import type { OlVectorSourceInstanceType, OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
@@ -59,7 +60,7 @@ let pointMoveListener: any = null
  * @updateDate 2025/12/30
  */
 
-export default class Measure extends Interaction {
+export default class Measure extends Interaction<OMapMeasureType> {
 
     mode: OMapMeasureMode | null = null;
 
@@ -73,7 +74,7 @@ export default class Measure extends Interaction {
             error_(createMessage('constructor', 'mode参数有误'));
             return
         }
-        super("Measure")
+        super("Measure", { id: params?.id })
         let draw_source: OlVectorSourceInstanceType | null = null
         // Measure模式下，直接新建一个VectorLayer
         this.layer = new VectorLayer({
@@ -131,7 +132,7 @@ export default class Measure extends Interaction {
     protected onMeasureActive() {
         if (isDefined(this.map)) {
             if (!isDefined(pointMoveListener)) {
-                pointMoveListener = ((this.map as Map)._map as OlMapInstanceType).on("pointermove", (e) => {
+                pointMoveListener = (this.map.getMap()).on("pointermove", (e) => {
                     if (isDefined(tooltipPopup)) {
                         tooltipPopup.updatePosition(e.coordinate)
                     }

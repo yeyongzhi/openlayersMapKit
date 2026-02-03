@@ -1,14 +1,25 @@
-import { isString } from '../../../utils/dataType'
+import { isString, isNumber } from '../../../utils/dataType'
 import { OlOverlay } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import Lnglat from '../../basic/Lnglat/index'
 import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
+import Popup from './index'
+
+export type OMapPopupIdType = string | number
+export function isVaildPopupId(value: unknown): value is OMapPopupIdType {
+    return isString(value) || isNumber(value);
+}
 
 export type OlPopupParamsType = ConstructorParameters<typeof OlOverlay>[0]
 type CustOlPopupParamsType = ManualOmit<OlPopupParamsType,
     'offset' | 'position' | 'positioning'
 >
+
+export function isVaildPopup(value: unknown): value is Popup {
+    return value instanceof Popup;
+}
+
 export type OMapPopupParamsType = CustOlPopupParamsType & {
     offset?: Pixel;
     position?: Lnglat | OlCoordinateType;

@@ -1,7 +1,7 @@
 import { OlSource, OlLayer, OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import type { OlAnimationOptions } from '../../../utils/olType/view'
-import { OMapInteractionCommonParamsType, OMapInteractionEventTypes } from '../Interaction/type'
+import { OMapInteractionCommonParamsType, OMapInteractionCommonEventTypes } from '../Interaction/type'
 
 export type OlLinkParamsType = ConstructorParameters<typeof OlInteraction.Link>[0]
 type CustOlLinkParamsType = ManualOmit<OlLinkParamsType,
@@ -10,9 +10,11 @@ type CustOlLinkParamsType = ManualOmit<OlLinkParamsType,
 export type OMapLinkParamsType = CustOlLinkParamsType & {
     animate?: boolean | OlAnimationOptions
 } & OMapInteractionCommonParamsType
+
+export type OMapLinkType = OlInteraction.Link
 export type OlInteractionLinkInstanceType = InstanceType<typeof OlInteraction.Link>
 
-export const OMapInteractionLinkEventTypes = [...OMapInteractionEventTypes ] as const
+export const OMapInteractionLinkEventTypes = [...OMapInteractionCommonEventTypes ] as const
 export type OMapInteractionLinkEventType = typeof OMapInteractionLinkEventTypes[number] extends infer T
     ? T extends string
     ? T

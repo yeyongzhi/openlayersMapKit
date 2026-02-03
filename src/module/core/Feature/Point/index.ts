@@ -17,8 +17,8 @@ import Lnglat from "../../../basic/Lnglat/index";
 import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
 import { isValidCoordinate } from "../../../basic/Lnglat/type";
 import Extent from "../../../basic/Extent/index";
-import { handleGetExtentValue } from "@/module/basic/Extent/handle";
-import { isValidExtent } from "@/module/basic/Extent/type";
+import { handleGetExtentValue } from "../../../basic/Extent/handle";
+import { isValidExtent } from "../../../basic/Extent/type";
 
 const PACKAGE_NAME = "Point";
 const createMessage = getPackageMessage(PACKAGE_NAME);

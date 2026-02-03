@@ -1,4 +1,4 @@
-import { OlLayer } from '../../../source/index'
+import { OlLayer, OlSource } from '../../../source/index'
 import Extent from '../../basic/Extent/index'
 import Color from '../../basic/Color/index'
 import Map from '../../core/Map/index'
@@ -38,12 +38,18 @@ export type BaseLayerOptionsType = BaseLayerCommonParamsType & {
     map?: Map;
 }
 
+export type OMapBaseLayerCommonType = OlLayer.Layer
 
+export type OMapTileLayerType = OlLayer.Tile
 export type OlTileLayerInstanceType = InstanceType<typeof OlLayer.Tile>
+export type OMapVectorLayerType = OlLayer.Vector
 export type OlVectorLayerInstanceType = InstanceType<typeof OlLayer.Vector>
+export type OMapImageLayerType = OlLayer.Image<OlSource.Image>
 export type OlImageLayerInstanceType = InstanceType<typeof OlLayer.Image>
+export type OMapHeatmapLayerType = OlLayer.Heatmap
 export type OlHeatmapLayerInstanceType = InstanceType<typeof OlLayer.Heatmap>
 
+export type OMapBaseLayerType = OMapTileLayerType | OMapVectorLayerType | OMapImageLayerType | OMapHeatmapLayerType
 /** ol原生全部类型图层实例 */
 export type OlAllLayerInstanceType = OlTileLayerInstanceType | OlVectorLayerInstanceType | OlImageLayerInstanceType | OlHeatmapLayerInstanceType
 

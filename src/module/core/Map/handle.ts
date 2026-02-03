@@ -5,6 +5,7 @@ import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
 import Map from './index'
 import Interaction from '../../interaction/Interaction/index'
+import { type OMapInteractionCommonType } from '../../interaction/Interaction/type'
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
 
@@ -24,14 +25,14 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
         case 'map:singleclick':
         case 'map:dbclick':
             if (isDefined(e.pixel)) {
-                result.pixel = new Pixel(...(e.pixel as OlCoordinateType))
+                result.pixel = new Pixel((e.pixel as OlCoordinateType))
             }
             if (isDefined(e.coordinate)) {
-                result.coordinate = new Lnglat(...(e.coordinate as OlCoordinateType))
+                result.coordinate = new Lnglat((e.coordinate as OlCoordinateType))
             }
             break;
         case 'map:propertychange':
-            if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat(...(e.oldValue as OlCoordinateType)) : e.oldValue
+            if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat((e.oldValue as OlCoordinateType)) : e.oldValue
             if (e.key === 'size') {
                 result.newValue = e.newValue || (target as Map).getSize()
             } else {
@@ -40,7 +41,7 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
             result.key = e.key
             break;
         case 'map:moveend':
-            if (e.oldCenter) result.oldValue = new Lnglat(...(e.oldCenter as OlCoordinateType))
+            if (e.oldCenter) result.oldValue = new Lnglat((e.oldCenter as OlCoordinateType))
             result.newValue = e.newCenter || (target as Map).getCenter()
             break;
         case 'view:change:resolution':
@@ -48,7 +49,7 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
             result.newValue = e.newValue || (target as Map).getResolution()
             break;
         case 'view:change:center':
-            if (e.oldValue) result.oldValue = new Lnglat(...(e.oldValue as OlCoordinateType))
+            if (e.oldValue) result.oldValue = new Lnglat((e.oldValue as OlCoordinateType))
             result.newValue = e.newValue || (target as Map).getCenter()
             break;
         case 'view:change:rotation':
@@ -56,7 +57,7 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
             result.newValue = e.newValue || (target as Map).getRotation()
             break;
         case 'view:propertychange':
-            if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat(...(e.oldValue as OlCoordinateType)) : e.oldValue
+            if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat((e.oldValue as OlCoordinateType)) : e.oldValue
             if (e.key === 'center') {
                 result.newValue = e.newValue || (target as Map).getCenter()
             } else if (e.key === 'rotation') {
@@ -83,7 +84,7 @@ export function isOMapMapEventType(type: unknown): type is OMapEventType {
  * @param mapInteractions 地图交互事件
  * @returns {boolean} 是否正在绘制
  */
-export function isMapDrawing(mapInteractions: Interaction[]): boolean {
+export function isMapDrawing(mapInteractions: Array<Interaction<OMapInteractionCommonType>>): boolean {
     return mapInteractions.some((interaction) => {
         return isDefined(interaction) && interaction instanceof Draw && interaction.getActive()
     })
@@ -94,7 +95,7 @@ export function isMapDrawing(mapInteractions: Interaction[]): boolean {
  * @param mapInteractions 地图交互事件
  * @returns {boolean} 是否正在测量
  */
-export function isMapMeasuring(mapInteractions: Interaction[]): boolean {
+export function isMapMeasuring(mapInteractions: Array<Interaction<OMapInteractionCommonType>>): boolean {
     return mapInteractions.some((interaction) => {
         return isDefined(interaction) && interaction instanceof Measure && interaction.getActive()
     })

@@ -23,7 +23,7 @@ import type { OlFeatureInstanceType } from "../BasicFeature/type";
 import {
   type OlLinearRingGeomInstanceType,
   type OMapLinearRingGeometryCoordinatesType,
-  checkLinearRingCoordinates,
+  isValidLinearRingCoordinates,
 } from "../LinearRing/type";
 import Point from "../Point/index";
 import LinearRing from "../LinearRing/index";
@@ -169,8 +169,10 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
       );
     }
     if (
-      !(linearRingParams instanceof LinearRing) &&
-      !checkLinearRingCoordinates(linearRingParams)
+      !(
+        linearRingParams instanceof LinearRing &&
+        isValidLinearRingCoordinates(linearRingParams)
+      )
     ) {
       error_(
         createMessage(

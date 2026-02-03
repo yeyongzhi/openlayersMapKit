@@ -30,8 +30,8 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default abstract class BasicFeature<T extends OlGeometryType> {
 
-    protected id: number | string | null = null;
-    protected type: OMapBasicFeatureType;
+    id: number | string | null = null;
+    type: OMapBasicFeatureType;
     // 非空断言操作符 !（推荐用于抽象类）
     protected _feature!: OlFeatureInstanceType;
     protected _geometry!: T;

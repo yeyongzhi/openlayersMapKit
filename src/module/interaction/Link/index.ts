@@ -3,7 +3,10 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { OlAnimationOptions } from '../../../utils/olType/view'
 import Interaction from '../Interaction/index'
 import { OlInteraction } from '../../../source/index'
-import type { OMapLinkParamsType } from './type'
+import {
+    type OMapLinkParamsType,
+    type OMapLinkType
+} from './type'
 import Lnglat from '../../basic/Lnglat/index';
 
 const PACKAGE_NAME = 'Link';
@@ -26,10 +29,10 @@ const defaultLinkOptions: OMapLinkParamsType = {
     prefix: ''
 }
 
-export default class Link extends Interaction {
+export default class Link extends Interaction<OMapLinkType> {
 
     constructor(params?: OMapLinkParamsType) {
-        super("Link")
+        super("Link", { id: params?.id })
         let _params = {
             ...defaultValue(params, {}),
             animate: (isDefined(params?.animate) && !isBoolean(params?.animate)) ? {
@@ -39,9 +42,6 @@ export default class Link extends Interaction {
         };
         this._interaction = new OlInteraction.Link(Object.assign({}, defaultLinkOptions, _params))
         this.initInteractionEvent()
-        if(isDefined(params) && isDefined(params.id)) {
-            this._initInteractionId(params.id)
-        }
     }
 
 }

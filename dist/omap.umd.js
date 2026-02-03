@@ -43,10 +43,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     return isDefined(value) ? value : defaultValue2;
   }
   function warn_(message) {
-    console.warn("omap warn", message);
+    console.warn("🐞OMap Warn", message);
   }
   function error_(message) {
-    throw new Error(`omap error ${message}`);
+    throw new Error(`⚠️OMap Error ${message}`);
   }
   function getPackageMessage(packageName) {
     return (methodName, message) => {
@@ -109,6 +109,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   }
   function isExtentType(value) {
     return isArray(value) && value.length === 4 && isNumber(value[0]) && isNumber(value[1]) && isNumber(value[2]) && isNumber(value[3]);
+  }
+  function isArrayLength2(value) {
+    return isArray(value) && value.length === 2;
   }
   function isVaildColorRGB(value) {
     return isArray(value) && value.length === 3 && value.every((item) => isNumber(item) && item >= 0 && item <= 255);
@@ -183,6 +186,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function getDevicePixelRatio() {
     return defaultValue(window.devicePixelRatio, 1);
   }
+  function handleGetSizeValue(size) {
+    if (isDefined(size)) {
+      return size instanceof Size ? size.toArray() : size;
+    }
+    return void 0;
+  }
   const PACKAGE_NAME$D = "Size";
   const createMessage$D = getPackageMessage(PACKAGE_NAME$D);
   class Size {
@@ -194,49 +203,56 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
        */
       __publicField(this, "_size", [0, 0]);
       let value = [0, 0];
-      if (args.length === 1 && isArray(args[0])) {
-        value = args[0];
-      } else if (args.length === 2 && isAllNumberArray(args)) {
-        value = [args[0], args[1]];
+      if (args.length === 2) {
+        const [x, y] = args;
+        if (isNumber(x) && isNumber(y)) {
+          value = [x, y];
+        } else {
+          error_(
+            createMessage$D(
+              "constructor",
+              commonMessage.paramsInvaildFormat("size")
+            )
+          );
+        }
+      } else if (args.length === 1) {
+        const [arr] = args;
+        if (Array.isArray(arr) && arr.length >= 2 && isAllNumberArray(arr)) {
+          value = [arr[0], arr[1]];
+        } else {
+          error_(
+            createMessage$D(
+              "constructor",
+              commonMessage.paramsInvaildFormat("size")
+            )
+          );
+        }
       } else {
-        error_(createMessage$D("constructor", "初始化参数格式有误"));
-        return;
+        error_(
+          createMessage$D("constructor", commonMessage.paramsInvaildFormat("size"))
+        );
       }
       this._size = value;
     }
-    _isInitialized(method) {
-      if (!isDefined(this._size)) {
-        warn_(createMessage$D(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     /**
      * 获取size
-     * @returns {OlSizeType | undefined} size
+     * @returns {OlSizeType} size
      */
     getSize() {
-      if (!this._isInitialized("getSize")) return void 0;
       return this._size;
     }
     /**
      * 设置size
-     * @param {OlSizeType} size
+     * @param {OMapSizeType} size
      */
     setSize(size) {
-      if (!this._isInitialized("setSize")) return;
-      if (!isNumber(size[0]) || !isNumber(size[1])) {
-        warn_(createMessage$D("setSize", "参数格式有误"));
-        return void 0;
-      }
-      this._size = size;
+      this._size = handleGetSizeValue(size);
     }
     /**
      * 获取Size的width
-     * @returns {number | undefined} width
+     * @returns {number} width
      */
     getWidth() {
-      if (!this._isInitialized("getWidth")) return void 0;
       return this._size[0];
     }
     /**
@@ -244,7 +260,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {number} height
      */
     getHeight() {
-      if (!this._isInitialized("getHeight")) return void 0;
       return this._size[1];
     }
     /**
@@ -252,11 +267,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {number} width
      */
     setWidth(width) {
-      if (!this._isInitialized("setWidth")) return;
-      if (!isNumber(width)) {
-        warn_(createMessage$D("setWidth", "参数格式有误"));
-        return;
-      }
       this._size[0] = width;
     }
     /**
@@ -264,28 +274,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {number} height
      */
     setHeight(height) {
-      if (!this._isInitialized("setHeight")) return;
-      if (!isNumber(height)) {
-        warn_(createMessage$D("setHeight", "参数格式有误"));
-        return;
-      }
       this._size[1] = height;
     }
     /**
      * 判断两个尺寸是否相等
-     * @param {Size} size 
+     * @param {OMapSizeType} size
      * @returns {boolean} 判断结果
      */
     equals(size) {
-      if (!this._isInitialized("equals")) return;
-      return this._size[0] === size._size[0] && this._size[1] === size._size[1];
+      let _size = handleGetSizeValue(size);
+      return this._size[0] === _size[0] && this._size[1] === _size[1];
     }
     /**
      * 转换为数组
-     * @returns {OlSizeType | undefined} size
+     * @returns {OlSizeType} size
      */
     toArray() {
-      if (!this._isInitialized("toArray")) return;
       return this._size;
     }
     /**
@@ -293,9 +297,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {string} sizeStr
      */
     toString() {
-      if (!this._isInitialized("toString")) return "";
       return `[${this._size[0]}, ${this._size[1]}]`;
     }
+  }
+  function handleGetPixelValue(pixel) {
+    if (isDefined(pixel)) {
+      return pixel instanceof Pixel ? pixel.toArray() : pixel;
+    }
+    return void 0;
   }
   const PACKAGE_NAME$C = "Pixel";
   const createMessage$C = getPackageMessage(PACKAGE_NAME$C);
@@ -306,31 +315,47 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
        * @example [100, 200]
        * @private
        */
-      __publicField(this, "_pixel", []);
+      __publicField(this, "_pixel", [0, 0]);
       let value = [0, 0];
-      if (args.length === 1 && isArray(args[0])) {
-        value = args[0];
-      } else if (args.length === 2 && isAllNumberArray(args)) {
-        value = [args[0], args[1]];
+      if (args.length === 2) {
+        const [x, y] = args;
+        if (isNumber(x) && isNumber(y)) {
+          value = [x, y];
+        } else {
+          error_(
+            createMessage$C(
+              "constructor",
+              commonMessage.paramsInvaildFormat("pixel")
+            )
+          );
+        }
+      } else if (args.length === 1) {
+        const [arr] = args;
+        if (Array.isArray(arr) && arr.length >= 2 && isAllNumberArray(arr)) {
+          value = [arr[0], arr[1]];
+        } else {
+          error_(
+            createMessage$C(
+              "constructor",
+              commonMessage.paramsInvaildFormat("pixel")
+            )
+          );
+        }
       } else {
-        error_(createMessage$C("constructor", "初始化参数格式有误"));
-        return;
+        error_(
+          createMessage$C(
+            "constructor",
+            commonMessage.paramsInvaildFormat("pixel")
+          )
+        );
       }
       this._pixel = value;
-    }
-    _isInitialized(method) {
-      if (!isDefined(this._pixel)) {
-        warn_(createMessage$C(method, "未正确实例化"));
-        return false;
-      }
-      return true;
     }
     /**
      * 获取像素坐标
      * @returns {number[] | undefined} 像素坐标
      */
     getPixel() {
-      if (!this._isInitialized("getPixel")) return void 0;
       return this._pixel;
     }
     /**
@@ -338,27 +363,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {number[]} pixel 像素坐标
      */
     setPixel(pixel) {
-      if (!this._isInitialized("setPixel")) return;
-      if (!isNumber(pixel[0]) || !isNumber(pixel[1])) {
-        warn_(createMessage$C("setPixel", "参数格式有误"));
-        return;
-      }
       this._pixel = pixel;
     }
     /**
      * 获取像素的 x 坐标
-     * @returns {number | undefined} x 坐标
+     * @returns {number} x 坐标
      */
     getX() {
-      if (!this._isInitialized("getX")) return void 0;
       return this._pixel[0];
     }
     /**
      * 获取像素的 y 坐标
-     * @returns {number | undefined} y 坐标
+     * @returns {number} y 坐标
      */
     getY() {
-      if (!this._isInitialized("getY")) return void 0;
       return this._pixel[1];
     }
     /**
@@ -366,11 +384,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {number} x x 坐标
      */
     setX(x) {
-      if (!this._isInitialized("setX")) return;
-      if (!isNumber(x)) {
-        warn_(createMessage$C("setX", "参数格式有误"));
-        return;
-      }
       this._pixel[0] = x;
     }
     /**
@@ -378,11 +391,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {number} y y 坐标
      */
     setY(y) {
-      if (!this._isInitialized("setY")) return;
-      if (!isNumber(y)) {
-        warn_(createMessage$C("setY", "参数格式有误"));
-        return;
-      }
       this._pixel[1] = y;
     }
     /**
@@ -391,17 +399,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {boolean | undefined} 判断结果
      */
     equals(pixel) {
-      if (!this._isInitialized("equals")) return void 0;
       if (!isDefined(pixel)) {
-        warn_(createMessage$C("equals", "参数未正确实例化"));
-        return void 0;
+        error_(createMessage$C("equals", commonMessage.paramsNotDefined("pixel")));
       }
-      const otherPixel = pixel.getPixel();
-      if (!otherPixel) return void 0;
+      const otherPixel = handleGetPixelValue(pixel);
       return this._pixel[0] === otherPixel[0] && this._pixel[1] === otherPixel[1];
     }
     toArray() {
-      if (!this._isInitialized("toArray")) return;
       return this._pixel;
     }
     /**
@@ -409,9 +413,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {string} 像素坐标字符串
      */
     toString() {
-      if (!this._isInitialized("toString")) return "";
       return `[${this._pixel[0]}, ${this._pixel[1]}]`;
     }
+  }
+  function handleGetLnglatValue(coordinates) {
+    if (isDefined(coordinates)) {
+      return coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
+    }
+    return void 0;
   }
   const PACKAGE_NAME$B = "Lnglat";
   const createMessage$B = getPackageMessage(PACKAGE_NAME$B);
@@ -424,33 +433,51 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
        * @private
        */
       __publicField(this, "_lnglat", []);
-      let value = [];
-      if (args.length === 1 && isArray(args[0])) {
-        value = args[0];
-      } else if (args.length === 2 && isAllNumberArray(args)) {
-        value = args;
+      let value = [0, 0];
+      if (args.length === 2) {
+        const [x, y] = args;
+        if (isNumber(x) && isNumber(y)) {
+          value = [x, y];
+        } else {
+          error_(
+            createMessage$B(
+              "constructor",
+              commonMessage.paramsInvaildFormat("lnglat")
+            )
+          );
+        }
+      } else if (args.length === 1) {
+        const [arr] = args;
+        if (Array.isArray(arr) && arr.length >= 2 && isAllNumberArray(arr)) {
+          value = [arr[0], arr[1]];
+        } else {
+          error_(
+            createMessage$B(
+              "constructor",
+              commonMessage.paramsInvaildFormat("lnglat")
+            )
+          );
+        }
       } else {
-        error_(createMessage$B("constructor", "初始化参数格式有误"));
-        return;
+        error_(
+          createMessage$B(
+            "constructor",
+            commonMessage.paramsInvaildFormat("lnglat")
+          )
+        );
       }
       this._lnglat = value;
-    }
-    _isInitialized(method) {
-      if (!isDefined(this._lnglat) || isDefined(this._lnglat) && this._lnglat.length !== 2) {
-        warn_(createMessage$B(method, "经纬度未正确初始化"));
-        return false;
-      }
-      return true;
     }
     /**
      * 设置经度
      * @param {number} lng 经度
      */
     setLng(lng) {
-      if (!this._isInitialized("setLng")) return;
+      if (!isDefined(lng)) {
+        error_(createMessage$B("setLng", commonMessage.paramsNotDefined("lng")));
+      }
       if (!isNumber(lng)) {
-        warn_(createMessage$B("setLng", "传入经度格式有误"));
-        return;
+        error_(createMessage$B("setLng", commonMessage.paramsInvaildFormat("lng")));
       }
       this._lnglat[0] = lng;
     }
@@ -459,64 +486,56 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {number} lat 纬度
      */
     setLat(lat) {
-      if (!this._isInitialized("setLat")) return;
+      if (!isDefined(lat)) {
+        error_(createMessage$B("setLat", commonMessage.paramsNotDefined("lat")));
+      }
       if (!isNumber(lat)) {
-        warn_(createMessage$B("setLat", "传入纬度格式有误"));
-        return;
+        error_(createMessage$B("setLat", commonMessage.paramsInvaildFormat("lat")));
       }
       this._lnglat[1] = lat;
     }
     /**
      * 获取经度
-     * @returns {number | undefined} 经度
+     * @returns {number} 经度
      */
     getLng() {
-      if (!this._isInitialized("getLng")) return void 0;
       return this._lnglat[0];
     }
     /**
      * 获取纬度
-     * @returns {number | undefined} 纬度
+     * @returns {number} 纬度
      */
     getLat() {
-      if (!this._isInitialized("getLat")) return void 0;
       return this._lnglat[1];
     }
     /**
      * 判断两个经纬度是否相等
-     * @param {Lnglat} lnglat 经纬度对象
-     * @returns {boolean | undefined} 判断结果
+     * @param {OMapCoordinateType} lnglat 经纬度对象
+     * @returns {boolean} 判断结果
      */
     equals(lnglat) {
-      if (!this._isInitialized("equals")) return void 0;
-      if (!(lnglat instanceof Lnglat)) {
-        warn_(createMessage$B("equals", "传入经纬度格式错误，必须为Lnglat类型"));
-        return void 0;
+      if (!isDefined(lnglat)) {
+        error_(createMessage$B("equals", commonMessage.paramsNotDefined("lnglat")));
       }
-      const otherLnglat = lnglat.getLng() !== void 0 && lnglat.getLat() !== void 0 ? [lnglat.getLng(), lnglat.getLat()] : void 0;
-      if (!otherLnglat) return void 0;
+      const otherLnglat = handleGetLnglatValue(lnglat);
       return this._lnglat[0] === otherLnglat[0] && this._lnglat[1] === otherLnglat[1];
     }
     /**
      * 以数组形式输出经纬度
-     * @returns {OlCoordinateType | undefined} 经纬度数组
+     * @returns {OlCoordinateType} 经纬度数组
      */
     toArray() {
-      if (!this._isInitialized("toArray")) return void 0;
       return this._lnglat;
     }
     /**
      * 以字符串的形式输出经纬度
-     * @param {number} place 保留的小数位数
+     * @param {number} place? 保留的小数位数
      * @returns {string} 经纬度字符串
      */
     toString(place) {
       var _a, _b;
-      if (!this._isInitialized("toString")) return "";
-      if (!isCoordinatesType(this._lnglat)) {
-        return "";
-      }
-      return `[${(_a = this._lnglat[0]) == null ? void 0 : _a.toFixed(place)}, ${(_b = this._lnglat[1]) == null ? void 0 : _b.toFixed(place)}]`;
+      let _place = defaultValue(place, 3);
+      return `[${(_a = this._lnglat[0]) == null ? void 0 : _a.toFixed(_place)}, ${(_b = this._lnglat[1]) == null ? void 0 : _b.toFixed(_place)}]`;
     }
   }
   const presetsColor = {
@@ -803,6 +822,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
   }
+  function isValidCoordinate(value) {
+    if (value instanceof Lnglat) {
+      return true;
+    }
+    return isCoordinatesType(value);
+  }
   const OlEvent = {
     listen: events.listen,
     unlistenByKey: events.unlistenByKey
@@ -810,12 +835,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function handleGetExtentValue(extent) {
     if (isDefined(extent)) {
       return extent instanceof Extent ? extent.getExtent() : extent;
-    }
-    return void 0;
-  }
-  function handleGetLnglatValue(coordinates) {
-    if (isDefined(coordinates)) {
-      return coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
     }
     return void 0;
   }
@@ -830,26 +849,42 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
        * @private
        */
       __publicField(this, "_extent");
-      let value = [];
-      if (args.length === 1 && isArray(args[0])) {
-        value = args[0];
-      } else if (args.length === 4 && isAllNumberArray(args)) {
-        value = args;
+      let value = [0, 0, 0, 0];
+      if (args.length === 4) {
+        const [minX, minY, maxX, maxY] = args;
+        if (isNumber(minX) && isNumber(minY) && isNumber(maxX) && isNumber(maxY)) {
+          value = [minX, minY, maxX, maxY];
+        } else {
+          error_(
+            createMessage$z(
+              "constructor",
+              commonMessage.paramsInvaildFormat("extent")
+            )
+          );
+        }
+      } else if (args.length === 1) {
+        const [arr] = args;
+        if (Array.isArray(arr) && arr.length >= 4 && isAllNumberArray(arr)) {
+          value = [arr[0], arr[1], arr[2], arr[3]];
+        } else {
+          error_(
+            createMessage$z(
+              "constructor",
+              commonMessage.paramsInvaildFormat("extent")
+            )
+          );
+        }
       } else {
-        error_(createMessage$z("constructor", "初始化参数格式有误"));
-        return;
+        error_(
+          createMessage$z(
+            "constructor",
+            commonMessage.paramsInvaildFormat("extent")
+          )
+        );
       }
       this._extent = value;
     }
-    _isInitialized(method) {
-      if (!isDefined(this._extent) || this._extent.length !== 4) {
-        warn_(createMessage$z(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     getExtent() {
-      if (!this._isInitialized("getExtent")) return;
       return this._extent;
     }
     /**
@@ -857,47 +892,41 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @return {Lnglat} 左上方位置
      */
     getTopLeft() {
-      if (!this._isInitialized("getTopLeft")) return;
-      return new Lnglat(...OlExtent__namespace.getTopLeft(this._extent));
+      return new Lnglat(OlExtent__namespace.getTopLeft(this._extent));
     }
     /**
      * 获取边界范围Extent的右上方位置
      * @return {Lnglat} 右上方位置
      */
     getTopRight() {
-      if (!this._isInitialized("getTopRight")) return;
-      return new Lnglat(...OlExtent__namespace.getTopRight(this._extent));
+      return new Lnglat(OlExtent__namespace.getTopRight(this._extent));
     }
     /**
      * 获取边界范围Extent的左下角位置
      * @return {Lnglat} 左下角位置
      */
     getBottomLeft() {
-      if (!this._isInitialized("getBottomLeft")) return;
-      return new Lnglat(...OlExtent__namespace.getBottomLeft(this._extent));
+      return new Lnglat(OlExtent__namespace.getBottomLeft(this._extent));
     }
     /**
      * 获取边界范围Extent的右下角位置
      * @return {Lnglat} 右下角位置
      */
     getBottomRight() {
-      if (!this._isInitialized("getBottomRight")) return;
-      return new Lnglat(...OlExtent__namespace.getBottomRight(this._extent));
+      return new Lnglat(OlExtent__namespace.getBottomRight(this._extent));
     }
     /**
      * 获取边界范围Extent的中心点位置
      * @return {Lnglat} 中心点位置
      */
     getCenter() {
-      if (!this._isInitialized("getCenter")) return;
-      return new Lnglat(...OlExtent__namespace.getCenter(this._extent));
+      return new Lnglat(OlExtent__namespace.getCenter(this._extent));
     }
     /**
      * 获取宽度信息
      * @returns {number} 宽度
      */
     getWidth() {
-      if (!this._isInitialized("getWidth")) return;
       return OlExtent__namespace.getWidth(this._extent);
     }
     /**
@@ -905,23 +934,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {number} 高度
      */
     getHeight() {
-      if (!this._isInitialized("getHeight")) return;
       return OlExtent__namespace.getHeight(this._extent);
     }
     getSize() {
-      if (!this._isInitialized("getHeight")) return;
-      return new Size(...OlExtent__namespace.getSize(this._extent));
+      return new Size(OlExtent__namespace.getSize(this._extent));
     }
     /**
      * 以字符串的形式输出边界范围
      * @return {string} 边界范围（字符串）
      */
     toString(place) {
-      if (!this._isInitialized("toString")) return void 0;
-      return `[${this._extent[0].toFixed(place)}, ${this._extent[1].toFixed(place)}, ${this._extent[2].toFixed(place)}, ${this._extent[3].toFixed(place)}]`;
+      let _place = defaultValue(place, 3);
+      return `[${this._extent[0].toFixed(_place)}, ${this._extent[1].toFixed(_place)}, ${this._extent[2].toFixed(_place)}, ${this._extent[3].toFixed(_place)}]`;
     }
     toArray() {
-      if (!this._isInitialized("toString")) return void 0;
       return this._extent;
     }
     /**
@@ -931,24 +957,34 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     static boundingExtent(coordinates) {
       if (!isDefined(coordinates)) {
-        error_(createMessage$z("boundingExtent", "参数coordinates不能为空"));
-        return;
+        error_(
+          createMessage$z(
+            "boundingExtent",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
       if (!isArray(coordinates)) {
-        error_(createMessage$z("boundingExtent", "参数coordinates格式错误，必须为数组"));
-        return;
+        error_(
+          createMessage$z("boundingExtent", "参数coordinates格式错误，必须为数组")
+        );
       }
       let vaildList = coordinates.filter((c) => {
-        return c instanceof Lnglat || isCoordinatesType(c);
+        return isValidCoordinate(c);
       });
       if (vaildList.length < coordinates.length) {
-        warn_(createMessage$z("boundingExtent", "参数coordinates存在不合法格式，元素必须为Lnglat类型或者坐标数组类型"));
+        warn_(
+          createMessage$z(
+            "boundingExtent",
+            commonMessage.haveInvaildDataItem("coordinates")
+          )
+        );
       }
       let positions = vaildList.map((c) => {
-        return c instanceof Lnglat ? c.toArray() : c;
+        return handleGetLnglatValue(c);
       });
       let _extent = OlExtent__namespace.boundingExtent(positions);
-      return new Extent(..._extent);
+      return new Extent(_extent);
     }
     /**
      * 判断边界范围Extent是否包含某个点
@@ -957,10 +993,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @return {boolean} 判断结果
      */
     static containsCoordinate(extent, coordinate2) {
-      if (!isDefined(extent) || !isDefined(coordinate2)) return void 0;
+      if (!isDefined(extent) || !isDefined(coordinate2)) {
+        error_(
+          createMessage$z(
+            "containsCoordinate",
+            commonMessage.paramsNotDefined("extent or coordinate")
+          )
+        );
+      }
       let _extent = handleGetExtentValue(extent);
       let _coordinate = handleGetLnglatValue(coordinate2);
-      if (!isDefined(_extent) || !isDefined(_coordinate)) return void 0;
       return OlExtent__namespace.containsCoordinate(_extent, _coordinate);
     }
     /**
@@ -970,10 +1012,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @return 判断结果
      */
     static containsExtent(extent1, extent2) {
-      if (!isDefined(extent1) || !isDefined(extent2)) return;
+      if (!isDefined(extent1) || !isDefined(extent2)) {
+        error_(
+          createMessage$z(
+            "containsExtent",
+            commonMessage.paramsNotDefined("extent1 or extent2")
+          )
+        );
+      }
       let _extent1 = handleGetExtentValue(extent1);
       let _extent2 = handleGetExtentValue(extent2);
-      if (!isDefined(_extent1) || !isDefined(_extent2)) return;
       return OlExtent__namespace.containsExtent(_extent1, _extent2);
     }
     static containsXY(extent, x, y) {
@@ -983,45 +1031,69 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return OlExtent__namespace.containsXY(_extent, x, y);
     }
     static createEmpty() {
-      return new Extent(...OlExtent__namespace.createEmpty());
+      return new Extent(OlExtent__namespace.createEmpty());
     }
     static equals(extent1, extent2) {
-      if (!isDefined(extent1) || !isDefined(extent2)) return;
+      if (!isDefined(extent1) || !isDefined(extent2)) {
+        error_(
+          createMessage$z(
+            "equals",
+            commonMessage.paramsNotDefined("extent1 or extent2")
+          )
+        );
+      }
       let _extent1 = handleGetExtentValue(extent1);
       let _extent2 = handleGetExtentValue(extent2);
-      if (!isDefined(_extent1) || !isDefined(_extent2)) return;
       return OlExtent__namespace.equals(_extent1, _extent2);
     }
     static extend(extent1, extent2) {
-      if (!isDefined(extent1) || !isDefined(extent2)) return;
+      if (!isDefined(extent1) || !isDefined(extent2)) {
+        error_(
+          createMessage$z(
+            "extend",
+            commonMessage.paramsNotDefined("extent1 or extent2")
+          )
+        );
+      }
       let _extent1 = handleGetExtentValue(extent1);
       let _extent2 = handleGetExtentValue(extent2);
-      if (!isDefined(_extent1) || !isDefined(_extent2)) return;
-      return new Extent(...OlExtent__namespace.extend(_extent1, _extent2));
+      return new Extent(OlExtent__namespace.extend(_extent1, _extent2));
     }
     static getArea(extent) {
-      if (!isDefined(extent)) return;
+      if (!isDefined(extent)) {
+        error_(
+          createMessage$z("getArea", commonMessage.paramsNotDefined("extent"))
+        );
+      }
       let _extent = handleGetExtentValue(extent);
-      if (!isDefined(_extent)) return;
       return OlExtent__namespace.getArea(_extent);
     }
     /**
      * 确定一个范围是否与另一个范围相交
-     * @param {OMapExtentType} extent1 
-     * @param {OMapExtentType}extent2 
+     * @param {OMapExtentType} extent1
+     * @param {OMapExtentType}extent2
      * @returns {boolean} 判断结果
      */
     static intersects(extent1, extent2) {
-      if (!isDefined(extent1) || !isDefined(extent2)) return;
+      if (!isDefined(extent1) || !isDefined(extent2)) {
+        error_(
+          createMessage$z(
+            "intersects",
+            commonMessage.paramsNotDefined("extent1 or extent2")
+          )
+        );
+      }
       let _extent1 = handleGetExtentValue(extent1);
       let _extent2 = handleGetExtentValue(extent2);
-      if (!isDefined(_extent1) || !isDefined(_extent2)) return;
       return OlExtent__namespace.intersects(_extent1, _extent2);
     }
     static isEmpty(extent) {
-      if (!isDefined(extent)) return;
+      if (!isDefined(extent)) {
+        error_(
+          createMessage$z("isEmpty", commonMessage.paramsNotDefined("extent"))
+        );
+      }
       let _extent = handleGetExtentValue(extent);
-      if (!isDefined(_extent)) return;
       return OlExtent__namespace.isEmpty(_extent);
     }
   }
@@ -1342,6 +1414,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return ((_a = this.events.get(type)) == null ? void 0 : _a.length) || 0;
     }
   }
+  function isVaildPopupId(value) {
+    return isString(value) || isNumber(value);
+  }
+  function isVaildPopup(value) {
+    return value instanceof Popup;
+  }
   const PopupPositioning = {
     bottomLeft: "bottom-left",
     bottomCenter: "bottom-center",
@@ -1464,19 +1542,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     _initElementEvent() {
     }
-    _isInitialized(method) {
-      if (!isDefined(this._popup)) {
-        warn_(createMessage$x(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     /**
      * 获取弹窗位置
      * @returns {Lnglat | undefined} 弹窗位置
      */
     getPosition() {
-      if (!this._isInitialized("getPosition")) return;
       let coordinates = this._popup.getPosition();
       return isDefined(coordinates) ? new Lnglat(coordinates[0], coordinates[1]) : void 0;
     }
@@ -1485,16 +1555,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {Lnglat | OlCoordinateType} coordinates 弹窗位置
      */
     setPosition(coordinates) {
-      if (!this._isInitialized("setPosition")) return;
       let _coordinates = coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
       this._popup.setPosition(_coordinates);
     }
     getPositioning() {
-      if (!this._isInitialized("getPositioning")) return;
       return this._popup.getPositioning();
     }
     setPositioning(positioning) {
-      if (!this._isInitialized("setPositioning")) return;
       if (!isVaildPopupPositioningType(positioning)) {
         warn_(createMessage$x("setPositioning", "参数positioning值有误"));
         return;
@@ -1506,7 +1573,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {Record<string, any> | undefined} 弹窗属性
      */
     getProperties() {
-      if (!this._isInitialized("getProperties")) return;
       return this.properties;
     }
     /**
@@ -1514,7 +1580,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {Record<string, any>} properties 弹窗属性
      */
     setProperties(properties) {
-      if (!this._isInitialized("setProperties")) return;
       if (!isDefined(properties)) {
         warn_(createMessage$x("setProperties", "参数不能为空"));
         return;
@@ -1527,21 +1592,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.properties = Object.assign({}, this.properties, properties);
     }
     getElement() {
-      if (!this._isInitialized("getElement")) return;
       return this._popup.getElement();
     }
     setElement(element) {
-      if (!this._isInitialized("getElement")) return;
       if (!isDefined(element)) return;
       element.classList.add("omap-popup-selectable");
       return this._popup.setElement(element);
     }
     getContent() {
-      if (!this._isInitialized("getContent")) return "";
       return this.content;
     }
     setContent(content) {
-      if (!this._isInitialized("setContent")) return;
       this.events.emit("change:content", handlePopupEvent(this, "change:content", {
         oldValue: this.getContent(),
         key: "content",
@@ -1551,17 +1612,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.setElement(createDefaultContentElement(content));
     }
     getOffset() {
-      if (!this._isInitialized("getOffset")) return;
       let offset = this._popup.getOffset();
       return new Pixel(offset[0], offset[1]);
     }
     setOffset(offset) {
-      if (!this._isInitialized("setOffset")) return;
       let _offset = offset instanceof Pixel ? offset.toArray() : offset;
       this._popup.setOffset(_offset);
     }
     getId() {
-      if (!this._isInitialized("getId")) return;
       return this.id;
     }
     setId(id) {
@@ -1571,7 +1629,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this._popup;
     }
     on(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
         warn_(createMessage$x("on", commonMessage.paramsListHaveNotDefined("type or callback")));
         return;
@@ -1591,7 +1648,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     once(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
         warn_(createMessage$x("on", commonMessage.paramsListHaveNotDefined("type or callback")));
         return;
@@ -1611,7 +1667,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     un(id) {
-      if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
         warn_(createMessage$x("un", commonMessage.paramsNotDefined("id")));
         return;
@@ -1625,17 +1680,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
   }
-  function handleGetSizeValue(size) {
-    if (isDefined(size)) {
-      return size instanceof Size ? size.toArray() : size;
+  function isValidExtent(value) {
+    if (value instanceof Extent) {
+      return true;
     }
-    return void 0;
+    return isExtentType(value);
   }
-  function handleGetPixelValue(pixel) {
-    if (isDefined(pixel)) {
-      return pixel instanceof Pixel ? pixel.toArray() : pixel;
+  function isValidPixel(value) {
+    if (value instanceof Pixel) {
+      return true;
     }
-    return void 0;
+    return isArrayLength2(value) && value.every((item) => isNumber(item));
   }
   const PACKAGE_NAME$w = "Map";
   const createMessage$w = getPackageMessage(PACKAGE_NAME$w);
@@ -1759,15 +1814,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         groupId: null
       });
     }
-    _isInitialized(method) {
-      if (!isDefined(this._layer)) {
-        warn_(createMessage$v(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     _initLayerEvent() {
-      if (!this._isInitialized("_initLayerEvent")) return;
       this._layer.on([
         "propertychange"
       ], (e) => {
@@ -1790,14 +1837,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         }
       });
     }
+    /**
+     * 获取图层id
+     * @returns {BaseLayerIdType | null} 图层id
+     */
     getId() {
-      if (!this._isInitialized("getId")) return null;
       return this.id;
     }
+    /**
+     * 设置图层id
+     * @param {BaseLayerIdType | null} id 图层id
+     */
     setId(id) {
-      if (!this._isInitialized("setId")) return;
       this.id = id;
     }
+    /**
+     * 获取图层实例对象
+     * @returns {T} 图层对象
+     */
     getLayer() {
       return this._layer;
     }
@@ -1805,7 +1862,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 获取图层数据源
      */
     getSource() {
-      if (!this._isInitialized("getSource")) return void 0;
       return this._layer.getSource();
     }
     /**
@@ -1813,14 +1869,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {number} opacity 透明度，0~1
      */
     setOpacity(opacity) {
-      if (!this._isInitialized("setOpacity")) return;
       if (!isDefined(opacity)) {
-        warn_(createMessage$v("setOpacity", commonMessage.paramsNotDefined("opacity")));
-        return;
+        error_(createMessage$v("setOpacity", commonMessage.paramsNotDefined("opacity")));
       }
       if (!isVaildOpacity(opacity)) {
-        warn_(createMessage$v("setOpacity", commonMessage.paramsInvaildFormat("opacity", "0~1的数字")));
-        return;
+        error_(createMessage$v("setOpacity", commonMessage.paramsInvaildFormat("opacity", "0~1的数字")));
       }
       this._layer.setOpacity(opacity);
     }
@@ -1829,7 +1882,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {number} 透明度，0~1
      */
     getOpacity() {
-      if (!this._isInitialized("getOpacity")) return;
       return this._layer.getOpacity();
     }
     /**
@@ -1837,14 +1889,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {boolean} visible 可见性，true/false
      */
     setVisible(visible) {
-      if (!this._isInitialized("setVisible")) return;
       if (!isDefined(visible)) {
-        warn_(createMessage$v("setVisible", commonMessage.paramsNotDefined("visible")));
-        return;
+        error_(createMessage$v("setVisible", commonMessage.paramsNotDefined("visible")));
       }
       if (!isBoolean(visible)) {
-        warn_(createMessage$v("setVisible", commonMessage.paramsInvaildFormat("visible", "boolean类型")));
-        return;
+        error_(createMessage$v("setVisible", commonMessage.paramsInvaildFormat("visible", "boolean类型")));
       }
       this._layer.setVisible(visible);
     }
@@ -1853,7 +1902,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {boolean} 可见性，true/false
      */
     getVisible() {
-      if (!this._isInitialized("getVisible")) return;
       return this._layer.getVisible();
     }
     /**
@@ -1861,123 +1909,95 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {Extent | undefined} 范围
      */
     getExtent() {
-      if (!this._isInitialized("getExtent")) return;
       let extent = this._layer.getExtent();
-      return isDefined(extent) ? new Extent(...extent) : void 0;
+      return isDefined(extent) ? new Extent(extent) : void 0;
     }
     /**
      * 设置图层的范围
      * @param {OMapExtentType} extent 范围
      */
     setExtent(extent) {
-      if (!this._isInitialized("setExtent")) return;
       if (!isDefined(extent)) {
-        warn_(createMessage$v("setExtent", commonMessage.paramsNotDefined("extent")));
-        return;
+        error_(createMessage$v("setExtent", commonMessage.paramsNotDefined("extent")));
       }
-      if (!(extent instanceof Extent) && !isExtentType(extent)) {
-        warn_(createMessage$v("setExtent", commonMessage.paramsInvaildFormat("extent", "Extent类型")));
-        return;
+      if (!isValidExtent(extent)) {
+        error_(createMessage$v("setExtent", commonMessage.paramsInvaildFormat("extent", "Extent类型")));
       }
       this._layer.setExtent(handleGetExtentValue(extent));
     }
     setMinZoom(minZoom) {
-      if (!this._isInitialized("setMinZoom")) return;
       if (!isDefined(minZoom)) {
-        warn_(createMessage$v("setMinZoom", commonMessage.paramsNotDefined("minZoom")));
-        return;
+        error_(createMessage$v("setMinZoom", commonMessage.paramsNotDefined("minZoom")));
       }
       if (!isNumber(minZoom)) {
-        warn_(createMessage$v("setMinZoom", commonMessage.paramsInvaildFormat("minZoom", "number类型")));
-        return;
+        error_(createMessage$v("setMinZoom", commonMessage.paramsInvaildFormat("minZoom", "number类型")));
       }
       this._layer.setMinZoom(minZoom);
     }
     getMinZoom() {
-      if (!this._isInitialized("getMinZoom")) return;
       return this._layer.getMinZoom();
     }
     setMaxZoom(maxZoom) {
-      if (!this._isInitialized("setMaxZoom")) return;
       if (!isDefined(maxZoom)) {
-        warn_(createMessage$v("setMaxZoom", commonMessage.paramsNotDefined("maxZoom")));
-        return;
+        error_(createMessage$v("setMaxZoom", commonMessage.paramsNotDefined("maxZoom")));
       }
       if (!isNumber(maxZoom)) {
-        warn_(createMessage$v("setMaxZoom", commonMessage.paramsInvaildFormat("maxZoom", "number类型")));
-        return;
+        error_(createMessage$v("setMaxZoom", commonMessage.paramsInvaildFormat("maxZoom", "number类型")));
       }
       this._layer.setMaxZoom(maxZoom);
     }
     getMaxZoom() {
-      if (!this._isInitialized("getMaxZoom")) return;
       return this._layer.getMaxZoom();
     }
     setMinResolution(minResolution) {
-      if (!this._isInitialized("setMinResolution")) return;
       if (!isDefined(minResolution)) {
-        warn_(createMessage$v("setMinResolution", commonMessage.paramsNotDefined("minResolution")));
-        return;
+        error_(createMessage$v("setMinResolution", commonMessage.paramsNotDefined("minResolution")));
       }
       if (!isNumber(minResolution)) {
-        warn_(createMessage$v("setMinResolution", commonMessage.paramsInvaildFormat("minResolution", "number类型")));
-        return;
+        error_(createMessage$v("setMinResolution", commonMessage.paramsInvaildFormat("minResolution", "number类型")));
       }
       this._layer.setMinResolution(minResolution);
     }
     getMinResolution() {
-      if (!this._isInitialized("getMinResolution")) return;
       return this._layer.getMinResolution();
     }
     setMaxResolution(maxResolution) {
-      if (!this._isInitialized("setMaxResolution")) return;
       if (!isDefined(maxResolution)) {
-        warn_(createMessage$v("setMaxResolution", commonMessage.paramsNotDefined("maxResolution")));
-        return;
+        error_(createMessage$v("setMaxResolution", commonMessage.paramsNotDefined("maxResolution")));
       }
       if (!isNumber(maxResolution)) {
-        warn_(createMessage$v("setMaxResolution", commonMessage.paramsInvaildFormat("maxResolution", "number类型")));
-        return;
+        error_(createMessage$v("setMaxResolution", commonMessage.paramsInvaildFormat("maxResolution", "number类型")));
       }
       this._layer.setMaxResolution(maxResolution);
     }
     getMaxResolution() {
-      if (!this._isInitialized("getMaxResolution")) return;
       return this._layer.getMaxResolution();
     }
     setZIndex(zIndex) {
-      if (!this._isInitialized("setZIndex")) return;
       if (!isDefined(zIndex)) {
-        warn_(createMessage$v("setZIndex", commonMessage.paramsNotDefined("zIndex")));
-        return;
+        error_(createMessage$v("setZIndex", commonMessage.paramsNotDefined("zIndex")));
       }
       if (!isNumber(zIndex)) {
-        warn_(createMessage$v("setZIndex", commonMessage.paramsInvaildFormat("zIndex", "number类型")));
-        return;
+        error_(createMessage$v("setZIndex", commonMessage.paramsInvaildFormat("zIndex", "number类型")));
       }
       this._layer.setZIndex(zIndex);
     }
     getZIndex() {
-      if (!this._isInitialized("getZIndex")) return void 0;
       return this._layer.getZIndex();
     }
-    setProperties(properties) {
-      if (!this._isInitialized("setProperties")) return;
+    setProperties(properties, silent) {
       if (!isDefined(properties)) {
-        warn_(createMessage$v("setProperties", commonMessage.paramsNotDefined("properties")));
-        return;
+        error_(createMessage$v("setProperties", commonMessage.paramsNotDefined("properties")));
       }
       if (isObject(properties)) {
-        warn_(createMessage$v("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
-        return;
+        error_(createMessage$v("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
       }
-      let oldProperties = this.getProperties() || {};
+      let oldProperties = defaultValue(this.properties, {});
       let newProperties = Object.assign({}, oldProperties, properties);
-      this._layer.setProperties(newProperties);
+      this._layer.setProperties(newProperties, silent);
       this.properties = newProperties;
     }
     getProperties() {
-      if (!this._isInitialized("getProperties")) return;
       return this._layer.getProperties();
     }
     /**
@@ -1992,7 +2012,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {Map | Draw | Modify | Measure | null} 图层所属的对象
      */
     getTarget() {
-      if (!this._isInitialized("getProperties")) return;
       return this.target;
     }
     get groupId() {
@@ -2007,8 +2026,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   const createMessage$u = getPackageMessage(PACKAGE_NAME$u);
   class BasicFeature {
     constructor(type, coordinatesOrFeature, radius) {
-      __publicField(this, "id");
+      __publicField(this, "id", null);
       __publicField(this, "type");
+      // 非空断言操作符 !（推荐用于抽象类）
       __publicField(this, "_feature");
       __publicField(this, "_geometry");
       this.type = type;
@@ -2018,65 +2038,101 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         this._init(coordinatesOrFeature, radius);
       }
     }
+    /**
+     * 获取原生的Openlayers Feature对象
+     * @returns {OlFeatureInstanceType} 原生的Openlayers Feature对象
+     */
     getFeature() {
-      if (!this._isInitialized("getFeature")) return;
       return this._feature;
     }
-    getGeometry() {
-      return this._geometry;
-    }
-    getProperties() {
-      if (!this._isInitialized("getProperties")) return;
-      return this._feature.getProperties();
-    }
-    setProperties(properties) {
-      if (!this._isInitialized("setProperties")) return;
-      if (!isDefined(properties)) {
-        warn_(createMessage$u("setProperties", "参数不能为空"));
-        return;
-      }
-      if (!isObject(properties)) {
-        warn_(createMessage$u("setProperties", "参数应为对象类型"));
-        return;
-      }
-      this._feature.setProperties(properties || {});
-    }
     setId(id) {
-      if (!this._isInitialized("setId")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$u("setId", "参数id不能为空"));
-        return;
+        error_(createMessage$u("setId", "参数id不能为空"));
       }
       if (!isNumber(id) && !isString(id)) {
-        warn_(createMessage$u("setId", "参数id格式有误"));
-        return;
+        error_(createMessage$u("setId", "参数id格式有误"));
       }
       this.id = id;
     }
     getId() {
-      if (!this._isInitialized("getId")) return;
       return this.id;
     }
     getType() {
       return this.type;
     }
+    changed() {
+      this._feature.changed();
+    }
+    dispatchEvent() {
+    }
+    clone() {
+    }
+    get(key) {
+      if (!isDefined(key)) {
+        error_(createMessage$u("get", commonMessage.paramsNotDefined("key")));
+      }
+      if (!isString(key)) {
+        error_(createMessage$u("get", commonMessage.paramsInvaildFormat("key", "string")));
+      }
+      return this._feature.get(key);
+    }
+    /**
+     * 获取原生的Openlayers Geometry对象
+     * @returns {T} 原生的Openlayers Geometry对象
+     */
+    getGeometry() {
+      return this._geometry;
+    }
+    getGeometryName() {
+    }
+    getKeys() {
+      return this._feature.getKeys();
+    }
+    getStyle() {
+    }
+    setStyle(style) {
+      let _style = handleGetStyleValue(style);
+      if (isDefined(_style)) {
+        this._feature.setStyle(_style);
+      }
+    }
+    /**
+     * 获取要素的范围
+     * @returns {Extent | undefined} 要素的范围
+     */
+    getExtent() {
+      let extent = this._geometry.getExtent();
+      return new Extent(extent);
+    }
+    getProperties() {
+      return this._feature.getProperties();
+    }
+    setProperties(properties) {
+      if (!isDefined(properties)) {
+        return false;
+      }
+      if (!isObject(properties)) {
+        error_(createMessage$u("setProperties", commonMessage.paramsInvaildFormat("properties", "object")));
+      }
+      this._feature.setProperties(properties);
+    }
   }
   const PACKAGE_NAME$t = "Interaction";
   const createMessage$t = getPackageMessage(PACKAGE_NAME$t);
   class Interaction {
-    constructor(type) {
+    constructor(type, params) {
       /**
        * 交互实例id
        */
       __publicField(this, "id", null);
       /**
        * 交互类型
-       * @type {OMapInteractionType | null}
+       * @type {OMapInteractionTypeEnum | null}
        */
       __publicField(this, "type", null);
       /**
        * 交互实例
-       * @type {OlInteractionInstanceType}
+       * @type {T}
        */
       __publicField(this, "_interaction");
       /**
@@ -2101,49 +2157,55 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       __publicField(this, "events", new Event());
       __publicField(this, "map", null);
       this.type = type;
+      if (isDefined(params) && isDefined(params.id)) {
+        this.setId(params.id);
+      }
       this.events = new Event(this);
     }
     initInteractionEvent() {
-      if (!this._isInitialized("initInteractionEvent")) return;
-      this._interaction.on("change:active", (e) => {
+      this.getInteraction().on("change:active", (e) => {
         if (e.type === "change:active") {
           this.active = this.getActive();
         }
       });
     }
-    _isInitialized(method) {
-      if (!isDefined(this._interaction)) {
-        warn_(createMessage$t(method, "未正确实例化"));
-        return false;
-      }
-      return true;
+    /**
+     * 获取交互实例id
+     * @returns {OMapInteractionIdType} 交互实例id
+     */
+    getId() {
+      return this.id;
     }
-    _initInteractionId(id) {
-      if (!isDefined(id)) return;
+    setId(id) {
+      if (!isDefined(id)) {
+        warn_(createMessage$t("_initInteractionId", commonMessage.paramsNotDefined("id")));
+        return;
+      }
       this.id = id;
     }
     /**
      * 返回当前交互是否处于激活状态
-     * @returns 激活状态
+     * @returns {boolean} 激活状态
      */
     getActive() {
-      if (!this._isInitialized("getActive")) return;
       return this._interaction.getActive();
     }
     /**
      * 设置当前交互是否处于激活状态
-     * @param active 激活状态
+     * @param {boolean} active 激活状态
      */
     setActive(active) {
-      if (!this._isInitialized("setActive")) return;
+      if (!isBoolean(active)) {
+        warn_(createMessage$t("setActive", commonMessage.paramsInvaildFormat("active", "boolean")));
+        return;
+      }
       this._interaction.setActive(active);
     }
     /**
      * 获取交互实例
-     * @returns 
+     * @returns {T} 交互实例
      */
     getInteraction() {
-      if (!this._isInitialized("getInteraction")) return;
       return this._interaction;
     }
     /**
@@ -2158,20 +2220,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param properties 交互属性
      */
     setProperties(properties) {
-      if (!this._isInitialized("getInteraction")) return;
       this._interaction.setProperties(properties);
       this.properties = properties;
     }
     /**
      * 返回交互中涉及的当前指针数，例如，当使用两个手指时为 2。
-     * @returns {number | undefined} 指针数
+     * @returns {number} 指针数
      */
-    // getPointerCount(): number | undefined {
-    //     if (!this._isInitialized('getInteraction')) return;
+    // getPointerCount(): number {
     //     return this._interaction.getPointerCount()
     // }
     getLayer() {
-      if (!this._isInitialized("getInteraction")) return;
       return this.layer;
     }
     setMap(map) {
@@ -2196,7 +2255,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 销毁交互(包括交互的图层)
      */
     destroy() {
-      if (!this._isInitialized("destroy")) return;
       if (isDefined(this.map)) {
         this.map.removeInteraction(this);
       }
@@ -2211,20 +2269,104 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
   }
-  const PACKAGE_NAME$s = "Point";
+  const OMAP_INTERACTION_DEFAULT_PARAMS = {
+    active: false
+  };
+  const OMapInteractionEventTypes = [
+    "change",
+    "change:active",
+    "error",
+    "propertychange"
+  ];
+  function isVaildInteraction(value) {
+    return value instanceof Interaction;
+  }
+  const PACKAGE_NAME$s = "Control";
   const createMessage$s = getPackageMessage(PACKAGE_NAME$s);
+  class Control {
+    // map: Map | null = null;
+    constructor(type) {
+      __publicField(this, "id", null);
+      /**
+       * 交互类型
+       * @type {OMapControlType | null}
+       */
+      __publicField(this, "type", null);
+      /**
+       * 交互实例
+       * @type {OlInteractionInstanceType}
+       */
+      __publicField(this, "_control");
+      /**
+       * 交互事件
+       * @type {Event}
+       */
+      __publicField(this, "events", new Event());
+      this.type = type;
+    }
+    _isInitialized(method) {
+      if (!isDefined(this._control)) {
+        warn_(createMessage$s(method, "未正确实例化"));
+        return false;
+      }
+      return true;
+    }
+    /**
+     * 获取控制实例
+     */
+    getControl() {
+      return this._control;
+    }
+    /**
+     * 获取控制ID
+     * @returns {number | string | null} 控制ID
+     */
+    getId() {
+      return this.id;
+    }
+    /**
+     * 获取控制属性
+     * @returns {Record<string, any>} 控制属性
+     */
+    getProperties() {
+      return this._control.getProperties();
+    }
+    /**
+     * 设置控制属性
+     * @param properties 控制属性
+     */
+    setProperties(properties) {
+      this._control.setProperties(properties);
+    }
+  }
+  function isVaildControl(value) {
+    return value instanceof Control;
+  }
+  const PACKAGE_NAME$r = "Point";
+  const createMessage$r = getPackageMessage(PACKAGE_NAME$r);
   class Point extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
-        error_(createMessage$s("constructor", "参数不能为空"));
-        return;
+        error_(
+          createMessage$r(
+            "constructor",
+            commonMessage.paramsNotDefined("coordinatesOrFeature")
+          )
+        );
       }
       if (coordinatesOrFeature instanceof OlFeature) {
         super("Point", coordinatesOrFeature);
       } else {
-        if (!(coordinatesOrFeature instanceof Lnglat) && !isCoordinatesType(coordinatesOrFeature)) {
-          error_(createMessage$s("constructor", "坐标格式有误"));
-          return;
+        if (!isValidCoordinate(coordinatesOrFeature)) {
+          error_(
+            createMessage$r(
+              "constructor",
+              commonMessage.paramsInvaildFormat(
+                "coordinatesOrFeature",
+                "Lnglat or [x, y]"
+              )
+            )
+          );
         }
         super("Point", coordinatesOrFeature);
         if (isDefined(properties) && isObject(properties)) {
@@ -2232,25 +2374,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         }
       }
     }
-    _init(coordinates, radius) {
+    _init(coordinates) {
       let geometryCoordinates = handleGetLnglatValue(coordinates);
-      if (geometryCoordinates) {
-        this._geometry = new OlGeometry__namespace.Point(geometryCoordinates);
-        this._feature = new OlFeature({
-          geometry: this._geometry
-        });
-      }
+      this._geometry = new OlGeometry__namespace.Point(geometryCoordinates);
+      this._feature = new OlFeature({
+        geometry: this._geometry
+      });
     }
     _initByFeature(feature) {
       this._feature = feature;
       this._geometry = feature.getGeometry();
-    }
-    _isInitialized(method) {
-      if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-        warn_(createMessage$s(method, "未正确实例化"));
-        return false;
-      }
-      return true;
     }
     /**
      * 获取点的坐标
@@ -2258,7 +2391,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getCoordinates() {
       let coordinates = this._geometry.getCoordinates();
-      return new Lnglat(coordinates[0], coordinates[1]);
+      return new Lnglat(coordinates);
     }
     /**
      * 设置点的坐标
@@ -2267,14 +2400,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
-        error_(createMessage$s("setCoordinates", "参数不能为空"));
-        return;
+        error_(
+          createMessage$r(
+            "setCoordinates",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
-      if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-        error_(createMessage$s("setCoordinates", "坐标格式有误"));
-        return;
+      if (!isValidCoordinate(coordinates)) {
+        error_(
+          createMessage$r(
+            "setCoordinates",
+            commonMessage.paramsInvaildFormat("coordinates", "Lnglat or [x, y]")
+          )
+        );
       }
-      let _coordinates = coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
+      let _coordinates = handleGetLnglatValue(coordinates);
       this._geometry.setCoordinates(_coordinates);
     }
     /**
@@ -2295,49 +2436,58 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 点是否在extent范围内
-     * @param {Extent | OlExtentType} extent 
+     * @param {Extent | OlExtentType} extent
      * @returns {boolean | undefined}
      */
     intersectsExtent(extent) {
       if (!isDefined(extent)) {
-        error_(createMessage$s("intersectsExtent", "参数extent不能为空"));
-        return;
+        error_(
+          createMessage$r(
+            "intersectsExtent",
+            commonMessage.paramsNotDefined("extent")
+          )
+        );
       }
-      if (!(extent instanceof Extent) && !isExtentType(extent)) {
-        error_(createMessage$s("intersectsExtent", "坐标格式有误"));
-        return;
+      if (!isValidExtent(extent)) {
+        error_(
+          createMessage$r(
+            "intersectsExtent",
+            commonMessage.paramsInvaildFormat(
+              "extent",
+              "Extent or [xmin, ymin, xmax, ymax]"
+            )
+          )
+        );
       }
-      let _extent = extent instanceof Extent ? extent.getExtent() : extent;
+      let _extent = handleGetExtentValue(extent);
       return this._geometry.intersectsExtent(_extent);
     }
   }
-  function checkLineStringCoordinates(coordinates) {
-    let result = true;
-    if (!isArray(coordinates)) {
-      result = false;
-    }
-    let isInVaildItem = coordinates.some((c) => {
-      return !(c instanceof Lnglat) && !isCoordinatesType(c);
-    });
-    if (isInVaildItem) {
-      result = false;
-    }
-    return result;
+  function isValidLineStringCoordinates(value) {
+    return isArray(value) && value.every((item) => isValidCoordinate(item));
   }
-  const PACKAGE_NAME$r = "LineString";
-  const createMessage$r = getPackageMessage(PACKAGE_NAME$r);
+  const PACKAGE_NAME$q = "LineString";
+  const createMessage$q = getPackageMessage(PACKAGE_NAME$q);
   class LineString extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
-        error_(createMessage$r("constructor", "参数不能为空"));
-        return;
+        error_(
+          createMessage$q(
+            "constructor",
+            commonMessage.paramsNotDefined("coordinatesOrFeature")
+          )
+        );
       }
       if (coordinatesOrFeature instanceof OlFeature) {
         super("LineString", coordinatesOrFeature);
       } else {
-        if (!checkLineStringCoordinates(coordinatesOrFeature)) {
-          error_(createMessage$r("constructor", "坐标格式有误"));
-          return;
+        if (!isValidLineStringCoordinates(coordinatesOrFeature)) {
+          error_(
+            createMessage$q(
+              "constructor",
+              commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+            )
+          );
         }
         super("LineString", coordinatesOrFeature);
         if (isDefined(properties) && isObject(properties)) {
@@ -2345,72 +2495,77 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         }
       }
     }
-    _init(coordinates, radius) {
+    _init(coordinates) {
       let geometryCoordinates = coordinates.map((c) => {
         return handleGetLnglatValue(c);
       });
-      if (geometryCoordinates) {
-        this._geometry = new OlGeometry__namespace.LineString(geometryCoordinates);
-        this._feature = new OlFeature({
-          geometry: this._geometry
-        });
-      }
+      this._geometry = new OlGeometry__namespace.LineString(geometryCoordinates);
+      this._feature = new OlFeature({
+        geometry: this._geometry
+      });
     }
     _initByFeature(feature) {
       this._feature = feature;
       this._geometry = feature.getGeometry();
     }
-    _isInitialized(method) {
-      if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-        warn_(createMessage$r(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     /**
      * 获取线的坐标
-     * @returns {Lnglat[]} 线的坐标
+     * @returns {Array<Lnglat>} 线的坐标
      */
     getCoordinates() {
       let coordinates = this._geometry.getCoordinates();
       return coordinates.map((c) => {
-        return new Lnglat(c[0], c[1]);
+        return new Lnglat(c);
       });
     }
     /**
      * 设置线的坐标
      * @param {OMapLineStringGeometryCoordinatesType} coordinates 线的坐标
-     * @returns {void}
      */
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
-        error_(createMessage$r("setCoordinates", "参数不能为空"));
-        return;
+        error_(
+          createMessage$q(
+            "setCoordinates",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
-      if (!checkLineStringCoordinates(coordinates)) {
-        error_(createMessage$r("setCoordinates", "坐标格式有误"));
-        return;
+      if (!isValidLineStringCoordinates(coordinates)) {
+        error_(
+          createMessage$q(
+            "setCoordinates",
+            commonMessage.paramsInvaildFormat("coordinates")
+          )
+        );
       }
       let _coordinates = coordinates.map((c) => {
-        return c instanceof Lnglat ? c.toArray() : c;
+        return handleGetLnglatValue(c);
       });
       this._geometry.setCoordinates(_coordinates);
     }
     /**
      * 追加坐标
-     * @param {Lnglat | OlCoordinateType} coordinates 坐标
-     * @returns 
+     * @param {OMapPointGeometryCoordinatesType} coordinates 坐标
      */
     appendCoordinate(coordinates) {
       if (!isDefined(coordinates)) {
-        error_(createMessage$r("setCoordinates", "参数不能为空"));
-        return;
+        error_(
+          createMessage$q(
+            "appendCoordinate",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
       if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-        error_(createMessage$r("setCoordinates", "坐标格式有误"));
-        return;
+        error_(
+          createMessage$q(
+            "appendCoordinate",
+            commonMessage.paramsInvaildFormat("coordinates")
+          )
+        );
       }
-      let _coordinates = coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
+      let _coordinates = handleGetLnglatValue(coordinates);
       this._geometry.appendCoordinate(_coordinates);
     }
     /**
@@ -2419,7 +2574,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getFirstCoordinate() {
       let coordinates = this._geometry.getFirstCoordinate();
-      return new Lnglat(coordinates[0], coordinates[1]);
+      return new Lnglat(coordinates);
     }
     /**
      * 获取线的最后一个坐标
@@ -2427,15 +2582,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getLastCoordinate() {
       let coordinates = this._geometry.getLastCoordinate();
-      return new Lnglat(coordinates[0], coordinates[1]);
-    }
-    /**
-     * 获取线的范围
-     * @returns {Extent} 线的范围
-     */
-    getExtent() {
-      let extent = this._geometry.getExtent();
-      return new Extent(extent[0], extent[1], extent[2], extent[3]);
+      return new Lnglat(coordinates);
     }
     getLength() {
       return this._geometry.getLength();
@@ -2448,12 +2595,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getCoordinateAt(fraction, dest) {
       if (!isDefined(fraction)) {
-        error_(createMessage$r("getCoordinateAt", "参数不能为空"));
-        return;
+        error_(createMessage$q("getCoordinateAt", "参数不能为空"));
       }
       if (!(isNumber(fraction) && fraction >= 0 && fraction <= 1)) {
-        error_(createMessage$r("getCoordinateAt", "参数格式有误"));
-        return;
+        error_(createMessage$q("getCoordinateAt", "参数格式有误"));
       }
       let result = [];
       let coordinates = this._geometry.getCoordinateAt(fraction, result);
@@ -2466,7 +2611,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           dest[1] = result[1];
         }
       }
-      return new Lnglat(coordinates[0], coordinates[1]);
+      return new Lnglat(coordinates);
     }
     getCoordinateAtM() {
       return null;
@@ -2483,67 +2628,49 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 线是否在extent范围内
-     * @param {Extent | OlExtentType} extent 
-     * @returns {boolean | undefined}
+     * @param {OMapExtentType} extent
+     * @returns {boolean}
      */
     intersectsExtent(extent) {
       if (!isDefined(extent)) {
-        error_(createMessage$r("intersectsExtent", "参数extent不能为空"));
-        return;
+        error_(createMessage$q("intersectsExtent", "参数extent不能为空"));
       }
-      if (!(extent instanceof Extent) && !isExtentType(extent)) {
-        error_(createMessage$r("intersectsExtent", "坐标格式有误"));
-        return;
+      if (!isValidExtent(extent)) {
+        error_(createMessage$q("intersectsExtent", "坐标格式有误"));
       }
-      let _extent = extent instanceof Extent ? extent.getExtent() : extent;
+      let _extent = handleGetExtentValue(extent);
       return this._geometry.intersectsExtent(_extent);
     }
   }
-  function checkPolygonCoordinates(coordinates) {
-    let result = true;
-    if (!isArray(coordinates)) {
-      result = false;
-    }
-    let isInVaildItem = coordinates.some((c) => !isArray(c));
-    if (isInVaildItem) {
-      result = false;
-    }
-    coordinates.forEach((c) => {
-      c.forEach((c2) => {
-        if (!(c2 instanceof Lnglat) && !isCoordinatesType(c2)) {
-          result = false;
-        }
-      });
-    });
-    return result;
+  function isValidPolygonCoordinates(value) {
+    return isArray(value) && value.every((item) => isValidLineStringCoordinates(item));
   }
-  function checkLinearRingCoordinates(coordinates) {
-    let result = true;
-    if (!isArray(coordinates)) {
-      result = false;
-    }
-    let isInVaildItem = coordinates.some((c) => {
-      return !(c instanceof Lnglat) && !isCoordinatesType(c);
-    });
-    if (isInVaildItem) {
-      result = false;
-    }
-    return result;
+  function isValidLinearRingCoordinates(value) {
+    return isArray(value) && value.every((item) => isValidCoordinate(item));
   }
-  const PACKAGE_NAME$q = "LinearRing";
-  const createMessage$q = getPackageMessage(PACKAGE_NAME$q);
+  const PACKAGE_NAME$p = "LinearRing";
+  const createMessage$p = getPackageMessage(PACKAGE_NAME$p);
   class LinearRing extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
-        error_(createMessage$q("constructor", "参数不能为空"));
+        error_(
+          createMessage$p(
+            "constructor",
+            commonMessage.paramsNotDefined("coordinatesOrFeature")
+          )
+        );
         return;
       }
       if (coordinatesOrFeature instanceof OlFeature) {
         super("LinearRing", coordinatesOrFeature);
       } else {
-        if (!checkLinearRingCoordinates(coordinatesOrFeature)) {
-          error_(createMessage$q("constructor", "坐标格式有误"));
-          return;
+        if (!isValidLinearRingCoordinates(coordinatesOrFeature)) {
+          error_(
+            createMessage$p(
+              "constructor",
+              commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+            )
+          );
         }
         super("LinearRing", coordinatesOrFeature);
         if (properties) {
@@ -2551,27 +2678,18 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         }
       }
     }
-    _init(coordinates, radius) {
+    _init(coordinates) {
       let geometryCoordinates = coordinates.map((c) => {
         return handleGetLnglatValue(c);
       });
-      if (geometryCoordinates) {
-        this._geometry = new OlGeometry__namespace.LinearRing(geometryCoordinates);
-        this._feature = new OlFeature({
-          geometry: this._geometry
-        });
-      }
+      this._geometry = new OlGeometry__namespace.LinearRing(geometryCoordinates);
+      this._feature = new OlFeature({
+        geometry: this._geometry
+      });
     }
     _initByFeature(feature) {
       this._feature = feature;
       this._geometry = feature.getGeometry();
-    }
-    _isInitialized(method) {
-      if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-        warn_(createMessage$q(method, "未正确实例化"));
-        return false;
-      }
-      return true;
     }
     /**
      * 获取LinearRing的坐标
@@ -2579,10 +2697,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getCoordinates() {
       let coordinates = this._geometry.getCoordinates();
-      let _coordinates = coordinates.map((c) => {
-        return new Lnglat(c[0], c[1]);
+      return coordinates.map((c) => {
+        return new Lnglat(c);
       });
-      return _coordinates;
     }
     /**
      * 设置LinearRing的坐标
@@ -2590,33 +2707,49 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
-        error_(createMessage$q("setCoordinates", "参数不能为空"));
-        return;
+        error_(
+          createMessage$p(
+            "setCoordinates",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
-      if (!checkLinearRingCoordinates(coordinates)) {
-        error_(createMessage$q("setCoordinates", "坐标格式有误"));
-        return;
+      if (!isValidLinearRingCoordinates(coordinates)) {
+        error_(
+          createMessage$p(
+            "setCoordinates",
+            commonMessage.paramsInvaildFormat("coordinates")
+          )
+        );
       }
       let _coordinates = coordinates.map((c) => {
-        return c instanceof Lnglat ? c.toArray() : c;
+        return handleGetLnglatValue(c);
       });
       this._geometry.setCoordinates(_coordinates);
     }
   }
-  const PACKAGE_NAME$p = "Polygon";
-  const createMessage$p = getPackageMessage(PACKAGE_NAME$p);
+  const PACKAGE_NAME$o = "Polygon";
+  const createMessage$o = getPackageMessage(PACKAGE_NAME$o);
   class Polygon extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
-        error_(createMessage$p("constructor", "参数不能为空"));
-        return;
+        error_(
+          createMessage$o(
+            "constructor",
+            commonMessage.paramsNotDefined("coordinatesOrFeature")
+          )
+        );
       }
       if (coordinatesOrFeature instanceof OlFeature) {
         super("Polygon", coordinatesOrFeature);
       } else {
-        if (!checkPolygonCoordinates(coordinatesOrFeature)) {
-          error_(createMessage$p("constructor", "坐标格式有误"));
-          return;
+        if (!isValidPolygonCoordinates(coordinatesOrFeature)) {
+          error_(
+            createMessage$o(
+              "constructor",
+              commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+            )
+          );
         }
         super("Polygon", coordinatesOrFeature);
         if (isDefined(properties) && isObject(properties)) {
@@ -2630,34 +2763,25 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           return handleGetLnglatValue(c2);
         });
       });
-      if (geometryCoordinates) {
-        this._geometry = new OlGeometry__namespace.Polygon(geometryCoordinates);
-        this._feature = new OlFeature({
-          geometry: this._geometry
-        });
-      }
+      this._geometry = new OlGeometry__namespace.Polygon(geometryCoordinates);
+      this._feature = new OlFeature({
+        geometry: this._geometry
+      });
     }
     _initByFeature(feature) {
       this._feature = feature;
       this._geometry = feature.getGeometry();
     }
-    _isInitialized(method) {
-      if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-        warn_(createMessage$p(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     /**
      * 获取多边形的坐标
-     * @param {boolean | undefined} rightHanded 是否右手坐标系
+     * @param {boolean} rightHanded 是否右手坐标系
      * @returns {Array<Array<Lnglat>>} 多边形的坐标
      */
-    getCoordinates(rightHanded = void 0) {
+    getCoordinates(rightHanded) {
       let coordinates = this._geometry.getCoordinates(rightHanded);
       let _coordinates = coordinates.map((c) => {
         return c.map((c2) => {
-          return new Lnglat(c2[0], c2[1]);
+          return new Lnglat(c2);
         });
       });
       return _coordinates;
@@ -2668,16 +2792,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
-        error_(createMessage$p("setCoordinates", "参数不能为空"));
-        return;
+        error_(
+          createMessage$o(
+            "setCoordinates",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
-      if (!checkPolygonCoordinates(coordinates)) {
-        error_(createMessage$p("setCoordinates", "坐标格式有误"));
-        return;
+      if (!isValidPolygonCoordinates(coordinates)) {
+        error_(
+          createMessage$o(
+            "setCoordinates",
+            commonMessage.paramsInvaildFormat("coordinates")
+          )
+        );
       }
       let _coordinates = coordinates.map((c) => {
         return c.map((c2) => {
-          return c2 instanceof Lnglat ? c2.toArray() : c2;
+          return handleGetLnglatValue(c2);
         });
       });
       this._geometry.setCoordinates(_coordinates);
@@ -2688,20 +2820,30 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     appendLinearRing(linearRingParams) {
       if (!isDefined(linearRingParams)) {
-        error_(createMessage$p("appendLinearRing", "linearRing参数不能为空"));
-        return;
+        error_(
+          createMessage$o(
+            "appendLinearRing",
+            commonMessage.paramsNotDefined("linearRingParams")
+          )
+        );
       }
-      if (!(linearRingParams instanceof LinearRing) && !checkLinearRingCoordinates(linearRingParams)) {
-        error_(createMessage$p("appendLinearRing", "linearRing参数格式有误"));
-        return;
+      if (!(linearRingParams instanceof LinearRing && isValidLinearRingCoordinates(linearRingParams))) {
+        error_(
+          createMessage$o(
+            "appendLinearRing",
+            commonMessage.paramsInvaildFormat("linearRingParams")
+          )
+        );
       }
       if (linearRingParams instanceof LinearRing) {
-        this._geometry.appendLinearRing(linearRingParams._geometry);
+        this._geometry.appendLinearRing(linearRingParams.getGeometry());
       } else {
         let coordinates = linearRingParams.map((l) => {
-          return l instanceof Lnglat ? l.toArray() : l;
+          return handleGetLnglatValue(l);
         });
-        this._geometry.appendLinearRing(new LinearRing(coordinates)._geometry);
+        this._geometry.appendLinearRing(
+          new LinearRing(coordinates).getGeometry()
+        );
       }
     }
     /**
@@ -2710,7 +2852,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getFirstCoordinate() {
       let coordinates = this._geometry.getFirstCoordinate();
-      return new Lnglat(coordinates[0], coordinates[1]);
+      return new Lnglat(coordinates);
     }
     /**
      * 获取多边形的最后一个坐标（包含内环）
@@ -2718,7 +2860,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getLastCoordinate() {
       let coordinates = this._geometry.getLastCoordinate();
-      return new Lnglat(coordinates[0], coordinates[1]);
+      return new Lnglat(coordinates);
     }
     /**
      * 获取多边形的范围
@@ -2726,7 +2868,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getExtent() {
       let extent = this._geometry.getExtent();
-      return new Extent(extent[0], extent[1], extent[2], extent[3]);
+      return new Extent(extent);
     }
     /**
      * 返回投影平面上多边形的面积
@@ -2737,14 +2879,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 将几何图形中距离传递点最近的点作为坐标返回
-     * @param {Lnglat | OlCoordinateType} point 传递点
-     * @param {*} closestPoint 最近点
+     * @param {OMapCoordinateType} point 传递点
+     * @param {OMapCoordinateType} closestPoint 最近点
      * @returns {Lnglat} 最近点
      */
     getClosestPoint(point, closestPoint) {
-      let coordinates = point instanceof Lnglat ? point.toArray() : point;
+      let coordinates = handleGetLnglatValue(point);
       let result = this._geometry.getClosestPoint(coordinates);
-      let _result = new Lnglat(result[0], result[1]);
+      let _result = new Lnglat(result);
       return _result;
     }
     /**
@@ -2757,32 +2899,44 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 如果该几何形状包含指定的坐标，则返回 true。如果坐标位于几何形状的边界上，则返回 false。
-     * @param {Lnglat | OlCoordinateType} coordinates 
-     * @returns {boolean | undefined}
+     * @param {OMapCoordinateType} coordinates
+     * @returns {boolean}
      */
     intersectsCoordinate(coordinates) {
       if (!isDefined(coordinates)) {
-        error_(createMessage$p("intersectsCoordinate", "参数coordinates不能为空"));
-        return;
+        error_(
+          createMessage$o(
+            "intersectsCoordinate",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
-      let _coordinates = coordinates instanceof Lnglat ? coordinates.toArray() : coordinates;
+      let _coordinates = handleGetLnglatValue(coordinates);
       return this._geometry.intersectsCoordinate(_coordinates);
     }
     /**
      * 线是否在extent范围内
-     * @param {OMapExtentType} extent 
-     * @returns {boolean | undefined}
+     * @param {OMapExtentType} extent
+     * @returns {boolean}
      */
     intersectsExtent(extent) {
       if (!isDefined(extent)) {
-        error_(createMessage$p("intersectsExtent", "参数extent不能为空"));
-        return;
+        error_(
+          createMessage$o(
+            "intersectsExtent",
+            commonMessage.paramsNotDefined("extent")
+          )
+        );
       }
       if (!(extent instanceof Extent) && !isExtentType(extent)) {
-        error_(createMessage$p("intersectsExtent", "坐标格式有误"));
-        return;
+        error_(
+          createMessage$o(
+            "intersectsExtent",
+            commonMessage.paramsInvaildFormat("extent")
+          )
+        );
       }
-      let _extent = extent instanceof Extent ? extent.getExtent() : extent;
+      let _extent = handleGetExtentValue(extent);
       return this._geometry.intersectsExtent(_extent);
     }
     simplify(tolerance = 0) {
@@ -2794,34 +2948,42 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._geometry.translate(deltaX, deltaY);
     }
   }
-  function isVaildConrdinates(coordinates) {
-    let isHaveInVaildItem = coordinates.some((item) => {
-      return !(item instanceof Lnglat) && !isCoordinatesType(item);
-    });
-    return isArray(coordinates) && !isHaveInVaildItem;
-  }
-  const PACKAGE_NAME$o = "MultiPoint";
-  const createMessage$o = getPackageMessage(PACKAGE_NAME$o);
+  const PACKAGE_NAME$n = "MultiPoint";
+  const createMessage$n = getPackageMessage(PACKAGE_NAME$n);
   class MultiPoint extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
-        error_(createMessage$o("constructor", "参数不能为空"));
-        return;
+        error_(
+          createMessage$n(
+            "constructor",
+            commonMessage.paramsNotDefined("coordinatesOrFeature")
+          )
+        );
       }
       if (coordinatesOrFeature instanceof OlFeature) {
         super("MultiPoint", coordinatesOrFeature);
       } else {
-        if (!isVaildConrdinates(coordinatesOrFeature)) {
-          error_(createMessage$o("constructor", "坐标格式有误"));
-          return;
+        if (!coordinatesOrFeature.every((item) => isValidCoordinate(item))) {
+          error_(
+            createMessage$n(
+              "constructor",
+              commonMessage.paramsInvaildFormat(
+                "coordinatesOrFeature",
+                "Array<Lnglat or [x, y]>"
+              )
+            )
+          );
         }
-        super("MultiPoint", coordinatesOrFeature);
+        super(
+          "MultiPoint",
+          coordinatesOrFeature
+        );
         if (isDefined(properties) && isObject(properties)) {
           this.setProperties(properties);
         }
       }
     }
-    _init(coordinates, radius) {
+    _init(coordinates) {
       let geometryCoordinates = coordinates.map((c) => {
         return handleGetLnglatValue(c);
       });
@@ -2836,22 +2998,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._feature = feature;
       this._geometry = feature.getGeometry();
     }
-    _isInitialized(method) {
-      if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-        warn_(createMessage$o(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     /**
      * 获取点的坐标
      * @returns {Lnglat[]} 点的坐标
      */
     getCoordinates() {
-      if (!this._isInitialized("getCoordinates")) return;
       let coordinates = this._geometry.getCoordinates();
       let _coordinates = coordinates.map((c) => {
-        return new Lnglat(...c);
+        return new Lnglat(c);
       });
       return _coordinates;
     }
@@ -2860,150 +3014,175 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {OMapMultiPointGeometryCoordinatesType} coordinates 点的坐标
      */
     setCoordinates(coordinates) {
-      if (!this._isInitialized("setCoordinates")) return;
       if (!isDefined(coordinates)) {
-        error_(createMessage$o("setCoordinates", "参数不能为空"));
-        return;
+        error_(
+          createMessage$n(
+            "setCoordinates",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
-      if (!isVaildConrdinates(coordinates)) {
-        error_(createMessage$o("setCoordinates", "坐标格式有误"));
-        return;
+      if (!coordinates.every((item) => isValidCoordinate(item))) {
+        error_(
+          createMessage$n(
+            "setCoordinates",
+            commonMessage.paramsInvaildFormat(
+              "coordinates",
+              "Array<Lnglat or [x, y]>"
+            )
+          )
+        );
       }
       let _coordinates = coordinates.map((c) => {
-        return c instanceof Lnglat ? c.toArray() : c;
+        return handleGetLnglatValue(c);
       });
       this._geometry.setCoordinates(_coordinates);
     }
     appendPoint(pointOrpointCoordinates) {
-      if (!this._isInitialized("appendPoint")) return;
-      if (!isDefined(pointOrpointCoordinates)) return;
+      if (!isDefined(pointOrpointCoordinates)) {
+        error_(
+          createMessage$n(
+            "appendPoint",
+            commonMessage.paramsNotDefined("pointOrpointCoordinates")
+          )
+        );
+      }
       let _point = null;
       if (pointOrpointCoordinates instanceof Point) {
         _point = pointOrpointCoordinates.getGeometry();
-      } else if (pointOrpointCoordinates instanceof Lnglat) {
-        _point = new OlGeometry__namespace.Point(pointOrpointCoordinates.toArray());
-      } else if (isCoordinatesType(pointOrpointCoordinates)) {
-        _point = new OlGeometry__namespace.Point(pointOrpointCoordinates);
-      }
-      if (!isDefined(_point)) {
-        error_(createMessage$o("appendPoint", "参数格式有误"));
-        return;
+      } else {
+        _point = new OlGeometry__namespace.Point(
+          handleGetLnglatValue(pointOrpointCoordinates)
+        );
       }
       this._geometry.appendPoint(_point);
     }
     getClosestPoint(pointOrpointCoordinates) {
-      if (!this._isInitialized("getClosestPoint")) return;
-      if (!isDefined(pointOrpointCoordinates)) return;
+      if (!isDefined(pointOrpointCoordinates)) {
+        error_(
+          createMessage$n(
+            "getClosestPoint",
+            commonMessage.paramsNotDefined("pointOrpointCoordinates")
+          )
+        );
+      }
       let _point = null;
       if (pointOrpointCoordinates instanceof Point) {
         _point = pointOrpointCoordinates.getCoordinates().toArray();
-      } else if (pointOrpointCoordinates instanceof Lnglat) {
-        _point = pointOrpointCoordinates.toArray();
-      } else if (isCoordinatesType(pointOrpointCoordinates)) {
-        _point = pointOrpointCoordinates;
+      } else {
+        _point = handleGetLnglatValue(pointOrpointCoordinates);
       }
-      if (!isDefined(_point)) return;
       let _closestPoint = this._geometry.getClosestPoint(_point);
-      return new Lnglat(..._closestPoint);
-    }
-    getExtent() {
-      if (!this._isInitialized("getExtent")) return;
-      return new Extent(...this._geometry.getExtent());
+      return new Lnglat(_closestPoint);
     }
     getFirstCoordinate() {
-      if (!this._isInitialized("getFirstCoordinate")) return;
       return new Lnglat(...this._geometry.getFirstCoordinate());
     }
     getLastCoordinate() {
-      if (!this._isInitialized("getLastCoordinate")) return;
       return new Lnglat(...this._geometry.getLastCoordinate());
     }
     getPoint(index) {
-      if (!this._isInitialized("getPoint")) return;
-      if (!isDefined(index)) return;
+      if (!isDefined(index)) {
+        error_(
+          createMessage$n("getPoint", commonMessage.paramsNotDefined("index"))
+        );
+      }
       if (!isNumber(index)) {
-        warn_(createMessage$o("getPoint", "参数index格式有误"));
-        return;
+        error_(
+          createMessage$n(
+            "getPoint",
+            commonMessage.paramsInvaildFormat("index", "number")
+          )
+        );
       }
       let point = this._geometry.getPoint(index);
       return new Point(point.getCoordinates());
     }
     intersectsCoordinate(coordinate2) {
-      if (!this._isInitialized("intersectsCoordinate")) return;
-      if (!isDefined(coordinate2)) return;
+      if (!isDefined(coordinate2)) {
+        error_(
+          createMessage$n(
+            "intersectsCoordinate",
+            commonMessage.paramsNotDefined("coordinate")
+          )
+        );
+      }
       let _coordinate = handleGetLnglatValue(coordinate2);
-      if (!isDefined(_coordinate)) return;
       return this._geometry.intersectsCoordinate(_coordinate);
     }
     intersectsExtent(extent) {
-      if (!this._isInitialized("intersectsExtent")) return;
-      if (!isDefined(extent)) return;
+      if (!isDefined(extent)) {
+        error_(
+          createMessage$n(
+            "intersectsExtent",
+            commonMessage.paramsNotDefined("extent")
+          )
+        );
+      }
       let _extent = handleGetExtentValue(extent);
-      if (!isDefined(_extent)) return;
       return this._geometry.intersectsExtent(_extent);
     }
   }
-  function checkMultiLineStringCoordinates(coordinates) {
-    let isHaveInVaildItem = coordinates.some((item) => {
-      return !isArray(item) || isArray(item) && !checkLineStringCoordinates(item);
-    });
-    return isArray(coordinates) && !isHaveInVaildItem;
+  function isValidMultiLineStringCoordinates(value) {
+    return isArray(value) && value.every((item) => isValidLineStringCoordinates(item));
   }
-  const PACKAGE_NAME$n = "MultiLineString";
-  const createMessage$n = getPackageMessage(PACKAGE_NAME$n);
+  const PACKAGE_NAME$m = "MultiLineString";
+  const createMessage$m = getPackageMessage(PACKAGE_NAME$m);
   class MultiLineString extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
-        error_(createMessage$n("constructor", "参数不能为空"));
-        return;
+        error_(
+          createMessage$m(
+            "constructor",
+            commonMessage.paramsNotDefined("coordinatesOrFeature")
+          )
+        );
       }
       if (coordinatesOrFeature instanceof OlFeature) {
         super("MultiLineString", coordinatesOrFeature);
       } else {
-        if (!checkMultiLineStringCoordinates(coordinatesOrFeature)) {
-          error_(createMessage$n("constructor", "坐标格式有误"));
+        if (!isValidMultiLineStringCoordinates(coordinatesOrFeature)) {
+          error_(
+            createMessage$m(
+              "constructor",
+              commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+            )
+          );
           return;
         }
-        super("MultiLineString", coordinatesOrFeature);
+        super(
+          "MultiLineString",
+          coordinatesOrFeature
+        );
         if (isDefined(properties) && isObject(properties)) {
           this.setProperties(properties);
         }
       }
     }
-    _init(coordinates, radius) {
+    _init(coordinates) {
       let geometryCoordinates = coordinates.map((c) => {
         return c.map((c2) => {
           return handleGetLnglatValue(c2);
         });
       });
-      if (geometryCoordinates) {
-        this._geometry = new OlGeometry__namespace.MultiLineString(geometryCoordinates);
-        this._feature = new OlFeature({
-          geometry: this._geometry
-        });
-      }
+      this._geometry = new OlGeometry__namespace.MultiLineString(geometryCoordinates);
+      this._feature = new OlFeature({
+        geometry: this._geometry
+      });
     }
     _initByFeature(feature) {
       this._feature = feature;
       this._geometry = feature.getGeometry();
-    }
-    _isInitialized(method) {
-      if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-        warn_(createMessage$n(method, "未正确实例化"));
-        return false;
-      }
-      return true;
     }
     /**
      * 获取坐标
      * @returns {Array<Array<Lnglat>>} 坐标
      */
     getCoordinates() {
-      if (!this._isInitialized("getCoordinates")) return;
       let coordinates = this._geometry.getCoordinates();
       let _coordinates = coordinates.map((c) => {
         return c.map((c2) => {
-          return new Lnglat(...c2);
+          return new Lnglat(c2);
         });
       });
       return _coordinates;
@@ -3013,51 +3192,66 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {OMapMultiLineStringGeometryCoordinatesType} coordinates 坐标
      */
     setCoordinates(coordinates) {
-      if (!this._isInitialized("setCoordinates")) return;
       if (!isDefined(coordinates)) {
-        error_(createMessage$n("setCoordinates", "参数不能为空"));
-        return;
+        error_(
+          createMessage$m(
+            "setCoordinates",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
-      if (!checkMultiLineStringCoordinates(coordinates)) {
-        error_(createMessage$n("setCoordinates", "坐标格式有误"));
-        return;
+      if (!isValidMultiLineStringCoordinates(coordinates)) {
+        error_(
+          createMessage$m(
+            "setCoordinates",
+            commonMessage.paramsInvaildFormat("coordinates")
+          )
+        );
       }
       let _coordinates = coordinates.map((c) => {
         return c.map((c2) => {
-          return c2 instanceof Lnglat ? c2.toArray() : c2;
+          return handleGetLnglatValue(c2);
         });
       });
       this._geometry.setCoordinates(_coordinates);
     }
   }
-  function checkMultiPolygonCoordinates(coordinates) {
-    let isHaveInVaildItem = coordinates.some((item) => {
-      return !isArray(item) || isArray(item) && !checkPolygonCoordinates(item);
-    });
-    return isArray(coordinates) && !isHaveInVaildItem;
+  function isValidMultiPolygonCoordinates(value) {
+    return isArray(value) && value.every((item) => isValidPolygonCoordinates(item));
   }
-  const PACKAGE_NAME$m = "MultiPolygon";
-  const createMessage$m = getPackageMessage(PACKAGE_NAME$m);
+  const PACKAGE_NAME$l = "MultiPolygon";
+  const createMessage$l = getPackageMessage(PACKAGE_NAME$l);
   class MultiPolygon extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
-        error_(createMessage$m("constructor", "参数不能为空"));
-        return;
+        error_(
+          createMessage$l(
+            "constructor",
+            commonMessage.paramsNotDefined("coordinatesOrFeature")
+          )
+        );
       }
       if (coordinatesOrFeature instanceof OlFeature) {
         super("MultiPolygon", coordinatesOrFeature);
       } else {
-        if (!checkMultiPolygonCoordinates(coordinatesOrFeature)) {
-          error_(createMessage$m("constructor", "坐标格式有误"));
-          return;
+        if (!isValidMultiPolygonCoordinates(coordinatesOrFeature)) {
+          error_(
+            createMessage$l(
+              "constructor",
+              commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+            )
+          );
         }
-        super("MultiPolygon", coordinatesOrFeature);
+        super(
+          "MultiPolygon",
+          coordinatesOrFeature
+        );
         if (isDefined(properties) && isObject(properties)) {
           this.setProperties(properties);
         }
       }
     }
-    _init(coordinates, radius) {
+    _init(coordinates) {
       let geometryCoordinates = coordinates.map((c) => {
         return c.map((c2) => {
           return c2.map((c3) => {
@@ -3065,35 +3259,25 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           });
         });
       });
-      if (geometryCoordinates) {
-        this._geometry = new OlGeometry__namespace.MultiPolygon(geometryCoordinates);
-        this._feature = new OlFeature({
-          geometry: this._geometry
-        });
-      }
+      this._geometry = new OlGeometry__namespace.MultiPolygon(geometryCoordinates);
+      this._feature = new OlFeature({
+        geometry: this._geometry
+      });
     }
     _initByFeature(feature) {
       this._feature = feature;
       this._geometry = feature.getGeometry();
     }
-    _isInitialized(method) {
-      if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-        warn_(createMessage$m(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     /**
      * 获取坐标
-     * @returns {Array<Array<Array<Lnglat>>>} 坐标
+     * @returns {OMapMultiPolygonGeometryCoordinatesType``} 坐标
      */
     getCoordinates() {
-      if (!this._isInitialized("getCoordinates")) return;
       let coordinates = this._geometry.getCoordinates();
       let _coordinates = coordinates.map((c) => {
         return c.map((c2) => {
           return c2.map((c3) => {
-            return new Lnglat(...c3);
+            return new Lnglat(c3);
           });
         });
       });
@@ -3104,73 +3288,165 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {OMapMultiPolygonGeometryCoordinatesType} coordinates 坐标
      */
     setCoordinates(coordinates) {
-      if (!this._isInitialized("setCoordinates")) return;
       if (!isDefined(coordinates)) {
-        error_(createMessage$m("setCoordinates", "参数不能为空"));
-        return;
+        error_(
+          createMessage$l(
+            "setCoordinates",
+            commonMessage.paramsNotDefined("coordinates")
+          )
+        );
       }
-      if (!checkMultiPolygonCoordinates(coordinates)) {
-        error_(createMessage$m("setCoordinates", "坐标格式有误"));
-        return;
+      if (!isValidMultiPolygonCoordinates(coordinates)) {
+        error_(
+          createMessage$l(
+            "setCoordinates",
+            commonMessage.paramsInvaildFormat("coordinates")
+          )
+        );
       }
       let _coordinates = coordinates.map((c) => {
         return c.map((c2) => {
           return c2.map((c3) => {
-            return c3 instanceof Lnglat ? c3.toArray() : c3;
+            return handleGetLnglatValue(c3);
           });
         });
       });
       this._geometry.setCoordinates(_coordinates);
     }
   }
-  const PACKAGE_NAME$l = "Circle";
-  const createMessage$l = getPackageMessage(PACKAGE_NAME$l);
+  const PACKAGE_NAME$k = "Circle";
+  const createMessage$k = getPackageMessage(PACKAGE_NAME$k);
   class Circle extends BasicFeature {
     constructor(centerOrFeature, radius, properties) {
       if (!isDefined(centerOrFeature)) {
-        error_(createMessage$l("constructor", "参数不能为空"));
-        return;
+        error_(
+          createMessage$k(
+            "constructor",
+            commonMessage.paramsNotDefined("centerOrFeature")
+          )
+        );
       }
       if (centerOrFeature instanceof OlFeature) {
         super("Circle", centerOrFeature);
       } else {
-        if (!(centerOrFeature instanceof Lnglat) && !isCoordinatesType(centerOrFeature)) {
-          error_(createMessage$l("constructor", "坐标格式有误"));
-          return;
+        if (!isValidCoordinate(centerOrFeature)) {
+          error_(
+            createMessage$k(
+              "constructor",
+              commonMessage.paramsInvaildFormat("centerOrFeature")
+            )
+          );
         }
-        if (!isDefined(radius)) {
-          error_(createMessage$l("constructor", "radius参数不能为空"));
-          return;
+        if (!(isDefined(radius) && isNumber(radius))) {
+          error_(
+            createMessage$k(
+              "constructor",
+              commonMessage.paramsInvaildFormat("radius")
+            )
+          );
         }
-        if (!isNumber(radius)) {
-          error_(createMessage$l("constructor", "radius参数格式有误"));
-          return;
-        }
-        super("Circle", centerOrFeature, radius);
-        if (properties) {
+        super(
+          "Circle",
+          centerOrFeature,
+          radius
+        );
+        if (isDefined(properties)) {
           this.setProperties(properties);
         }
       }
     }
     _init(coordinates, radius) {
-      let geometryCoordinates = handleGetLnglatValue(coordinates);
-      if (geometryCoordinates) {
-        this._geometry = new OlGeometry__namespace.Circle(geometryCoordinates, radius);
-        this._feature = new OlFeature({
-          geometry: this._geometry
-        });
-      }
+      let geometryCoordinates = handleGetLnglatValue(
+        coordinates
+      );
+      this._geometry = new OlGeometry__namespace.Circle(geometryCoordinates, radius);
+      this._feature = new OlFeature({
+        geometry: this._geometry
+      });
     }
     _initByFeature(feature) {
       this._feature = feature;
       this._geometry = feature.getGeometry();
     }
-    _isInitialized(method) {
-      if (!isDefined(this._feature) || !isDefined(this._geometry)) {
-        warn_(createMessage$l(method, "未正确实例化"));
-        return false;
+    getCenter() {
+      let center = this._geometry.getCenter();
+      return new Lnglat(center);
+    }
+    setCenter(center) {
+      if (!isDefined(center)) {
+        error_(
+          createMessage$k("setCenter", commonMessage.paramsNotDefined("center"))
+        );
       }
-      return true;
+      if (!isValidCoordinate(center)) {
+        error_(
+          createMessage$k(
+            "setCenter",
+            commonMessage.paramsInvaildFormat("center", "coordinates")
+          )
+        );
+      }
+      let _center = handleGetLnglatValue(center);
+      this._geometry.setCenter(_center);
+    }
+    getRadius() {
+      return this._geometry.getRadius();
+    }
+    setRadius(radius) {
+      if (!isDefined(radius)) {
+        error_(
+          createMessage$k("setRadius", commonMessage.paramsNotDefined("radius"))
+        );
+      }
+      if (!isNumber(radius)) {
+        error_(
+          createMessage$k(
+            "setRadius",
+            commonMessage.paramsInvaildFormat("radius", "number")
+          )
+        );
+      }
+      this._geometry.setRadius(radius);
+    }
+    /**
+     * 获取坐标
+     */
+    getCoordinates() {
+      return this.getCenter();
+    }
+    /**
+     * 设置线的坐标
+     */
+    setCoordinates(center) {
+      this.setCenter(center);
+    }
+    setCenterAndRadius(center, radius) {
+      if (!isDefined(center) || !isDefined(radius)) {
+        error_(
+          createMessage$k(
+            "setCenterAndRadius",
+            commonMessage.paramsListHaveNotDefined("center", "radius")
+          )
+        );
+      }
+      if (!isValidCoordinate(center)) {
+        error_(
+          createMessage$k(
+            "setCenterAndRadius",
+            commonMessage.paramsInvaildFormat("center")
+          )
+        );
+      }
+      if (!isNumber(radius)) {
+        error_(
+          createMessage$k(
+            "setCenterAndRadius",
+            commonMessage.paramsInvaildFormat("radius", "number")
+          )
+        );
+      }
+      let _center = handleGetLnglatValue(center);
+      this._geometry.setCenterAndRadius(_center, radius);
     }
   }
   const OlFeatureTypeObject = {
@@ -3206,15 +3482,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return null;
   }
-  const OMapInteractionCommonParams = {
-    active: false
-  };
-  const OMapInteractionEventTypes = [
-    "change",
-    "change:active",
-    "error",
-    "propertychange"
-  ];
   const DrawMode = {
     /** 点 */
     Point: "Point",
@@ -3584,32 +3851,29 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this.popup;
     }
     updatePosition(position) {
-      if (!this._isInitialized()) return;
       this.popup.setPosition(position);
     }
     setElement(element) {
-      if (!this._isInitialized()) return;
       this.popup.setElement(element);
     }
     getElement() {
-      if (!this._isInitialized()) return;
       return this.popup.getElement();
     }
   }
   const tooltipPopup = new TooltipPopup("单击地图开始测量");
   const measurePopup = new TooltipPopup("");
-  const PACKAGE_NAME$k = "Measure";
-  const createMessage$k = getPackageMessage(PACKAGE_NAME$k);
+  const PACKAGE_NAME$j = "Measure";
+  const createMessage$j = getPackageMessage(PACKAGE_NAME$j);
   let measureFeature = null;
   let measureListener = null;
   let pointMoveListener = null;
   class Measure extends Interaction {
     constructor(mode, params) {
       if (!Object.values(MeasureMode).includes(mode)) {
-        error_(createMessage$k("constructor", "mode参数有误"));
+        error_(createMessage$j("constructor", "mode参数有误"));
         return;
       }
-      super("Measure");
+      super("Measure", { id: params == null ? void 0 : params.id });
       __publicField(this, "mode", null);
       __publicField(this, "result", {
         value: 0,
@@ -3642,7 +3906,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 初始化 测量事件
      */
     initMeasureEvent() {
-      if (!this._isInitialized("initMeasureEvent")) return;
       this._interaction.on("change:active", (e) => {
         if (this._interaction.getActive()) {
           this.onMeasureActive();
@@ -3664,7 +3927,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     onMeasureActive() {
       if (isDefined(this.map)) {
         if (!isDefined(pointMoveListener)) {
-          pointMoveListener = this.map._map.on("pointermove", (e) => {
+          pointMoveListener = this.map.getMap().on("pointermove", (e) => {
             if (isDefined(tooltipPopup)) {
               tooltipPopup.updatePosition(e.coordinate);
             }
@@ -3792,21 +4055,18 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 取消绘制，并结束当前未完成的绘制
      */
     cancel() {
-      if (!this._isInitialized("cancel")) return;
       this._interaction.abortDrawing();
     }
     /**
      * 删除最后一个点
      */
     revoke() {
-      if (!this._isInitialized("revoke")) return;
       this._interaction.removeLastPoint();
     }
     /**
      * 结束当前未完成的绘制
      */
     finish() {
-      if (!this._isInitialized("finish")) return;
       this._interaction.finishDrawing();
     }
     setMap(map) {
@@ -3817,47 +4077,44 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
     on(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$k("on", commonMessage.paramsNotDefined("type or callback")));
+        warn_(createMessage$j("on", commonMessage.paramsNotDefined("type or callback")));
         return;
       }
       if (!isOMapInteractionMeasureEventType(type)) {
-        warn_(createMessage$k("on", commonMessage.paramsInvaildEnum(type)));
+        warn_(createMessage$j("on", commonMessage.paramsInvaildEnum(type)));
         return;
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$k("on", commonMessage.paramsInvaildFormat("callback", "function")));
+        warn_(createMessage$j("on", commonMessage.paramsInvaildFormat("callback", "function")));
         return;
       }
       const id = this.events.on(type, callback);
       return id;
     }
     once(type, callback) {
-      if (!this._isInitialized("once")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$k("once", commonMessage.paramsNotDefined("type or callback")));
+        warn_(createMessage$j("once", commonMessage.paramsNotDefined("type or callback")));
         return;
       }
       if (!isOMapInteractionMeasureEventType(type)) {
-        warn_(createMessage$k("once", commonMessage.paramsInvaildEnum(type)));
+        warn_(createMessage$j("once", commonMessage.paramsInvaildEnum(type)));
         return;
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$k("once", commonMessage.paramsInvaildFormat("callback", "function")));
+        warn_(createMessage$j("once", commonMessage.paramsInvaildFormat("callback", "function")));
         return;
       }
       const id = this.events.once(type, callback);
       return id;
     }
     un(id) {
-      if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$k("un", commonMessage.paramsNotDefined(id)));
+        warn_(createMessage$j("un", commonMessage.paramsNotDefined(id)));
         return;
       }
       if (!isString(id)) {
-        warn_(createMessage$k("un", commonMessage.paramsInvaildFormat(id, "string")));
+        warn_(createMessage$j("un", commonMessage.paramsInvaildFormat(id, "string")));
         return;
       }
       this.events.remove(id);
@@ -3872,8 +4129,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       super.destroy();
     }
   }
-  let PACKAGE_NAME$j = "VectorLayer";
-  let createMessage$j = getPackageMessage(PACKAGE_NAME$j);
+  let PACKAGE_NAME$i = "VectorLayer";
+  let createMessage$i = getPackageMessage(PACKAGE_NAME$i);
   class VectorLayer extends BaseLayer {
     constructor(options = {}) {
       super("Vector", options);
@@ -3893,18 +4150,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._initLayerEvent();
       this.initVectorLyaerEvent();
     }
-    _isInitializedLayer(method) {
-      if (!this._isInitialized(method)) {
-        warn_(createMessage$j(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
     /**
      * 初始化矢量图层事件
      */
     initVectorLyaerEvent() {
-      if (!this._isInitializedLayer("initVectorLyaerEvent")) return;
       this._layer.getSource().on("addfeature", (e) => {
         const { feature } = e;
         console.log("添加feature事件");
@@ -3916,9 +4165,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
             if (basicFeature) {
               this.features.push(basicFeature);
             } else {
-              warn_(createMessage$j("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
+              warn_(createMessage$i("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
             }
-            if (this.target.getActive() && this, this.target instanceof Draw) {
+            if (this.target instanceof Draw && this.target.getActive()) {
               this.target.events.emit(DrawEventType.drawEnd, handleInteractionDrawEvent(this.target, DrawEventType.drawEnd, { feature }));
             }
           }
@@ -3930,7 +4179,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {OMapStyleLike | undefined} style 样式
      */
     initStyle(style) {
-      if (!this._isInitializedLayer("initStyle")) return;
       let _style = void 0;
       if (isDefined(style)) {
         if (style instanceof Style) {
@@ -3945,7 +4193,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
             return styleFnResult ? styleFnResult.getStyle() : void 0;
           };
         } else {
-          warn_(createMessage$j("initStyle", "style格式有误"));
+          warn_(createMessage$i("initStyle", "style格式有误"));
         }
       }
       if (_style) {
@@ -3954,17 +4202,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
     getFeatures() {
-      if (!this._isInitializedLayer("getFeatures")) return;
       return this.features;
     }
     getFeatureById(id) {
-      if (!this._isInitializedLayer("getFeatureById")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$j("setId", "参数id不能为空"));
+        warn_(createMessage$i("setId", "参数id不能为空"));
         return;
       }
       if (!isNumber(id) && !isString(id)) {
-        warn_(createMessage$j("setId", "参数id格式有误"));
+        warn_(createMessage$i("setId", "参数id格式有误"));
         return;
       }
       let target = this.features.find((f) => {
@@ -3973,13 +4219,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return target || void 0;
     }
     getFeaturesInExtent(extent, projection) {
-      if (!this._isInitializedLayer("getFeaturesInExtent")) return;
       if (!isDefined(extent)) {
-        warn_(createMessage$j("getFeaturesInExtent", "extent参数不能为空"));
+        warn_(createMessage$i("getFeaturesInExtent", "extent参数不能为空"));
         return;
       }
       if (!(extent instanceof Extent) && !isExtentType(extent)) {
-        warn_(createMessage$j("getFeaturesInExtent", "extent参数格式有误"));
+        warn_(createMessage$i("getFeaturesInExtent", "extent参数格式有误"));
         return;
       }
       let _extent = extent instanceof Extent ? extent.getExtent() : extent;
@@ -3995,13 +4240,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return _features;
     }
     getFeaturesAtCoordinate(coordinates) {
-      if (!this._isInitializedLayer("getFeaturesAtCoordinate")) return;
       if (!isDefined(coordinates)) {
-        warn_(createMessage$j("getFeaturesAtCoordinate", "coordinates参数不能为空"));
+        warn_(createMessage$i("getFeaturesAtCoordinate", "coordinates参数不能为空"));
         return;
       }
       if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-        warn_(createMessage$j("getFeaturesAtCoordinate", "coordinates参数格式有误"));
+        warn_(createMessage$i("getFeaturesAtCoordinate", "coordinates参数格式有误"));
         return;
       }
       let _coordinates = handleGetLnglatValue(coordinates);
@@ -4017,9 +4261,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return _features;
     }
     addFeature(feature) {
-      if (!this._isInitializedLayer("addFeature")) return;
       if (!isDefined(feature)) {
-        warn_(createMessage$j("addFeature", "参数不能为空"));
+        warn_(createMessage$i("addFeature", "参数不能为空"));
         return;
       }
       if (this._layer.getSource()) {
@@ -4028,9 +4271,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
     addFeatures(features) {
-      if (!this._isInitializedLayer("addFeatures")) return;
       if (!isDefined(features) || !isArray(features)) {
-        warn_(createMessage$j("addFeatures", "参数格式有误不能为空"));
+        warn_(createMessage$i("addFeatures", "参数格式有误不能为空"));
         return;
       }
       if (!isEmptyArray(features)) {
@@ -4040,9 +4282,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
     removeFeature(feature) {
-      if (!this._isInitializedLayer("removeFeature")) return;
       if (!isDefined(feature)) {
-        warn_(createMessage$j("removeFeature", "参数不能为空"));
+        warn_(createMessage$i("removeFeature", "参数不能为空"));
         return;
       }
       if (this._layer.getSource()) {
@@ -4052,9 +4293,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
     removeFeatures(features) {
-      if (!this._isInitializedLayer("removeFeatures")) return;
       if (!isDefined(features) || !isArray(features)) {
-        warn_(createMessage$j("removeFeatures", "参数格式有误不能为空"));
+        warn_(createMessage$i("removeFeatures", "参数格式有误不能为空"));
         return;
       }
       if (!isEmptyArray(features)) {
@@ -4064,7 +4304,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
     clear() {
-      if (!this._isInitializedLayer("clear")) return;
       if (!this._layer.getSource()) {
         return;
       }
@@ -4072,9 +4311,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.features = [];
     }
     forEachFeature(callback) {
-      if (!this._isInitializedLayer("forEachFeature")) return;
       if (!isDefined(callback) || !isFunction(callback)) {
-        warn_(createMessage$j("forEachFeature", "参数格式有误"));
+        warn_(createMessage$i("forEachFeature", "参数格式有误"));
         return;
       }
       this.features.forEach((f, i) => {
@@ -4088,9 +4326,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {void}
      */
     forEachFeatureInExtent(extent, callback) {
-      if (!this._isInitializedLayer("forEachFeatureInExtent")) return;
       if (!isDefined(callback)) {
-        warn_(createMessage$j("forEachFeatureInExtent", "callback参数不能为空"));
+        warn_(createMessage$i("forEachFeatureInExtent", "callback参数不能为空"));
         return;
       }
       this._layer.getSource().forEachFeatureInExtent(extent.getExtent(), (feature) => {
@@ -4108,9 +4345,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {void}
      */
     forEachFeatureIntersectingExtent(extent, callback) {
-      if (!this._isInitializedLayer("forEachFeatureIntersectingExtent")) return;
       if (!isDefined(callback)) {
-        warn_(createMessage$j("forEachFeatureIntersectingExtent", "callback参数不能为空"));
+        warn_(createMessage$i("forEachFeatureIntersectingExtent", "callback参数不能为空"));
         return;
       }
       this._layer.getSource().forEachFeatureIntersectingExtent(extent.getExtent(), (feature) => {
@@ -4122,13 +4358,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       });
     }
     getClosestFeatureToCoordinate(coordinates, filter) {
-      if (!this._isInitializedLayer("getClosestFeatureToCoordinate")) return;
       if (!isDefined(coordinates)) {
-        warn_(createMessage$j("getClosestFeatureToCoordinate", "coordinates参数不能为空"));
+        warn_(createMessage$i("getClosestFeatureToCoordinate", "coordinates参数不能为空"));
         return;
       }
       if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-        warn_(createMessage$j("getClosestFeatureToCoordinate", "coordinates参数格式有误"));
+        warn_(createMessage$i("getClosestFeatureToCoordinate", "coordinates参数格式有误"));
         return;
       }
       let _coordinates = handleGetLnglatValue(coordinates);
@@ -4145,9 +4380,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this.features[resuleIndex];
     }
     getSourceExtent() {
-      if (!this._isInitializedLayer("getSourceExtent")) return;
       const extent = this._layer.getSource().getExtent();
-      return new Extent(extent[0], extent[1], extent[2], extent[3]);
+      return new Extent(extent);
     }
     // 样式管理
     /**
@@ -4155,7 +4389,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {OMapStyleLike | undefined} style 样式
      */
     getStyle() {
-      if (!this._isInitializedLayer("getStyle")) return;
       return this.style;
     }
     /**
@@ -4163,9 +4396,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {OMapStyleLike} style 新样式
      */
     setStyle(style) {
-      if (!this._isInitializedLayer("setStyle")) return;
       if (!isDefined(style)) {
-        warn_(createMessage$j("setStyle", "style参数不能为空"));
+        warn_(createMessage$i("setStyle", "style参数不能为空"));
         return;
       }
       this.initStyle(style);
@@ -4176,26 +4408,25 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns 
      */
     setDeclutter(declutter) {
-      if (!this._isInitializedLayer("setDeclutter")) return;
       this._layer.setDeclutter(declutter);
     }
   }
-  const PACKAGE_NAME$i = "Draw";
-  const createMessage$i = getPackageMessage(PACKAGE_NAME$i);
+  const PACKAGE_NAME$h = "Draw";
+  const createMessage$h = getPackageMessage(PACKAGE_NAME$h);
   class Draw extends Interaction {
     constructor(mode, params) {
+      let _params = defaultValue(params, {});
       if (!Object.values(DrawMode).includes(mode)) {
-        error_(createMessage$i("constructor", "mode参数有误"));
-        return;
+        error_(createMessage$h("constructor", commonMessage.paramsInvaildFormat("mode")));
       }
-      super("Draw");
+      super("Draw", { id: params == null ? void 0 : params.id });
       let draw_source = null;
-      if (params == null ? void 0 : params.layer) {
-        if ((params == null ? void 0 : params.layer) instanceof VectorLayer) {
-          this.layer = params == null ? void 0 : params.layer;
-          draw_source = params == null ? void 0 : params.layer.getSource();
+      if (isDefined(_params.layer)) {
+        if (_params.layer instanceof VectorLayer) {
+          this.layer = _params.layer;
+          draw_source = _params.layer.getSource();
         } else {
-          warn_(createMessage$i("init", "layer参数不属于VectorLayer类型"));
+          warn_(createMessage$h("init", commonMessage.paramsInvaildFormat("layer", "VectorLayer")));
         }
       }
       if (!isDefined(draw_source)) {
@@ -4204,20 +4435,19 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         });
         draw_source = this.layer.getSource();
       }
-      let _params = Object.assign({}, DRAW_DEFAULT_PARAMS$1, {
-        clickTolerance: params == null ? void 0 : params.clickTolerance,
+      let drawParams = Object.assign({}, DRAW_DEFAULT_PARAMS$1, {
+        clickTolerance: _params.clickTolerance,
         source: draw_source,
         features: void 0,
         style: void 0
       });
       this._interaction = new OlInteraction__namespace.Draw({
         ...getOlDrawType$1(mode),
-        ..._params
+        ...drawParams
       });
       this.initInteractionEvent();
     }
     initDrawEvent() {
-      if (!this._isInitialized("initDrawEvent")) return;
       this._interaction.on("drawend", (e) => {
         const feature = e.feature;
         console.log(feature);
@@ -4226,7 +4456,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           if (basicFeature) {
             this.layer.addFeature(basicFeature);
           } else {
-            warn_(createMessage$i("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
+            warn_(createMessage$h("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
           }
         }
       });
@@ -4236,13 +4466,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param coordinates 坐标
      */
     appendCoordinates(coordinates) {
-      if (!this._isInitialized("appendCoordinates")) return;
       if (!isDefined(coordinates)) {
-        warn_(createMessage$i("appendCoordinates", "coordinates参数不能为空"));
-        return;
+        error_(createMessage$h("appendCoordinates", commonMessage.paramsNotDefined("coordinates")));
       }
       let _coordinates = coordinates.map((c) => {
-        return c instanceof Lnglat ? c.toArray() : c;
+        return handleGetLnglatValue(c);
       });
       this._interaction.appendCoordinates(_coordinates);
     }
@@ -4250,21 +4478,18 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 取消绘制，并结束当前未完成的绘制
      */
     cancel() {
-      if (!this._isInitialized("cancel")) return;
       this._interaction.abortDrawing();
     }
     /**
      * 撤销操作（会删除最后一个已经绘制的点位）
      */
     revoke() {
-      if (!this._isInitialized("revoke")) return;
       this._interaction.removeLastPoint();
     }
     /**
      * 结束当前未完成的绘制（并自动补全图形）
      */
     finish() {
-      if (!this._isInitialized("finish")) return;
       this._interaction.finishDrawing();
     }
     destroy(destroyLayer = true) {
@@ -4278,22 +4503,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns 特征数组
      */
     getFeatures() {
-      if (!this._isInitialized("getFeatures")) return;
-      return this.getLayer().getFeatures();
+      if (!isDefined(this.getLayer())) {
+        return [];
+      }
+      return defaultValue(this.getLayer().getFeatures(), []);
     }
     on(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$i("on", commonMessage.paramsNotDefined("type or callback")));
-        return;
+        error_(createMessage$h("on", commonMessage.paramsNotDefined("type or callback")));
       }
       if (!isOMapInteractionDrawEventType(type)) {
-        warn_(createMessage$i("on", commonMessage.paramsInvaildEnum(type)));
-        return;
+        error_(createMessage$h("on", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$i("on", commonMessage.paramsInvaildFormat("callback", "function")));
-        return;
+        error_(createMessage$h("on", commonMessage.paramsInvaildFormat("callback", "function")));
       }
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         if (type !== DrawEventType.drawEnd) {
@@ -4304,18 +4527,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     once(type, callback) {
-      if (!this._isInitialized("once")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$i("once", commonMessage.paramsNotDefined("type or callback")));
-        return;
+        error_(createMessage$h("once", commonMessage.paramsNotDefined("type or callback")));
       }
       if (!isOMapInteractionDrawEventType(type)) {
-        warn_(createMessage$i("once", commonMessage.paramsInvaildEnum(type)));
-        return;
+        error_(createMessage$h("once", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$i("once", commonMessage.paramsInvaildFormat("callback", "function")));
-        return;
+        error_(createMessage$h("once", commonMessage.paramsInvaildFormat("callback", "function")));
       }
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         if (type !== DrawEventType.drawEnd) {
@@ -4326,20 +4545,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     un(id) {
-      if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$i("un", commonMessage.paramsNotDefined(id)));
-        return;
+        error_(createMessage$h("un", commonMessage.paramsNotDefined(id)));
       }
       if (!isString(id)) {
-        warn_(createMessage$i("un", commonMessage.paramsInvaildFormat(id, "string")));
-        return;
+        error_(createMessage$h("un", commonMessage.paramsInvaildFormat(id, "string")));
       }
       this.events.remove(id);
     }
   }
-  let PACKAGE_NAME$h = "LayerGroup";
-  let createMessage$h = getPackageMessage(PACKAGE_NAME$h);
+  let PACKAGE_NAME$g = "LayerGroup";
+  let createMessage$g = getPackageMessage(PACKAGE_NAME$g);
   class LayerGroup {
     constructor(idOrLayers, layers) {
       /**
@@ -4350,7 +4566,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       __publicField(this, "layers", []);
       __publicField(this, "map", null);
       if (!isDefined(idOrLayers)) {
-        error_(createMessage$h("constructor", "参数不能为空"));
+        error_(createMessage$g("constructor", "参数不能为空"));
         return;
       }
       let _layers = defaultValue(layers, []);
@@ -4363,7 +4579,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return isDefined(item) && isDefined(item.getLayer()) && item instanceof BaseLayer;
       });
       if (vaildLayers.length !== _layers.length) {
-        warn_(createMessage$h("constructor", "图层参数错误，必须为BaseLayer实例，已进行过滤"));
+        warn_(createMessage$g("constructor", "图层参数错误，必须为BaseLayer实例，已进行过滤"));
       }
       vaildLayers.forEach((item) => {
         layerState.set(item, {
@@ -4383,18 +4599,18 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     add(layer) {
       if (!isDefined(layer)) {
-        warn_(createMessage$h("add", "参数layer不能为空"));
+        warn_(createMessage$g("add", "参数layer不能为空"));
         return;
       }
       if (!(layer instanceof BaseLayer)) {
-        warn_(createMessage$h("add", "参数layer必须为BaseLayer实例"));
+        warn_(createMessage$g("add", "参数layer必须为BaseLayer实例"));
         return;
       }
       let isExits = this.layers.some((item) => {
         return OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer.getLayer());
       });
       if (isExits) {
-        warn_(createMessage$h("add", "图层已存在"));
+        warn_(createMessage$g("add", "图层已存在"));
         return;
       }
       this.layers.push(layer);
@@ -4407,18 +4623,18 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     remove(layer) {
       if (!isDefined(layer)) {
-        warn_(createMessage$h("add", "参数layer不能为空"));
+        warn_(createMessage$g("add", "参数layer不能为空"));
         return;
       }
       if (!(layer instanceof BaseLayer)) {
-        warn_(createMessage$h("add", "参数layer必须为BaseLayer实例"));
+        warn_(createMessage$g("add", "参数layer必须为BaseLayer实例"));
         return;
       }
       let index = this.layers.findIndex((item) => {
         return OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer.getLayer());
       });
       if (index === -1) {
-        warn_(createMessage$h("remove", "图层不存在"));
+        warn_(createMessage$g("remove", "图层不存在"));
         return;
       }
       this.layers.splice(index, 1);
@@ -4431,14 +4647,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     removeById(id) {
       if (!isDefined(id)) {
-        warn_(createMessage$h("removeById", "参数id不能为空"));
+        warn_(createMessage$g("removeById", "参数id不能为空"));
         return;
       }
       let index = this.layers.findIndex((item) => {
         return isDefined(item.getId()) && item.getId() === id;
       });
       if (index === -1) {
-        warn_(createMessage$h("remove", "图层不存在"));
+        warn_(createMessage$g("remove", "图层不存在"));
         return;
       }
       let layer = this.layers[index];
@@ -4471,6 +4687,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.map = map;
     }
   }
+  function isVaildGroupId(value) {
+    return isNumber(value) || isString(value);
+  }
+  function isVaildLayerGroup(value) {
+    return value instanceof LayerGroup;
+  }
   const defaultMouseWheelZoomOptions = {
     condition: void 0,
     onFocusOnly: false,
@@ -4482,12 +4704,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class MouseWheelZoom extends Interaction {
     constructor(params) {
-      super("MouseWheelZoom");
-      this._interaction = new OlInteraction__namespace.MouseWheelZoom(Object.assign(OMapInteractionCommonParams, defaultMouseWheelZoomOptions, defaultValue(params, {})));
+      super("MouseWheelZoom", { id: params == null ? void 0 : params.id });
+      this._interaction = new OlInteraction__namespace.MouseWheelZoom(Object.assign(OMAP_INTERACTION_DEFAULT_PARAMS, defaultMouseWheelZoomOptions, defaultValue(params, {})));
       this.initInteractionEvent();
-      if (isDefined(params) && isDefined(params.id)) {
-        this._initInteractionId(params.id);
-      }
     }
   }
   const defaultDoubleClickZoomOptions = {
@@ -4496,12 +4715,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class DoubleClickZoom extends Interaction {
     constructor(params) {
-      super("DoubleClickZoom");
-      this._interaction = new OlInteraction__namespace.DoubleClickZoom(Object.assign(OMapInteractionCommonParams, defaultDoubleClickZoomOptions, defaultValue(params, {})));
+      super("DoubleClickZoom", { id: params == null ? void 0 : params.id });
+      this._interaction = new OlInteraction__namespace.DoubleClickZoom(Object.assign(OMAP_INTERACTION_DEFAULT_PARAMS, defaultDoubleClickZoomOptions, defaultValue(params, {})));
       this.initInteractionEvent();
-      if (isDefined(params) && isDefined(params.id)) {
-        this._initInteractionId(params.id);
-      }
     }
   }
   const defaultDragPanOptions = {
@@ -4510,12 +4726,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class DragPan extends Interaction {
     constructor(params) {
-      super("DragPan");
+      super("DragPan", { id: params == null ? void 0 : params.id });
       this._interaction = new OlInteraction__namespace.DragPan(Object.assign({}, defaultDragPanOptions, params || {}));
       this.initInteractionEvent();
-      if (isDefined(params) && isDefined(params.id)) {
-        this._initInteractionId(params.id);
-      }
     }
   }
   const defaultMapInteractions = [
@@ -4580,7 +4793,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     nearest: false,
     minResolution: 0,
     duration: 1e3,
-    easing: "easeOut"
+    easing: "inAndOut",
+    size: void 0
   };
   function MapEventTypeIsMap(type) {
     return type && type.startsWith("map:");
@@ -4596,14 +4810,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       case "map:singleclick":
       case "map:dbclick":
         if (isDefined(e.pixel)) {
-          result.pixel = new Pixel(...e.pixel);
+          result.pixel = new Pixel(e.pixel);
         }
         if (isDefined(e.coordinate)) {
-          result.coordinate = new Lnglat(...e.coordinate);
+          result.coordinate = new Lnglat(e.coordinate);
         }
         break;
       case "map:propertychange":
-        if (e.oldValue) result.oldValue = e.key === "center" ? new Lnglat(...e.oldValue) : e.oldValue;
+        if (e.oldValue) result.oldValue = e.key === "center" ? new Lnglat(e.oldValue) : e.oldValue;
         if (e.key === "size") {
           result.newValue = e.newValue || target.getSize();
         } else {
@@ -4612,7 +4826,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         result.key = e.key;
         break;
       case "map:moveend":
-        if (e.oldCenter) result.oldValue = new Lnglat(...e.oldCenter);
+        if (e.oldCenter) result.oldValue = new Lnglat(e.oldCenter);
         result.newValue = e.newCenter || target.getCenter();
         break;
       case "view:change:resolution":
@@ -4620,7 +4834,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         result.newValue = e.newValue || target.getResolution();
         break;
       case "view:change:center":
-        if (e.oldValue) result.oldValue = new Lnglat(...e.oldValue);
+        if (e.oldValue) result.oldValue = new Lnglat(e.oldValue);
         result.newValue = e.newValue || target.getCenter();
         break;
       case "view:change:rotation":
@@ -4628,7 +4842,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         result.newValue = e.newValue || target.getRotation();
         break;
       case "view:propertychange":
-        if (e.oldValue) result.oldValue = e.key === "center" ? new Lnglat(...e.oldValue) : e.oldValue;
+        if (e.oldValue) result.oldValue = e.key === "center" ? new Lnglat(e.oldValue) : e.oldValue;
         if (e.key === "center") {
           result.newValue = e.newValue || target.getCenter();
         } else if (e.key === "rotation") {
@@ -4656,8 +4870,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return isDefined(interaction) && interaction instanceof Measure && interaction.getActive();
     });
   }
-  const PACKAGE_NAME$g = "Map";
-  const createMessage$g = getPackageMessage(PACKAGE_NAME$g);
+  const PACKAGE_NAME$f = "Map";
+  const createMessage$f = getPackageMessage(PACKAGE_NAME$f);
   let Map$1 = class Map {
     constructor(element, options) {
       __publicField(this, "_map");
@@ -4669,11 +4883,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       __publicField(this, "controls", []);
       __publicField(this, "events", new Event());
       __publicField(this, "popups", []);
-      let _options = options;
+      if (!isDefined(element)) {
+        error_(
+          createMessage$f("constructor", commonMessage.paramsNotDefined("element"))
+        );
+      }
+      let _options = defaultValue(options, {});
       const view_options = _options.view;
       if (!isDefined(view_options)) {
-        error_(createMessage$g("constructor", "view参数不能为空"));
-        return;
+        error_(
+          createMessage$f("constructor", commonMessage.paramsNotDefined("view"))
+        );
       }
       let proj = view_options.projection || new Projection("EPSG:3857");
       if (isString(proj)) {
@@ -4688,8 +4908,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         projection: proj._projection
       };
       const view = new OlPackage__namespace.View(view_params);
-      let mapInteractions = defaultValue(_options.interactions, defaultMapOptions.interactions);
-      let mapControls = defaultValue(_options.controls, defaultMapOptions.controls);
+      let mapInteractions = defaultValue(
+        _options.interactions,
+        defaultMapOptions.interactions
+      );
+      let mapControls = defaultValue(
+        _options.controls,
+        defaultMapOptions.controls
+      );
       let mapPopups = defaultValue(_options.popups, defaultMapOptions.popups);
       let mapParams = Object.assign({}, defaultMapOptions, {
         ..._options,
@@ -4702,9 +4928,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._view = view;
       this._map = map;
       if (isDefined(mapInteractions) && mapInteractions.length > 0) {
-        mapInteractions.forEach((interaction) => {
-          this.addInteraction(interaction);
-        });
+        mapInteractions.forEach(
+          (interaction) => {
+            this.addInteraction(interaction);
+          }
+        );
       }
       if (isDefined(mapControls) && mapControls.length > 0) {
         mapControls.forEach((control) => {
@@ -4718,107 +4946,118 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       this.events = new Event(this);
     }
-    /** 私有守卫：运行期检查 + 类型收窄 */
-    _isInitialized(method) {
-      if (this._map == null || this._view == null) {
-        warn_(createMessage$g(method, "未正确实例化"));
-        return false;
-      }
-      return true;
+    getMap() {
+      return this._map;
+    }
+    getView() {
+      return this._view;
     }
     getSize() {
-      if (!this._isInitialized("getSize")) return;
       let size = this._map.getSize();
-      return new Size(...size);
+      return isDefined(size) ? new Size(size) : void 0;
     }
     setSize(size) {
-      if (!this._isInitialized("getSize")) return;
-      let _size = size instanceof Size ? size._size : size;
+      if (!isDefined(size)) {
+        error_(createMessage$f("setSize", commonMessage.paramsNotDefined("size")));
+      }
+      let _size = handleGetSizeValue(size);
       this._map.setSize(_size);
     }
     // 地图信息相关
     getCenter() {
-      if (!this._isInitialized("getCenter")) return;
       let center = this._view.getCenter();
-      if (!center) return;
-      return new Lnglat(center[0], center[1]);
+      return isDefined(center) ? new Lnglat(center) : void 0;
     }
     setCenter(center) {
-      if (!this._isInitialized("setCenter")) return;
       if (!isDefined(center)) {
-        warn_(createMessage$g("setCenter", "参数center不能为空"));
-        return;
+        error_(
+          createMessage$f("setCenter", commonMessage.paramsNotDefined("center"))
+        );
       }
-      let _center = center instanceof Lnglat ? center._lnglat : center;
+      let _center = handleGetLnglatValue(center);
       this._view.setCenter(_center);
     }
     getZoom() {
-      if (!this._isInitialized("getZoom")) return;
       return this._view.getZoom();
     }
     setZoom(zoom) {
-      if (!this._isInitialized("setZoom")) return;
       if (!isDefined(zoom)) {
-        warn_(createMessage$g("setZoom", "参数zoom不能为空"));
-        return;
+        error_(createMessage$f("setZoom", commonMessage.paramsNotDefined("zoom")));
       }
       if (!isNumber(zoom)) {
-        warn_(createMessage$g("setZoom", "参数zoom必须为number类型"));
-        return;
+        error_(
+          createMessage$f("setZoom", commonMessage.paramsInvaildFormat("zoom"))
+        );
       }
       this._view.setZoom(zoom);
     }
     getResolution() {
-      if (!this._isInitialized("getResolution")) return;
       return this._view.getResolution();
     }
     setResolution(resolution) {
-      if (!this._isInitialized("setResolution")) return;
       if (!isDefined(resolution)) {
-        warn_(createMessage$g("setResolution", "参数resolution不能为空"));
-        return;
+        error_(
+          createMessage$f(
+            "setResolution",
+            commonMessage.paramsNotDefined("resolution")
+          )
+        );
       }
       if (!isNumber(resolution)) {
-        warn_(createMessage$g("setResolution", "参数resolution必须为number类型"));
-        return;
+        error_(
+          createMessage$f(
+            "setResolution",
+            commonMessage.paramsInvaildFormat("resolution")
+          )
+        );
       }
       this._view.setResolution(resolution);
     }
     getRotation() {
-      if (!this._isInitialized("getRotation")) return;
       return this._view.getRotation();
     }
     setRotation(rotation) {
-      if (!this._isInitialized("setRotation")) return;
       if (!isDefined(rotation)) {
-        warn_(createMessage$g("setRotation", "参数rotation不能为空"));
-        return;
+        error_(
+          createMessage$f(
+            "setRotation",
+            commonMessage.paramsNotDefined("rotation")
+          )
+        );
       }
       if (!isNumber(rotation)) {
-        warn_(createMessage$g("setRotation", "参数rotation必须为number类型"));
-        return;
+        error_(
+          createMessage$f(
+            "setRotation",
+            commonMessage.paramsInvaildFormat("rotation")
+          )
+        );
       }
       this._view.setRotation(rotation);
     }
     getExtent() {
-      if (!this._isInitialized("getExtent")) return;
       let _extent = this._view.calculateExtent();
-      let [minX, minY, maxX, maxY] = _extent;
-      return new Extent(minX, minY, maxX, maxY);
+      return new Extent(_extent);
     }
     zoomIn(delta = 1) {
-      if (!this._isInitialized("zoomIn")) return;
       if (isDefined(delta) && !isNumber(delta)) {
-        warn_(createMessage$g("zoomIn", "参数delta必须为number类型"));
-        return;
+        error_(
+          createMessage$f(
+            "zoomIn",
+            commonMessage.paramsInvaildFormat("delta", "number")
+          )
+        );
       }
       this._view.adjustZoom(delta);
     }
     zoomOut(delta = -1) {
-      if (!this._isInitialized("zoomIn")) return;
       if (isDefined(delta) && !isNumber(delta)) {
-        warn_(createMessage$g("zoomIn", "参数delta必须为number类型"));
-        return;
+        error_(
+          createMessage$f(
+            "zoomOut",
+            commonMessage.paramsInvaildFormat("delta", "number")
+          )
+        );
       }
       this._view.adjustZoom(delta);
     }
@@ -4828,29 +5067,19 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {BaseLayer} layer 图层对象
      */
     addLayer(layer) {
-      if (!this._isInitialized("addLayer")) return;
-      if (!isDefined(layer)) {
-        warn_(createMessage$g("addLayer", "图层对象不能为空"));
-        return;
-      }
       if (!(layer instanceof BaseLayer)) {
-        warn_(createMessage$g("addLayer", "图层对象必须为BaseLayer类型"));
-        return;
+        error_(
+          createMessage$f("addLayer", commonMessage.paramsInvaildFormat("layer"))
+        );
       }
-      const layerId = layer.getId();
       let isExist = false;
-      if (isDefined(layerId)) {
-        isExist = this.getLayerById(layerId) !== void 0;
-      } else {
-        isExist = this.layers.some((item) => {
-          return OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer.getLayer());
-        });
-      }
+      const layerId = layer.getId();
+      isExist = isDefined(layerId) ? isDefined(this.getLayerById(layerId)) : this.layers.some((item) => {
+        return OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer.getLayer());
+      });
       if (isExist) {
-        warn_(createMessage$g("addLayer", "图层已存在"));
-        return;
-      }
-      if (isDefined(layer.getLayer())) {
+        warn_(createMessage$f("addLayer", "图层已存在"));
+      } else {
         this.layers.push(layer);
         if (!isDefined(layer.getTarget())) {
           layer.setTarget(this);
@@ -4863,51 +5092,68 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {Array<BaseLayer>} layers 图层数组
      */
     addLayers(layers) {
-      if (!this._isInitialized("addLayer")) return;
       if (!isDefined(layers)) {
-        warn_(createMessage$g("addLayer", "参数layers不能为空"));
-        return;
+        error_(
+          createMessage$f("addLayers", commonMessage.paramsNotDefined("layers"))
+        );
       }
       if (!isArray(layers)) {
-        warn_(createMessage$g("addLayers", "参数layers必须为数组类型"));
-        return;
+        error_(
+          createMessage$f(
+            "addLayers",
+            commonMessage.paramsInvaildFormat("layers", "数组类型")
+          )
+        );
       }
       layers.forEach((item) => {
-        this.addLayer(item);
+        if (item instanceof BaseLayer) {
+          this.addLayer(item);
+        } else {
+          warn_(
+            createMessage$f(
+              "addLayers",
+              commonMessage.haveInvaildDataItem("layers")
+            )
+          );
+        }
       });
     }
     /**
      * 根据id获取图层
      * @param {BaseLayerIdType} id 图层id
-     * @returns {BaseLayer | undefined} 图层对象
+     * @returns {BaseLayer<OMapBaseLayerCommonType> | undefined} 图层对象
      */
     getLayerById(id) {
-      if (!isDefined(id)) {
-        warn_(createMessage$g("getLayerById", "图层id不能为空"));
-        return void 0;
-      }
-      let layer = void 0;
-      this.layers.forEach((item) => {
-        if (item instanceof BaseLayer) {
-          if (isDefined(item.getId()) && item.getId() === id) {
-            layer = item;
-          }
-        }
+      let layer = this.layers.find((item) => {
+        return isDefined(item.getId()) && item.getId() === id;
       });
       return layer;
     }
     /**
      * 移除图层
-     * @param {BaseLayer} layer 图层对象
+     * @param {BaseLayer<OMapBaseLayerCommonType>} layer 图层对象
      */
     removeLayer(layer) {
-      if (!this._isInitialized("removeLayer")) return;
+      if (!isDefined(layer)) {
+        error_(
+          createMessage$f("removeLayer", commonMessage.paramsNotDefined("layer"))
+        );
+      }
+      if (!(layer instanceof BaseLayer)) {
+        error_(
+          createMessage$f(
+            "removeLayer",
+            commonMessage.paramsInvaildFormat("layer", "BaseLayer实例")
+          )
+        );
+      }
       let index = this.layers.indexOf(layer);
       if (index !== -1) {
-        if (layer._layer) {
-          this.layers.splice(index, 1);
-          this._map.removeLayer(layer._layer);
-        }
+        this.layers.splice(index, 1);
+        layer.setTarget(null);
+        this._map.removeLayer(layer.getLayer());
+      } else {
+        warn_(createMessage$f("removeLayer", "图层不存在"));
       }
     }
     /**
@@ -4915,13 +5161,29 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {Array<BaseLayer>} layers 图层数组
      */
     removeLayers(layers) {
-      if (!this._isInitialized("removeLayers")) return;
-      this.layers.forEach((l, index) => {
-        if (layers.includes(l)) {
-          if (l._layer) {
-            this.layers.splice(index, 1);
-            this._map.removeLayer(l._layer);
-          }
+      if (!isDefined(layers)) {
+        error_(
+          createMessage$f("removeLayers", commonMessage.paramsNotDefined("layers"))
+        );
+      }
+      if (!isArray(layers)) {
+        error_(
+          createMessage$f(
+            "removeLayers",
+            commonMessage.paramsInvaildFormat("layers", "数组类型")
+          )
+        );
+      }
+      layers.forEach((item) => {
+        if (item instanceof BaseLayer) {
+          this.removeLayer(item);
+        } else {
+          warn_(
+            createMessage$f(
+              "removeLayers",
+              commonMessage.haveInvaildDataItem("layers")
+            )
+          );
         }
       });
     }
@@ -4929,25 +5191,27 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 根据id移除图层
      * @param {BaseLayerIdType} id 图层id
      */
-    removeLayerById(id) {
-      if (!this._isInitialized("removeLayerById")) return;
-      if (!isDefined(id)) {
-        warn_(createMessage$g("removeLayerById", "图层id不能为空"));
-        return void 0;
+    removeLayerById(layerId) {
+      if (!isDefined(layerId)) {
+        error_(
+          createMessage$f(
+            "removeLayerById",
+            commonMessage.paramsNotDefined("layerId")
+          )
+        );
       }
-      let layer = this.getLayerById(id);
+      let layer = this.getLayerById(layerId);
       if (!isDefined(layer)) {
-        warn_(createMessage$g("removeLayerById", `找不到id为${id}(${isString(id) ? "string" : "number"})的图层`));
-        return false;
+        warn_(createMessage$f("removeLayerById", `找不到id为${layerId}的图层`));
+      } else {
+        this.removeLayer(layer);
       }
-      this.removeLayer(layer);
     }
     /**
      * 获取所有图层
      * @returns {Array<BaseLayer>} 图层数组
      */
     getAllLayers() {
-      if (!this._isInitialized("getAllLayers")) return [];
       return this.layers;
     }
     /** 图层组管理 */
@@ -4956,24 +5220,32 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {LayerGroup} group 图层组实例
      */
     addLayerGroup(group) {
-      if (!this._isInitialized("addLayerGroup")) return;
       if (!isDefined(group)) {
-        warn_(createMessage$g("addLayerGroup", "参数layerGroup不能为空"));
-        return;
+        error_(
+          createMessage$f(
+            "addLayerGroup",
+            commonMessage.paramsNotDefined("layerGroup")
+          )
+        );
       }
-      if (!(group instanceof LayerGroup)) {
-        warn_(createMessage$g("addLayerGroup", "参数layerGroup必须为LayerGroup实例"));
-        return;
+      if (!isVaildLayerGroup(group)) {
+        error_(
+          createMessage$f(
+            "addLayerGroup",
+            commonMessage.paramsInvaildFormat("layerGroup", "LayerGroup实例")
+          )
+        );
       }
       let isExist = false;
-      if (group.getId()) {
-        isExist = this.layerGroups.some((item) => {
-          return isDefined(item.getId()) && item.getId() === group.getId();
-        });
-      }
+      let groupId = group.getId();
+      isExist = isDefined(groupId) ? this.layerGroups.some((item) => {
+        return isDefined(item.getId()) && item.getId() === group.getId();
+      }) : this.layerGroups.some((item) => {
+        return item === group;
+      });
       if (!isExist) {
         group.setMap(this);
-        this.layerGroups.push(group);
+        this.layerGroups = [...this.layerGroups, group];
         this.addLayers(group.getAllLayers());
       }
     }
@@ -4982,25 +5254,35 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {LayerGroup} group 图层组实例
      */
     removeLayerGroup(group) {
-      if (!this._isInitialized("removeLayerGroup")) return;
       if (!isDefined(group)) {
-        warn_(createMessage$g("removeLayerGroup", "参数layerGroup不能为空"));
-        return;
+        error_(
+          createMessage$f(
+            "removeLayerGroup",
+            commonMessage.paramsNotDefined("layerGroup")
+          )
+        );
       }
-      if (!(group instanceof LayerGroup)) {
-        warn_(createMessage$g("removeLayerGroup", "参数layerGroup必须为LayerGroup实例"));
-        return;
+      if (!isVaildLayerGroup(group)) {
+        error_(
+          createMessage$f(
+            "removeLayerGroup",
+            commonMessage.paramsInvaildFormat("layerGroup", "LayerGroup实例")
+          )
+        );
       }
       let index = -1;
-      if (group.getId()) {
-        index = this.layerGroups.findIndex((item) => {
-          return isDefined(item.getId()) && item.getId() === group.getId();
-        });
-      }
+      let groupId = group.getId();
+      index = isDefined(groupId) ? this.layerGroups.findIndex((item) => {
+        return isDefined(item.getId()) && item.getId() === group.getId();
+      }) : this.layerGroups.findIndex((item) => {
+        return item === group;
+      });
       if (index !== -1) {
         group.setMap(null);
         this.removeLayers(group.getAllLayers());
         this.layerGroups = this.layerGroups.splice(index, 1);
+      } else {
+        warn_(createMessage$f("removeLayerGroup", "图层组不存在"));
       }
     }
     /**
@@ -5008,14 +5290,21 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {LayerGroupIdType} groupId 图层组id
      */
     removeLayerGroupById(groupId) {
-      if (!this._isInitialized("removeLayerGroupById")) return;
       if (!isDefined(groupId)) {
-        warn_(createMessage$g("removeLayerGroupById", "参数groupId不能为空"));
-        return;
+        error_(
+          createMessage$f(
+            "removeLayerGroupById",
+            commonMessage.paramsNotDefined("groupId")
+          )
+        );
       }
-      if (!isNumber(groupId) && !isString(groupId)) {
-        warn_(createMessage$g("removeLayerGroupById", "参数groupId必须为number或string类型"));
-        return;
+      if (!isVaildGroupId(groupId)) {
+        error_(
+          createMessage$f(
+            "removeLayerGroupById",
+            commonMessage.paramsInvaildFormat("groupId", "number或string类型")
+          )
+        );
       }
       let index = this.layerGroups.findIndex((item) => {
         return isDefined(item.getId()) && item.getId() === groupId;
@@ -5024,6 +5313,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         this.layerGroups[index].setMap(null);
         this.removeLayers(this.layerGroups[index].getAllLayers());
         this.layerGroups = this.layerGroups.splice(index, 1);
+      } else {
+        warn_(createMessage$f("removeLayerGroupById", "图层组不存在"));
       }
     }
     /**
@@ -5031,7 +5322,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {LayerGroup[]} 所有图层组
      */
     getAllLayerGroups() {
-      if (!this._isInitialized("getAllLayerGroups")) return;
       return this.layerGroups;
     }
     /**
@@ -5042,106 +5332,148 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this.getAllLayerGroups();
     }
     getLayerGroupById(groupId) {
-      if (!this._isInitialized("getLayerGroupById")) return;
       if (!isDefined(groupId)) {
-        warn_(createMessage$g("removeLayerGroupById", "参数groupId不能为空"));
-        return;
+        error_(
+          createMessage$f(
+            "removeLayerGroupById",
+            commonMessage.paramsNotDefined("groupId")
+          )
+        );
       }
-      if (!isNumber(groupId) && !isString(groupId)) {
-        warn_(createMessage$g("removeLayerGroupById", "参数groupId必须为number或string类型"));
-        return;
+      if (!isVaildGroupId(groupId)) {
+        error_(
+          createMessage$f(
+            "removeLayerGroupById",
+            commonMessage.paramsInvaildFormat("groupId", "number或string类型")
+          )
+        );
       }
       let index = this.layerGroups.findIndex((item) => {
         return isDefined(item.getId()) && item.getId() === groupId;
       });
       if (index === -1) {
-        warn_(createMessage$g("getLayerGroupById", "未找到图层组"));
-        return;
+        warn_(createMessage$f("getLayerGroupById", "未找到图层组"));
+        return null;
       }
       return this.layerGroups[index];
     }
     /**
      * 事件管理
-     * @param type 
-     * @param callback 
-     * @returns 
+     * @param type
+     * @param callback
+     * @returns
      */
     on(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$g("on", commonMessage.paramsNotDefined("type or callback")));
-        return;
+        error_(
+          createMessage$f("on", commonMessage.paramsNotDefined("type or callback"))
+        );
       }
       if (!isOMapMapEventType(type)) {
-        warn_(createMessage$g("on", commonMessage.paramsInvaildEnum("type")));
-        return;
+        error_(createMessage$f("on", commonMessage.paramsInvaildEnum("type")));
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$g("on", commonMessage.paramsInvaildFormat("callback", "function")));
-        return;
+        error_(
+          createMessage$f(
+            "on",
+            commonMessage.paramsInvaildFormat("callback", "function")
+          )
+        );
       }
       let isMapTarget = MapEventTypeIsMap(type);
       const target = isMapTarget ? this._map : this._view;
-      const unlisten = OlEvent.listen(target, isMapTarget ? type.replace("map:", "") : type.replace("view:", ""), (e) => {
-        let isInteracting = isMapMeasuring(defaultValue(this.getInteractions(), [])) || isMapDrawing(defaultValue(this.getInteractions(), []));
-        if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) {
-          return false;
+      const unlisten = OlEvent.listen(
+        target,
+        isMapTarget ? type.replace("map:", "") : type.replace("view:", ""),
+        (e) => {
+          let isInteracting = isMapMeasuring(defaultValue(this.getInteractions(), [])) || isMapDrawing(defaultValue(this.getInteractions(), []));
+          if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) {
+            return false;
+          }
+          this.events.emit(type, handleMapOnCallBack(this, type, e));
         }
-        this.events.emit(type, handleMapOnCallBack(this, type, e));
-      });
+      );
       const id = this.events.on(type, callback, unlisten);
       return id;
     }
     once(type, callback) {
-      if (!this._isInitialized("once")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$g("once", commonMessage.paramsNotDefined("type or callback")));
-        return;
+        error_(
+          createMessage$f(
+            "once",
+            commonMessage.paramsNotDefined("type or callback")
+          )
+        );
       }
       if (!isOMapMapEventType(type)) {
-        warn_(createMessage$g("once", commonMessage.paramsInvaildEnum("type")));
-        return;
+        error_(createMessage$f("once", commonMessage.paramsInvaildEnum("type")));
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$g("once", commonMessage.paramsInvaildFormat("callback", "function")));
-        return;
+        error_(
+          createMessage$f(
+            "once",
+            commonMessage.paramsInvaildFormat("callback", "function")
+          )
+        );
       }
       let isMapTarget = MapEventTypeIsMap(type);
       const target = isMapTarget ? this._map : this._view;
-      const unlisten = OlEvent.listen(target, isMapTarget ? type.replace("map:", "") : type.replace("view:", ""), (e) => {
-        let isInteracting = isMapMeasuring(defaultValue(this.getInteractions(), [])) || isMapDrawing(defaultValue(this.getInteractions(), []));
-        if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) {
-          return false;
-        }
-        this.events.emit(type, handleMapOnCallBack(this, type, e));
-      }, target, true);
+      const unlisten = OlEvent.listen(
+        target,
+        isMapTarget ? type.replace("map:", "") : type.replace("view:", ""),
+        (e) => {
+          let isInteracting = isMapMeasuring(defaultValue(this.getInteractions(), [])) || isMapDrawing(defaultValue(this.getInteractions(), []));
+          if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) {
+            return false;
+          }
+          this.events.emit(type, handleMapOnCallBack(this, type, e));
+        },
+        target,
+        true
+      );
       const id = this.events.once(type, callback, unlisten);
       return id;
     }
     un(id) {
-      if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$g("un", commonMessage.paramsNotDefined("id")));
-        return;
+        error_(createMessage$f("un", commonMessage.paramsNotDefined("id")));
       }
       this.events.remove(id);
     }
     /** 属性管理 */
+    /**
+     * 获取地图属性
+     * @returns {Record<string, any>} 地图属性
+     */
     getProperties() {
-      if (!this._isInitialized("getProperties")) return;
       return defaultValue(this._map.getProperties(), {});
     }
+    /**
+     * 设置地图属性
+     * @param {Record<string, any>} properties 地图属性
+     */
     setProperties(properties) {
-      if (!this._isInitialized("setProperties")) return;
       if (!isDefined(properties)) {
-        warn_(createMessage$g("setProperties", commonMessage.paramsNotDefined("properties")));
-        return;
+        error_(
+          createMessage$f(
+            "setProperties",
+            commonMessage.paramsNotDefined("properties")
+          )
+        );
       }
       if (!isObject(properties)) {
-        warn_(createMessage$g("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
-        return;
+        error_(
+          createMessage$f(
+            "setProperties",
+            commonMessage.paramsInvaildFormat("properties", "object类型")
+          )
+        );
       }
-      const newProperties = Object.assign({}, defaultValue(this.getProperties(), {}), properties);
+      const newProperties = Object.assign(
+        {},
+        defaultValue(this.getProperties(), {}),
+        properties
+      );
       this._map.setProperties(newProperties);
     }
     /** 交互管理 */
@@ -5150,22 +5482,38 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {Interaction} interaction 交互对象
      */
     addInteraction(interaction) {
-      if (!this._isInitialized("addInteraction")) return;
+      if (!isDefined(interaction)) {
+        error_(
+          createMessage$f(
+            "addInteraction",
+            commonMessage.paramsNotDefined("interaction")
+          )
+        );
+      }
+      if (!isVaildInteraction(interaction)) {
+        error_(
+          createMessage$f(
+            "addInteraction",
+            commonMessage.paramsInvaildFormat("interaction", "Interaction类型")
+          )
+        );
+      }
       let index = this.interactions.findIndex((i) => {
+        if (isDefined(interaction.getId())) {
+          return interaction.getId() === i.getId();
+        }
         return OlUtil__namespace.getUid(i.getInteraction()) === OlUtil__namespace.getUid(interaction.getInteraction());
       });
       if (index !== -1) {
-        warn_(createMessage$g("addInteraction", "该交互已添加到地图中"));
-        return;
-      }
-      if (interaction instanceof Draw || interaction instanceof Measure) {
-        const layer = interaction.getLayer();
-        if (isDefined(layer)) {
-          layer.setTarget(interaction);
-          this.addLayer(layer);
+        warn_(createMessage$f("addInteraction", "该交互已添加到地图中"));
+      } else {
+        if (interaction instanceof Draw || interaction instanceof Measure) {
+          const layer = interaction.getLayer();
+          if (isDefined(layer)) {
+            layer.setTarget(interaction);
+            this.addLayer(layer);
+          }
         }
-      }
-      if (isDefined(interaction.getInteraction())) {
         let olInteractionInstance = interaction.getInteraction();
         this.interactions.push(interaction);
         this._map.addInteraction(olInteractionInstance);
@@ -5178,17 +5526,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 获取所有交互
-     * @returns {Interaction[] | undefined} 交互数组
+     * @returns {Interaction<OMapInteractionCommonType>[]} 交互数组
      */
     getInteractions() {
-      if (!this._isInitialized("getInteractions")) return;
       return this.interactions;
     }
     getInteractionById(id) {
-      if (!this._isInitialized("addInteraction")) return;
       if (this.interactions.length === 0) return null;
       let index = this.interactions.findIndex((i) => {
-        return i.id === id;
+        return i.getId() === id;
       });
       if (index === -1) {
         return null;
@@ -5197,18 +5543,41 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 移除交互
-     * @param {Interaction} interaction 交互对象
+     * @param {Interaction<OMapInteractionCommonType>} interaction 交互对象
      */
     removeInteraction(interaction) {
-      if (!this._isInitialized("removeInteraction")) return;
+      if (!isDefined(interaction)) {
+        error_(
+          createMessage$f(
+            "addInteraction",
+            commonMessage.paramsNotDefined("interaction")
+          )
+        );
+      }
+      if (!isVaildInteraction(interaction)) {
+        error_(
+          createMessage$f(
+            "addInteraction",
+            commonMessage.paramsInvaildFormat("interaction", "Interaction类型")
+          )
+        );
+      }
       let index = this.interactions.findIndex((i) => {
+        if (isDefined(interaction.getId())) {
+          return interaction.getId() === i.getId();
+        }
         return OlUtil__namespace.getUid(i.getInteraction()) === OlUtil__namespace.getUid(interaction.getInteraction());
       });
       if (index === -1) {
-        warn_(createMessage$g("removeInteraction", "该交互未添加到地图中"));
-        return;
-      }
-      if (isDefined(interaction.getInteraction())) {
+        warn_(createMessage$f("removeInteraction", "该交互未添加到地图中"));
+      } else {
+        if (interaction instanceof Draw || interaction instanceof Measure) {
+          const layer = interaction.getLayer();
+          if (isDefined(layer)) {
+            layer.setTarget(null);
+            this.removeLayer(layer);
+          }
+        }
         this.interactions.splice(index, 1);
         this._map.removeInteraction(interaction.getInteraction());
         interaction.setMap(null);
@@ -5222,12 +5591,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {Control} control 控件对象
      */
     addControl(control) {
-      if (!this._isInitialized("addControl")) return;
+      if (!isDefined(control)) {
+        error_(
+          createMessage$f("addControl", commonMessage.paramsNotDefined("control"))
+        );
+      }
+      if (!isVaildControl(control)) {
+        error_(
+          createMessage$f(
+            "addControl",
+            commonMessage.paramsInvaildFormat("control", "Control类型")
+          )
+        );
+      }
       let index = this.controls.findIndex((i) => {
         return OlUtil__namespace.getUid(i.getControl()) === OlUtil__namespace.getUid(control.getControl());
       });
       if (index !== -1) {
-        warn_(createMessage$g("addControl", "该控件已添加到地图中"));
+        warn_(createMessage$f("addControl", "该控件已添加到地图中"));
         return;
       }
       if (isDefined(control.getControl())) {
@@ -5237,35 +5618,58 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 获取所有控件
-     * @returns {Control[] | undefined} 控件数组
+     * @returns {Control[]} 控件数组
      */
     getControls() {
-      if (!this._isInitialized("getControls")) return;
       return this.controls;
     }
     /**
      * 根据ID获取控件
-     * @param {number | string} id 控件ID
-     * @returns {Control | undefined} 控件对象
+     * @param {OMapControlIdType} id 控件ID
+     * @returns {Control | null} 控件对象
      */
     getControlById(id) {
-      if (!this._isInitialized("getControlById")) return;
+      if (!isDefined(id)) {
+        error_(
+          createMessage$f("getControlById", commonMessage.paramsNotDefined("id"))
+        );
+      }
+      if (!isNumber(id) && !isString(id)) {
+        error_(
+          createMessage$f(
+            "getControlById",
+            commonMessage.paramsInvaildFormat("id", "OMapControlIdType类型")
+          )
+        );
+      }
       const target = this.controls.find((item) => {
         return item.getId() === id;
       });
-      return target;
+      return isDefined(target) ? target : null;
     }
     /**
      * 移除控件
      * @param {Control} control 控件对象
      */
     removeControl(control) {
-      if (!this._isInitialized("removeControl")) return;
+      if (!isDefined(control)) {
+        error_(
+          createMessage$f("addControl", commonMessage.paramsNotDefined("control"))
+        );
+      }
+      if (!isVaildControl(control)) {
+        error_(
+          createMessage$f(
+            "addControl",
+            commonMessage.paramsInvaildFormat("control", "Control类型")
+          )
+        );
+      }
       let index = this.controls.findIndex((i) => {
         return OlUtil__namespace.getUid(i.getControl()) === OlUtil__namespace.getUid(control.getControl());
       });
       if (index === -1) {
-        warn_(createMessage$g("removeControl", "该控件未添加到地图中"));
+        warn_(createMessage$f("removeControl", "该控件未添加到地图中"));
         return;
       }
       if (isDefined(control.getControl())) {
@@ -5273,19 +5677,32 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         this._map.removeControl(control.getControl());
       }
     }
-    // 弹窗管理
+    /**
+     * 弹窗管理
+     */
     /**
      * 添加弹窗
-     * @param popup 
+     * @param popup
      */
     addPopup(popup) {
-      if (!this._isInitialized("addPopup")) return;
-      if (!isDefined(popup)) return;
+      if (!isDefined(popup)) {
+        error_(
+          createMessage$f("addPopup", commonMessage.paramsNotDefined("popup"))
+        );
+      }
+      if (!isVaildPopup(popup)) {
+        error_(
+          createMessage$f(
+            "addPopup",
+            commonMessage.paramsInvaildFormat("popup", "Popup类型")
+          )
+        );
+      }
       let index = this.popups.findIndex((i) => {
         return OlUtil__namespace.getUid(i.getPopup()) === OlUtil__namespace.getUid(popup.getPopup());
       });
       if (index !== -1) {
-        warn_(createMessage$g("addPopup", "该弹窗已添加到地图中"));
+        warn_(createMessage$f("addPopup", "该弹窗已添加到地图中"));
         return;
       }
       if (isDefined(popup.getPopup())) {
@@ -5298,33 +5715,41 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 根据ID获取弹窗
-     * @param {number | string} id 弹窗ID
-     * @returns {Popup} 弹窗对象
+     * @param {OMapPopupIdType} id 弹窗ID
+     * @returns {Popup | null} 弹窗对象
      */
     getPopupById(id) {
-      if (!this._isInitialized("getPopupById")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$g("getPopupById", "参数不能为空"));
-        return;
+        error_(
+          createMessage$f("getPopupById", commonMessage.paramsNotDefined("id"))
+        );
       }
-      if (!isNumber(id) && !isString(id)) {
-        warn_(createMessage$g("getPopupById", "参数必须为数字或字符串"));
-        return;
+      if (!isVaildPopupId(id)) {
+        error_(
+          createMessage$f(
+            "getPopupById",
+            commonMessage.paramsInvaildFormat("id", "OMapPopupIdType类型")
+          )
+        );
       }
       let popup = this.popups.find((popup2) => {
         return isDefined(popup2.getId()) && popup2.getId() === id;
       });
-      return popup;
+      return defaultValue(popup, null);
     }
     getPopupByProperties(filter) {
-      if (!this._isInitialized("getPopupByProperties")) return;
       if (!isDefined(filter)) {
-        warn_(createMessage$g("getPopupById", "参数不能为空"));
-        return;
+        error_(
+          createMessage$f("getPopupById", commonMessage.paramsNotDefined("filter"))
+        );
       }
       if (!isFunction(filter)) {
-        warn_(createMessage$g("getPopupById", "参数必须为数字或字符串"));
-        return;
+        error_(
+          createMessage$f(
+            "getPopupById",
+            commonMessage.paramsInvaildFormat("filter", "函数类型")
+          )
+        );
       }
       const popups = this.popups.filter((p) => {
         if (!isDefined(p.getProperties())) return false;
@@ -5337,7 +5762,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @returns {Popup[]} 弹窗数组
      */
     getPopups() {
-      if (!this._isInitialized("getPopups")) return;
       return this.popups;
     }
     /**
@@ -5345,13 +5769,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {Popup} popup 弹窗对象
      */
     removePopup(popup) {
-      if (!this._isInitialized("removePopup")) return;
-      if (!isDefined(popup)) return;
+      if (!isDefined(popup)) {
+        error_(
+          createMessage$f("addPopup", commonMessage.paramsNotDefined("popup"))
+        );
+      }
+      if (!isVaildPopup(popup)) {
+        error_(
+          createMessage$f(
+            "addPopup",
+            commonMessage.paramsInvaildFormat("popup", "Popup类型")
+          )
+        );
+      }
       let index = this.popups.findIndex((i) => {
         return OlUtil__namespace.getUid(i.getPopup()) === OlUtil__namespace.getUid(popup.getPopup());
       });
       if (index == -1) {
-        warn_(createMessage$g("removePopup", "该弹窗未添加到地图中"));
+        warn_(createMessage$f("removePopup", "该弹窗未添加到地图中"));
         return;
       }
       if (isDefined(popup.getPopup())) {
@@ -5363,84 +5798,160 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
     }
     /** 几何图形计算 */
+    /**
+     * 计算几何图形的长度
+     * @returns {number} 长度
+     */
     getLength(feature) {
-      if (!this._isInitialized("getLength")) return;
       let length = OlSphere__namespace.getLength(feature.getGeometry(), {
         projection: this._map.getView().getProjection()
       });
       return length;
     }
+    /**
+     * 计算几何图形的面积
+     * @returns {number} 面积
+     */
     getArea(feature) {
-      if (!this._isInitialized("getArea")) return;
       let area = OlSphere__namespace.getArea(feature.getGeometry(), {
         projection: this._map.getView().getProjection()
       });
       return area;
     }
     /**
-     * @TODO
      * 遍历地图上指定像素位置的所有特征
-     * @param pixel 像素位置
+     * @param {OMapPixelType} pixel 像素位置
      * @param callback 回调函数
      */
     forEachFeatureAtPixel(pixel, callback, options) {
-      if (!this._isInitialized("forEachFeatureAtPixel")) return;
+      if (!isDefined(pixel)) {
+        error_(
+          createMessage$f(
+            "forEachFeatureAtPixel",
+            commonMessage.paramsNotDefined("pixel")
+          )
+        );
+      }
       let _pixel = handleGetPixelValue(pixel);
-      if (!isDefined(_pixel)) return;
-      const params = Object.assign({}, DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS, options);
-      const result = this._map.forEachFeatureAtPixel(_pixel, (feature, layer) => {
-        let targetFeature = null;
-        let targetLayer = null;
-        this.layers.forEach((item) => {
-          if (isDefined(layer) && OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer)) {
-            targetLayer = item;
-          }
-          if (item instanceof VectorLayer) {
-            let layerFeatures = defaultValue(item.getFeatures(), []);
-            layerFeatures.forEach((f) => {
-              if (OlUtil__namespace.getUid(feature) === OlUtil__namespace.getUid(f.getFeature())) {
-                targetFeature = f;
-              }
-            });
-          }
-        });
-        return callback(targetFeature, targetLayer);
-      }, {
-        ...params,
-        layerFilter: (layer) => {
-          if (!isDefined(params.layerFilter)) return true;
-          const targetLayer = this.layers.find((l) => {
-            return OlUtil__namespace.getUid(l) === OlUtil__namespace.getUid(layer);
+      const params = Object.assign(
+        {},
+        DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS,
+        defaultValue(options, {})
+      );
+      const result = this._map.forEachFeatureAtPixel(
+        _pixel,
+        (feature, layer) => {
+          let targetFeature = null;
+          let targetLayer = null;
+          this.layers.forEach((item) => {
+            if (isDefined(layer) && OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer)) {
+              targetLayer = item;
+            }
+            if (item instanceof VectorLayer) {
+              let layerFeatures = defaultValue(item.getFeatures(), []);
+              layerFeatures.forEach((f) => {
+                if (OlUtil__namespace.getUid(feature) === OlUtil__namespace.getUid(f.getFeature())) {
+                  targetFeature = f;
+                }
+              });
+            }
           });
-          return isDefined(targetLayer) ? params.layerFilter(targetLayer) : false;
+          return callback(targetFeature, targetLayer);
+        },
+        {
+          ...params,
+          layerFilter: (layer) => {
+            if (!isDefined(params.layerFilter)) return true;
+            const targetLayer = this.layers.find((l) => {
+              return OlUtil__namespace.getUid(l) === OlUtil__namespace.getUid(layer);
+            });
+            return isDefined(targetLayer) ? params.layerFilter(targetLayer) : false;
+          }
         }
-      });
+      );
       return result;
     }
+    /**
+     * 获取地图上指定像素位置的坐标位置
+     * @param {OMapPixelType} pixel 像素位置
+     * @returns {Lnglat} 坐标位置
+     */
     getCoordinateFromPixel(pixel) {
-      if (!this._isInitialized("getCoordinateFromPixel")) return;
-      if (!handleGetPixelValue(pixel)) return;
+      if (!isDefined(pixel)) {
+        error_(
+          createMessage$f(
+            "getCoordinateFromPixel",
+            commonMessage.paramsNotDefined("pixel")
+          )
+        );
+      }
+      if (!isValidPixel(pixel)) {
+        error_(
+          createMessage$f(
+            "getCoordinateFromPixel",
+            commonMessage.paramsInvaildFormat("pixel", "OMapPixelType类型")
+          )
+        );
+      }
       const lnglat = this._map.getCoordinateFromPixel(handleGetPixelValue(pixel));
-      return new Lnglat(...lnglat);
+      return new Lnglat(lnglat);
     }
+    /**
+     * 获取地图上指定坐标位置的像素位置
+     * @param {OMapCoordinateType} coordinate 坐标位置
+     * @returns {Pixel} 像素位置
+     */
     getPixelFromCoordinate(coordinate2) {
-      if (!this._isInitialized("getPixelFromCoordinate")) return;
-      if (!handleGetLnglatValue(coordinate2)) return;
-      const pixel = this._map.getPixelFromCoordinate(handleGetLnglatValue(coordinate2));
-      return new Pixel(...pixel);
+      if (!isDefined(coordinate2)) {
+        error_(
+          createMessage$f(
+            "getPixelFromCoordinate",
+            commonMessage.paramsNotDefined("coordinate")
+          )
+        );
+      }
+      if (!isValidCoordinate(coordinate2)) {
+        error_(
+          createMessage$f(
+            "getPixelFromCoordinate",
+            commonMessage.paramsInvaildFormat(
+              "coordinate",
+              "OMapCoordinateType类型"
+            )
+          )
+        );
+      }
+      const pixel = this._map.getPixelFromCoordinate(
+        handleGetLnglatValue(coordinate2)
+      );
+      return new Pixel(pixel);
     }
     getEventCoordinate(event) {
-      if (!this._isInitialized("getEventCoordinate")) return;
-      return new Lnglat(...this._map.getEventCoordinate(event));
+      return new Lnglat(this._map.getEventCoordinate(event));
     }
     getEventPixel(event) {
-      if (!this._isInitialized("getEventPixel")) return;
-      return new Pixel(...this._map.getEventPixel(event));
+      return new Pixel(this._map.getEventPixel(event));
     }
+    /**
+     * 获取地图上指定像素位置的所有特征
+     * @param {OMapPixelType} pixel 像素位置0
+     * @param {OMapForEachFeatureAtPixelOptionsType} options? 遍历选项
+     * @returns {Array<BaseFeature<OlGeometry.Geometry>>} 特征数组
+     */
     getFeaturesAtPixel(pixel, options) {
-      if (!this._isInitialized("getFeaturesAtPixel")) return;
-      if (!handleGetPixelValue(pixel)) return;
-      const params = Object.assign({}, DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS, options);
+      if (!isDefined(pixel)) {
+        error_(
+          createMessage$f(
+            "getFeaturesAtPixel",
+            commonMessage.paramsNotDefined("pixel")
+          )
+        );
+      }
+      const params = Object.assign(
+        {},
+        DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS,
+        defaultValue(options, {})
+      );
       let features = this._map.getFeaturesAtPixel(handleGetPixelValue(pixel), {
         ...params,
         layerFilter: (layer) => {
@@ -5454,7 +5965,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       let featureIds = features.map((f) => {
         return OlUtil__namespace.getUid(f);
       });
-      if (!isDefined(features)) return [];
+      if (!isDefined(features) || features.length === 0) return [];
       const targetFeatures = [];
       this.layers.forEach((layer) => {
         if (layer instanceof VectorLayer) {
@@ -5468,74 +5979,95 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       });
       return targetFeatures;
     }
+    /**
+     * 判断地图上指定像素位置是否有特征
+     * @param {OMapPixelType} pixel 像素位置0
+     * @param {OMapForEachFeatureAtPixelOptionsType} options? 遍历选项
+     * @returns {boolean} 是否有特征
+     */
     hasFeatureAtPixel(pixel, options) {
-      const features = this.getFeaturesAtPixel(pixel, options);
+      const features = this.getFeaturesAtPixel(
+        handleGetPixelValue(pixel),
+        options
+      );
       return isDefined(features) && features.length > 0;
     }
     render() {
-      if (!this._isInitialized("render")) return;
       this._map.render();
     }
     renderSync() {
-      if (!this._isInitialized("renderSync")) return;
       this._map.renderSync();
     }
     updateSize() {
-      if (!this._isInitialized("updateSize")) return;
       this._map.updateSize();
     }
     /**
      * view 视图相关方法
      */
     adjustCenter(deltaCoordinates) {
-      if (!this._isInitialized("adjustCenter")) return;
       if (!isDefined(deltaCoordinates)) {
         return;
       }
       this._view.adjustCenter(handleGetLnglatValue(deltaCoordinates));
     }
     adjustResolution(ratio, anchor) {
-      if (!this._isInitialized("adjustResolution")) return;
-      this._view.adjustResolution(ratio, anchor ? handleGetLnglatValue(anchor) : void 0);
+      this._view.adjustResolution(
+        ratio,
+        anchor ? handleGetLnglatValue(anchor) : void 0
+      );
     }
     adjustRotation(delta, anchor) {
-      if (!this._isInitialized("adjustRotation")) return;
-      this._view.adjustRotation(delta, anchor ? handleGetLnglatValue(anchor) : void 0);
+      this._view.adjustRotation(
+        delta,
+        anchor ? handleGetLnglatValue(anchor) : void 0
+      );
     }
     adjustZoom(delta, anchor) {
-      if (!this._isInitialized("adjustZoom")) return;
-      this._view.adjustZoom(delta, anchor ? handleGetLnglatValue(anchor) : void 0);
+      this._view.adjustZoom(
+        delta,
+        anchor ? handleGetLnglatValue(anchor) : void 0
+      );
     }
     animate(options) {
-      if (!this._isInitialized("animate")) return;
+      let _options = defaultValue(options, {});
       let params = Object.assign({}, OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS, {
-        center: options.center ? handleGetLnglatValue(options.center) : void 0,
-        resolution: options.resolution,
-        rotation: options.rotation,
-        zoom: options.zoom,
-        anchor: options.anchor ? handleGetLnglatValue(options.anchor) : void 0,
-        duration: options.duration,
-        easing: isDefined(options.easing) ? OMapEasing[options.easing] : void 0
+        center: handleGetLnglatValue(_options.center),
+        resolution: _options.resolution,
+        rotation: _options.rotation,
+        zoom: _options.zoom,
+        anchor: handleGetLnglatValue(_options.anchor),
+        duration: _options.duration,
+        easing: isDefined(_options.easing) ? defaultValue(
+          OMapEasing[_options.easing],
+          void 0
+        ) : void 0
       });
       this._view.animate(params);
     }
     beginInteraction() {
-      if (!this._isInitialized("updateSize")) return;
       this._view.beginInteraction();
     }
     calculateExtent(size) {
-      if (!this._isInitialized("calculateExtent")) return;
-      this._view.calculateExtent(isDefined(size) ? handleGetSizeValue(size) : void 0);
+      let extent = this._view.calculateExtent(
+        isDefined(size) ? handleGetSizeValue(size) : void 0
+      );
+      return new Extent(extent);
     }
     cancelAnimations() {
-      if (!this._isInitialized("cancelAnimations")) return;
       this._view.cancelAnimations();
     }
     centerOn(coordinate2, size, position) {
-      if (!this._isInitialized("centerOn")) return;
       if (!isDefined(coordinate2) || !isDefined(size) || !isDefined(position)) {
-        warn_(createMessage$g("centerOn", commonMessage.paramsListHaveNotDefined("coordinate", "size", "position")));
-        return;
+        warn_(
+          createMessage$f(
+            "centerOn",
+            commonMessage.paramsListHaveNotDefined(
+              "coordinate",
+              "size",
+              "position"
+            )
+          )
+        );
       }
       this._view.centerOn(
         handleGetLnglatValue(coordinate2),
@@ -5544,59 +6076,60 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       );
     }
     changed() {
-      if (!this._isInitialized("changed")) return;
       this._view.changed();
     }
     endInteraction(duration, resolutionDirection, anchor) {
-      if (!this._isInitialized("endInteraction")) return;
-      this._view.endInteraction(duration, resolutionDirection, handleGetLnglatValue(anchor));
+      this._view.endInteraction(
+        duration,
+        resolutionDirection,
+        isDefined(anchor) ? handleGetLnglatValue(anchor) : void 0
+      );
     }
     fit(featureOrExtent, options) {
-      if (!this._isInitialized("fit")) return;
-      if (!(featureOrExtent instanceof BasicFeature || featureOrExtent instanceof Extent)) {
-        warn_(createMessage$g("setProperties", commonMessage.paramsInvaildFormat("featureOrExtent", "BaseFeature或Extent类型")));
-        return;
+      if (!isDefined(featureOrExtent)) {
+        error_(
+          createMessage$f("fit", commonMessage.paramsNotDefined("featureOrExtent"))
+        );
+      }
+      if (!(featureOrExtent instanceof BasicFeature) && !isValidExtent(featureOrExtent)) {
+        error_(
+          createMessage$f(
+            "fit",
+            commonMessage.paramsInvaildFormat("featureOrExtent")
+          )
+        );
       }
       let target = featureOrExtent instanceof BasicFeature ? featureOrExtent.getGeometry() : handleGetExtentValue(featureOrExtent);
       const _options = isDefined(options) ? Object.assign({}, OMAP_VIEW_FIT_DEFAULT_OPTIONS, {
         ...options,
-        size: handleGetSizeValue(options.size),
-        easing: isDefined(options.easing) ? OMapEasing[options.easing] : void 0,
-        padding: isDefined(options.padding) ? isNumber(options.padding) ? [options.padding, options.padding, options.padding, options.padding] : options.padding : [0, 0, 0, 0]
+        size: isDefined(options.size) ? handleGetSizeValue(options.size) : void 0,
+        easing: isDefined(options.easing) ? OMapEasing[options.easing] : void 0
       }) : {
         ...OMAP_VIEW_FIT_DEFAULT_OPTIONS,
-        easing: OMapEasing[OMAP_VIEW_FIT_DEFAULT_OPTIONS.easing],
-        padding: [0, 0, 0, 0],
-        size: void 0
+        size: void 0,
+        easing: OMapEasing[OMAP_VIEW_FIT_DEFAULT_OPTIONS.easing]
       };
       this._view.fit(target, _options);
     }
     getAnimating() {
-      if (!this._isInitialized("updateSize")) return;
       return this._view.getAnimating();
     }
     getInteracting() {
-      if (!this._isInitialized("getInteracting")) return;
       return this._view.getInteracting();
     }
     getMaxResolution() {
-      if (!this._isInitialized("getMaxResolution")) return;
       return this._view.getMaxResolution();
     }
     getMinResolution() {
-      if (!this._isInitialized("getMinResolution")) return;
       return this._view.getMinResolution();
     }
     getMaxZoom() {
-      if (!this._isInitialized("getMaxZoom")) return;
       return this._view.getMaxZoom();
     }
     getMinZoom() {
-      if (!this._isInitialized("getMinZoom")) return;
       return this._view.getMinZoom();
     }
     getProjection() {
-      if (!this._isInitialized("getProjection")) return;
       return this.projection;
     }
     getResolutionForExtent() {
@@ -5608,19 +6141,21 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getResolutions() {
     }
     setConstrainResolution(enabled) {
-      if (!this._isInitialized("setConstrainResolution")) return;
       if (!isBoolean(enabled)) {
-        warn_(createMessage$g("setProperties", commonMessage.paramsInvaildFormat("enabled", "boolean类型")));
+        warn_(
+          createMessage$f(
+            "setProperties",
+            commonMessage.paramsInvaildFormat("enabled", "boolean类型")
+          )
+        );
         return;
       }
       return this._view.setConstrainResolution(enabled);
     }
     setMaxZoom(maxZoom) {
-      if (!this._isInitialized("setMaxZoom")) return;
       this._view.setMaxZoom(maxZoom);
     }
     setMinZoom(minZoom) {
-      if (!this._isInitialized("setMinZoom")) return;
       this._view.setMinZoom(minZoom);
     }
   };
@@ -5670,8 +6205,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function getGaodeLayerUrlsByType(type) {
     return GaodeLayerTypeUrls[type];
   }
-  let PACKAGE_NAME$f = "GaodeLayer";
-  let createMessage$f = getPackageMessage(PACKAGE_NAME$f);
+  let PACKAGE_NAME$e = "GaodeLayer";
+  let createMessage$e = getPackageMessage(PACKAGE_NAME$e);
   class GaodeLayer extends BaseLayer {
     constructor(type, options) {
       super("Gaode", defaultValue(options, {}));
@@ -5680,7 +6215,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
        */
       __publicField(this, "gaodeType", null);
       if (!isDefined(type)) {
-        error_(createMessage$f("GaodeLayer", "type参数不能为空"));
+        error_(createMessage$e("GaodeLayer", "type参数不能为空"));
         return;
       }
       let _layerParams = Object.assign({}, DEFAULT_GAODE_LAYER_PARAMS, {
@@ -5741,12 +6276,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._initLayerEvent();
     }
   }
-  const PACKAGE_NAME$e = "ProjUtil";
-  const createMessage$e = getPackageMessage(PACKAGE_NAME$e);
+  const PACKAGE_NAME$d = "ProjUtil";
+  const createMessage$d = getPackageMessage(PACKAGE_NAME$d);
   class ProjUtil {
     static fromLonLat(coordinate2, projection) {
       if (!isDefined(coordinate2)) {
-        warn_(createMessage$e("fromLonLat", "coordinate参数不能为空"));
+        warn_(createMessage$d("fromLonLat", "coordinate参数不能为空"));
         return void 0;
       }
       let _coords = coordinate2;
@@ -5759,7 +6294,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     static toLonLat(coordinate2, projection) {
       if (!isDefined(coordinate2)) {
-        warn_(createMessage$e("toLonLat", "coordinate参数不能为空"));
+        warn_(createMessage$d("toLonLat", "coordinate参数不能为空"));
         return void 0;
       }
       let _coords = coordinate2;
@@ -5970,7 +6505,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     if (isDefined(module2) && isDefined(module2[key])) {
       return module2[key](...args);
     } else {
-      error_(createMessage$d(key, `当前格式化工具不支持${key}方法`));
+      error_(createMessage$c(key, `当前格式化工具不支持${key}方法`));
       return void 0;
     }
   }
@@ -5992,19 +6527,19 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function handleWriteFeaturesObject(type, features, options) {
     return handle(type, "writeFeaturesObject", features, options);
   }
-  const PACKAGE_NAME$d = "Format";
-  const createMessage$d = getPackageMessage(PACKAGE_NAME$d);
+  const PACKAGE_NAME$c = "Format";
+  const createMessage$c = getPackageMessage(PACKAGE_NAME$c);
   class Format {
     constructor(type, options) {
       __publicField(this, "type");
       __publicField(this, "options");
       __publicField(this, "_format");
       if (!isDefined(type)) {
-        error_(createMessage$d("constructor", "初始化参数有误"));
+        error_(createMessage$c("constructor", "初始化参数有误"));
         return;
       }
       if (!isVaildFormatType(type)) {
-        error_(createMessage$d("constructor", "初始化参数有误"));
+        error_(createMessage$c("constructor", "初始化参数有误"));
         return;
       }
       this.type = type;
@@ -6060,8 +6595,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function getTdtServiceUrl(type, proj) {
     return commonUrlTemplate.replace(/\{T\}/g, type + "_" + proj).replace(/\{tk\}/g, MapTokenProxy.tdt);
   }
-  let PACKAGE_NAME$c = "TdtLayer";
-  let createMessage$c = getPackageMessage(PACKAGE_NAME$c);
+  let PACKAGE_NAME$b = "TdtLayer";
+  let createMessage$b = getPackageMessage(PACKAGE_NAME$b);
   class TdtLayer extends BaseLayer {
     constructor(type, options) {
       var _a, _b, _c;
@@ -6071,11 +6606,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
        */
       __publicField(this, "tdtType", null);
       if (!isDefined(MapTokenProxy.tdt)) {
-        warn_(createMessage$c("constructor", "缺少天地图key，请提前申明"));
+        warn_(createMessage$b("constructor", "缺少天地图key，请提前申明"));
         return;
       }
       if (!isDefined(type)) {
-        error_(createMessage$c("constructor", "缺少参数天地图图层类型"));
+        error_(createMessage$b("constructor", "缺少参数天地图图层类型"));
         return;
       }
       let _layeroptions = options || {};
@@ -6111,13 +6646,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     useInterimTilesOnError: true,
     cacheSize: 512
   };
-  let PACKAGE_NAME$b = "TileLayer";
-  let createMessage$b = getPackageMessage(PACKAGE_NAME$b);
+  let PACKAGE_NAME$a = "TileLayer";
+  let createMessage$a = getPackageMessage(PACKAGE_NAME$a);
   class TileLayer extends BaseLayer {
     constructor(options) {
       super("Tile", defaultValue(options, {}));
       if (!isDefined(options.source)) {
-        error_(createMessage$b("constructor", "source参数是必须的"));
+        error_(createMessage$a("constructor", "source参数是必须的"));
         return;
       }
       let _layerParams = Object.assign({}, {
@@ -6155,13 +6690,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     transition: 250,
     zDirection: 0
   };
-  let PACKAGE_NAME$a = "TileLayer";
-  let createMessage$a = getPackageMessage(PACKAGE_NAME$a);
+  let PACKAGE_NAME$9 = "TileLayer";
+  let createMessage$9 = getPackageMessage(PACKAGE_NAME$9);
   class XYZLayer extends BaseLayer {
     constructor(options) {
       super("XYZ", defaultValue(options, {}));
       if (!isDefined(options.source)) {
-        error_(createMessage$a("constructor", "source参数是必须的"));
+        error_(createMessage$9("constructor", "source参数是必须的"));
         return;
       }
       let _layerParams = Object.assign({}, DEFAULT_XYZ_LAYER_PARAMS, {
@@ -6235,13 +6770,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     transition: 250,
     zDirection: 0
   };
-  let PACKAGE_NAME$9 = "WMTSLayer";
-  let createMessage$9 = getPackageMessage(PACKAGE_NAME$9);
+  let PACKAGE_NAME$8 = "WMTSLayer";
+  let createMessage$8 = getPackageMessage(PACKAGE_NAME$8);
   class WMTSLayer extends BaseLayer {
     constructor(options) {
       super("WMS", defaultValue(options, {}));
       if (!isDefined(options.source)) {
-        warn_(createMessage$9("constructor", "缺少source参数"));
+        warn_(createMessage$8("constructor", "缺少source参数"));
         return;
       }
       let _layerParams = Object.assign({}, DEFAULT_WMTS_LAYER_PARAMS, {
@@ -6314,13 +6849,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     transition: 250,
     zDirection: 0
   };
-  let PACKAGE_NAME$8 = "WMSLayer";
-  let createMessage$8 = getPackageMessage(PACKAGE_NAME$8);
+  let PACKAGE_NAME$7 = "WMSLayer";
+  let createMessage$7 = getPackageMessage(PACKAGE_NAME$7);
   class WMSLayer extends BaseLayer {
     constructor(options) {
       super("WMS", defaultValue(options, {}));
       if (!isDefined(options.source)) {
-        warn_(createMessage$8("constructor", "缺少source参数"));
+        warn_(createMessage$7("constructor", "缺少source参数"));
         return;
       }
       let _layerParams = Object.assign({}, DEFAULT_WMS_LAYER_PARAMS, {
@@ -6381,13 +6916,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     imageExtent: new Extent(0, 0, 0, 0),
     url: ""
   };
-  let PACKAGE_NAME$7 = "ImageLayer";
-  let createMessage$7 = getPackageMessage(PACKAGE_NAME$7);
+  let PACKAGE_NAME$6 = "ImageLayer";
+  let createMessage$6 = getPackageMessage(PACKAGE_NAME$6);
   class ImageLayer extends BaseLayer {
     constructor(options) {
       super("Image", defaultValue(options, {}));
       if (!isDefined(options.source)) {
-        warn_(createMessage$7("constructor", "缺少source参数"));
+        warn_(createMessage$6("constructor", "缺少source参数"));
         return;
       }
       let _layerParams = Object.assign({}, DEFAULT_IMAGE_LAYER_PARAMS, {
@@ -6437,11 +6972,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       DragBoxParamsBoxEndHandle.function = null;
     }
   };
-  const PACKAGE_NAME$6 = "DragBox";
-  const createMessage$6 = getPackageMessage(PACKAGE_NAME$6);
+  const PACKAGE_NAME$5 = "DragBox";
+  const createMessage$5 = getPackageMessage(PACKAGE_NAME$5);
   class DragBox extends Interaction {
     constructor(params) {
-      super("DragBox");
+      super("DragBox", { id: params == null ? void 0 : params.id });
       __publicField(this, "extent", null);
       if (isDefined(params) && isDefined(params.onBoxEnd) && isFunction(params.onBoxEnd)) {
         DragBoxParamsBoxEndHandle.initFunction(params.onBoxEnd);
@@ -6451,9 +6986,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.initInteractionEvent();
       this._initDragBoxEvent();
       this.events = new Event(this);
-      if (isDefined(params) && isDefined(params.id)) {
-        this._initInteractionId(params.id);
-      }
     }
     _initDragBoxEvent() {
       this._interaction.on("boxend", (e) => {
@@ -6462,17 +6994,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           this.extent = new Extent(extent);
         }
         DragBoxParamsBoxEndHandle.emit({
-          coordinate: new Lnglat(...e.coordinate),
+          coordinate: new Lnglat(e.coordinate),
           target: this,
           extent: this.extent
         });
       });
     }
     on(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$6("on", "参数不能为空"));
-        return;
+        error_(createMessage$5("on", commonMessage.paramsListHaveNotDefined("type", "callback")));
       }
       let list = this.events.get(type);
       if (!isDefined(list) || list.length === 0) {
@@ -6484,21 +7014,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     un(id) {
-      if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$6("un", "参数不能为空"));
-        return;
-      }
-      if (!isNumber(id)) {
-        warn_(createMessage$6("un", "事件ID应为number类型"));
-        return;
+        error_(createMessage$5("un", "参数不能为空"));
       }
       this.events.remove(id);
     }
     once(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$6("on", "参数不能为空"));
+        warn_(createMessage$5("on", "参数不能为空"));
         return;
       }
       let list = this.events.get(type);
@@ -6526,8 +7049,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       extent: isDefined(e.extent) ? new Extent(e.extent) : null
     };
   }
-  const PACKAGE_NAME$5 = "InteractionExtent";
-  const createMessage$5 = getPackageMessage(PACKAGE_NAME$5);
+  const PACKAGE_NAME$4 = "InteractionExtent";
+  const createMessage$4 = getPackageMessage(PACKAGE_NAME$4);
   const defaultExtentOptions = {
     condition: void 0,
     extent: void 0,
@@ -6538,7 +7061,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class InteractionExtent extends Interaction {
     constructor(params) {
-      super("InteractionExtent");
+      super("InteractionExtent", { id: params == null ? void 0 : params.id });
       let _params = {
         ...defaultValue(params, {})
       };
@@ -6547,49 +7070,38 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       this._interaction = new OlInteraction__namespace.Extent(Object.assign({}, defaultExtentOptions, defaultValue(_params, {})));
       this.initInteractionEvent();
-      if (isDefined(params) && isDefined(params.id)) {
-        this._initInteractionId(params.id);
-      }
     }
     /**
      * 获取当前选框范围
-     * @returns {Extent | undefined} 当前选框范围
+     * @returns {Extent} 当前选框范围
      */
     getExtent() {
-      if (!this._isInitialized("getExtent")) return;
       let extent = this._interaction.getExtent();
-      return isDefined(extent) ? new Extent(...extent) : void 0;
+      return new Extent(extent);
     }
     /**
      * 设置当前选框范围
      * @param {OMapExtentType} extent 选框范围
      */
     setExtent(extent) {
-      if (!this._isInitialized("setExtent")) return;
       if (!isDefined(extent)) {
-        warn_(createMessage$5("setExtent", commonMessage.paramsNotDefined("extent")));
-        return;
+        error_(createMessage$4("setExtent", commonMessage.paramsNotDefined("extent")));
       }
-      if (!isExtentType(extent) || !(extent instanceof Extent)) {
-        warn_(createMessage$5("setExtent", commonMessage.paramsInvaildFormat("extent", "OMap.Extent 或者 Extent数组")));
-        return;
+      if (!isValidExtent(extent)) {
+        error_(createMessage$4("setExtent", commonMessage.paramsInvaildFormat("extent", "OMap.Extent 或者 Extent数组")));
       }
       let _extent = handleGetExtentValue(extent);
       this._interaction.setExtent(_extent);
     }
     on(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$5("on", commonMessage.paramsNotDefined("type or callback")));
-        return;
+        error_(createMessage$4("on", commonMessage.paramsNotDefined("type or callback")));
       }
       if (!isOMapInteractionExtentEventType(type)) {
-        warn_(createMessage$5("on", commonMessage.paramsInvaildEnum(type)));
-        return;
+        error_(createMessage$4("on", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$5("on", commonMessage.paramsInvaildFormat("callback", "function")));
-        return;
+        error_(createMessage$4("on", commonMessage.paramsInvaildFormat("callback", "function")));
       }
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         this.events.emit(type, handleInteractionExtentEvent(this, type, e));
@@ -6598,18 +7110,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     once(type, callback) {
-      if (!this._isInitialized("once")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$5("once", commonMessage.paramsNotDefined("type or callback")));
-        return;
+        error_(createMessage$4("once", commonMessage.paramsNotDefined("type or callback")));
       }
       if (!isOMapInteractionExtentEventType(type)) {
-        warn_(createMessage$5("once", commonMessage.paramsInvaildEnum(type)));
-        return;
+        error_(createMessage$4("once", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$5("once", commonMessage.paramsInvaildFormat("callback", "function")));
-        return;
+        error_(createMessage$4("once", commonMessage.paramsInvaildFormat("callback", "function")));
       }
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         this.events.emit(type, handleInteractionExtentEvent(this, type, e));
@@ -6618,14 +7126,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     un(id) {
-      if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$5("un", commonMessage.paramsNotDefined(id)));
-        return;
-      }
-      if (!isNumber(id)) {
-        warn_(createMessage$5("un", commonMessage.paramsInvaildFormat(id, "string")));
-        return;
+        error_(createMessage$4("un", commonMessage.paramsNotDefined(id)));
       }
       this.events.remove(id);
     }
@@ -6642,8 +7144,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     };
     return result;
   }
-  const PACKAGE_NAME$4 = "Modify";
-  const createMessage$4 = getPackageMessage(PACKAGE_NAME$4);
+  const PACKAGE_NAME$3 = "Modify";
+  const createMessage$3 = getPackageMessage(PACKAGE_NAME$3);
   const defaultModifyOptions = {
     condition: void 0,
     deleteCondition: void 0,
@@ -6659,16 +7161,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   class Modify extends Interaction {
     constructor(params) {
       if (!isDefined(params)) {
-        error_(createMessage$4("init", "params参数不能为空"));
+        error_(createMessage$3("init", "params参数不能为空"));
       }
-      super("Modify");
+      super("Modify", { id: params.id });
       __publicField(this, "records", []);
       let modify_source = null;
       if (!isDefined(params.layer)) {
-        warn_(createMessage$4("init", "layer参数不能为空"));
+        warn_(createMessage$3("init", "layer参数不能为空"));
       }
       if (isDefined(params.layer) && !(params.layer instanceof VectorLayer)) {
-        warn_(createMessage$4("init", "layer参数不属于VectorLayer类型"));
+        warn_(createMessage$3("init", "layer参数不属于VectorLayer类型"));
       }
       this.layer = params.layer;
       modify_source = params.layer.getSource();
@@ -6684,12 +7186,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._initModifyEvent();
     }
     _initModifyEvent() {
-      if (!this._isInitialized("_initModifyEvent")) return;
       let originFeatures = this.layer.getFeatures();
       let originFeaturesList = (originFeatures || []).map((o) => {
         return {
-          id: o.id,
-          originFeatureId: OlUtil__namespace.getUid(o._feature),
+          id: o.getId(),
+          originFeatureId: OlUtil__namespace.getUid(o.getFeature()),
           type: o.type,
           coordinates: o.getCoordinates()
         };
@@ -6708,8 +7209,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           });
           if (target) {
             newList.push({
-              id: target.id,
-              originFeatureId: OlUtil__namespace.getUid(target._feature),
+              id: target.getId(),
+              originFeatureId: OlUtil__namespace.getUid(target.getFeature()),
               type: target.type,
               coordinates: target.getCoordinates()
             });
@@ -6723,11 +7224,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       });
     }
     canInsertPoint() {
-      if (!this._isInitialized("canInsertPoint")) return;
       return this._interaction.canInsertPoint();
     }
     canRemovePoint() {
-      if (!this._isInitialized("canRemovePoint")) return;
       return this._interaction.canRemovePoint();
     }
     /**
@@ -6735,9 +7234,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {OMapCoordinateType} coordinates 点的坐标
      */
     insertPoint(coordinates) {
-      if (!this._isInitialized("insertPoint")) return;
       if (!isDefined(coordinates)) {
-        warn_(createMessage$4("insertPoint", "coordinates参数不能为空"));
+        warn_(createMessage$3("insertPoint", "coordinates参数不能为空"));
         return;
       }
       let _coordinates = handleGetLnglatValue(coordinates);
@@ -6748,9 +7246,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * @param {OMapCoordinateType} coordinates 点的坐标
      */
     removePoint(coordinates) {
-      if (!this._isInitialized("removePoint")) return;
       if (!isDefined(coordinates)) {
-        warn_(createMessage$4("removePoint", "coordinates参数不能为空"));
+        warn_(createMessage$3("removePoint", "coordinates参数不能为空"));
         return;
       }
       let _coordinates = handleGetLnglatValue(coordinates);
@@ -6760,7 +7257,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 撤销修改
      */
     revoke(step = 1) {
-      if (!this._isInitialized("revoke")) return;
       if (this.records.length === 1) return false;
       let nowIndex = this.records.length - 1;
       let targetIndex = nowIndex - step;
@@ -6774,7 +7270,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           if (f.id) {
             return f.id === item.id;
           }
-          return OlUtil__namespace.getUid(item._feature) === f.originFeatureId;
+          return OlUtil__namespace.getUid(item.getFeature()) === f.originFeatureId;
         });
         if (isDefined(target)) {
           target.setCoordinates(f.coordinates);
@@ -6793,7 +7289,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           if (f.id) {
             return f.id === item.id;
           }
-          return OlUtil__namespace.getUid(item._feature) === f.originFeatureId;
+          return OlUtil__namespace.getUid(item.getFeature()) === f.originFeatureId;
         });
         if (target) {
           target.setCoordinates(f.coordinates);
@@ -6804,17 +7300,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       ];
     }
     on(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$4("on", commonMessage.paramsNotDefined("type or callback")));
+        warn_(createMessage$3("on", commonMessage.paramsNotDefined("type or callback")));
         return;
       }
       if (!isOMapInteractionModifyEventType(type)) {
-        warn_(createMessage$4("on", commonMessage.paramsInvaildEnum(type)));
+        warn_(createMessage$3("on", commonMessage.paramsInvaildEnum(type)));
         return;
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$4("on", commonMessage.paramsInvaildFormat("callback", "function")));
+        warn_(createMessage$3("on", commonMessage.paramsInvaildFormat("callback", "function")));
         return;
       }
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
@@ -6824,17 +7319,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     once(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$4("on", commonMessage.paramsNotDefined("type or callback")));
+        warn_(createMessage$3("on", commonMessage.paramsNotDefined("type or callback")));
         return;
       }
       if (!isOMapInteractionModifyEventType(type)) {
-        warn_(createMessage$4("on", commonMessage.paramsInvaildEnum(type)));
+        warn_(createMessage$3("on", commonMessage.paramsInvaildEnum(type)));
         return;
       }
       if (!isFunction(callback)) {
-        warn_(createMessage$4("on", commonMessage.paramsInvaildFormat("callback", "function")));
+        warn_(createMessage$3("on", commonMessage.paramsInvaildFormat("callback", "function")));
         return;
       }
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
@@ -6844,13 +7338,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     un(id) {
-      if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$4("un", commonMessage.paramsNotDefined(id)));
+        warn_(createMessage$3("un", commonMessage.paramsNotDefined(id)));
         return;
       }
       if (!isString(id)) {
-        warn_(createMessage$4("un", commonMessage.paramsInvaildFormat(id, "string")));
+        warn_(createMessage$3("un", commonMessage.paramsInvaildFormat(id, "string")));
         return;
       }
       this.events.remove(id);
@@ -6887,8 +7380,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     };
     return result;
   }
-  const PACKAGE_NAME$3 = "Select";
-  const createMessage$3 = getPackageMessage(PACKAGE_NAME$3);
+  const PACKAGE_NAME$2 = "Select";
+  const createMessage$2 = getPackageMessage(PACKAGE_NAME$2);
   const defaultSelectOptions = {
     layers: void 0,
     style: void 0,
@@ -6900,7 +7393,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class Select extends Interaction {
     constructor(params) {
-      super("Select");
+      super("Select", { id: params == null ? void 0 : params.id });
       /**
        * 当前选择的要素
        */
@@ -6912,7 +7405,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       let layers = [];
       if (isDefined(params == null ? void 0 : params.layers)) {
         updateSelectLayers(params.layers);
-        layers = params.layers.map((l) => l._layer);
+        layers = params.layers.map((l) => l.getLayer());
       }
       if (isDefined(params == null ? void 0 : params.features)) {
         updateSelectFeatures(params.features);
@@ -6945,7 +7438,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
             return styleFnResult ? styleFnResult.getStyle() : void 0;
           };
         } else {
-          warn_(createMessage$3("initStyle", "style格式有误"));
+          warn_(createMessage$2("initStyle", "style格式有误"));
         }
       }
       return _style;
@@ -6955,7 +7448,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return (feature, layer) => {
           var _a;
           let targetFeature = getTargetFeature(OlUtil__namespace.getUid(feature));
-          let targetLayer = (_a = this.map) == null ? void 0 : _a.getAllLayers().find((l) => OlUtil__namespace.getUid(l._layer) === OlUtil__namespace.getUid(layer));
+          let targetLayer = (_a = this.map) == null ? void 0 : _a.getAllLayers().find((l) => OlUtil__namespace.getUid(l.getLayer()) === OlUtil__namespace.getUid(layer));
           return filter(targetFeature, targetLayer);
         };
       } else {
@@ -6966,7 +7459,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 初始化Select事件
      */
     initSelectEvent() {
-      if (!this._isInitialized("initSelectEvent")) return;
       this._interaction.on("select", (e) => {
         const { selected, deselected } = e;
         this.selected = selected.map((s) => {
@@ -6978,17 +7470,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       });
     }
     getSelected() {
-      if (!this._isInitialized("getSelected")) return;
       return this.selected;
     }
     getDeselected() {
-      if (!this._isInitialized("getDeselected")) return;
       return this.deselected;
     }
     on(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$3("on", "参数不能为空"));
+        warn_(createMessage$2("on", "参数不能为空"));
         return;
       }
       let list = this.events.get(type);
@@ -7004,21 +7493,19 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     un(id) {
-      if (!this._isInitialized("un")) return;
       if (!isDefined(id)) {
-        warn_(createMessage$3("un", "参数不能为空"));
+        warn_(createMessage$2("un", "参数不能为空"));
         return;
       }
       if (!isNumber(id) && !isString(id)) {
-        warn_(createMessage$3("un", "事件ID应为number或string类型"));
+        warn_(createMessage$2("un", "事件ID应为number或string类型"));
         return;
       }
       this.events.remove(id);
     }
     once(type, callback) {
-      if (!this._isInitialized("on")) return;
       if (!isDefined(type) || !isDefined(callback)) {
-        warn_(createMessage$3("on", "参数不能为空"));
+        warn_(createMessage$2("on", "参数不能为空"));
         return;
       }
       let list = this.events.get(type);
@@ -7042,7 +7529,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class Link extends Interaction {
     constructor(params) {
-      super("Link");
+      super("Link", { id: params == null ? void 0 : params.id });
       let _params = {
         ...defaultValue(params, {}),
         animate: isDefined(params == null ? void 0 : params.animate) && !isBoolean(params == null ? void 0 : params.animate) ? {
@@ -7052,9 +7539,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       };
       this._interaction = new OlInteraction__namespace.Link(Object.assign({}, defaultLinkOptions, _params));
       this.initInteractionEvent();
-      if (isDefined(params) && isDefined(params.id)) {
-        this._initInteractionId(params.id);
-      }
     }
   }
   const defaultKeyboardZoomOptions = {
@@ -7063,7 +7547,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class KeyboardZoom extends Interaction {
     constructor(params) {
-      super("KeyboardZoom");
+      super("KeyboardZoom", { id: params == null ? void 0 : params.id });
       this._interaction = new OlInteraction__namespace.KeyboardZoom(Object.assign({}, defaultKeyboardZoomOptions, params || {}));
       this.initInteractionEvent();
     }
@@ -7077,12 +7561,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class DragZoom extends Interaction {
     constructor(params) {
-      super("DragZoom");
+      super("DragZoom", { id: params == null ? void 0 : params.id });
       this._interaction = new OlInteraction__namespace.DragZoom(Object.assign({}, defaultDragZoomOptions, defaultValue(params, {})));
       this.initInteractionEvent();
-      if (isDefined(params) && isDefined(params.id)) {
-        this._initInteractionId(params.id);
-      }
     }
   }
   const InteractionType = {
@@ -7106,64 +7587,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     tipLabel: "全屏",
     keys: false
   };
-  const PACKAGE_NAME$2 = "Control";
-  const createMessage$2 = getPackageMessage(PACKAGE_NAME$2);
-  class Control {
-    // map: Map | null = null;
-    constructor(type) {
-      __publicField(this, "id", null);
-      /**
-       * 交互类型
-       * @type {OMapControlType | null}
-       */
-      __publicField(this, "type", null);
-      /**
-       * 交互实例
-       * @type {OlInteractionInstanceType}
-       */
-      __publicField(this, "_control");
-      /**
-       * 交互事件
-       * @type {Event}
-       */
-      __publicField(this, "events", new Event());
-      this.type = type;
-    }
-    _isInitialized(method) {
-      if (!isDefined(this._control)) {
-        warn_(createMessage$2(method, "未正确实例化"));
-        return false;
-      }
-      return true;
-    }
-    /**
-     * 获取控制实例
-     */
-    getControl() {
-      return this._control;
-    }
-    /**
-     * 获取控制ID
-     * @returns {number | string | null} 控制ID
-     */
-    getId() {
-      return this.id;
-    }
-    /**
-     * 获取控制属性
-     * @returns {Record<string, any>} 控制属性
-     */
-    getProperties() {
-      return this._control.getProperties();
-    }
-    /**
-     * 设置控制属性
-     * @param properties 控制属性
-     */
-    setProperties(properties) {
-      this._control.setProperties(properties);
-    }
-  }
   const PACKAGE_NAME$1 = "FullScreen";
   const createMessage$1 = getPackageMessage(PACKAGE_NAME$1);
   class FullScreen extends Control {

@@ -1,12 +1,15 @@
-import { isDefined, isNumber, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import { OlInteraction } from '../../../source/index'
-import type { OMapInteractionCommonParamsType, OMapInteractionType, OlInteractionInstanceType } from './type'
+import { isBoolean, isDefined, isNumber, isString } from '../../../utils/index';
+import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import {
+    type OMapInteractionCommonParamsType,
+    type OMapInteractionTypeEnum,
+    type OMapInteractionType,
+    type OMapInteractionIdType,
+    type OMapInteractionCommonType
+} from './type'
 import Event from '../../../module/util/Event/index'
 import Map from '../../core/Map/index'
 import VectorLayer from '../../layer/VectorLayer/index'
-import Draw from '../Draw/index'
-import Measure from '../Measure/index'
 
 const PACKAGE_NAME = 'Interaction';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -18,53 +21,31 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/8/25
- * @updateDate 2025/9/2
+ * @updateDate 2026/2/3
  */
 
-interface InteractionLike {
-    id: OMapInteractionCommonParamsType['id'];
-    type: OMapInteractionType | null;
-    _interaction?: OlInteractionInstanceType;
-    layer: VectorLayer | null;
-    properties: Record<string, any>;
-    active: boolean;
-    events: Event;
-    map: Map | null;
-}
-
-interface InteractionInitialized {
-    id: OMapInteractionCommonParamsType['id'];
-    type: OMapInteractionType | null;
-    _interaction: OlInteractionInstanceType;
-    layer: VectorLayer | null;
-    properties: Record<string, any>;
-    active: boolean;
-    events: Event;
-    map: Map | null;
-}
-
-export default class Interaction implements InteractionLike {
+export default class Interaction<T extends OMapInteractionCommonType> {
     /**
      * 交互实例id
      */
-    id: OMapInteractionCommonParamsType['id'] = null;
+    id: OMapInteractionIdType = null;
     /**
      * 交互类型
-     * @type {OMapInteractionType | null}
+     * @type {OMapInteractionTypeEnum | null}
      */
-    type: OMapInteractionType | null = null;
+    type: OMapInteractionTypeEnum | null = null;
 
     /**
      * 交互实例
-     * @type {OlInteractionInstanceType}
+     * @type {T}
      */
-    _interaction?: OlInteractionInstanceType;
+    protected _interaction!: T;
 
     /**
      * 交互所需要的图层
      * @type {VectorLayer} layer
      */
-    layer: VectorLayer | null = null;
+    protected layer: VectorLayer | null = null;
     /**
      * 交互属性
      * @type {Record<string, any>} 
@@ -84,57 +65,63 @@ export default class Interaction implements InteractionLike {
 
     map: Map | null = null;
 
-    constructor(type: OMapInteractionType) {
+    constructor(type: OMapInteractionTypeEnum, params: OMapInteractionCommonParamsType) {
         this.type = type;
+        if (isDefined(params) && isDefined(params.id)) {
+            this.setId(params.id)
+        }
         this.events = new Event(this);
     }
 
     protected initInteractionEvent() {
-
-        this._interaction.on("change:active", (e) => {
+        this.getInteraction().on("change:active", (e: any) => {
             if (e.type === 'change:active') {
-                this.active = (this.getActive() as boolean)
+                this.active = (this.getActive())
             }
         })
     }
-
-    protected _isInitialized(method: string): this is InteractionInitialized & this {
-        if (!isDefined(this._interaction)) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
+    
+    /**
+     * 获取交互实例id
+     * @returns {OMapInteractionIdType} 交互实例id
+     */
+    getId(): OMapInteractionIdType {
+        return this.id
     }
 
-    protected _initInteractionId(id: OMapInteractionCommonParamsType['id']): void {
-        if (!isDefined(id)) return;
+    setId(id: OMapInteractionIdType) {
+        if (!isDefined(id)) {
+            warn_(createMessage('_initInteractionId', commonMessage.paramsNotDefined('id')))
+            return;
+        }
         this.id = id
     }
 
     /**
      * 返回当前交互是否处于激活状态
-     * @returns 激活状态
+     * @returns {boolean} 激活状态
      */
-    getActive(): boolean | undefined {
-
+    getActive(): boolean {
         return this._interaction.getActive()
     }
 
     /**
      * 设置当前交互是否处于激活状态
-     * @param active 激活状态
+     * @param {boolean} active 激活状态
      */
-    setActive(active: boolean): void {
-
+    setActive(active: boolean) {
+        if(!isBoolean(active)) {
+            warn_(createMessage('setActive', commonMessage.paramsInvaildFormat('active', 'boolean')))
+            return;
+        }
         this._interaction.setActive(active)
     }
 
     /**
      * 获取交互实例
-     * @returns 
+     * @returns {T} 交互实例
      */
-    getInteraction(): OlInteractionInstanceType | undefined {
-
+    getInteraction(): T {
         return this._interaction
     }
 
@@ -151,22 +138,19 @@ export default class Interaction implements InteractionLike {
      * @param properties 交互属性
      */
     setProperties(properties: Record<string, any>): void {
-
         this._interaction.setProperties(properties)
         this.properties = properties
     }
 
     /**
      * 返回交互中涉及的当前指针数，例如，当使用两个手指时为 2。
-     * @returns {number | undefined} 指针数
+     * @returns {number} 指针数
      */
-    // getPointerCount(): number | undefined {
-    //     if (!this._isInitialized('getInteraction')) return;
+    // getPointerCount(): number {
     //     return this._interaction.getPointerCount()
     // }
 
-    getLayer(): VectorLayer | null | undefined {
-
+    getLayer(): VectorLayer | null {
         return this.layer
     }
 
@@ -177,14 +161,14 @@ export default class Interaction implements InteractionLike {
     /**
      * 关闭交互(但是不移除图层)
      */
-    protected close(): void {
+    protected close() {
         this.destroy()
     }
 
     /**
      * 清空交互图层
      */
-    protected clear(): void {
+    protected clear() {
         const layer = this.getLayer();
         if (isDefined<VectorLayer>(layer)) {
             layer.clear()
@@ -194,8 +178,7 @@ export default class Interaction implements InteractionLike {
     /**
      * 销毁交互(包括交互的图层)
      */
-    protected destroy(): void {
-
+    protected destroy() {
         if (isDefined(this.map)) {
             this.map.removeInteraction(this);
         }
@@ -206,8 +189,8 @@ export default class Interaction implements InteractionLike {
      */
     protected _removeInteractionLayer() {
         const layer = this.getLayer();
-        if (isDefined<VectorLayer>(layer) && isDefined(this.map)) {
-            (this.map as Map).removeLayer(layer);
+        if (isDefined<VectorLayer>(layer) && isDefined<Map>(this.map)) {
+            this.map.removeLayer(layer);
         }
     }
 

@@ -3,6 +3,7 @@ import { type ManualOmit } from '../../../utils/type'
 import { getDevicePixelRatio } from '../../../utils/handle'
 import Projection from '../../core/Projection/index'
 import Interaction from '../../interaction/Interaction/index'
+import { type OMapInteractionCommonType } from '../../interaction/Interaction/type'
 import MouseWheelZoom from '../../interaction/MouseWheelZoom/index'
 import DoubleClickZoom from '../../interaction/DoubleClickZoom/index'
 import DragPan from '../../interaction/DragPan/index'
@@ -41,7 +42,7 @@ export type OlMapOptionsOmitType = ManualOmit<OlMapOptionsType, OlMapOptionsType
 export type CustomerOlMapOptionsType = {
     layers: Array<any>;
     controls: Array<any>;
-    interactions: Array<Interaction>; // 地图的默认交互列表
+    interactions: Array<Interaction<OMapInteractionCommonType>>; // 地图的默认交互列表
     popups: Array<Popup>;
     view?: OlViewOptionsFinalType;
     target?: HTMLElement | string;
@@ -51,7 +52,7 @@ export type OMapOptionsType = OlMapOptionsOmitType & CustomerOlMapOptionsType;
 /**
  * 地图的默认交互
  */
-const defaultMapInteractions: Interaction[] = [
+const defaultMapInteractions: Array<Interaction<OMapInteractionCommonType>> = [
     new MouseWheelZoom({ id: 'omap_default_mousewheelzoom' }),
     new DoubleClickZoom({ id: 'omap_default_doubleclickzoom' }),
     new DragPan({ id: 'omap_default_dragpan' }),
@@ -149,7 +150,7 @@ export const OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS = {
 }
 export type OMapViewFitOptionsType = {
     size?: OMapSizeType;
-    padding: number[] | number;
+    padding: number[];
     nearest: boolean;
     minResolution: number;
     maxZoom?: number;
@@ -162,5 +163,6 @@ export const OMAP_VIEW_FIT_DEFAULT_OPTIONS: OMapViewFitOptionsType = {
     nearest: false,
     minResolution: 0,
     duration: 1000,
-    easing: 'easeOut',
+    easing: 'inAndOut',
+    size: undefined
 }

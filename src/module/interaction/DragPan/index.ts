@@ -2,7 +2,7 @@ import { isDefined, isFunction, isNumber, isString } from '../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import Interaction from '../Interaction/index'
 import { OlInteraction } from '../../../source/index'
-import { type OMapDragPanParamsType } from './type'
+import { type OMapDragPanParamsType, type OMapDragPanType } from './type'
 
 const PACKAGE_NAME = 'DragPan';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -22,15 +22,12 @@ const defaultDragPanOptions = {
     kinetic: undefined
 }
 
-export default class DragPan extends Interaction {
+export default class DragPan extends Interaction<OMapDragPanType> {
 
     constructor(params?: OMapDragPanParamsType) {
-        super("DragPan")
+        super("DragPan", { id: params?.id })
         this._interaction = new OlInteraction.DragPan(Object.assign({}, defaultDragPanOptions, params || {}))
         this.initInteractionEvent()
-        if(isDefined(params) && isDefined(params.id)) {
-            this._initInteractionId(params.id)
-        }
     }
 
 }

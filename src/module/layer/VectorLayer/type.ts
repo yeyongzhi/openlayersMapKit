@@ -26,9 +26,10 @@ export type OMapVectorLayerOptionsFinalType = BaseLayerOptionsType & BaseVectorL
 type OlVectorSourceOptionsType = ConstructorParameters<typeof OlSource.Vector<OlFeature<OlGeometry.Geometry>>>[0]
 type CustOlVectorSourceOptionsType = ManualOmit<OlVectorSourceOptionsType, 'features'>; // 去掉 projection类型
 export type OMapVectorSourceOptionsFinalType = CustOlVectorSourceOptionsType & {
-    features?: BaseFeature[];
+    features?: BaseFeature<OlGeometry.Geometry>[];
 }
 
+export type OMapVectorLayerType = OlLayer.Vector
 export type OlVectorLayerInstanceType = InstanceType<typeof OlLayer.Vector>
 export type OlVectorSourceInstanceType = InstanceType<typeof OlSource.Vector<OlFeature<OlGeometry.Geometry>>>
 

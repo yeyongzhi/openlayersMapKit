@@ -1,7 +1,7 @@
 import Size from './index'
 import { isArrayLength2, isNumber } from '../../../utils/dataType'
 
-export type OlSizeType = number[]
+export type OlSizeType = [number, number]
 export type OMapSizeType = OlSizeType | Size
 
 /**

@@ -14,7 +14,8 @@ import {
     type OlPopupInstanceType,
     type PopupPositioningType,
     isVaildPopupPositioningType,
-    DEFAULT_POPUP_PARAMS
+    DEFAULT_POPUP_PARAMS,
+    type OMapPopupIdType
 } from './type'
 import {
     PopupPositioning,
@@ -44,7 +45,7 @@ export default class Popup {
     /**
      * Popup 的唯一ID
      */
-    id: number | string | null = null;
+    id: OMapPopupIdType | null = null;
 
     /**
      * 弹窗所属地图
@@ -202,7 +203,7 @@ export default class Popup {
         this.id = id
     }
 
-    getPopup(): OlPopupInstanceType | undefined {
+    getPopup(): OMapPopupType {
         return this._popup
     }
 

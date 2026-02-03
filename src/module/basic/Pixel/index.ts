@@ -1,8 +1,19 @@
-import { isDefined, isNumber, isArray, isAllNumberArray } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import { OlPixelType } from './type'
+import {
+  isDefined,
+  isNumber,
+  isArray,
+  isAllNumberArray,
+} from "../../../utils/index";
+import {
+  warn_,
+  error_,
+  getPackageMessage,
+  commonMessage,
+} from "../../../utils/message";
+import { handleGetPixelValue } from "./handle";
+import { OlPixelType, OMapPixelType } from "./type";
 
-const PACKAGE_NAME = 'Pixel';
+const PACKAGE_NAME = "Pixel";
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
@@ -12,134 +23,129 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/06/30
- * @updateDate 2025/10/5
+ * @updateDate 2026/2/2
  */
 
 export default class Pixel {
-    /**
-     * @type {number[]}
-     * @example [100, 200]
-     * @private
-     */
-    _pixel: number[] = [];
+  /**
+   * @type {number[]}
+   * @example [100, 200]
+   * @private
+   */
+  _pixel: number[] = [0, 0];
 
-    constructor(...args: number[]);
-    constructor(args: number[]);
+  constructor(x: number, y: number);
+  constructor(pixel: number[]);
 
-    constructor(...args: any[]) {
-        let value: OlPixelType = [0, 0]
-        if (args.length === 1 && isArray(args[0])) {
-            value = args[0];
-        } else if (args.length === 2 && isAllNumberArray(args)) {
-            value = [args[0], args[1]];
-        } else {
-            error_(createMessage('constructor', '初始化参数格式有误'));
-            return;
-        }
-        this._pixel = value;
+  constructor(...args: [number, number] | [number[]]) {
+    let value: OlPixelType = [0, 0];
+
+    if (args.length === 2) {
+      const [x, y] = args;
+      if (isNumber(x) && isNumber(y)) {
+        value = [x, y];
+      } else {
+        error_(
+          createMessage(
+            "constructor",
+            commonMessage.paramsInvaildFormat("pixel"),
+          ),
+        );
+      }
+    } else if (args.length === 1) {
+      const [arr] = args;
+      if (Array.isArray(arr) && arr.length >= 2 && isAllNumberArray(arr)) {
+        // 只取前两个
+        value = [arr[0], arr[1]];
+      } else {
+        error_(
+          createMessage(
+            "constructor",
+            commonMessage.paramsInvaildFormat("pixel"),
+          ),
+        );
+      }
+    } else {
+      error_(
+        createMessage(
+          "constructor",
+          commonMessage.paramsInvaildFormat("pixel"),
+        ),
+      );
     }
+    this._pixel = value;
+  }
 
-    private _isInitialized(method: string): boolean {
-        if (!isDefined(this._pixel)) {
-            warn_(createMessage(method, "未正确实例化"));
-            return false;
-        }
-        return true;
+  /**
+   * 获取像素坐标
+   * @returns {number[] | undefined} 像素坐标
+   */
+  getPixel(): number[] {
+    return this._pixel;
+  }
+
+  /**
+   * 设置像素坐标
+   * @param {number[]} pixel 像素坐标
+   */
+  setPixel(pixel: number[]) {
+    this._pixel = pixel;
+  }
+
+  /**
+   * 获取像素的 x 坐标
+   * @returns {number} x 坐标
+   */
+  getX(): number {
+    return this._pixel[0];
+  }
+
+  /**
+   * 获取像素的 y 坐标
+   * @returns {number} y 坐标
+   */
+  getY(): number {
+    return this._pixel[1];
+  }
+
+  /**
+   * 设置像素的 x 坐标
+   * @param {number} x x 坐标
+   */
+  setX(x: number) {
+    this._pixel[0] = x;
+  }
+
+  /**
+   * 设置像素的 y 坐标
+   * @param {number} y y 坐标
+   */
+  setY(y: number) {
+    this._pixel[1] = y;
+  }
+
+  /**
+   * 判断两个像素坐标是否相等
+   * @param {Pixel} pixel 像素对象
+   * @returns {boolean | undefined} 判断结果
+   */
+  equals(pixel: OMapPixelType): boolean {
+    if (!isDefined(pixel)) {
+      error_(createMessage("equals", commonMessage.paramsNotDefined("pixel")));
     }
+    const otherPixel = handleGetPixelValue(pixel);
+    return this._pixel[0] === otherPixel[0] && this._pixel[1] === otherPixel[1];
+  }
 
-    /**
-     * 获取像素坐标
-     * @returns {number[] | undefined} 像素坐标
-     */
-    getPixel(): number[] | undefined {
-        if (!this._isInitialized("getPixel")) return undefined;
-        return this._pixel;
-    }
+  toArray(): number[] {
+    return this._pixel;
+  }
 
-    /**
-     * 设置像素坐标
-     * @param {number[]} pixel 像素坐标
-     */
-    setPixel(pixel: number[]): void {
-
-        if (!isNumber(pixel[0]) || !isNumber(pixel[1])) {
-            warn_(createMessage("setPixel", "参数格式有误"));
-            return;
-        }
-        this._pixel = pixel;
-    }
-
-    /**
-     * 获取像素的 x 坐标
-     * @returns {number | undefined} x 坐标
-     */
-    getX(): number | undefined {
-        if (!this._isInitialized("getX")) return undefined;
-        return this._pixel[0];
-    }
-
-    /**
-     * 获取像素的 y 坐标
-     * @returns {number | undefined} y 坐标
-     */
-    getY(): number | undefined {
-        if (!this._isInitialized("getY")) return undefined;
-        return this._pixel[1];
-    }
-
-    /**
-     * 设置像素的 x 坐标
-     * @param {number} x x 坐标
-     */
-    setX(x: number): void {
-
-        if (!isNumber(x)) {
-            warn_(createMessage("setX", "参数格式有误"));
-            return;
-        }
-        this._pixel[0] = x;
-    }
-
-    /**
-     * 设置像素的 y 坐标
-     * @param {number} y y 坐标
-     */
-    setY(y: number): void {
-
-        if (!isNumber(y)) {
-            warn_(createMessage("setY", "参数格式有误"));
-            return;
-        }
-        this._pixel[1] = y;
-    }
-
-    /**
-     * 判断两个像素坐标是否相等
-     * @param {Pixel} pixel 像素对象
-     * @returns {boolean | undefined} 判断结果
-     */
-    equals(pixel: Pixel): boolean | undefined {
-        if (!this._isInitialized("equals")) return undefined;
-        if (!isDefined(pixel)) {
-            warn_(createMessage("equals", "参数未正确实例化"));
-            return undefined;
-        }
-        const otherPixel = pixel.getPixel();
-        if (!otherPixel) return undefined;
-        return this._pixel[0] === otherPixel[0] && this._pixel[1] === otherPixel[1];
-    }
-    
-    toArray(): number[] | undefined {
-
-        return this._pixel;
-    }
-
-    /**
-     * 以字符串的形式输出像素坐标
-     * @returns {string} 像素坐标字符串
-     */
-    toString(): string {
-        if (!this._isInitialized("toString")) return "";
-        return `[${this._pixel[0]}, ${this._pixel[1]}]`;
-    }
+  /**
+   * 以字符串的形式输出像素坐标
+   * @returns {string} 像素坐标字符串
+   */
+  toString(): string {
+    return `[${this._pixel[0]}, ${this._pixel[1]}]`;
+  }
 }

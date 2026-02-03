@@ -3,17 +3,20 @@ import type { ManualOmit } from '../../../utils/type'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import { type OMapStyleLike } from '../../basic/Style/type'
+import { type OMapInteractionCommonParamsType } from '../Interaction/type'
 
 export type OlInteractionSelectParamsType = ConstructorParameters<typeof OlInteraction.Select>[0]
 type CustOlSelectParamsType = ManualOmit<OlInteractionSelectParamsType,
     'layers' | 'style' | 'features' | 'filter'
 >
-export type OMapSelectParamsType = CustOlSelectParamsType & {
+export type OMapSelectParamsType = OMapInteractionCommonParamsType & CustOlSelectParamsType & {
     layers?: VectorLayer[];
     style?: OMapStyleLike;
     features?: BaseFeature<OlGeometry.Geometry>[];
     filter?: (feature: BaseFeature<OlGeometry.Geometry>, layer: VectorLayer) => boolean;
 }
+
+export type OMapSelectType = OlInteraction.Select
 export type OlInteractionSelectInstanceType = InstanceType<typeof OlInteraction.Select>
 
 /**

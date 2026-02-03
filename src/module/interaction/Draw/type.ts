@@ -3,7 +3,7 @@ import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
 import { Style, VectorLayer } from '../../../index'
 import type { OMapStyleLike } from '../../basic/Style/type'
-import { type OMapInteractionCommonParamsType, type OMapInteractionEventType, OMapInteractionEventTypes } from '../Interaction/type'
+import { type OMapInteractionCommonParamsType, OMapInteractionCommonEventTypes } from '../Interaction/type'
 
 export type OlDrawType = 'Point' | 'LineString' | 'Polygon' | 'LinearRing' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon' | 'GeometryCollection' | 'Circle'
 export type OMapDrawMode = 'Point' | 'LineString' | 'Polygon' | 'Rectangle' | 'Circle'
@@ -26,11 +26,12 @@ export const DrawMode = {
 } as const
 
 type OlDrawParamsType = ConstructorParameters<typeof OlInteraction.Draw>[0]
+export type OMapDrawType = OlInteraction.Draw
 export type OlDrawInstanceType = InstanceType<typeof OlInteraction.Draw>
 type CustOlDrawParamsType = ManualOmit<OlDrawParamsType,
     'type' | 'source' | 'features' | 'finishCondition' | 'style' | 'geometryFunction'
 >
-export type OMapDrawParamsType = CustOlDrawParamsType & {
+export type OMapDrawParamsType = OMapInteractionCommonParamsType & CustOlDrawParamsType & {
     layer?: VectorLayer;
     /** 样式 */
     style?: OMapStyleLike;
@@ -51,7 +52,7 @@ export const DrawEventType = {
     drawEnd: "drawend",
     drawAbort: "drawabort",
 } as const
-export const OMapInteractionDrawEventTypes = [...OMapInteractionEventTypes, ...Object.values(DrawEventType)] as const
+export const OMapInteractionDrawEventTypes = [...OMapInteractionCommonEventTypes, ...Object.values(DrawEventType)] as const
 export type OMapInteractionDrawEventType = typeof OMapInteractionDrawEventTypes[number] extends infer T
     ? T extends string
     ? T

@@ -15,7 +15,8 @@ import {
     type OMapInteractionModifyEventType,
     type ModifyRecordItem,
     type SampleRecordItem,
-    isOMapInteractionModifyEventType
+    isOMapInteractionModifyEventType,
+    type OMapModifyType,
 } from './type'
 import { handleModifyEvent } from './handle'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
@@ -46,7 +47,7 @@ const defaultModifyOptions = {
     snapToPointer: false
 }
 
-export default class Modify extends Interaction {
+export default class Modify extends Interaction<OMapModifyType> {
 
     records: Array<ModifyRecordItem> = [];
 
@@ -54,7 +55,7 @@ export default class Modify extends Interaction {
         if (!isDefined(params)) {
             error_(createMessage('init', 'params参数不能为空'));
         }
-        super("Modify")
+        super("Modify", { id: params.id })
         let modify_source: OlVectorSourceInstanceType | null = null
         if (!isDefined(params.layer)) {
             warn_(createMessage('init', 'layer参数不能为空'));
@@ -85,10 +86,10 @@ export default class Modify extends Interaction {
         // TODO：后续可能需要接入properties
         let originFeaturesList: SampleRecordItem[] = (originFeatures || []).map(o => {
             return {
-                id: o.id,
-                originFeatureId: OlUtil.getUid(o._feature),
+                id: o.getId(),
+                originFeatureId: OlUtil.getUid(o.getFeature()),
                 type: o.type,
-                coordinates: (o.getCoordinates() as any),
+                coordinates: o.getCoordinates(),
             }
         })
         this.records.push({
@@ -105,10 +106,10 @@ export default class Modify extends Interaction {
                 })
                 if (target) {
                     newList.push({
-                        id: target.id,
-                        originFeatureId: OlUtil.getUid(target._feature),
+                        id: target.getId(),
+                        originFeatureId: OlUtil.getUid(target.getFeature()),
                         type: target.type,
-                        coordinates: (target.getCoordinates() as any),
+                        coordinates: target.getCoordinates(),
                     })
                 }
             })
@@ -178,7 +179,7 @@ export default class Modify extends Interaction {
                 if (f.id) {
                     return f.id === item.id
                 }
-                return OlUtil.getUid(item._feature) === (f as SampleRecordItem).originFeatureId
+                return OlUtil.getUid(item.getFeature()) === (f as SampleRecordItem).originFeatureId
             })
             if (isDefined(target)) {
                 (target as BasicFeature<OlGeometry.Geometry>).setCoordinates((f as SampleRecordItem).coordinates)
@@ -198,7 +199,7 @@ export default class Modify extends Interaction {
                 if (f.id) {
                     return f.id === item.id
                 }
-                return OlUtil.getUid(item._feature) === (f as SampleRecordItem).originFeatureId
+                return OlUtil.getUid(item.getFeature()) === (f as SampleRecordItem).originFeatureId
             })
             if (target) {
                 target.setCoordinates((f as SampleRecordItem).coordinates)

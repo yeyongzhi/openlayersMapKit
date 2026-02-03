@@ -1,6 +1,6 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from '../../../utils/index'
+import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from './type'
 import OlPackage, { OlProj } from '../../../source/index'
 
 const PACKAGE_NAME = 'Map';

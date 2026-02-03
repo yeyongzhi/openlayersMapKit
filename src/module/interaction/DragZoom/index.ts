@@ -2,7 +2,7 @@ import { isDefined, defaultValue,isNumber, isString } from '../../../utils/index
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import Interaction from '../Interaction/index'
 import { OlInteraction } from '../../../source/index'
-import { type OMapDragZoomParamsType, defaultDragZoomOptions } from './type'
+import { type OMapDragZoomParamsType, defaultDragZoomOptions, type OMapDragZoomType } from './type'
 
 const PACKAGE_NAME = 'Modify';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -17,15 +17,12 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2026/1/3
  */
 
-export default class DragZoom extends Interaction {
+export default class DragZoom extends Interaction<OMapDragZoomType> {
 
     constructor(params?: OMapDragZoomParamsType) {
-        super("DragZoom")
+        super("DragZoom", { id: params?.id })
         this._interaction = new OlInteraction.DragZoom(Object.assign({}, defaultDragZoomOptions, defaultValue(params, {})))
         this.initInteractionEvent()
-        if(isDefined(params) && isDefined(params.id)) {
-            this._initInteractionId(params.id)
-        }
     }
 
 }

@@ -1,9 +1,19 @@
+import {
+  isDefined,
+  isNumber,
+  isArray,
+  isAllNumberArray,
+} from "../../../utils/index";
+import {
+  warn_,
+  error_,
+  getPackageMessage,
+  commonMessage,
+} from "../../../utils/message";
+import { handleGetSizeValue } from "./handle";
+import { OMapSizeType, type OlSizeType } from "./type";
 
-import { isDefined, isNumber, isArray, isAllNumberArray } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import { type OlSizeType } from './type';
-
-const PACKAGE_NAME = 'Size';
+const PACKAGE_NAME = "Size";
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
@@ -16,140 +26,124 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/08/05
  */
 
-export interface SizeLike {
-    _size?: OlSizeType;
-}
+export default class Size {
+  /**
+   * @type {number[]}
+   * @example [20, 15]
+   * @private
+   */
+  _size: OlSizeType = [0, 0];
 
+  constructor(x: number, y: number);
+  constructor(pixel: number[]);
 
-interface SizeLikeInitialized {
-    _size: OlSizeType;
-}
+  constructor(...args: [number, number] | [number[]]) {
+    let value: OlSizeType = [0, 0];
 
-export default class Size implements SizeLike {
-
-    /**
-     * @type {number[]}
-     * @example [20, 15]
-     * @private
-     */
-    _size: OlSizeType = [0, 0]
-
-    constructor(...args: number[]);
-    constructor(args: number[]);
-
-    constructor(...args: any[]) {
-        let value: OlSizeType = [0, 0]
-        if (args.length === 1 && isArray(args[0])) {
-            value = args[0];
-        } else if (args.length === 2 && isAllNumberArray(args)) {
-            value = [args[0], args[1]];
-        } else {
-            error_(createMessage('constructor', '初始化参数格式有误'));
-            return;
-        }
-        this._size = value;
+    if (args.length === 2) {
+      const [x, y] = args;
+      if (isNumber(x) && isNumber(y)) {
+        value = [x, y];
+      } else {
+        error_(
+          createMessage(
+            "constructor",
+            commonMessage.paramsInvaildFormat("size"),
+          ),
+        );
+      }
+    } else if (args.length === 1) {
+      const [arr] = args;
+      if (Array.isArray(arr) && arr.length >= 2 && isAllNumberArray(arr)) {
+        // 只取前两个
+        value = [arr[0], arr[1]];
+      } else {
+        error_(
+          createMessage(
+            "constructor",
+            commonMessage.paramsInvaildFormat("size"),
+          ),
+        );
+      }
+    } else {
+      error_(
+        createMessage("constructor", commonMessage.paramsInvaildFormat("size")),
+      );
     }
+    this._size = value;
+  }
 
-    private _isInitialized(method: string): this is SizeLikeInitialized & this {
-        if (!isDefined(this._size)) {
-            warn_(createMessage(method, "未正确实例化"))
-            return false;
-        }
-        return true;
-    }
+  /**
+   * 获取size
+   * @returns {OlSizeType} size
+   */
+  getSize(): number[] {
+    return this._size;
+  }
 
-    /**
-     * 获取size
-     * @returns {OlSizeType | undefined} size
-     */
-    getSize(): number[] | undefined {
-        if(!this._isInitialized("getSize")) return undefined
-        return this._size
-    }
+  /**
+   * 设置size
+   * @param {OMapSizeType} size
+   */
+  setSize(size: OMapSizeType) {
+    this._size = handleGetSizeValue(size);
+  }
 
-    /**
-     * 设置size
-     * @param {OlSizeType} size
-     */
-    setSize(size: OlSizeType): void {
+  /**
+   * 获取Size的width
+   * @returns {number} width
+   */
+  getWidth(): number {
+    return this._size[0];
+  }
 
-        if(!isNumber(size[0]) || !isNumber(size[1])) {
-            warn_(createMessage("setSize", "参数格式有误"))
-            return undefined
-        }
-        this._size = size
-    }
+  /**
+   * 获取Size的height
+   * @returns {number} height
+   */
+  getHeight(): number {
+    return this._size[1];
+  }
 
-    /**
-     * 获取Size的width
-     * @returns {number | undefined} width
-     */
-    getWidth(): number | undefined {
-        if(!this._isInitialized("getWidth")) return undefined
-        return this._size[0]
-    }
+  /**
+   * 设置Size的width
+   * @param {number} width
+   */
+  setWidth(width: number) {
+    this._size[0] = width;
+  }
 
-    /**
-     * 获取Size的height
-     * @returns {number} height
-     */
-    getHeight(): number | undefined {
-        if(!this._isInitialized("getHeight")) return undefined
-        return this._size[1]
-    }
+  /**
+   * 设置Size的height
+   * @param {number} height
+   */
+  setHeight(height: number) {
+    this._size[1] = height;
+  }
 
-    /**
-     * 设置Size的width
-     * @param {number} width
-     */
-    setWidth(width: number): void {
+  /**
+   * 判断两个尺寸是否相等
+   * @param {OMapSizeType} size
+   * @returns {boolean} 判断结果
+   */
+  equals(size: OMapSizeType): boolean {
+    let _size = handleGetSizeValue(size);
+    return this._size[0] === _size[0] && this._size[1] === _size[1];
+  }
 
-        if(!isNumber(width)) {
-            warn_(createMessage("setWidth", "参数格式有误"))
-            return;
-        }
-        this._size[0] = width;
-    }
+  /**
+   * 转换为数组
+   * @returns {OlSizeType} size
+   */
+  toArray(): OlSizeType {
+    return this._size;
+  }
 
-    /**
-     * 设置Size的height
-     * @param {number} height
-     */
-    setHeight(height: number): void {
-
-        if(!isNumber(height)) {
-            warn_(createMessage("setHeight", "参数格式有误"))
-            return;
-        }
-        this._size[1] = height;
-    }
-
-    /**
-     * 判断两个尺寸是否相等
-     * @param {Size} size 
-     * @returns {boolean} 判断结果
-     */
-    equals(size: Size): boolean | undefined {
-
-        return this._size[0] === size._size[0] && this._size[1] === size._size[1]
-    }
-
-    /**
-     * 转换为数组
-     * @returns {OlSizeType | undefined} size
-     */
-    toArray(): OlSizeType | undefined {
-
-        return this._size
-    }
-
-    /**
-     * 以字符串的形式输出尺寸
-     * @returns {string} sizeStr
-     */
-    toString(): string {
-        if(!this._isInitialized("toString")) return ""
-        return `[${this._size[0]}, ${this._size[1]}]`
-    }
-
+  /**
+   * 以字符串的形式输出尺寸
+   * @returns {string} sizeStr
+   */
+  toString(): string {
+    return `[${this._size[0]}, ${this._size[1]}]`;
+  }
 }

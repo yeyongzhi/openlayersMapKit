@@ -2,7 +2,7 @@ import { OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
 import type { OMapStyleLike } from '../../basic/Style/type'
-import { OMapInteractionEventTypes } from '../Interaction/type'
+import { OMapInteractionCommonEventTypes, type OMapInteractionCommonParamsType } from '../Interaction/type'
 
 /**
  * 绘制模式
@@ -15,11 +15,12 @@ export const MeasureMode = {
 export type OMapMeasureMode = (typeof MeasureMode)[keyof typeof MeasureMode]
 
 type OlDrawParamsType = ConstructorParameters<typeof OlInteraction.Draw>[0]
+export type OMapMeasureType = OlInteraction.Draw
 export type OlDrawInstanceType = InstanceType<typeof OlInteraction.Draw>
 type CustOlDrawParamsType = ManualOmit<OlDrawParamsType,
     'type' | 'source' | 'features' | 'finishCondition' | 'style' |'geometryFunction'
 >
-export type OMapMeasureParamsType = CustOlDrawParamsType & {
+export type OMapMeasureParamsType = OMapInteractionCommonParamsType & CustOlDrawParamsType & {
     /** 样式 */
     style?: OMapStyleLike;
 }
@@ -39,7 +40,7 @@ export const MeasureEventType = {
     measureEnd: "measure:end",
 } as const
 
-export const OMapInteractionMeasureEventTypes = [...OMapInteractionEventTypes, ...Object.values(MeasureEventType)] as const
+export const OMapInteractionMeasureEventTypes = [...OMapInteractionCommonEventTypes, ...Object.values(MeasureEventType)] as const
 export type OMapInteractionMeasureEventType = typeof OMapInteractionMeasureEventTypes[number] extends infer T
     ? T extends string
     ? T

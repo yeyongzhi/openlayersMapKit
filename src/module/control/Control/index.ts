@@ -1,9 +1,8 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import{ OlInteraction } from '../../../source/index'
-import { type OMapControlType } from './type'
+import { type OMapControlType, type OMapControlIdType } from './type'
 import Event from '../../../module/util/Event/index'
-import Map from '../../core/Map/index'
 
 const PACKAGE_NAME = 'Control';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -18,7 +17,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Control {
-    id: number | string | null = null;
+    id: OMapControlIdType | null = null;
     /**
      * 交互类型
      * @type {OMapControlType | null}

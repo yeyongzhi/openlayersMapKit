@@ -6,11 +6,16 @@ import Interaction from '../Interaction/index'
 import Event from '../../util/Event/index'
 import { type EventIdType } from '../../util/Event/type'
 import VectorLayer from '../../layer/VectorLayer/index'
-import {type OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
+import { type OMapVectorLayerType } from '../../layer/VectorLayer/type'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
 import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
 import { OlGeometry, OlInteraction, OlUtil } from '../../../source/index'
-import { type OMapSelectParamsType, type OlInteractionSelectInstanceType, type OMapSelectEventType } from './type'
+import {
+    type OMapSelectParamsType,
+    type OlInteractionSelectInstanceType,
+    type OMapSelectEventType,
+    type OMapSelectType
+} from './type'
 import { getTargetFeature, updateSelectLayers, updateSelectFeatures, handleSelectEvent } from './handle'
 
 const PACKAGE_NAME = 'Select';
@@ -35,7 +40,7 @@ const defaultSelectOptions = {
     hitTolerance: 0,
 }
 
-export default class Select extends Interaction {
+export default class Select extends Interaction<OMapSelectType> {
     /**
      * 当前选择的要素
      */
@@ -46,12 +51,12 @@ export default class Select extends Interaction {
     deselected: BaseFeature<OlGeometry.Geometry>[] = [];
 
     constructor(params?: OMapSelectParamsType) {
-        super("Select")
-        let layers: OlVectorLayerInstanceType[] = []
+        super("Select", { id: params?.id })
+        let layers: OMapVectorLayerType[] = []
         // layers的优先级低于features
         if(isDefined(params?.layers)) {
             updateSelectLayers(params.layers)
-            layers = params.layers.map(l => (l._layer as OlVectorLayerInstanceType))
+            layers = params.layers.map(l => l.getLayer())
         }
         if(isDefined(params?.features)) {
             updateSelectFeatures(params.features)
@@ -92,11 +97,11 @@ export default class Select extends Interaction {
         return _style
     }
 
-    protected initFilter(filter: ((feature: BaseFeature<OlGeometry.Geometry>, layer: VectorLayer) => boolean) | undefined): ((feature: OlFeatureLike, layer: OlVectorLayerInstanceType) => boolean) | undefined {
+    protected initFilter(filter: ((feature: BaseFeature<OlGeometry.Geometry>, layer: VectorLayer) => boolean) | undefined): ((feature: OlFeatureLike, layer: OMapVectorLayerType) => boolean) | undefined {
         if(isDefined(filter)) {
-            return (feature: OlFeatureLike, layer: OlVectorLayerInstanceType) => {
+            return (feature: OlFeatureLike, layer: OMapVectorLayerType) => {
                 let targetFeature = getTargetFeature(OlUtil.getUid(feature))
-                let targetLayer = this.map?.getAllLayers().find(l => OlUtil.getUid(l._layer) === OlUtil.getUid(layer))
+                let targetLayer = this.map?.getAllLayers().find(l => OlUtil.getUid(l.getLayer()) === OlUtil.getUid(layer))
                 return filter(targetFeature as BaseFeature<OlGeometry.Geometry>, targetLayer as VectorLayer)
             }
         } else {

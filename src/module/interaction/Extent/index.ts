@@ -4,7 +4,7 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import { commonMessage } from "../../../utils/message";
 import Interaction from '../Interaction/index'
 import Extent from '../../basic/Extent/index'
-import { type OlExtentType, type OMapExtentType } from '../../basic/Extent/type'
+import { isValidExtent, type OlExtentType, type OMapExtentType } from '../../basic/Extent/type'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
 import { handleGetStyleValue } from '../../basic/Style/handle'
 import { type OlStyleLike } from '../../basic/Style/type'
@@ -13,7 +13,8 @@ import {
     type OMapExtentParamsType,
     type OlInteractionExtentInstanceType,
     type OMapInteractionExtentEventType,
-    isOMapInteractionExtentEventType
+    isOMapInteractionExtentEventType,
+    type OMapInteractionExtentType
 } from './type'
 import type { EventIdType, OMapEventsKeyType } from '../../util/Event/type'
 import { handleInteractionExtentEvent } from './handle'
@@ -40,10 +41,10 @@ const defaultExtentOptions: OMapExtentParamsType = {
     wrapX: false
 }
 
-export default class InteractionExtent extends Interaction {
+export default class InteractionExtent extends Interaction<OMapInteractionExtentType> {
 
     constructor(params?: OMapExtentParamsType) {
-        super("InteractionExtent")
+        super("InteractionExtent", { id: params?.id })
         let _params = {
             ...defaultValue(params, {})
         }
@@ -53,54 +54,43 @@ export default class InteractionExtent extends Interaction {
         this._interaction = new OlInteraction.Extent(Object.assign({}, defaultExtentOptions, defaultValue(_params, {})))
         // 注册事件
         this.initInteractionEvent()
-        if (isDefined(params) && isDefined(params.id)) {
-            this._initInteractionId(params.id)
-        }
     }
 
     /**
      * 获取当前选框范围
-     * @returns {Extent | undefined} 当前选框范围
+     * @returns {Extent} 当前选框范围
      */
-    getExtent(): Extent | undefined {
-
-        let extent = (this._interaction as OlInteractionExtentInstanceType).getExtent()
-        return isDefined(extent) ? new Extent(...extent) : undefined
+    getExtent(): Extent {
+        let extent = this._interaction.getExtent()
+        return new Extent(extent)
     }
 
     /**
      * 设置当前选框范围
      * @param {OMapExtentType} extent 选框范围
      */
-    setExtent(extent: OMapExtentType): void {
-
+    setExtent(extent: OMapExtentType) {
         if (!isDefined(extent)) {
-            warn_(createMessage("setExtent", commonMessage.paramsNotDefined('extent')));
-            return;
+            error_(createMessage("setExtent", commonMessage.paramsNotDefined('extent')));
         }
-        if (!isExtentType(extent) || !(extent instanceof Extent)) {
-            warn_(createMessage("setExtent", commonMessage.paramsInvaildFormat('extent', 'OMap.Extent 或者 Extent数组')));
-            return;
+        if (!isValidExtent(extent)) {
+            error_(createMessage("setExtent", commonMessage.paramsInvaildFormat('extent', 'OMap.Extent 或者 Extent数组')));
         }
-        let _extent = handleGetExtentValue(extent) as OlExtentType;
-        (this._interaction as OlInteractionExtentInstanceType).setExtent(_extent)
+        let _extent = handleGetExtentValue(extent)
+        this._interaction.setExtent(_extent)
     }
 
-    on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
-
+    on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType {
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
-            return;
+            error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
         }
         if (!isOMapInteractionExtentEventType(type)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
-            return;
+            error_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
         };
         if (!isFunction(callback)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
-            return;
+            error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
         }
-        const unlisten = OlEvent.listen((this._interaction as OlInteractionExtentInstanceType), type, (e: any) => {
+        const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
             this.events.emit(type, handleInteractionExtentEvent(this, type, e))
         })
         const id = this.events.on(type, callback, unlisten)
@@ -108,35 +98,25 @@ export default class InteractionExtent extends Interaction {
     }
 
     once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
-
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
-            return;
+            error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
         }
         if (!isOMapInteractionExtentEventType(type)) {
-            warn_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
-            return;
+            error_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
         };
         if (!isFunction(callback)) {
-            warn_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
-            return;
+            error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
         }
-        const unlisten = OlEvent.listen((this._interaction as OlInteractionExtentInstanceType), type, (e: any) => {
+        const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
             this.events.emit(type, handleInteractionExtentEvent(this, type, e))
         })
         const id = this.events.once(type, callback, unlisten)
         return id
     }
 
-    un(id: EventIdType): void {
-
+    un(id: EventIdType) {
         if (!isDefined(id)) {
-            warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
-            return;
-        }
-        if (!isNumber(id)) {
-            warn_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'string')));
-            return;
+            error_(createMessage('un', commonMessage.paramsNotDefined(id)));
         }
         this.events.remove(id)
     }

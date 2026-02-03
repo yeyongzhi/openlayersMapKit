@@ -1,10 +1,11 @@
 import { isArray, isDefined, isEmptyArray, isFunction, isString, isNumber, isCoordinatesType, isExtentType } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type {
-    OMapVectorLayerOptionsFinalType,
-    OMapVectorSourceOptionsFinalType,
-    OlVectorLayerInstanceType,
-    OlVectorSourceInstanceType
+import {
+    type OMapVectorLayerOptionsFinalType,
+    type OMapVectorSourceOptionsFinalType,
+    type OlVectorLayerInstanceType,
+    type OlVectorSourceInstanceType,
+    type OMapVectorLayerType,
 } from './type'
 import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
 import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
@@ -36,7 +37,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2026/1/29
  */
 
-export default class VectorLayer extends BaseLayer {
+export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
 
     features: BaseFeature<OlGeometry.Geometry>[] = []
 
@@ -59,19 +60,10 @@ export default class VectorLayer extends BaseLayer {
         this.initVectorLyaerEvent()
     }
 
-    protected _isInitializedLayer(method: string): this is { _layer: OlVectorLayerInstanceType } & this {
-        if (!this._isInitialized(method)) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
-    }
-
     /**
      * 初始化矢量图层事件
      */
     protected initVectorLyaerEvent() {
-        if (!this._isInitializedLayer('initVectorLyaerEvent')) return;
         (this._layer.getSource() as OlVectorSourceInstanceType).on("addfeature", (e) => {
             const { feature } = e
             console.log("添加feature事件")
@@ -89,7 +81,7 @@ export default class VectorLayer extends BaseLayer {
                         warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
                     }
                     // 绘制结束事件 需要在 addfeature 事件之后 触发，才能获取到完整的 feature
-                    if(this.target.getActive() && this.target instanceof Draw) {
+                    if(this.target instanceof Draw && this.target.getActive()) {
                         this.target.events.emit(DrawEventType.drawEnd, handleInteractionDrawEvent(this.target, DrawEventType.drawEnd, { feature }))
                     }
                 }
@@ -102,7 +94,6 @@ export default class VectorLayer extends BaseLayer {
      * @param {OMapStyleLike | undefined} style 样式
      */
     protected initStyle(style: OMapStyleLike | undefined): void {
-        if (!this._isInitializedLayer('initStyle')) return;
         let _style: OlStyleInstanceType | Array<OlStyleInstanceType> | ((feature: OlFeatureLike, resolution: number) => (OlStyleInstanceType | undefined)) | undefined = undefined
         if (isDefined(style)) {
             if (style instanceof Style) {
@@ -127,12 +118,10 @@ export default class VectorLayer extends BaseLayer {
     }
 
     getFeatures(): BaseFeature<OlGeometry.Geometry>[] | undefined {
-        if (!this._isInitializedLayer('getFeatures')) return;
         return this.features
     }
 
     getFeatureById(id: number | string): BaseFeature<OlGeometry.Geometry> | undefined {
-        if (!this._isInitializedLayer('getFeatureById')) return;
         if (!isDefined(id)) {
             warn_(createMessage('setId', '参数id不能为空'));
             return;
@@ -148,7 +137,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     getFeaturesInExtent(extent: OMapExtentType, projection: Projection): BaseFeature<OlGeometry.Geometry>[] | undefined {
-        if (!this._isInitializedLayer('getFeaturesInExtent')) return;
         if (!isDefined(extent)) {
             warn_(createMessage('getFeaturesInExtent', 'extent参数不能为空'));
             return;
@@ -172,7 +160,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     getFeaturesAtCoordinate(coordinates: OMapCoordinateType) {
-        if (!this._isInitializedLayer('getFeaturesAtCoordinate')) return;
         if (!isDefined(coordinates)) {
             warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数不能为空'));
             return;
@@ -196,7 +183,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     addFeature(feature: BaseFeature<OlGeometry.Geometry>): void {
-        if (!this._isInitializedLayer('addFeature')) return;
         if (!isDefined(feature)) {
             warn_(createMessage('addFeature', '参数不能为空'));
             return;
@@ -208,7 +194,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     addFeatures(features: BaseFeature<OlGeometry.Geometry>[]): void {
-        if (!this._isInitializedLayer('addFeatures')) return;
         if (!isDefined(features) || !isArray(features)) {
             warn_(createMessage('addFeatures', '参数格式有误不能为空'));
             return;
@@ -221,7 +206,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     removeFeature(feature: BaseFeature<OlGeometry.Geometry>): void {
-        if (!this._isInitializedLayer('removeFeature')) return;
         if (!isDefined(feature)) {
             warn_(createMessage('removeFeature', '参数不能为空'));
             return;
@@ -234,7 +218,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     removeFeatures(features: BaseFeature<OlGeometry.Geometry>[]): void {
-        if (!this._isInitializedLayer('removeFeatures')) return;
         if (!isDefined(features) || !isArray(features)) {
             warn_(createMessage('removeFeatures', '参数格式有误不能为空'));
             return;
@@ -247,7 +230,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     clear() {
-        if (!this._isInitializedLayer('clear')) return;
         if (!this._layer.getSource()) {
             return;
         }
@@ -256,7 +238,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     forEachFeature(callback: (feature: BaseFeature<OlGeometry.Geometry>, index: number) => void): void {
-        if (!this._isInitializedLayer('forEachFeature')) return;
         if (!isDefined(callback) || !isFunction(callback)) {
             warn_(createMessage('forEachFeature', '参数格式有误'));
             return;
@@ -273,7 +254,6 @@ export default class VectorLayer extends BaseLayer {
      * @returns {void}
      */
     forEachFeatureInExtent(extent: Extent, callback: (feature: BaseFeature<OlGeometry.Geometry>, index: number) => void): void {
-        if (!this._isInitializedLayer('forEachFeatureInExtent')) return;
         if (!isDefined(callback)) {
             warn_(createMessage('forEachFeatureInExtent', 'callback参数不能为空'));
             return;
@@ -294,7 +274,6 @@ export default class VectorLayer extends BaseLayer {
      * @returns {void}
      */
     forEachFeatureIntersectingExtent(extent: Extent, callback: (feature: BaseFeature<OlGeometry.Geometry>, index: number) => void) {
-        if (!this._isInitializedLayer('forEachFeatureIntersectingExtent')) return;
         if (!isDefined(callback)) {
             warn_(createMessage('forEachFeatureIntersectingExtent', 'callback参数不能为空'));
             return;
@@ -309,7 +288,6 @@ export default class VectorLayer extends BaseLayer {
     }
 
     getClosestFeatureToCoordinate(coordinates: OMapCoordinateType, filter?: (feature: BaseFeature<OlGeometry.Geometry>) => boolean): BaseFeature<OlGeometry.Geometry> | undefined {
-        if (!this._isInitializedLayer('getClosestFeatureToCoordinate')) return;
         if (!isDefined(coordinates)) {
             warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数不能为空'));
             return;
@@ -333,10 +311,9 @@ export default class VectorLayer extends BaseLayer {
 
     }
 
-    getSourceExtent(): Extent | undefined {
-        if (!this._isInitializedLayer('getSourceExtent')) return;
+    getSourceExtent(): Extent {
         const extent = (this._layer.getSource() as OlVectorSourceInstanceType).getExtent()
-        return new Extent(extent[0], extent[1], extent[2], extent[3])
+        return new Extent(extent)
     }
 
     // 样式管理
@@ -345,7 +322,6 @@ export default class VectorLayer extends BaseLayer {
      * @returns {OMapStyleLike | undefined} style 样式
      */
     getStyle(): OMapStyleLike | undefined {
-        if (!this._isInitializedLayer('getStyle')) return;
         return this.style
     }
     
@@ -354,7 +330,6 @@ export default class VectorLayer extends BaseLayer {
      * @param {OMapStyleLike} style 新样式
      */
     setStyle(style: OMapStyleLike): void {
-        if (!this._isInitializedLayer('setStyle')) return;
         if(!isDefined(style)) {
             warn_(createMessage('setStyle', 'style参数不能为空'));
             return;
@@ -368,7 +343,6 @@ export default class VectorLayer extends BaseLayer {
      * @returns 
      */
     setDeclutter(declutter: boolean | string | number): void {
-        if (!this._isInitializedLayer('setDeclutter')) return;
         this._layer.setDeclutter(declutter)
     }
 

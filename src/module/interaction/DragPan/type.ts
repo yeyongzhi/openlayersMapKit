@@ -7,4 +7,5 @@ type CustOlDragPanParamsType = ManualOmit<OlDragPanParamsType,
     'onBoxEnd'
 >
 export type OMapDragPanParamsType = CustOlDragPanParamsType & OMapInteractionCommonParamsType
+export type OMapDragPanType = OlInteraction.DragPan
 export type OlDragPanInstanceType = InstanceType<typeof OlInteraction.DragPan>

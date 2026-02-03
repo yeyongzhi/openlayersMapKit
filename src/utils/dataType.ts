@@ -4,7 +4,7 @@ function isFunction<T extends Function>(value: T | any): value is T {
     return typeof value === 'function';
 }
 
-function isArray(value: unknown): value is Array<unknown> {
+function isArray<T>(value: unknown): value is Array<T> {
     return Array.isArray(value);
 }
 

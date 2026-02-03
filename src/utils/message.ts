@@ -1,13 +1,13 @@
 function warn_(message: string): void {
-    console.warn("omap warn", message);
+    console.warn("🐞OMap Warn", message);
 }
 
 function error_(message: string): void {
-    throw new Error(`omap error ${message}`);
+    throw new Error(`⚠️OMap Error ${message}`);
 }
 
 function info_(message: string): void {
-    console.info("omap info", message);
+    console.info("❕️OMap Info", message);
 }
 
 function getPackageMessage(packageName: string) {
