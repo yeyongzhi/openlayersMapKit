@@ -7,15 +7,21 @@ type CustOlExtentParamsType = ManualOmit<OlInteractionExtentParamsType,
     ''
 >
 export type OMapExtentParamsType = CustOlExtentParamsType & OMapInteractionCommonParamsType
+
+export const OMAP_EXTENT_DEFAULT_PARAMS: OMapExtentParamsType = {
+    condition: undefined,
+    extent: undefined,
+    boxStyle: undefined,
+    pixelTolerance: 10,
+    pointerStyle: undefined,
+    wrapX: false
+}
+
 export type OMapInteractionExtentType = OlInteraction.Extent
 export type OlInteractionExtentInstanceType = InstanceType<typeof OlInteraction.Extent>
 
 export const OMapInteractionExtentEventTypes = [...OMapInteractionCommonEventTypes, "extentchanged"] as const
-export type OMapInteractionExtentEventType = typeof OMapInteractionExtentEventTypes[number] extends infer T
-    ? T extends string
-    ? T
-    : never
-    : never;
+export type OMapInteractionExtentEventType = typeof OMapInteractionExtentEventTypes[number]
 
 // 类型守卫函数
 export function isOMapInteractionExtentEventType(
@@ -23,6 +29,6 @@ export function isOMapInteractionExtentEventType(
 ): value is OMapInteractionExtentEventType {
     return (
         typeof value === 'string' &&
-        OMapInteractionExtentEventTypes.includes(value as any)
+        OMapInteractionExtentEventTypes.includes(value as OMapInteractionExtentEventType)
     );
 }

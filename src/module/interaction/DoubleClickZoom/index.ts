@@ -34,7 +34,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/9/20
- * @updateDate 2025/12/27
+ * @updateDate 2025/2/4
  */
 
 const defaultDoubleClickZoomOptions = {
@@ -91,16 +91,19 @@ export default class DoubleClickZoom extends Interaction<OMapDoubleClickZoomType
   ): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(
-        createMessage("on", commonMessage.paramsNotDefined("type or callback")),
+        createMessage(
+          "once",
+          commonMessage.paramsNotDefined("type or callback"),
+        ),
       );
     }
     if (!isOMapInteractionDoubleClickZoomEventType(type)) {
-      error_(createMessage("on", commonMessage.paramsInvaildEnum(type)));
+      error_(createMessage("once", commonMessage.paramsInvaildEnum(type)));
     }
     if (!isFunction(callback)) {
       error_(
         createMessage(
-          "on",
+          "once",
           commonMessage.paramsInvaildFormat("callback", "function"),
         ),
       );

@@ -1,10 +1,10 @@
-import DoubleClickZoom from './index';
-import { type OMapInteractionDoubleClickZoomEventType } from './type';
+import MouseWheelZoom from './index';
+import { type OMapInteractionMouseWheelZoomEventType } from './type';
 import { isDefined } from '../../../utils/define';
 
-export function handleInteractionDoubleClickZoomEvent(
-    target: DoubleClickZoom,
-    type: OMapInteractionDoubleClickZoomEventType,
+export function handleInteractionMouseWheelZoomEvent(
+    target: MouseWheelZoom,
+    type: OMapInteractionMouseWheelZoomEventType,
     e: any
 ) {
     const { key, oldValue } = e;

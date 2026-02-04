@@ -1,7 +1,5 @@
 import { isDefined, defaultValue, isFunction, isNumber, isString } from '../../../utils/index';
-import { isExtentType } from '../../../utils/dataType';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import { commonMessage } from "../../../utils/message";
+import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
 import Extent from '../../basic/Extent/index'
 import { isValidExtent, type OlExtentType, type OMapExtentType } from '../../basic/Extent/type'
@@ -11,10 +9,10 @@ import { type OlStyleLike } from '../../basic/Style/type'
 import { OlInteraction, OlEvent } from '../../../source/index'
 import {
     type OMapExtentParamsType,
-    type OlInteractionExtentInstanceType,
     type OMapInteractionExtentEventType,
     isOMapInteractionExtentEventType,
-    type OMapInteractionExtentType
+    type OMapInteractionExtentType,
+    OMAP_EXTENT_DEFAULT_PARAMS
 } from './type'
 import type { EventIdType, OMapEventsKeyType } from '../../util/Event/type'
 import { handleInteractionExtentEvent } from './handle'
@@ -32,26 +30,16 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2026/1/5
  */
 
-const defaultExtentOptions: OMapExtentParamsType = {
-    condition: undefined,
-    extent: undefined,
-    boxStyle: undefined,
-    pixelTolerance: 10,
-    pointerStyle: undefined,
-    wrapX: false
-}
 
 export default class InteractionExtent extends Interaction<OMapInteractionExtentType> {
 
     constructor(params?: OMapExtentParamsType) {
         super("InteractionExtent", { id: params?.id })
-        let _params = {
-            ...defaultValue(params, {})
-        }
+        let _params = defaultValue(params, {})
         if (isDefined(_params.boxStyle)) {
-            _params.boxStyle = handleGetStyleValue(_params.boxStyle) as OlStyleLike
+            _params.boxStyle = handleGetStyleValue(_params.boxStyle)
         }
-        this._interaction = new OlInteraction.Extent(Object.assign({}, defaultExtentOptions, defaultValue(_params, {})))
+        this._interaction = new OlInteraction.Extent(Object.assign({}, OMAP_EXTENT_DEFAULT_PARAMS, defaultValue(_params, {})))
         // 注册事件
         this.initInteractionEvent()
     }
@@ -97,7 +85,7 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
         return id
     }
 
-    once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | undefined {
+    once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType {
         if (!isDefined(type) || !isDefined(callback)) {
             error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
         }

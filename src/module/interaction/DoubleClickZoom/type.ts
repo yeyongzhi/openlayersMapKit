@@ -27,7 +27,7 @@ export const OMapInteractionDoubleClickZoomEventTypes = [
 export type OMapInteractionDoubleClickZoomEventType =
   (typeof OMapInteractionDoubleClickZoomEventTypes)[number];
 
-// 类型守卫函数
+
 export function isOMapInteractionDoubleClickZoomEventType(
   value: unknown,
 ): value is OMapInteractionDoubleClickZoomEventType {

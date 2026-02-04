@@ -1,12 +1,12 @@
 import { OlDrawCreateBox } from '../../../source/index'
-import type { OMapDrawMode, OlDrawType, OMapInteractionDrawEventType } from './type'
+import type { OMapDrawModeType, OlDrawType, OMapInteractionDrawEventType } from './type'
 import { OlGeometry, OlUtil } from '../../../source/index'
 import Draw from './index'
 import { isDefined, defaultValue } from '../../../utils/define'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
 import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 
-export function getOlDrawType(mode: OMapDrawMode): { type: OlDrawType, geometryFunction: any } {
+export function getOlDrawType(mode: OMapDrawModeType): { type: OlDrawType, geometryFunction: any } {
     let type: OlDrawType = 'Point'
     let geometryFunction: any = null
     switch (mode) {

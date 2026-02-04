@@ -15,17 +15,13 @@ export type OMapLinkType = OlInteraction.Link
 export type OlInteractionLinkInstanceType = InstanceType<typeof OlInteraction.Link>
 
 export const OMapInteractionLinkEventTypes = [...OMapInteractionCommonEventTypes ] as const
-export type OMapInteractionLinkEventType = typeof OMapInteractionLinkEventTypes[number] extends infer T
-    ? T extends string
-    ? T
-    : never
-    : never;
+export type OMapInteractionLinkEventType = typeof OMapInteractionLinkEventTypes[number]
 
 export function isOMapInteractionLinkEventType(
     value: unknown
 ): value is OMapInteractionLinkEventType {
     return (
         typeof value === 'string' &&
-        OMapInteractionLinkEventTypes.includes(value as any)
+        OMapInteractionLinkEventTypes.includes(value as OMapInteractionLinkEventType)
     );
 }

@@ -117,7 +117,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
         }
     }
 
-    getFeatures(): BaseFeature<OlGeometry.Geometry>[] | undefined {
+    getFeatures(): BaseFeature<OlGeometry.Geometry>[] {
         return this.features
     }
 

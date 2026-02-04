@@ -8,7 +8,7 @@ import Interaction from '../Interaction/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
 import type { EventIdType } from '../../util/Event/type'
-import { type OlVectorSourceInstanceType } from '../../layer/VectorLayer/type'
+import { type OMapVectorSourceType } from '../../layer/VectorLayer/type'
 import {
     type OMapModifyParamsType,
     type OlModifyInstanceType,
@@ -53,32 +53,29 @@ export default class Modify extends Interaction<OMapModifyType> {
 
     constructor(params: OMapModifyParamsType) {
         if (!isDefined(params)) {
-            error_(createMessage('init', 'params参数不能为空'));
+            error_(createMessage('init', commonMessage.paramsNotDefined('params')));
         }
         super("Modify", { id: params.id })
-        let modify_source: OlVectorSourceInstanceType | null = null
+        let modify_source: OMapVectorSourceType | null = null
         if (!isDefined(params.layer)) {
-            warn_(createMessage('init', 'layer参数不能为空'));
+            error_(createMessage('init', 'layer参数不能为空'));
         }
         if (isDefined(params.layer) && !(params.layer instanceof VectorLayer)) {
-            warn_(createMessage('init', 'layer参数不属于VectorLayer类型'));
+            error_(createMessage('init', 'layer参数不属于VectorLayer类型'));
         }
         this.layer = params.layer
-        modify_source = (params.layer.getSource() as OlVectorSourceInstanceType)
+        modify_source = (params.layer.getSource() as OMapVectorSourceType)
         let _params = Object.assign({}, defaultModifyOptions, {
             ...params,
             source: modify_source
         })
         this._interaction = new OlInteraction.Modify(_params)
         this.initInteractionEvent()
-        if (isDefined(params) && isDefined(params.id)) {
-            this._initInteractionId(params.id)
-        }
         // 初始化Modify事件
         this._initModifyEvent()
     }
 
-    protected _initModifyEvent(): void {
+    protected _initModifyEvent() {
 
         let originFeatures = (this.layer as VectorLayer).getFeatures(); // 最初始的features
         // 这里不能直接放入originFeatures，因为originFeatures会在modify的过程中被修改
@@ -97,11 +94,11 @@ export default class Modify extends Interaction<OMapModifyType> {
             features: originFeaturesList,
             version: 1,
         });
-        (this._interaction as OlModifyInstanceType).on("modifyend", (e) => {
+        this._interaction.on("modifyend", (e) => {
             let features = e.features.getArray()
             let newList: any[] = []
             features.forEach(f => {
-                let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature<OlGeometry.Geometry>[]).find(item => {
+                let target = (this.layer as VectorLayer).getFeatures().find(item => {
                     return OlUtil.getUid(item.getFeature()) === OlUtil.getUid(f)
                 })
                 if (target) {
@@ -122,49 +119,42 @@ export default class Modify extends Interaction<OMapModifyType> {
         })
     }
 
-    canInsertPoint(): boolean | undefined {
-
-        return (this._interaction as OlModifyInstanceType).canInsertPoint()
+    canInsertPoint(): boolean {
+        return this._interaction.canInsertPoint()
     }
 
-    canRemovePoint(): boolean | undefined {
-
-        return (this._interaction as OlModifyInstanceType).canRemovePoint()
+    canRemovePoint(): boolean {
+        return this._interaction.canRemovePoint()
     }
 
     /**
      * 插入一个点
      * @param {OMapCoordinateType} coordinates 点的坐标
      */
-    insertPoint(coordinates: OMapCoordinateType): boolean | undefined {
-
+    insertPoint(coordinates: OMapCoordinateType): boolean {
         if (!isDefined(coordinates)) {
-            warn_(createMessage('insertPoint', 'coordinates参数不能为空'));
-            return;
+            error_(createMessage('insertPoint', commonMessage.paramsNotDefined('coordinates')));
         }
-        let _coordinates: OlCoordinateType = handleGetLnglatValue(coordinates) as OlCoordinateType
-        return (this._interaction as OlModifyInstanceType).insertPoint(_coordinates)
+        let _coordinates: OlCoordinateType = handleGetLnglatValue(coordinates)
+        return this._interaction.insertPoint(_coordinates)
     }
 
     /**
      * 删除一个点
      * @param {OMapCoordinateType} coordinates 点的坐标
      */
-    removePoint(coordinates: OMapCoordinateType): boolean | undefined {
-
+    removePoint(coordinates: OMapCoordinateType): boolean { 
         if (!isDefined(coordinates)) {
-            warn_(createMessage('removePoint', 'coordinates参数不能为空'));
-            return;
+            error_(createMessage('removePoint', commonMessage.paramsNotDefined('coordinates')));
         }
-        let _coordinates: OlCoordinateType = handleGetLnglatValue(coordinates) as OlCoordinateType
-        return (this._interaction as OlModifyInstanceType).removePoint(_coordinates)
+        let _coordinates: OlCoordinateType = handleGetLnglatValue(coordinates)
+        return this._interaction.removePoint(_coordinates)
     }
 
     /**
      * 撤销修改
      */
-    revoke(step = 1): boolean | undefined {
-
+    revoke(step = 1): boolean {
         if (this.records.length === 1) return false;
         let nowIndex = this.records.length - 1
         let targetIndex = nowIndex - step
@@ -175,7 +165,7 @@ export default class Modify extends Interaction<OMapModifyType> {
         }
         const { features } = this.records[targetIndex]
         features.forEach(f => {
-            let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature<OlGeometry.Geometry>[]).find(item => {
+            let target = ((this.layer as VectorLayer).getFeatures()).find(item => {
                 if (f.id) {
                     return f.id === item.id
                 }
@@ -195,7 +185,7 @@ export default class Modify extends Interaction<OMapModifyType> {
     cancel() {
         const { features } = this.records[0]
         features.forEach(f => {
-            let target = ((this.layer as VectorLayer).getFeatures() as BasicFeature<OlGeometry.Geometry>[]).find(item => {
+            let target = ((this.layer as VectorLayer).getFeatures()).find(item => {
                 if (f.id) {
                     return f.id === item.id
                 }
@@ -210,57 +200,43 @@ export default class Modify extends Interaction<OMapModifyType> {
         ]
     }
 
-    on(type: OMapInteractionModifyEventType, callback: () => void): EventIdType | undefined {
-
+    on(type: OMapInteractionModifyEventType, callback: () => void): EventIdType {
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
-            return;
+            error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
         }
         if (!isOMapInteractionModifyEventType(type)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
-            return;
-        };
-        if (!isFunction(callback)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
-            return;
+            error_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
         }
-        const unlisten = OlEvent.listen((this._interaction as OlModifyInstanceType), type, (e: any) => {
+        if (!isFunction(callback)) {
+            error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function'))); 
+        }
+        const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
             this.events.emit(type, handleModifyEvent(this, type, e))
         })
         const id = this.events.on(type, callback, unlisten)
         return id
     }
 
-    once(type: OMapInteractionModifyEventType, callback: () => void): EventIdType | undefined {
-
+    once(type: OMapInteractionModifyEventType, callback: () => void): EventIdType {
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
-            return;
+            error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
         }
         if (!isOMapInteractionModifyEventType(type)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
-            return;
-        };
-        if (!isFunction(callback)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
-            return;
+            error_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
         }
-        const unlisten = OlEvent.listen((this._interaction as OlModifyInstanceType), type, (e: any) => {
+        if (!isFunction(callback)) {
+            error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function'))); 
+        }
+        const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
             this.events.emit(type, handleModifyEvent(this, type, e))
         })
         const id = this.events.once(type, callback, unlisten)
         return id
     }
 
-    un(id: EventIdType): void {
-
+    un(id: EventIdType) {
         if (!isDefined(id)) {
-            warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
-            return;
-        }
-        if (!isString(id)) {
-            warn_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'string')));
-            return;
+            error_(createMessage('un', commonMessage.paramsNotDefined(id)));
         }
         this.events.remove(id)
     }

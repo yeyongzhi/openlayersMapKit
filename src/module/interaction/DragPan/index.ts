@@ -1,8 +1,15 @@
 import { isDefined, isFunction, isNumber, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
-import { OlInteraction } from '../../../source/index'
-import { type OMapDragPanParamsType, type OMapDragPanType } from './type'
+import { OlInteraction, OlEvent } from '../../../source/index'
+import {
+    type OMapDragPanParamsType,
+    type OMapDragPanType,
+    isOMapInteractionDragPanEventType,
+    type OMapInteractionDragPanEventType,
+} from './type'
+import { handleInteractionDragPanEvent } from "./handle";
+import { type EventIdType } from "../../util/Event/type";
 
 const PACKAGE_NAME = 'DragPan';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -29,5 +36,80 @@ export default class DragPan extends Interaction<OMapDragPanType> {
         this._interaction = new OlInteraction.DragPan(Object.assign({}, defaultDragPanOptions, params || {}))
         this.initInteractionEvent()
     }
+
+    on(
+    type: OMapInteractionDragPanEventType,
+    callback: () => void,
+  ): EventIdType {
+    if (!isDefined(type) || !isDefined(callback)) {
+      error_(
+        createMessage("on", commonMessage.paramsNotDefined("type or callback")),
+      );
+    }
+    if (!isOMapInteractionDragPanEventType(type)) {
+      error_(createMessage("on", commonMessage.paramsInvaildEnum(type)));
+    }
+    if (!isFunction(callback)) {
+      error_(
+        createMessage(
+          "on",
+          commonMessage.paramsInvaildFormat("callback", "function"),
+        ),
+      );
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+      this.events.emit(
+        type,
+        handleInteractionDragPanEvent(this, type, e),
+      );
+    });
+    const id = this.events.on(type, callback, unlisten);
+    return id;
+  }
+
+  once(
+    type: OMapInteractionDragPanEventType,
+    callback: () => void,
+  ): EventIdType {
+    if (!isDefined(type) || !isDefined(callback)) {
+      error_(
+        createMessage("once", commonMessage.paramsNotDefined("type or callback")),
+      );
+    }
+    if (!isOMapInteractionDragPanEventType(type)) {
+      error_(createMessage("once", commonMessage.paramsInvaildEnum(type)));
+    }
+    if (!isFunction(callback)) {
+      error_(
+        createMessage(
+          "once",
+          commonMessage.paramsInvaildFormat("callback", "function"),
+        ),
+      );
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+      this.events.emit(
+        type,
+        handleInteractionDragPanEvent(this, type, e),
+      );
+    });
+    const id = this.events.once(type, callback, unlisten);
+    return id;
+  }
+
+  un(id: EventIdType) {
+    if (!isDefined(id)) {
+      error_(createMessage("un", commonMessage.paramsNotDefined(id)));
+    }
+    if (!isString(id)) {
+      error_(
+        createMessage(
+          "un",
+          commonMessage.paramsInvaildFormat(id, "EventIdType"),
+        ),
+      );
+    }
+    this.events.remove(id);
+  }
 
 }

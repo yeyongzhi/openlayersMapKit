@@ -1,7 +1,7 @@
 import VectorLayer from '../../layer/VectorLayer/index'
 import { OlGeometry, OlInteraction, OlUtil } from '../../../source/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
-import { OMapSelectEventType } from './type'
+import { OMapInteractionSelectEventType } from './type'
 import Select from './index'
 
 let selectLayers: VectorLayer[] = []
@@ -20,13 +20,13 @@ export function getTargetFeature(id: string): BaseFeature<OlGeometry.Geometry> |
     let result = null
     if (selectLayers.length) {
         for (const layer of selectLayers) {
-            let target = (layer.getFeatures() as BaseFeature<OlGeometry.Geometry>[]).find(f => OlUtil.getUid(f._feature) === id)
+            let target = (layer.getFeatures() as BaseFeature<OlGeometry.Geometry>[]).find(f => OlUtil.getUid(f.getFeature()) === id)
             if (target) {
                 result = target
             }
         }
     } else {
-        result = selectFeatures.find(f => OlUtil.getUid(f._feature) === id)
+        result = selectFeatures.find(f => OlUtil.getUid(f.getFeature()) === id)
     }
     return result
 }
@@ -36,17 +36,12 @@ export function clearHandle() {
     selectFeatures = []
 }
 
-interface OMapSelectEventTarget {
-    target: Select;
-    type: OMapSelectEventType;
-    mapBrowserEvent: any;
-}
-
-export function handleSelectEvent(target: Select, type: OMapSelectEventType, e: any) {
-    let result: OMapSelectEventTarget = {
+export function handleInteractionSelectEvent(target: Select, type: OMapInteractionSelectEventType, e: any) {
+    let result = {
         target,
         type,
-        mapBrowserEvent: e.mapBrowserEvent
+        selected: target.getSelected(),
+        deselected: target.getDeselected(),
     }
     return result
 }

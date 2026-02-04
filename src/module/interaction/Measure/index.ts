@@ -1,11 +1,9 @@
-import { isDefined, isNumber, isFunction, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import { commonMessage } from '../../../utils/message'
+import { isDefined, defaultValue, isNumber, isFunction, isString } from '../../../utils/index';
+import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
 import { OlInteraction, OlGeometry, OlFeature, OlObservable } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import Map from '../../core/Map/index'
-import type { OlMapInstanceType } from '../../core/Map/type'
 import Popup from '../../basic/Popup/index'
 import { type EventIdType } from '../../util/Event/type';
 import {
@@ -19,8 +17,9 @@ import {
     MeasureMode,
     MeasureEventType,
     type OMapMeasureType,
+    isOMapMeasureMode
 } from './type'
-import type { OlVectorSourceInstanceType, OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
+import type { OMapVectorSourceType, OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
 import {
     getOlDrawType,
@@ -70,18 +69,21 @@ export default class Measure extends Interaction<OMapMeasureType> {
     }
 
     constructor(mode: OMapMeasureMode, params?: OMapMeasureParamsType) {
-        if (!(Object.values(MeasureMode) as OMapMeasureMode[]).includes(mode)) {
-            error_(createMessage('constructor', 'mode参数有误'));
-            return
+        if(!isDefined(mode)) {
+            error_(createMessage('constructor', commonMessage.paramsNotDefined('mode')));
         }
-        super("Measure", { id: params?.id })
-        let draw_source: OlVectorSourceInstanceType | null = null
+        if (!isOMapMeasureMode(mode)) {
+            error_(createMessage('constructor', commonMessage.paramsInvaildEnum(mode)));
+        }
+        let _params = defaultValue(params, {})
+        super("Measure", { id: _params.id })
+        let draw_source: OMapVectorSourceType | null = null
         // Measure模式下，直接新建一个VectorLayer
         this.layer = new VectorLayer({
             style: DEFAULT_STYLE
         })
-        draw_source = (this.layer.getSource() as OlVectorSourceInstanceType)
-        let _params = Object.assign({}, DRAW_DEFAULT_PARAMS, {
+        draw_source = this.layer.getSource() as OMapVectorSourceType
+        let measureParams = Object.assign({}, DRAW_DEFAULT_PARAMS, {
             clickTolerance: params?.clickTolerance,
             source: draw_source,
             features: undefined,
@@ -89,7 +91,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
         })
         this._interaction = new OlInteraction.Draw({
             ...getOlDrawType(mode),
-            ..._params,
+            ...measureParams,
         })
         this.mode = mode
         if (mode === MeasureMode.Distance) {
@@ -97,16 +99,13 @@ export default class Measure extends Interaction<OMapMeasureType> {
         } else if (mode === MeasureMode.Area) {
             this.result.unit = 'km²'
         }
-        // 注册事件
         this.initInteractionEvent()
-        // this.initMeasureEvent()
     }
 
     /**
      * 初始化 测量事件
      */
     protected initMeasureEvent() {
-
         this._interaction.on("change:active", (e) => {
             if (this._interaction.getActive()) {
                 this.onMeasureActive()
@@ -115,7 +114,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
             }
         });
         // 测量开始
-        (this._interaction as OlDrawInstanceType).on("drawstart", (e) => {
+        this._interaction.on("drawstart", (e) => {
             // 派发测量开始的回调函数
             this.events.emit(MeasureEventType.measureStart, {
                 target: this,
@@ -124,7 +123,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
             this.onMeasureStart(e.feature)
         });
         // 【测量结束】
-        (this._interaction as OlDrawInstanceType).on("drawend", (e) => {
+        this._interaction.on("drawend", (e) => {
             this.onMeasureEnd()
         })
     }
@@ -266,48 +265,42 @@ export default class Measure extends Interaction<OMapMeasureType> {
     /**
      * 取消绘制，并结束当前未完成的绘制
      */
-    cancel(): void {
-
-        (this._interaction as OlDrawInstanceType).abortDrawing()
+    cancel() {
+        this._interaction.abortDrawing()
     }
 
     /**
      * 删除最后一个点
      */
-    revoke(): void {
-
-        (this._interaction as OlDrawInstanceType).removeLastPoint()
+    revoke() {
+        this._interaction.removeLastPoint()
     }
 
     /**
      * 结束当前未完成的绘制
      */
-    finish(): void {
-
-        (this._interaction as OlDrawInstanceType).finishDrawing()
+    finish() {
+        this._interaction.finishDrawing()
     }
 
     setMap(map: Map) {
         super.setMap(map)
-        if(isDefined(map)) {
-            this.initMeasureEvent();
-            (this.map as Map).addPopup(tooltipPopup.getPopup() as Popup);
+        if(!isDefined<Map>(map)) {
+            return;
         }
+        this.initMeasureEvent();
+        (this.map as Map).addPopup(tooltipPopup.getPopup() as Popup);
     }
 
-    on(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
-
+    on(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType {
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
-            return;
+            error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
         }
         if (!isOMapInteractionMeasureEventType(type)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
-            return;
+            error_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
         };
         if (!isFunction(callback)) {
-            warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
-            return;
+            error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
         }
         // measure事件是由自己触发的，无需再绑定到this._interaction的原生事件上
         const id = this.events.on(type, callback);
@@ -315,38 +308,28 @@ export default class Measure extends Interaction<OMapMeasureType> {
     }
 
     once(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
-
         if (!isDefined(type) || !isDefined(callback)) {
-            warn_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
-            return;
+            error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
         }
         if (!isOMapInteractionMeasureEventType(type)) {
-            warn_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
-            return;
+            error_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
         };
         if (!isFunction(callback)) {
-            warn_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
-            return;
+            error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
         }
         // measure事件是由自己触发的，无需再绑定到this._interaction的原生事件上
         const id = this.events.once(type, callback);
         return id
     }
 
-    un(id: EventIdType): void {
-
+    un(id: EventIdType) {
         if (!isDefined(id)) {
-            warn_(createMessage('un', commonMessage.paramsNotDefined(id)));
-            return;
-        }
-        if (!isString(id)) {
-            warn_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'string')));
-            return;
+            error_(createMessage('un', commonMessage.paramsNotDefined('id')));
         }
         this.events.remove(id)
     }
 
-    protected destroy(destroyLayer: boolean = true): void {
+    protected destroy(destroyLayer: boolean = true) {
         tooltipPopup.updatePosition(undefined)
         measurePopup.updatePosition(undefined)
         handleDestroy()

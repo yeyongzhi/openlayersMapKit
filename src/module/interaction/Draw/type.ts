@@ -6,11 +6,9 @@ import type { OMapStyleLike } from '../../basic/Style/type'
 import { type OMapInteractionCommonParamsType, OMapInteractionCommonEventTypes } from '../Interaction/type'
 
 export type OlDrawType = 'Point' | 'LineString' | 'Polygon' | 'LinearRing' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon' | 'GeometryCollection' | 'Circle'
-export type OMapDrawMode = 'Point' | 'LineString' | 'Polygon' | 'Rectangle' | 'Circle'
 
 /**
  * 绘制模式
- * @enum {OMapDrawMode}
  */
 export const DrawMode = {
     /** 点 */
@@ -25,6 +23,12 @@ export const DrawMode = {
     Circle: 'Circle',
 } as const
 
+export type OMapDrawModeType = typeof DrawMode[keyof typeof DrawMode];
+
+export function isVaildDrawMode(mode: OMapDrawModeType): mode is OMapDrawModeType {
+    return Object.values(DrawMode).includes(mode)
+}
+
 type OlDrawParamsType = ConstructorParameters<typeof OlInteraction.Draw>[0]
 export type OMapDrawType = OlInteraction.Draw
 export type OlDrawInstanceType = InstanceType<typeof OlInteraction.Draw>
@@ -37,7 +41,7 @@ export type OMapDrawParamsType = OMapInteractionCommonParamsType & CustOlDrawPar
     style?: OMapStyleLike;
 }
 
-export const DRAW_DEFAULT_PARAMS = {
+export const OMAP_DRAW_DEFAULT_PARAMS = {
     clickTolerance: 6,
     dragVertexDelay: 500,
     snapTolerance: 12,
@@ -53,11 +57,7 @@ export const DrawEventType = {
     drawAbort: "drawabort",
 } as const
 export const OMapInteractionDrawEventTypes = [...OMapInteractionCommonEventTypes, ...Object.values(DrawEventType)] as const
-export type OMapInteractionDrawEventType = typeof OMapInteractionDrawEventTypes[number] extends infer T
-    ? T extends string
-    ? T
-    : never
-    : never;
+export type OMapInteractionDrawEventType = (typeof OMapInteractionDrawEventTypes)[number]
 
 // 类型守卫函数
 export function isOMapInteractionDrawEventType(
@@ -65,6 +65,6 @@ export function isOMapInteractionDrawEventType(
 ): value is OMapInteractionDrawEventType {
     return (
         isString(value) &&
-        OMapInteractionDrawEventTypes.includes(value as any)
+        OMapInteractionDrawEventTypes.includes(value as OMapInteractionDrawEventType)
     );
 }

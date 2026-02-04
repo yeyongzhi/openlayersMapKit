@@ -1,12 +1,29 @@
-import { isBoolean, isDefined, defaultValue, isFunction, isNumber, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import Interaction from '../Interaction/index'
-import { OlInteraction } from '../../../source/index'
 import {
-    type OMapKeyboardZoomParamsType,
-    type OMapKeyboardZoomType
-} from './type'            
-const PACKAGE_NAME = 'KeyboardZoom';
+  isBoolean,
+  isDefined,
+  defaultValue,
+  isFunction,
+  isNumber,
+  isString,
+} from "../../../utils/index";
+import {
+  warn_,
+  error_,
+  getPackageMessage,
+  commonMessage,
+} from "../../../utils/message";
+import Interaction from "../Interaction/index";
+import { OlInteraction, OlEvent } from "../../../source/index";
+import {
+  type OMapKeyboardZoomParamsType,
+  type OMapKeyboardZoomType,
+  type OMapInteractionKeyboardZoomEventType,
+  isOMapInteractionKeyboardZoomEventType,
+} from "./type";
+import { type EventIdType } from "../../util/Event/type";
+import { handleInteractionKeyboardZoomEvent } from "./handle";
+
+const PACKAGE_NAME = "KeyboardZoom";
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
@@ -20,16 +37,85 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 const defaultKeyboardZoomOptions = {
-    duration: 100,
-    delta: 1
-}
+  duration: 100,
+  delta: 1,
+};
 
 export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
+  constructor(params?: OMapKeyboardZoomParamsType) {
+    super("KeyboardZoom", { id: params?.id });
+    this._interaction = new OlInteraction.KeyboardZoom(
+      Object.assign({}, defaultKeyboardZoomOptions, params || {}),
+    );
+    this.initInteractionEvent();
+  }
 
-    constructor(params?: OMapKeyboardZoomParamsType) {
-        super("KeyboardZoom", { id: params?.id })
-        this._interaction = new OlInteraction.KeyboardZoom(Object.assign({}, defaultKeyboardZoomOptions, params || {}))
-        this.initInteractionEvent()
+  on(
+    type: OMapInteractionKeyboardZoomEventType,
+    callback: () => void,
+  ): EventIdType {
+    if (!isDefined(type) || !isDefined(callback)) {
+      error_(
+        createMessage("on", commonMessage.paramsNotDefined("type or callback")),
+      );
     }
+    if (!isOMapInteractionKeyboardZoomEventType(type)) {
+      error_(createMessage("on", commonMessage.paramsInvaildEnum(type)));
+    }
+    if (!isFunction(callback)) {
+      error_(
+        createMessage(
+          "on",
+          commonMessage.paramsInvaildFormat("callback", "function"),
+        ),
+      );
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+      this.events.emit(type, handleInteractionKeyboardZoomEvent(this, type, e));
+    });
+    const id = this.events.on(type, callback, unlisten);
+    return id;
+  }
 
+  once(
+    type: OMapInteractionKeyboardZoomEventType,
+    callback: () => void,
+  ): EventIdType {
+    if (!isDefined(type) || !isDefined(callback)) {
+      error_(
+        createMessage("once", commonMessage.paramsNotDefined("type or callback")),
+      );
+    }
+    if (!isOMapInteractionKeyboardZoomEventType(type)) {
+      error_(createMessage("once", commonMessage.paramsInvaildEnum(type)));
+    }
+    if (!isFunction(callback)) {
+      error_(
+        createMessage(
+          "once",
+          commonMessage.paramsInvaildFormat("callback", "function"),
+        ),
+      );
+    }
+    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+      this.events.emit(type, handleInteractionKeyboardZoomEvent(this, type, e));
+    });
+    const id = this.events.once(type, callback, unlisten);
+    return id;
+  }
+
+  un(id: EventIdType) {
+    if (!isDefined(id)) {
+      error_(createMessage("un", commonMessage.paramsNotDefined(id)));
+    }
+    if (!isString(id)) {
+      error_(
+        createMessage(
+          "un",
+          commonMessage.paramsInvaildFormat(id, "EventIdType"),
+        ),
+      );
+    }
+    this.events.remove(id);
+  }
 }

@@ -14,6 +14,15 @@ export const MeasureMode = {
 } as const
 export type OMapMeasureMode = (typeof MeasureMode)[keyof typeof MeasureMode]
 
+export function isOMapMeasureMode(
+    value: unknown
+): value is OMapMeasureMode {
+    return (
+        isString(value) &&
+        Object.values(MeasureMode).includes(value as OMapMeasureMode)
+    );
+}
+
 type OlDrawParamsType = ConstructorParameters<typeof OlInteraction.Draw>[0]
 export type OMapMeasureType = OlInteraction.Draw
 export type OlDrawInstanceType = InstanceType<typeof OlInteraction.Draw>
@@ -41,17 +50,16 @@ export const MeasureEventType = {
 } as const
 
 export const OMapInteractionMeasureEventTypes = [...OMapInteractionCommonEventTypes, ...Object.values(MeasureEventType)] as const
-export type OMapInteractionMeasureEventType = typeof OMapInteractionMeasureEventTypes[number] extends infer T
-    ? T extends string
-    ? T
-    : never
-    : never;
+export type OMapInteractionMeasureEventType = typeof OMapInteractionMeasureEventTypes[number]
+
+
+
 export function isOMapInteractionMeasureEventType(
     value: unknown
 ): value is OMapInteractionMeasureEventType {
     return (
         isString(value) &&
-        OMapInteractionMeasureEventTypes.includes(value as any)
+        OMapInteractionMeasureEventTypes.includes(value as OMapInteractionMeasureEventType)
     );
 }
 
