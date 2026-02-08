@@ -14,7 +14,6 @@ import Extent from '../../../basic/Extent/index'
 import { type OlStyleInstanceType, type  OMapStyleLike } from '../../../basic/Style/type'
 import { handleGetStyleValue } from '../../../basic/Style/handle'
 import type { PropertiesType } from '../../../../utils/type'
-import { type OlFeatureLike } from '../../../core/Feature/BasicFeature/type'
 
 const PACKAGE_NAME = 'BasicFeature';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -35,6 +34,7 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
     // 非空断言操作符 !（推荐用于抽象类）
     protected _feature!: OlFeatureInstanceType;
     protected _geometry!: T;
+    protected style: OMapStyleLike | undefined;
 
     constructor(type: OMapBasicFeatureType, coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType, radius?: number) {
         this.type = type;
@@ -126,15 +126,14 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
         return this._feature.getKeys()
     }
 
-    getStyle() {
-
+    getStyle() : OMapStyleLike | undefined {
+        return this.style
     }
 
     setStyle(style?: OMapStyleLike) {
         let _style = handleGetStyleValue(style)
-        if (isDefined(_style)) {
-            this._feature.setStyle(_style)
-        }
+        this._feature.setStyle(_style)
+        this.style = style
     }
 
     /**

@@ -1084,6 +1084,1257 @@ class Extent {
     return OlExtent.isEmpty(_extent);
   }
 }
+function isVaildStyle(value) {
+  return value instanceof Style;
+}
+function isVaildArrayStyle(value) {
+  return Array.isArray(value) && value.every((item) => isVaildStyle(item));
+}
+function isVaildFunctionStyle(value) {
+  return isFunction(value);
+}
+const PACKAGE_NAME$E = "BasicFeature";
+const createMessage$E = getPackageMessage(PACKAGE_NAME$E);
+class BasicFeature {
+  constructor(type, coordinatesOrFeature, radius) {
+    __publicField(this, "id", null);
+    __publicField(this, "type");
+    // 非空断言操作符 !（推荐用于抽象类）
+    __publicField(this, "_feature");
+    __publicField(this, "_geometry");
+    __publicField(this, "style");
+    this.type = type;
+    if (coordinatesOrFeature instanceof OlFeature) {
+      this._initByFeature(coordinatesOrFeature);
+    } else {
+      this._init(coordinatesOrFeature, radius);
+    }
+  }
+  /**
+   * 获取原生的Openlayers Feature对象
+   * @returns {OlFeatureInstanceType} 原生的Openlayers Feature对象
+   */
+  getFeature() {
+    return this._feature;
+  }
+  setId(id) {
+    if (!isDefined(id)) {
+      error_(createMessage$E("setId", "参数id不能为空"));
+    }
+    if (!isNumber(id) && !isString(id)) {
+      error_(createMessage$E("setId", "参数id格式有误"));
+    }
+    this.id = id;
+  }
+  getId() {
+    return this.id;
+  }
+  getType() {
+    return this.type;
+  }
+  changed() {
+    this._feature.changed();
+  }
+  dispatchEvent() {
+  }
+  clone() {
+  }
+  get(key) {
+    if (!isDefined(key)) {
+      error_(createMessage$E("get", commonMessage.paramsNotDefined("key")));
+    }
+    if (!isString(key)) {
+      error_(createMessage$E("get", commonMessage.paramsInvaildFormat("key", "string")));
+    }
+    return this._feature.get(key);
+  }
+  /**
+   * 获取原生的Openlayers Geometry对象
+   * @returns {T} 原生的Openlayers Geometry对象
+   */
+  getGeometry() {
+    return this._geometry;
+  }
+  getGeometryName() {
+  }
+  getKeys() {
+    return this._feature.getKeys();
+  }
+  getStyle() {
+    return this.style;
+  }
+  setStyle(style) {
+    let _style = handleGetStyleValue(style);
+    this._feature.setStyle(_style);
+    this.style = style;
+  }
+  /**
+   * 获取要素的范围
+   * @returns {Extent | undefined} 要素的范围
+   */
+  getExtent() {
+    let extent = this._geometry.getExtent();
+    return new Extent(extent);
+  }
+  getProperties() {
+    return this._feature.getProperties();
+  }
+  setProperties(properties) {
+    if (!isDefined(properties)) {
+      return false;
+    }
+    if (!isObject(properties)) {
+      error_(createMessage$E("setProperties", commonMessage.paramsInvaildFormat("properties", "object")));
+    }
+    this._feature.setProperties(properties);
+  }
+}
+function isValidExtent(value) {
+  if (value instanceof Extent) {
+    return true;
+  }
+  return isExtentType(value);
+}
+const PACKAGE_NAME$D = "Point";
+const createMessage$D = getPackageMessage(PACKAGE_NAME$D);
+class Point extends BasicFeature {
+  constructor(coordinatesOrFeature, properties) {
+    if (!isDefined(coordinatesOrFeature)) {
+      error_(
+        createMessage$D(
+          "constructor",
+          commonMessage.paramsNotDefined("coordinatesOrFeature")
+        )
+      );
+    }
+    if (coordinatesOrFeature instanceof OlFeature) {
+      super("Point", coordinatesOrFeature);
+    } else {
+      if (!isValidCoordinate(coordinatesOrFeature)) {
+        error_(
+          createMessage$D(
+            "constructor",
+            commonMessage.paramsInvaildFormat(
+              "coordinatesOrFeature",
+              "Lnglat or [x, y]"
+            )
+          )
+        );
+      }
+      super("Point", coordinatesOrFeature);
+      if (isDefined(properties) && isObject(properties)) {
+        this.setProperties(properties);
+      }
+    }
+  }
+  _init(coordinates) {
+    let geometryCoordinates = handleGetLnglatValue(coordinates);
+    this._geometry = new OlGeometry.Point(geometryCoordinates);
+    this._feature = new OlFeature({
+      geometry: this._geometry
+    });
+  }
+  _initByFeature(feature) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry();
+  }
+  /**
+   * 获取点的坐标
+   * @returns {Lnglat} 点的坐标
+   */
+  getCoordinates() {
+    let coordinates = this._geometry.getCoordinates();
+    return new Lnglat(coordinates);
+  }
+  /**
+   * 设置点的坐标
+   * @param {OMapPointGeometryCoordinatesType} coordinates 点的坐标
+   * @returns {void}
+   */
+  setCoordinates(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$D(
+          "setCoordinates",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    if (!isValidCoordinate(coordinates)) {
+      error_(
+        createMessage$D(
+          "setCoordinates",
+          commonMessage.paramsInvaildFormat("coordinates", "Lnglat or [x, y]")
+        )
+      );
+    }
+    let _coordinates = handleGetLnglatValue(coordinates);
+    this._geometry.setCoordinates(_coordinates);
+  }
+  /**
+   * 获取点的第一个坐标
+   * @returns {Lnglat} 点的第一个坐标
+   */
+  getFirstCoordinate() {
+    return this.getCoordinates();
+  }
+  /**
+   * 获取点的最后一个坐标
+   * @returns {Lnglat} 点的最后一个坐标
+   */
+  getLastCoordinate() {
+    return this.getCoordinates();
+  }
+  intersectsCoordinate() {
+  }
+  /**
+   * 点是否在extent范围内
+   * @param {Extent | OlExtentType} extent
+   * @returns {boolean | undefined}
+   */
+  intersectsExtent(extent) {
+    if (!isDefined(extent)) {
+      error_(
+        createMessage$D(
+          "intersectsExtent",
+          commonMessage.paramsNotDefined("extent")
+        )
+      );
+    }
+    if (!isValidExtent(extent)) {
+      error_(
+        createMessage$D(
+          "intersectsExtent",
+          commonMessage.paramsInvaildFormat(
+            "extent",
+            "Extent or [xmin, ymin, xmax, ymax]"
+          )
+        )
+      );
+    }
+    let _extent = handleGetExtentValue(extent);
+    return this._geometry.intersectsExtent(_extent);
+  }
+}
+function isValidLineStringCoordinates(value) {
+  return isArray(value) && value.every((item) => isValidCoordinate(item));
+}
+const PACKAGE_NAME$C = "LineString";
+const createMessage$C = getPackageMessage(PACKAGE_NAME$C);
+class LineString extends BasicFeature {
+  constructor(coordinatesOrFeature, properties) {
+    if (!isDefined(coordinatesOrFeature)) {
+      error_(
+        createMessage$C(
+          "constructor",
+          commonMessage.paramsNotDefined("coordinatesOrFeature")
+        )
+      );
+    }
+    if (coordinatesOrFeature instanceof OlFeature) {
+      super("LineString", coordinatesOrFeature);
+    } else {
+      if (!isValidLineStringCoordinates(coordinatesOrFeature)) {
+        error_(
+          createMessage$C(
+            "constructor",
+            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+          )
+        );
+      }
+      super("LineString", coordinatesOrFeature);
+      if (isDefined(properties) && isObject(properties)) {
+        this.setProperties(properties);
+      }
+    }
+  }
+  _init(coordinates) {
+    let geometryCoordinates = coordinates.map((c) => {
+      return handleGetLnglatValue(c);
+    });
+    this._geometry = new OlGeometry.LineString(geometryCoordinates);
+    this._feature = new OlFeature({
+      geometry: this._geometry
+    });
+  }
+  _initByFeature(feature) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry();
+  }
+  /**
+   * 获取线的坐标
+   * @returns {Array<Lnglat>} 线的坐标
+   */
+  getCoordinates() {
+    let coordinates = this._geometry.getCoordinates();
+    return coordinates.map((c) => {
+      return new Lnglat(c);
+    });
+  }
+  /**
+   * 设置线的坐标
+   * @param {OMapLineStringGeometryCoordinatesType} coordinates 线的坐标
+   */
+  setCoordinates(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$C(
+          "setCoordinates",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    if (!isValidLineStringCoordinates(coordinates)) {
+      error_(
+        createMessage$C(
+          "setCoordinates",
+          commonMessage.paramsInvaildFormat("coordinates")
+        )
+      );
+    }
+    let _coordinates = coordinates.map((c) => {
+      return handleGetLnglatValue(c);
+    });
+    this._geometry.setCoordinates(_coordinates);
+  }
+  /**
+   * 追加坐标
+   * @param {OMapPointGeometryCoordinatesType} coordinates 坐标
+   */
+  appendCoordinate(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$C(
+          "appendCoordinate",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
+      error_(
+        createMessage$C(
+          "appendCoordinate",
+          commonMessage.paramsInvaildFormat("coordinates")
+        )
+      );
+    }
+    let _coordinates = handleGetLnglatValue(coordinates);
+    this._geometry.appendCoordinate(_coordinates);
+  }
+  /**
+   * 获取线的第一个坐标
+   * @returns {Lnglat} 线的第一个坐标
+   */
+  getFirstCoordinate() {
+    let coordinates = this._geometry.getFirstCoordinate();
+    return new Lnglat(coordinates);
+  }
+  /**
+   * 获取线的最后一个坐标
+   * @returns {Lnglat} 线的最后一个坐标
+   */
+  getLastCoordinate() {
+    let coordinates = this._geometry.getLastCoordinate();
+    return new Lnglat(coordinates);
+  }
+  getLength() {
+    return this._geometry.getLength();
+  }
+  /**
+   * 获取线段指定位置的坐标点
+   * @param {number} fraction 比例
+   * @param dest 目标坐标点
+   * @returns {Lnglat} 线的坐标点
+   */
+  getCoordinateAt(fraction, dest) {
+    if (!isDefined(fraction)) {
+      error_(createMessage$C("getCoordinateAt", "参数不能为空"));
+    }
+    if (!(isNumber(fraction) && fraction >= 0 && fraction <= 1)) {
+      error_(createMessage$C("getCoordinateAt", "参数格式有误"));
+    }
+    let result = [];
+    let coordinates = this._geometry.getCoordinateAt(fraction, result);
+    if (isDefined(dest)) {
+      if (dest instanceof Lnglat) {
+        dest.setLng(result[0]);
+        dest.setLat(result[1]);
+      } else {
+        dest[0] = result[0];
+        dest[1] = result[1];
+      }
+    }
+    return new Lnglat(coordinates);
+  }
+  getCoordinateAtM() {
+    return null;
+  }
+  translate(deltaX = 0, deltaY = 0) {
+    this._geometry.translate(deltaX, deltaY);
+  }
+  transform() {
+  }
+  simplify(tolerance = 0) {
+    this._geometry.simplify(tolerance);
+  }
+  intersectsCoordinate() {
+  }
+  /**
+   * 线是否在extent范围内
+   * @param {OMapExtentType} extent
+   * @returns {boolean}
+   */
+  intersectsExtent(extent) {
+    if (!isDefined(extent)) {
+      error_(createMessage$C("intersectsExtent", "参数extent不能为空"));
+    }
+    if (!isValidExtent(extent)) {
+      error_(createMessage$C("intersectsExtent", "坐标格式有误"));
+    }
+    let _extent = handleGetExtentValue(extent);
+    return this._geometry.intersectsExtent(_extent);
+  }
+}
+function isValidPolygonCoordinates(value) {
+  return isArray(value) && value.every((item) => isValidLineStringCoordinates(item));
+}
+function isValidLinearRingCoordinates(value) {
+  return isArray(value) && value.every((item) => isValidCoordinate(item));
+}
+const PACKAGE_NAME$B = "LinearRing";
+const createMessage$B = getPackageMessage(PACKAGE_NAME$B);
+class LinearRing extends BasicFeature {
+  constructor(coordinatesOrFeature, properties) {
+    if (!isDefined(coordinatesOrFeature)) {
+      error_(
+        createMessage$B(
+          "constructor",
+          commonMessage.paramsNotDefined("coordinatesOrFeature")
+        )
+      );
+      return;
+    }
+    if (coordinatesOrFeature instanceof OlFeature) {
+      super("LinearRing", coordinatesOrFeature);
+    } else {
+      if (!isValidLinearRingCoordinates(coordinatesOrFeature)) {
+        error_(
+          createMessage$B(
+            "constructor",
+            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+          )
+        );
+      }
+      super("LinearRing", coordinatesOrFeature);
+      if (properties) {
+        this.setProperties(properties);
+      }
+    }
+  }
+  _init(coordinates) {
+    let geometryCoordinates = coordinates.map((c) => {
+      return handleGetLnglatValue(c);
+    });
+    this._geometry = new OlGeometry.LinearRing(geometryCoordinates);
+    this._feature = new OlFeature({
+      geometry: this._geometry
+    });
+  }
+  _initByFeature(feature) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry();
+  }
+  /**
+   * 获取LinearRing的坐标
+   * @returns {Array<Lnglat>} LinearRing的坐标
+   */
+  getCoordinates() {
+    let coordinates = this._geometry.getCoordinates();
+    return coordinates.map((c) => {
+      return new Lnglat(c);
+    });
+  }
+  /**
+   * 设置LinearRing的坐标
+   * @param {OMapLinearRingGeometryCoordinatesType} coordinates LinearRing的坐标
+   */
+  setCoordinates(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$B(
+          "setCoordinates",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    if (!isValidLinearRingCoordinates(coordinates)) {
+      error_(
+        createMessage$B(
+          "setCoordinates",
+          commonMessage.paramsInvaildFormat("coordinates")
+        )
+      );
+    }
+    let _coordinates = coordinates.map((c) => {
+      return handleGetLnglatValue(c);
+    });
+    this._geometry.setCoordinates(_coordinates);
+  }
+}
+const PACKAGE_NAME$A = "Polygon";
+const createMessage$A = getPackageMessage(PACKAGE_NAME$A);
+class Polygon extends BasicFeature {
+  constructor(coordinatesOrFeature, properties) {
+    if (!isDefined(coordinatesOrFeature)) {
+      error_(
+        createMessage$A(
+          "constructor",
+          commonMessage.paramsNotDefined("coordinatesOrFeature")
+        )
+      );
+    }
+    if (coordinatesOrFeature instanceof OlFeature) {
+      super("Polygon", coordinatesOrFeature);
+    } else {
+      if (!isValidPolygonCoordinates(coordinatesOrFeature)) {
+        error_(
+          createMessage$A(
+            "constructor",
+            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+          )
+        );
+      }
+      super("Polygon", coordinatesOrFeature);
+      if (isDefined(properties) && isObject(properties)) {
+        this.setProperties(properties);
+      }
+    }
+  }
+  _init(coordinates, radius) {
+    let geometryCoordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return handleGetLnglatValue(c2);
+      });
+    });
+    this._geometry = new OlGeometry.Polygon(geometryCoordinates);
+    this._feature = new OlFeature({
+      geometry: this._geometry
+    });
+  }
+  _initByFeature(feature) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry();
+  }
+  /**
+   * 获取多边形的坐标
+   * @param {boolean} rightHanded 是否右手坐标系
+   * @returns {Array<Array<Lnglat>>} 多边形的坐标
+   */
+  getCoordinates(rightHanded) {
+    let coordinates = this._geometry.getCoordinates(rightHanded);
+    let _coordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return new Lnglat(c2);
+      });
+    });
+    return _coordinates;
+  }
+  /**
+   * 设置多边形的坐标
+   * @param {OMapPolygonGeometryCoordinatesType} coordinates 多边形的坐标
+   */
+  setCoordinates(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$A(
+          "setCoordinates",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    if (!isValidPolygonCoordinates(coordinates)) {
+      error_(
+        createMessage$A(
+          "setCoordinates",
+          commonMessage.paramsInvaildFormat("coordinates")
+        )
+      );
+    }
+    let _coordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return handleGetLnglatValue(c2);
+      });
+    });
+    this._geometry.setCoordinates(_coordinates);
+  }
+  /**
+   * 向Polygon中添加LinearRing（内环）
+   * @param {LinearRing | OMapLinearRingGeometryCoordinatesType} linearRing 内环
+   */
+  appendLinearRing(linearRingParams) {
+    if (!isDefined(linearRingParams)) {
+      error_(
+        createMessage$A(
+          "appendLinearRing",
+          commonMessage.paramsNotDefined("linearRingParams")
+        )
+      );
+    }
+    if (!(linearRingParams instanceof LinearRing && isValidLinearRingCoordinates(linearRingParams))) {
+      error_(
+        createMessage$A(
+          "appendLinearRing",
+          commonMessage.paramsInvaildFormat("linearRingParams")
+        )
+      );
+    }
+    if (linearRingParams instanceof LinearRing) {
+      this._geometry.appendLinearRing(linearRingParams.getGeometry());
+    } else {
+      let coordinates = linearRingParams.map((l) => {
+        return handleGetLnglatValue(l);
+      });
+      this._geometry.appendLinearRing(
+        new LinearRing(coordinates).getGeometry()
+      );
+    }
+  }
+  /**
+   * 获取多边形的第一个坐标（包含内环）
+   * @returns {Lnglat} 多边形的第一个坐标
+   */
+  getFirstCoordinate() {
+    let coordinates = this._geometry.getFirstCoordinate();
+    return new Lnglat(coordinates);
+  }
+  /**
+   * 获取多边形的最后一个坐标（包含内环）
+   * @returns {Lnglat} 多边形的最后一个坐标
+   */
+  getLastCoordinate() {
+    let coordinates = this._geometry.getLastCoordinate();
+    return new Lnglat(coordinates);
+  }
+  /**
+   * 获取多边形的范围
+   * @returns {Extent} 多边形的范围
+   */
+  getExtent() {
+    let extent = this._geometry.getExtent();
+    return new Extent(extent);
+  }
+  /**
+   * 返回投影平面上多边形的面积
+   * @returns {number} 投影平面上多边形的面积
+   */
+  getArea() {
+    return this._geometry.getArea();
+  }
+  /**
+   * 将几何图形中距离传递点最近的点作为坐标返回
+   * @param {OMapCoordinateType} point 传递点
+   * @param {OMapCoordinateType} closestPoint 最近点
+   * @returns {Lnglat} 最近点
+   */
+  getClosestPoint(point, closestPoint) {
+    let coordinates = handleGetLnglatValue(point);
+    let result = this._geometry.getClosestPoint(coordinates);
+    let _result = new Lnglat(result);
+    return _result;
+  }
+  /**
+   * 返回多边形的内点
+   * @returns {Point} 多边形的内点
+   */
+  getInteriorPoint() {
+    let result = this._geometry.getInteriorPoint().getCoordinates();
+    return new Point(result);
+  }
+  /**
+   * 如果该几何形状包含指定的坐标，则返回 true。如果坐标位于几何形状的边界上，则返回 false。
+   * @param {OMapCoordinateType} coordinates
+   * @returns {boolean}
+   */
+  intersectsCoordinate(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$A(
+          "intersectsCoordinate",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    let _coordinates = handleGetLnglatValue(coordinates);
+    return this._geometry.intersectsCoordinate(_coordinates);
+  }
+  /**
+   * 线是否在extent范围内
+   * @param {OMapExtentType} extent
+   * @returns {boolean}
+   */
+  intersectsExtent(extent) {
+    if (!isDefined(extent)) {
+      error_(
+        createMessage$A(
+          "intersectsExtent",
+          commonMessage.paramsNotDefined("extent")
+        )
+      );
+    }
+    if (!(extent instanceof Extent) && !isExtentType(extent)) {
+      error_(
+        createMessage$A(
+          "intersectsExtent",
+          commonMessage.paramsInvaildFormat("extent")
+        )
+      );
+    }
+    let _extent = handleGetExtentValue(extent);
+    return this._geometry.intersectsExtent(_extent);
+  }
+  simplify(tolerance = 0) {
+    this._geometry.simplify(tolerance);
+  }
+  transform() {
+  }
+  translate(deltaX = 0, deltaY = 0) {
+    this._geometry.translate(deltaX, deltaY);
+  }
+}
+const PACKAGE_NAME$z = "MultiPoint";
+const createMessage$z = getPackageMessage(PACKAGE_NAME$z);
+class MultiPoint extends BasicFeature {
+  constructor(coordinatesOrFeature, properties) {
+    if (!isDefined(coordinatesOrFeature)) {
+      error_(
+        createMessage$z(
+          "constructor",
+          commonMessage.paramsNotDefined("coordinatesOrFeature")
+        )
+      );
+    }
+    if (coordinatesOrFeature instanceof OlFeature) {
+      super("MultiPoint", coordinatesOrFeature);
+    } else {
+      if (!coordinatesOrFeature.every((item) => isValidCoordinate(item))) {
+        error_(
+          createMessage$z(
+            "constructor",
+            commonMessage.paramsInvaildFormat(
+              "coordinatesOrFeature",
+              "Array<Lnglat or [x, y]>"
+            )
+          )
+        );
+      }
+      super(
+        "MultiPoint",
+        coordinatesOrFeature
+      );
+      if (isDefined(properties) && isObject(properties)) {
+        this.setProperties(properties);
+      }
+    }
+  }
+  _init(coordinates) {
+    let geometryCoordinates = coordinates.map((c) => {
+      return handleGetLnglatValue(c);
+    });
+    if (geometryCoordinates) {
+      this._geometry = new OlGeometry.MultiPoint(geometryCoordinates);
+      this._feature = new OlFeature({
+        geometry: this._geometry
+      });
+    }
+  }
+  _initByFeature(feature) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry();
+  }
+  /**
+   * 获取点的坐标
+   * @returns {Lnglat[]} 点的坐标
+   */
+  getCoordinates() {
+    let coordinates = this._geometry.getCoordinates();
+    let _coordinates = coordinates.map((c) => {
+      return new Lnglat(c);
+    });
+    return _coordinates;
+  }
+  /**
+   * 设置点的坐标
+   * @param {OMapMultiPointGeometryCoordinatesType} coordinates 点的坐标
+   */
+  setCoordinates(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$z(
+          "setCoordinates",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    if (!coordinates.every((item) => isValidCoordinate(item))) {
+      error_(
+        createMessage$z(
+          "setCoordinates",
+          commonMessage.paramsInvaildFormat(
+            "coordinates",
+            "Array<Lnglat or [x, y]>"
+          )
+        )
+      );
+    }
+    let _coordinates = coordinates.map((c) => {
+      return handleGetLnglatValue(c);
+    });
+    this._geometry.setCoordinates(_coordinates);
+  }
+  appendPoint(pointOrpointCoordinates) {
+    if (!isDefined(pointOrpointCoordinates)) {
+      error_(
+        createMessage$z(
+          "appendPoint",
+          commonMessage.paramsNotDefined("pointOrpointCoordinates")
+        )
+      );
+    }
+    let _point = null;
+    if (pointOrpointCoordinates instanceof Point) {
+      _point = pointOrpointCoordinates.getGeometry();
+    } else {
+      _point = new OlGeometry.Point(
+        handleGetLnglatValue(pointOrpointCoordinates)
+      );
+    }
+    this._geometry.appendPoint(_point);
+  }
+  getClosestPoint(pointOrpointCoordinates) {
+    if (!isDefined(pointOrpointCoordinates)) {
+      error_(
+        createMessage$z(
+          "getClosestPoint",
+          commonMessage.paramsNotDefined("pointOrpointCoordinates")
+        )
+      );
+    }
+    let _point = null;
+    if (pointOrpointCoordinates instanceof Point) {
+      _point = pointOrpointCoordinates.getCoordinates().toArray();
+    } else {
+      _point = handleGetLnglatValue(pointOrpointCoordinates);
+    }
+    let _closestPoint = this._geometry.getClosestPoint(_point);
+    return new Lnglat(_closestPoint);
+  }
+  getFirstCoordinate() {
+    return new Lnglat(...this._geometry.getFirstCoordinate());
+  }
+  getLastCoordinate() {
+    return new Lnglat(...this._geometry.getLastCoordinate());
+  }
+  getPoint(index) {
+    if (!isDefined(index)) {
+      error_(
+        createMessage$z("getPoint", commonMessage.paramsNotDefined("index"))
+      );
+    }
+    if (!isNumber(index)) {
+      error_(
+        createMessage$z(
+          "getPoint",
+          commonMessage.paramsInvaildFormat("index", "number")
+        )
+      );
+    }
+    let point = this._geometry.getPoint(index);
+    return new Point(point.getCoordinates());
+  }
+  intersectsCoordinate(coordinate) {
+    if (!isDefined(coordinate)) {
+      error_(
+        createMessage$z(
+          "intersectsCoordinate",
+          commonMessage.paramsNotDefined("coordinate")
+        )
+      );
+    }
+    let _coordinate = handleGetLnglatValue(coordinate);
+    return this._geometry.intersectsCoordinate(_coordinate);
+  }
+  intersectsExtent(extent) {
+    if (!isDefined(extent)) {
+      error_(
+        createMessage$z(
+          "intersectsExtent",
+          commonMessage.paramsNotDefined("extent")
+        )
+      );
+    }
+    let _extent = handleGetExtentValue(extent);
+    return this._geometry.intersectsExtent(_extent);
+  }
+}
+function isValidMultiLineStringCoordinates(value) {
+  return isArray(value) && value.every((item) => isValidLineStringCoordinates(item));
+}
+const PACKAGE_NAME$y = "MultiLineString";
+const createMessage$y = getPackageMessage(PACKAGE_NAME$y);
+class MultiLineString extends BasicFeature {
+  constructor(coordinatesOrFeature, properties) {
+    if (!isDefined(coordinatesOrFeature)) {
+      error_(
+        createMessage$y(
+          "constructor",
+          commonMessage.paramsNotDefined("coordinatesOrFeature")
+        )
+      );
+    }
+    if (coordinatesOrFeature instanceof OlFeature) {
+      super("MultiLineString", coordinatesOrFeature);
+    } else {
+      if (!isValidMultiLineStringCoordinates(coordinatesOrFeature)) {
+        error_(
+          createMessage$y(
+            "constructor",
+            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+          )
+        );
+        return;
+      }
+      super(
+        "MultiLineString",
+        coordinatesOrFeature
+      );
+      if (isDefined(properties) && isObject(properties)) {
+        this.setProperties(properties);
+      }
+    }
+  }
+  _init(coordinates) {
+    let geometryCoordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return handleGetLnglatValue(c2);
+      });
+    });
+    this._geometry = new OlGeometry.MultiLineString(geometryCoordinates);
+    this._feature = new OlFeature({
+      geometry: this._geometry
+    });
+  }
+  _initByFeature(feature) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry();
+  }
+  /**
+   * 获取坐标
+   * @returns {Array<Array<Lnglat>>} 坐标
+   */
+  getCoordinates() {
+    let coordinates = this._geometry.getCoordinates();
+    let _coordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return new Lnglat(c2);
+      });
+    });
+    return _coordinates;
+  }
+  /**
+   * 设置坐标
+   * @param {OMapMultiLineStringGeometryCoordinatesType} coordinates 坐标
+   */
+  setCoordinates(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$y(
+          "setCoordinates",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    if (!isValidMultiLineStringCoordinates(coordinates)) {
+      error_(
+        createMessage$y(
+          "setCoordinates",
+          commonMessage.paramsInvaildFormat("coordinates")
+        )
+      );
+    }
+    let _coordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return handleGetLnglatValue(c2);
+      });
+    });
+    this._geometry.setCoordinates(_coordinates);
+  }
+}
+function isValidMultiPolygonCoordinates(value) {
+  return isArray(value) && value.every((item) => isValidPolygonCoordinates(item));
+}
+const PACKAGE_NAME$x = "MultiPolygon";
+const createMessage$x = getPackageMessage(PACKAGE_NAME$x);
+class MultiPolygon extends BasicFeature {
+  constructor(coordinatesOrFeature, properties) {
+    if (!isDefined(coordinatesOrFeature)) {
+      error_(
+        createMessage$x(
+          "constructor",
+          commonMessage.paramsNotDefined("coordinatesOrFeature")
+        )
+      );
+    }
+    if (coordinatesOrFeature instanceof OlFeature) {
+      super("MultiPolygon", coordinatesOrFeature);
+    } else {
+      if (!isValidMultiPolygonCoordinates(coordinatesOrFeature)) {
+        error_(
+          createMessage$x(
+            "constructor",
+            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
+          )
+        );
+      }
+      super(
+        "MultiPolygon",
+        coordinatesOrFeature
+      );
+      if (isDefined(properties) && isObject(properties)) {
+        this.setProperties(properties);
+      }
+    }
+  }
+  _init(coordinates) {
+    let geometryCoordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return c2.map((c3) => {
+          return handleGetLnglatValue(c3);
+        });
+      });
+    });
+    this._geometry = new OlGeometry.MultiPolygon(geometryCoordinates);
+    this._feature = new OlFeature({
+      geometry: this._geometry
+    });
+  }
+  _initByFeature(feature) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry();
+  }
+  /**
+   * 获取坐标
+   * @returns {OMapMultiPolygonGeometryCoordinatesType``} 坐标
+   */
+  getCoordinates() {
+    let coordinates = this._geometry.getCoordinates();
+    let _coordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return c2.map((c3) => {
+          return new Lnglat(c3);
+        });
+      });
+    });
+    return _coordinates;
+  }
+  /**
+   * 设置坐标
+   * @param {OMapMultiPolygonGeometryCoordinatesType} coordinates 坐标
+   */
+  setCoordinates(coordinates) {
+    if (!isDefined(coordinates)) {
+      error_(
+        createMessage$x(
+          "setCoordinates",
+          commonMessage.paramsNotDefined("coordinates")
+        )
+      );
+    }
+    if (!isValidMultiPolygonCoordinates(coordinates)) {
+      error_(
+        createMessage$x(
+          "setCoordinates",
+          commonMessage.paramsInvaildFormat("coordinates")
+        )
+      );
+    }
+    let _coordinates = coordinates.map((c) => {
+      return c.map((c2) => {
+        return c2.map((c3) => {
+          return handleGetLnglatValue(c3);
+        });
+      });
+    });
+    this._geometry.setCoordinates(_coordinates);
+  }
+}
+const PACKAGE_NAME$w = "Circle";
+const createMessage$w = getPackageMessage(PACKAGE_NAME$w);
+class Circle extends BasicFeature {
+  constructor(centerOrFeature, radius, properties) {
+    if (!isDefined(centerOrFeature)) {
+      error_(
+        createMessage$w(
+          "constructor",
+          commonMessage.paramsNotDefined("centerOrFeature")
+        )
+      );
+    }
+    if (centerOrFeature instanceof OlFeature) {
+      super("Circle", centerOrFeature);
+    } else {
+      if (!isValidCoordinate(centerOrFeature)) {
+        error_(
+          createMessage$w(
+            "constructor",
+            commonMessage.paramsInvaildFormat("centerOrFeature")
+          )
+        );
+      }
+      if (!(isDefined(radius) && isNumber(radius))) {
+        error_(
+          createMessage$w(
+            "constructor",
+            commonMessage.paramsInvaildFormat("radius")
+          )
+        );
+      }
+      super(
+        "Circle",
+        centerOrFeature,
+        radius
+      );
+      if (isDefined(properties)) {
+        this.setProperties(properties);
+      }
+    }
+  }
+  _init(coordinates, radius) {
+    let geometryCoordinates = handleGetLnglatValue(
+      coordinates
+    );
+    this._geometry = new OlGeometry.Circle(geometryCoordinates, radius);
+    this._feature = new OlFeature({
+      geometry: this._geometry
+    });
+  }
+  _initByFeature(feature) {
+    this._feature = feature;
+    this._geometry = feature.getGeometry();
+  }
+  getCenter() {
+    let center = this._geometry.getCenter();
+    return new Lnglat(center);
+  }
+  setCenter(center) {
+    if (!isDefined(center)) {
+      error_(
+        createMessage$w("setCenter", commonMessage.paramsNotDefined("center"))
+      );
+    }
+    if (!isValidCoordinate(center)) {
+      error_(
+        createMessage$w(
+          "setCenter",
+          commonMessage.paramsInvaildFormat("center", "coordinates")
+        )
+      );
+    }
+    let _center = handleGetLnglatValue(center);
+    this._geometry.setCenter(_center);
+  }
+  getRadius() {
+    return this._geometry.getRadius();
+  }
+  setRadius(radius) {
+    if (!isDefined(radius)) {
+      error_(
+        createMessage$w("setRadius", commonMessage.paramsNotDefined("radius"))
+      );
+    }
+    if (!isNumber(radius)) {
+      error_(
+        createMessage$w(
+          "setRadius",
+          commonMessage.paramsInvaildFormat("radius", "number")
+        )
+      );
+    }
+    this._geometry.setRadius(radius);
+  }
+  /**
+   * 获取坐标
+   */
+  getCoordinates() {
+    return this.getCenter();
+  }
+  /**
+   * 设置线的坐标
+   */
+  setCoordinates(center) {
+    this.setCenter(center);
+  }
+  setCenterAndRadius(center, radius) {
+    if (!isDefined(center) || !isDefined(radius)) {
+      error_(
+        createMessage$w(
+          "setCenterAndRadius",
+          commonMessage.paramsListHaveNotDefined("center", "radius")
+        )
+      );
+    }
+    if (!isValidCoordinate(center)) {
+      error_(
+        createMessage$w(
+          "setCenterAndRadius",
+          commonMessage.paramsInvaildFormat("center")
+        )
+      );
+    }
+    if (!isNumber(radius)) {
+      error_(
+        createMessage$w(
+          "setCenterAndRadius",
+          commonMessage.paramsInvaildFormat("radius", "number")
+        )
+      );
+    }
+    let _center = handleGetLnglatValue(center);
+    this._geometry.setCenterAndRadius(_center, radius);
+  }
+}
+const OlFeatureTypeObject = {
+  Point: "Point",
+  LineString: "LineString",
+  Polygon: "Polygon",
+  MultiPoint: "MultiPoint",
+  MultiLineString: "MultiLineString",
+  MultiPolygon: "MultiPolygon",
+  LinearRing: "LinearRing",
+  Circle: "Circle"
+};
+function createBaseFeatureByOlFeature(feature) {
+  let geometry = feature.getGeometry();
+  if (!geometry) return null;
+  switch (geometry.getType()) {
+    case OlFeatureTypeObject.Point:
+      return new Point(feature);
+    case OlFeatureTypeObject.LineString:
+      return new LineString(feature);
+    case OlFeatureTypeObject.Polygon:
+      return new Polygon(feature);
+    case OlFeatureTypeObject.MultiPoint:
+      return new MultiPoint(feature);
+    case OlFeatureTypeObject.MultiLineString:
+      return new MultiLineString(feature);
+    case OlFeatureTypeObject.MultiPolygon:
+      return new MultiPolygon(feature);
+    case OlFeatureTypeObject.LinearRing:
+      return new LinearRing(feature);
+    case OlFeatureTypeObject.Circle:
+      return new Circle(feature);
+  }
+  return null;
+}
 function handleGetColorValue(color) {
   if (isDefined(color)) {
     return color instanceof Color ? color.getColor() : color;
@@ -1207,16 +2458,25 @@ const DEFAULT_STYLE = (feature, resolution) => {
   return void 0;
 };
 function handleGetStyleValue(style) {
-  if (isDefined(style)) {
-    if (style instanceof Style) {
-      return style.getStyle();
-    } else if (Array.isArray(style)) {
-      return style.map((item) => item.getStyle());
-    } else if (isFunction(style)) {
-      return void 0;
-    }
+  if (!isDefined(style)) {
+    return void 0;
   }
-  return void 0;
+  if (isVaildStyle(style)) {
+    return style.getStyle();
+  } else if (isVaildArrayStyle(style)) {
+    return style.map((item) => item.getStyle());
+  } else if (isVaildFunctionStyle(style)) {
+    return (feature, resolution) => {
+      const _feature = createBaseFeatureByOlFeature(feature);
+      const _style = style(_feature, resolution);
+      if (isVaildArrayStyle(_style)) {
+        return _style.map((item) => item.getStyle());
+      } else if (isVaildStyle(_style)) {
+        return _style.getStyle();
+      }
+      return void 0;
+    };
+  }
 }
 function getOlTextSingleStyle(options) {
   if (!isDefined(options)) {
@@ -1287,8 +2547,8 @@ function getConstructorName(target) {
   const ctor = target.constructor;
   return typeof ctor === "function" ? ctor.name : void 0;
 }
-const PACKAGE_NAME$E = "Event";
-const createMessage$E = getPackageMessage(PACKAGE_NAME$E);
+const PACKAGE_NAME$v = "Event";
+const createMessage$v = getPackageMessage(PACKAGE_NAME$v);
 class Event {
   constructor(target) {
     __publicField(this, "instanceName", "");
@@ -1340,7 +2600,7 @@ class Event {
       try {
         item.callback.call(item.target, ...args);
       } catch (e) {
-        error_(createMessage$E("emit", `回调异常: ${String(e)}`));
+        error_(createMessage$v("emit", `回调异常: ${String(e)}`));
       }
       if (item.once) {
         list.splice(i, 1);
@@ -1364,7 +2624,7 @@ class Event {
         return this;
       }
     }
-    warn_(createMessage$E("remove", `未找到【id=${id}】的监听`));
+    warn_(createMessage$v("remove", `未找到【id=${id}】的监听`));
     return this;
   }
   off(type) {
@@ -1478,8 +2738,8 @@ function handlePopupEvent(target, type, e) {
   }
   return result;
 }
-const PACKAGE_NAME$D = "Popup";
-const createMessage$D = getPackageMessage(PACKAGE_NAME$D);
+const PACKAGE_NAME$u = "Popup";
+const createMessage$u = getPackageMessage(PACKAGE_NAME$u);
 class Popup {
   constructor(params) {
     __publicField(this, "_popup");
@@ -1550,7 +2810,7 @@ class Popup {
   }
   setPositioning(positioning) {
     if (!isVaildPopupPositioningType(positioning)) {
-      warn_(createMessage$D("setPositioning", "参数positioning值有误"));
+      warn_(createMessage$u("setPositioning", "参数positioning值有误"));
       return;
     }
     this._popup.setPositioning(positioning);
@@ -1568,7 +2828,7 @@ class Popup {
    */
   setProperties(properties) {
     if (!isDefined(properties)) {
-      warn_(createMessage$D("setProperties", "参数不能为空"));
+      warn_(createMessage$u("setProperties", "参数不能为空"));
       return;
     }
     this.events.emit("change:properties", handlePopupEvent(this, "change:properties", {
@@ -1617,15 +2877,15 @@ class Popup {
   }
   on(type, callback) {
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$D("on", commonMessage.paramsListHaveNotDefined("type or callback")));
+      warn_(createMessage$u("on", commonMessage.paramsListHaveNotDefined("type or callback")));
       return;
     }
     if (!isOMapPopupEventType(type)) {
-      warn_(createMessage$D("on", commonMessage.paramsInvaildEnum("type")));
+      warn_(createMessage$u("on", commonMessage.paramsInvaildEnum("type")));
       return;
     }
     if (!isFunction(callback)) {
-      warn_(createMessage$D("on", commonMessage.paramsInvaildFormat("callback", "function")));
+      warn_(createMessage$u("on", commonMessage.paramsInvaildFormat("callback", "function")));
       return;
     }
     const unlisten = OlEvent.listen(this._popup, type, (e) => {
@@ -1636,15 +2896,15 @@ class Popup {
   }
   once(type, callback) {
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage$D("on", commonMessage.paramsListHaveNotDefined("type or callback")));
+      warn_(createMessage$u("on", commonMessage.paramsListHaveNotDefined("type or callback")));
       return;
     }
     if (!isOMapPopupEventType(type)) {
-      warn_(createMessage$D("on", commonMessage.paramsInvaildEnum("type")));
+      warn_(createMessage$u("on", commonMessage.paramsInvaildEnum("type")));
       return;
     }
     if (!isFunction(callback)) {
-      warn_(createMessage$D("on", commonMessage.paramsInvaildFormat("callback", "function")));
+      warn_(createMessage$u("on", commonMessage.paramsInvaildFormat("callback", "function")));
       return;
     }
     const unlisten = OlEvent.listen(this._popup, type, (e) => {
@@ -1655,7 +2915,7 @@ class Popup {
   }
   un(id) {
     if (!isDefined(id)) {
-      warn_(createMessage$D("un", commonMessage.paramsNotDefined("id")));
+      warn_(createMessage$u("un", commonMessage.paramsNotDefined("id")));
       return;
     }
     this.events.remove(id);
@@ -1667,20 +2927,14 @@ class Popup {
     }
   }
 }
-function isValidExtent(value) {
-  if (value instanceof Extent) {
-    return true;
-  }
-  return isExtentType(value);
-}
 function isValidPixel(value) {
   if (value instanceof Pixel) {
     return true;
   }
   return isArrayLength2(value) && value.every((item) => isNumber(item));
 }
-const PACKAGE_NAME$C = "Map";
-const createMessage$C = getPackageMessage(PACKAGE_NAME$C);
+const PACKAGE_NAME$t = "Map";
+const createMessage$t = getPackageMessage(PACKAGE_NAME$t);
 class Projection {
   constructor(proj) {
     __publicField(this, "_projection", null);
@@ -1692,7 +2946,7 @@ class Projection {
     } else {
       let _proj = proj;
       if (!isDefined(_proj.code)) {
-        error_(createMessage$C("constructor", "初始化参数有误"));
+        error_(createMessage$t("constructor", "初始化参数有误"));
         return;
       }
       result = _proj.code;
@@ -1701,7 +2955,7 @@ class Projection {
     this.code = result;
     this._projection = OlProj.get(result);
     if (!isDefined(this._projection)) {
-      warn_(createMessage$C("constructor", "坐标系不存在"));
+      warn_(createMessage$t("constructor", "坐标系不存在"));
       return;
     }
     this.units = this._projection.getUnits();
@@ -1723,8 +2977,8 @@ class Projection {
   }
 }
 const layerState = /* @__PURE__ */ new WeakMap();
-let PACKAGE_NAME$B = "BaseLayer";
-let createMessage$B = getPackageMessage(PACKAGE_NAME$B);
+let PACKAGE_NAME$s = "BaseLayer";
+let createMessage$s = getPackageMessage(PACKAGE_NAME$s);
 const DEFAULT_LAYER_OPACITY = 1;
 const DEFAULT_LAYER_VISIBLE = true;
 const DEFAULT_LAYER_MIN_ZOOM = 0;
@@ -1782,8 +3036,8 @@ class BaseLayer {
     __publicField(this, "target", null);
     let _options = defaultValue(options, {});
     this.type = type;
-    PACKAGE_NAME$B = `${type}Layer`;
-    createMessage$B = getPackageMessage(PACKAGE_NAME$B);
+    PACKAGE_NAME$s = `${type}Layer`;
+    createMessage$s = getPackageMessage(PACKAGE_NAME$s);
     this.id = defaultValue(_options.id, null);
     this.name = defaultValue(_options.name, "");
     this.className = defaultValue(_options.className, "");
@@ -1857,10 +3111,10 @@ class BaseLayer {
    */
   setOpacity(opacity) {
     if (!isDefined(opacity)) {
-      error_(createMessage$B("setOpacity", commonMessage.paramsNotDefined("opacity")));
+      error_(createMessage$s("setOpacity", commonMessage.paramsNotDefined("opacity")));
     }
     if (!isVaildOpacity(opacity)) {
-      error_(createMessage$B("setOpacity", commonMessage.paramsInvaildFormat("opacity", "0~1的数字")));
+      error_(createMessage$s("setOpacity", commonMessage.paramsInvaildFormat("opacity", "0~1的数字")));
     }
     this._layer.setOpacity(opacity);
   }
@@ -1877,10 +3131,10 @@ class BaseLayer {
    */
   setVisible(visible) {
     if (!isDefined(visible)) {
-      error_(createMessage$B("setVisible", commonMessage.paramsNotDefined("visible")));
+      error_(createMessage$s("setVisible", commonMessage.paramsNotDefined("visible")));
     }
     if (!isBoolean(visible)) {
-      error_(createMessage$B("setVisible", commonMessage.paramsInvaildFormat("visible", "boolean类型")));
+      error_(createMessage$s("setVisible", commonMessage.paramsInvaildFormat("visible", "boolean类型")));
     }
     this._layer.setVisible(visible);
   }
@@ -1905,19 +3159,19 @@ class BaseLayer {
    */
   setExtent(extent) {
     if (!isDefined(extent)) {
-      error_(createMessage$B("setExtent", commonMessage.paramsNotDefined("extent")));
+      error_(createMessage$s("setExtent", commonMessage.paramsNotDefined("extent")));
     }
     if (!isValidExtent(extent)) {
-      error_(createMessage$B("setExtent", commonMessage.paramsInvaildFormat("extent", "Extent类型")));
+      error_(createMessage$s("setExtent", commonMessage.paramsInvaildFormat("extent", "Extent类型")));
     }
     this._layer.setExtent(handleGetExtentValue(extent));
   }
   setMinZoom(minZoom) {
     if (!isDefined(minZoom)) {
-      error_(createMessage$B("setMinZoom", commonMessage.paramsNotDefined("minZoom")));
+      error_(createMessage$s("setMinZoom", commonMessage.paramsNotDefined("minZoom")));
     }
     if (!isNumber(minZoom)) {
-      error_(createMessage$B("setMinZoom", commonMessage.paramsInvaildFormat("minZoom", "number类型")));
+      error_(createMessage$s("setMinZoom", commonMessage.paramsInvaildFormat("minZoom", "number类型")));
     }
     this._layer.setMinZoom(minZoom);
   }
@@ -1926,10 +3180,10 @@ class BaseLayer {
   }
   setMaxZoom(maxZoom) {
     if (!isDefined(maxZoom)) {
-      error_(createMessage$B("setMaxZoom", commonMessage.paramsNotDefined("maxZoom")));
+      error_(createMessage$s("setMaxZoom", commonMessage.paramsNotDefined("maxZoom")));
     }
     if (!isNumber(maxZoom)) {
-      error_(createMessage$B("setMaxZoom", commonMessage.paramsInvaildFormat("maxZoom", "number类型")));
+      error_(createMessage$s("setMaxZoom", commonMessage.paramsInvaildFormat("maxZoom", "number类型")));
     }
     this._layer.setMaxZoom(maxZoom);
   }
@@ -1938,10 +3192,10 @@ class BaseLayer {
   }
   setMinResolution(minResolution) {
     if (!isDefined(minResolution)) {
-      error_(createMessage$B("setMinResolution", commonMessage.paramsNotDefined("minResolution")));
+      error_(createMessage$s("setMinResolution", commonMessage.paramsNotDefined("minResolution")));
     }
     if (!isNumber(minResolution)) {
-      error_(createMessage$B("setMinResolution", commonMessage.paramsInvaildFormat("minResolution", "number类型")));
+      error_(createMessage$s("setMinResolution", commonMessage.paramsInvaildFormat("minResolution", "number类型")));
     }
     this._layer.setMinResolution(minResolution);
   }
@@ -1950,10 +3204,10 @@ class BaseLayer {
   }
   setMaxResolution(maxResolution) {
     if (!isDefined(maxResolution)) {
-      error_(createMessage$B("setMaxResolution", commonMessage.paramsNotDefined("maxResolution")));
+      error_(createMessage$s("setMaxResolution", commonMessage.paramsNotDefined("maxResolution")));
     }
     if (!isNumber(maxResolution)) {
-      error_(createMessage$B("setMaxResolution", commonMessage.paramsInvaildFormat("maxResolution", "number类型")));
+      error_(createMessage$s("setMaxResolution", commonMessage.paramsInvaildFormat("maxResolution", "number类型")));
     }
     this._layer.setMaxResolution(maxResolution);
   }
@@ -1962,10 +3216,10 @@ class BaseLayer {
   }
   setZIndex(zIndex) {
     if (!isDefined(zIndex)) {
-      error_(createMessage$B("setZIndex", commonMessage.paramsNotDefined("zIndex")));
+      error_(createMessage$s("setZIndex", commonMessage.paramsNotDefined("zIndex")));
     }
     if (!isNumber(zIndex)) {
-      error_(createMessage$B("setZIndex", commonMessage.paramsInvaildFormat("zIndex", "number类型")));
+      error_(createMessage$s("setZIndex", commonMessage.paramsInvaildFormat("zIndex", "number类型")));
     }
     this._layer.setZIndex(zIndex);
   }
@@ -1974,10 +3228,10 @@ class BaseLayer {
   }
   setProperties(properties, silent) {
     if (!isDefined(properties)) {
-      error_(createMessage$B("setProperties", commonMessage.paramsNotDefined("properties")));
+      error_(createMessage$s("setProperties", commonMessage.paramsNotDefined("properties")));
     }
     if (isObject(properties)) {
-      error_(createMessage$B("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
+      error_(createMessage$s("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
     }
     let oldProperties = defaultValue(this.properties, {});
     let newProperties = Object.assign({}, oldProperties, properties);
@@ -2009,103 +3263,8 @@ class BaseLayer {
     return this.groupId;
   }
 }
-const PACKAGE_NAME$A = "BasicFeature";
-const createMessage$A = getPackageMessage(PACKAGE_NAME$A);
-class BasicFeature {
-  constructor(type, coordinatesOrFeature, radius) {
-    __publicField(this, "id", null);
-    __publicField(this, "type");
-    // 非空断言操作符 !（推荐用于抽象类）
-    __publicField(this, "_feature");
-    __publicField(this, "_geometry");
-    this.type = type;
-    if (coordinatesOrFeature instanceof OlFeature) {
-      this._initByFeature(coordinatesOrFeature);
-    } else {
-      this._init(coordinatesOrFeature, radius);
-    }
-  }
-  /**
-   * 获取原生的Openlayers Feature对象
-   * @returns {OlFeatureInstanceType} 原生的Openlayers Feature对象
-   */
-  getFeature() {
-    return this._feature;
-  }
-  setId(id) {
-    if (!isDefined(id)) {
-      error_(createMessage$A("setId", "参数id不能为空"));
-    }
-    if (!isNumber(id) && !isString(id)) {
-      error_(createMessage$A("setId", "参数id格式有误"));
-    }
-    this.id = id;
-  }
-  getId() {
-    return this.id;
-  }
-  getType() {
-    return this.type;
-  }
-  changed() {
-    this._feature.changed();
-  }
-  dispatchEvent() {
-  }
-  clone() {
-  }
-  get(key) {
-    if (!isDefined(key)) {
-      error_(createMessage$A("get", commonMessage.paramsNotDefined("key")));
-    }
-    if (!isString(key)) {
-      error_(createMessage$A("get", commonMessage.paramsInvaildFormat("key", "string")));
-    }
-    return this._feature.get(key);
-  }
-  /**
-   * 获取原生的Openlayers Geometry对象
-   * @returns {T} 原生的Openlayers Geometry对象
-   */
-  getGeometry() {
-    return this._geometry;
-  }
-  getGeometryName() {
-  }
-  getKeys() {
-    return this._feature.getKeys();
-  }
-  getStyle() {
-  }
-  setStyle(style) {
-    let _style = handleGetStyleValue(style);
-    if (isDefined(_style)) {
-      this._feature.setStyle(_style);
-    }
-  }
-  /**
-   * 获取要素的范围
-   * @returns {Extent | undefined} 要素的范围
-   */
-  getExtent() {
-    let extent = this._geometry.getExtent();
-    return new Extent(extent);
-  }
-  getProperties() {
-    return this._feature.getProperties();
-  }
-  setProperties(properties) {
-    if (!isDefined(properties)) {
-      return false;
-    }
-    if (!isObject(properties)) {
-      error_(createMessage$A("setProperties", commonMessage.paramsInvaildFormat("properties", "object")));
-    }
-    this._feature.setProperties(properties);
-  }
-}
-const PACKAGE_NAME$z = "Interaction";
-const createMessage$z = getPackageMessage(PACKAGE_NAME$z);
+const PACKAGE_NAME$r = "Interaction";
+const createMessage$r = getPackageMessage(PACKAGE_NAME$r);
 class Interaction {
   constructor(type, params) {
     /**
@@ -2165,7 +3324,7 @@ class Interaction {
   }
   setId(id) {
     if (!isDefined(id)) {
-      warn_(createMessage$z("_initInteractionId", commonMessage.paramsNotDefined("id")));
+      warn_(createMessage$r("_initInteractionId", commonMessage.paramsNotDefined("id")));
       return;
     }
     this.id = id;
@@ -2183,7 +3342,7 @@ class Interaction {
    */
   setActive(active) {
     if (!isBoolean(active)) {
-      warn_(createMessage$z("setActive", commonMessage.paramsInvaildFormat("active", "boolean")));
+      warn_(createMessage$r("setActive", commonMessage.paramsInvaildFormat("active", "boolean")));
       return;
     }
     this._interaction.setActive(active);
@@ -2268,8 +3427,8 @@ const OMapInteractionCommonEventTypes = [
 function isVaildInteraction(value) {
   return value instanceof Interaction;
 }
-const PACKAGE_NAME$y = "Control";
-const createMessage$y = getPackageMessage(PACKAGE_NAME$y);
+const PACKAGE_NAME$q = "Control";
+const createMessage$q = getPackageMessage(PACKAGE_NAME$q);
 class Control {
   // map: Map | null = null;
   constructor(type) {
@@ -2293,7 +3452,7 @@ class Control {
   }
   _isInitialized(method) {
     if (!isDefined(this._control)) {
-      warn_(createMessage$y(method, "未正确实例化"));
+      warn_(createMessage$q(method, "未正确实例化"));
       return false;
     }
     return true;
@@ -2328,1146 +3487,6 @@ class Control {
 }
 function isVaildControl(value) {
   return value instanceof Control;
-}
-const PACKAGE_NAME$x = "Point";
-const createMessage$x = getPackageMessage(PACKAGE_NAME$x);
-class Point extends BasicFeature {
-  constructor(coordinatesOrFeature, properties) {
-    if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage$x(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature")
-        )
-      );
-    }
-    if (coordinatesOrFeature instanceof OlFeature) {
-      super("Point", coordinatesOrFeature);
-    } else {
-      if (!isValidCoordinate(coordinatesOrFeature)) {
-        error_(
-          createMessage$x(
-            "constructor",
-            commonMessage.paramsInvaildFormat(
-              "coordinatesOrFeature",
-              "Lnglat or [x, y]"
-            )
-          )
-        );
-      }
-      super("Point", coordinatesOrFeature);
-      if (isDefined(properties) && isObject(properties)) {
-        this.setProperties(properties);
-      }
-    }
-  }
-  _init(coordinates) {
-    let geometryCoordinates = handleGetLnglatValue(coordinates);
-    this._geometry = new OlGeometry.Point(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry
-    });
-  }
-  _initByFeature(feature) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry();
-  }
-  /**
-   * 获取点的坐标
-   * @returns {Lnglat} 点的坐标
-   */
-  getCoordinates() {
-    let coordinates = this._geometry.getCoordinates();
-    return new Lnglat(coordinates);
-  }
-  /**
-   * 设置点的坐标
-   * @param {OMapPointGeometryCoordinatesType} coordinates 点的坐标
-   * @returns {void}
-   */
-  setCoordinates(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$x(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    if (!isValidCoordinate(coordinates)) {
-      error_(
-        createMessage$x(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates", "Lnglat or [x, y]")
-        )
-      );
-    }
-    let _coordinates = handleGetLnglatValue(coordinates);
-    this._geometry.setCoordinates(_coordinates);
-  }
-  /**
-   * 获取点的第一个坐标
-   * @returns {Lnglat} 点的第一个坐标
-   */
-  getFirstCoordinate() {
-    return this.getCoordinates();
-  }
-  /**
-   * 获取点的最后一个坐标
-   * @returns {Lnglat} 点的最后一个坐标
-   */
-  getLastCoordinate() {
-    return this.getCoordinates();
-  }
-  intersectsCoordinate() {
-  }
-  /**
-   * 点是否在extent范围内
-   * @param {Extent | OlExtentType} extent
-   * @returns {boolean | undefined}
-   */
-  intersectsExtent(extent) {
-    if (!isDefined(extent)) {
-      error_(
-        createMessage$x(
-          "intersectsExtent",
-          commonMessage.paramsNotDefined("extent")
-        )
-      );
-    }
-    if (!isValidExtent(extent)) {
-      error_(
-        createMessage$x(
-          "intersectsExtent",
-          commonMessage.paramsInvaildFormat(
-            "extent",
-            "Extent or [xmin, ymin, xmax, ymax]"
-          )
-        )
-      );
-    }
-    let _extent = handleGetExtentValue(extent);
-    return this._geometry.intersectsExtent(_extent);
-  }
-}
-function isValidLineStringCoordinates(value) {
-  return isArray(value) && value.every((item) => isValidCoordinate(item));
-}
-const PACKAGE_NAME$w = "LineString";
-const createMessage$w = getPackageMessage(PACKAGE_NAME$w);
-class LineString extends BasicFeature {
-  constructor(coordinatesOrFeature, properties) {
-    if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage$w(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature")
-        )
-      );
-    }
-    if (coordinatesOrFeature instanceof OlFeature) {
-      super("LineString", coordinatesOrFeature);
-    } else {
-      if (!isValidLineStringCoordinates(coordinatesOrFeature)) {
-        error_(
-          createMessage$w(
-            "constructor",
-            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
-          )
-        );
-      }
-      super("LineString", coordinatesOrFeature);
-      if (isDefined(properties) && isObject(properties)) {
-        this.setProperties(properties);
-      }
-    }
-  }
-  _init(coordinates) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
-    this._geometry = new OlGeometry.LineString(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry
-    });
-  }
-  _initByFeature(feature) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry();
-  }
-  /**
-   * 获取线的坐标
-   * @returns {Array<Lnglat>} 线的坐标
-   */
-  getCoordinates() {
-    let coordinates = this._geometry.getCoordinates();
-    return coordinates.map((c) => {
-      return new Lnglat(c);
-    });
-  }
-  /**
-   * 设置线的坐标
-   * @param {OMapLineStringGeometryCoordinatesType} coordinates 线的坐标
-   */
-  setCoordinates(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$w(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    if (!isValidLineStringCoordinates(coordinates)) {
-      error_(
-        createMessage$w(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates")
-        )
-      );
-    }
-    let _coordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
-    this._geometry.setCoordinates(_coordinates);
-  }
-  /**
-   * 追加坐标
-   * @param {OMapPointGeometryCoordinatesType} coordinates 坐标
-   */
-  appendCoordinate(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$w(
-          "appendCoordinate",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-      error_(
-        createMessage$w(
-          "appendCoordinate",
-          commonMessage.paramsInvaildFormat("coordinates")
-        )
-      );
-    }
-    let _coordinates = handleGetLnglatValue(coordinates);
-    this._geometry.appendCoordinate(_coordinates);
-  }
-  /**
-   * 获取线的第一个坐标
-   * @returns {Lnglat} 线的第一个坐标
-   */
-  getFirstCoordinate() {
-    let coordinates = this._geometry.getFirstCoordinate();
-    return new Lnglat(coordinates);
-  }
-  /**
-   * 获取线的最后一个坐标
-   * @returns {Lnglat} 线的最后一个坐标
-   */
-  getLastCoordinate() {
-    let coordinates = this._geometry.getLastCoordinate();
-    return new Lnglat(coordinates);
-  }
-  getLength() {
-    return this._geometry.getLength();
-  }
-  /**
-   * 获取线段指定位置的坐标点
-   * @param {number} fraction 比例
-   * @param dest 目标坐标点
-   * @returns {Lnglat} 线的坐标点
-   */
-  getCoordinateAt(fraction, dest) {
-    if (!isDefined(fraction)) {
-      error_(createMessage$w("getCoordinateAt", "参数不能为空"));
-    }
-    if (!(isNumber(fraction) && fraction >= 0 && fraction <= 1)) {
-      error_(createMessage$w("getCoordinateAt", "参数格式有误"));
-    }
-    let result = [];
-    let coordinates = this._geometry.getCoordinateAt(fraction, result);
-    if (isDefined(dest)) {
-      if (dest instanceof Lnglat) {
-        dest.setLng(result[0]);
-        dest.setLat(result[1]);
-      } else {
-        dest[0] = result[0];
-        dest[1] = result[1];
-      }
-    }
-    return new Lnglat(coordinates);
-  }
-  getCoordinateAtM() {
-    return null;
-  }
-  translate(deltaX = 0, deltaY = 0) {
-    this._geometry.translate(deltaX, deltaY);
-  }
-  transform() {
-  }
-  simplify(tolerance = 0) {
-    this._geometry.simplify(tolerance);
-  }
-  intersectsCoordinate() {
-  }
-  /**
-   * 线是否在extent范围内
-   * @param {OMapExtentType} extent
-   * @returns {boolean}
-   */
-  intersectsExtent(extent) {
-    if (!isDefined(extent)) {
-      error_(createMessage$w("intersectsExtent", "参数extent不能为空"));
-    }
-    if (!isValidExtent(extent)) {
-      error_(createMessage$w("intersectsExtent", "坐标格式有误"));
-    }
-    let _extent = handleGetExtentValue(extent);
-    return this._geometry.intersectsExtent(_extent);
-  }
-}
-function isValidPolygonCoordinates(value) {
-  return isArray(value) && value.every((item) => isValidLineStringCoordinates(item));
-}
-function isValidLinearRingCoordinates(value) {
-  return isArray(value) && value.every((item) => isValidCoordinate(item));
-}
-const PACKAGE_NAME$v = "LinearRing";
-const createMessage$v = getPackageMessage(PACKAGE_NAME$v);
-class LinearRing extends BasicFeature {
-  constructor(coordinatesOrFeature, properties) {
-    if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage$v(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature")
-        )
-      );
-      return;
-    }
-    if (coordinatesOrFeature instanceof OlFeature) {
-      super("LinearRing", coordinatesOrFeature);
-    } else {
-      if (!isValidLinearRingCoordinates(coordinatesOrFeature)) {
-        error_(
-          createMessage$v(
-            "constructor",
-            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
-          )
-        );
-      }
-      super("LinearRing", coordinatesOrFeature);
-      if (properties) {
-        this.setProperties(properties);
-      }
-    }
-  }
-  _init(coordinates) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
-    this._geometry = new OlGeometry.LinearRing(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry
-    });
-  }
-  _initByFeature(feature) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry();
-  }
-  /**
-   * 获取LinearRing的坐标
-   * @returns {Array<Lnglat>} LinearRing的坐标
-   */
-  getCoordinates() {
-    let coordinates = this._geometry.getCoordinates();
-    return coordinates.map((c) => {
-      return new Lnglat(c);
-    });
-  }
-  /**
-   * 设置LinearRing的坐标
-   * @param {OMapLinearRingGeometryCoordinatesType} coordinates LinearRing的坐标
-   */
-  setCoordinates(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$v(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    if (!isValidLinearRingCoordinates(coordinates)) {
-      error_(
-        createMessage$v(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates")
-        )
-      );
-    }
-    let _coordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
-    this._geometry.setCoordinates(_coordinates);
-  }
-}
-const PACKAGE_NAME$u = "Polygon";
-const createMessage$u = getPackageMessage(PACKAGE_NAME$u);
-class Polygon extends BasicFeature {
-  constructor(coordinatesOrFeature, properties) {
-    if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage$u(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature")
-        )
-      );
-    }
-    if (coordinatesOrFeature instanceof OlFeature) {
-      super("Polygon", coordinatesOrFeature);
-    } else {
-      if (!isValidPolygonCoordinates(coordinatesOrFeature)) {
-        error_(
-          createMessage$u(
-            "constructor",
-            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
-          )
-        );
-      }
-      super("Polygon", coordinatesOrFeature);
-      if (isDefined(properties) && isObject(properties)) {
-        this.setProperties(properties);
-      }
-    }
-  }
-  _init(coordinates, radius) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return handleGetLnglatValue(c2);
-      });
-    });
-    this._geometry = new OlGeometry.Polygon(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry
-    });
-  }
-  _initByFeature(feature) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry();
-  }
-  /**
-   * 获取多边形的坐标
-   * @param {boolean} rightHanded 是否右手坐标系
-   * @returns {Array<Array<Lnglat>>} 多边形的坐标
-   */
-  getCoordinates(rightHanded) {
-    let coordinates = this._geometry.getCoordinates(rightHanded);
-    let _coordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return new Lnglat(c2);
-      });
-    });
-    return _coordinates;
-  }
-  /**
-   * 设置多边形的坐标
-   * @param {OMapPolygonGeometryCoordinatesType} coordinates 多边形的坐标
-   */
-  setCoordinates(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$u(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    if (!isValidPolygonCoordinates(coordinates)) {
-      error_(
-        createMessage$u(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates")
-        )
-      );
-    }
-    let _coordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return handleGetLnglatValue(c2);
-      });
-    });
-    this._geometry.setCoordinates(_coordinates);
-  }
-  /**
-   * 向Polygon中添加LinearRing（内环）
-   * @param {LinearRing | OMapLinearRingGeometryCoordinatesType} linearRing 内环
-   */
-  appendLinearRing(linearRingParams) {
-    if (!isDefined(linearRingParams)) {
-      error_(
-        createMessage$u(
-          "appendLinearRing",
-          commonMessage.paramsNotDefined("linearRingParams")
-        )
-      );
-    }
-    if (!(linearRingParams instanceof LinearRing && isValidLinearRingCoordinates(linearRingParams))) {
-      error_(
-        createMessage$u(
-          "appendLinearRing",
-          commonMessage.paramsInvaildFormat("linearRingParams")
-        )
-      );
-    }
-    if (linearRingParams instanceof LinearRing) {
-      this._geometry.appendLinearRing(linearRingParams.getGeometry());
-    } else {
-      let coordinates = linearRingParams.map((l) => {
-        return handleGetLnglatValue(l);
-      });
-      this._geometry.appendLinearRing(
-        new LinearRing(coordinates).getGeometry()
-      );
-    }
-  }
-  /**
-   * 获取多边形的第一个坐标（包含内环）
-   * @returns {Lnglat} 多边形的第一个坐标
-   */
-  getFirstCoordinate() {
-    let coordinates = this._geometry.getFirstCoordinate();
-    return new Lnglat(coordinates);
-  }
-  /**
-   * 获取多边形的最后一个坐标（包含内环）
-   * @returns {Lnglat} 多边形的最后一个坐标
-   */
-  getLastCoordinate() {
-    let coordinates = this._geometry.getLastCoordinate();
-    return new Lnglat(coordinates);
-  }
-  /**
-   * 获取多边形的范围
-   * @returns {Extent} 多边形的范围
-   */
-  getExtent() {
-    let extent = this._geometry.getExtent();
-    return new Extent(extent);
-  }
-  /**
-   * 返回投影平面上多边形的面积
-   * @returns {number} 投影平面上多边形的面积
-   */
-  getArea() {
-    return this._geometry.getArea();
-  }
-  /**
-   * 将几何图形中距离传递点最近的点作为坐标返回
-   * @param {OMapCoordinateType} point 传递点
-   * @param {OMapCoordinateType} closestPoint 最近点
-   * @returns {Lnglat} 最近点
-   */
-  getClosestPoint(point, closestPoint) {
-    let coordinates = handleGetLnglatValue(point);
-    let result = this._geometry.getClosestPoint(coordinates);
-    let _result = new Lnglat(result);
-    return _result;
-  }
-  /**
-   * 返回多边形的内点
-   * @returns {Point} 多边形的内点
-   */
-  getInteriorPoint() {
-    let result = this._geometry.getInteriorPoint().getCoordinates();
-    return new Point(result);
-  }
-  /**
-   * 如果该几何形状包含指定的坐标，则返回 true。如果坐标位于几何形状的边界上，则返回 false。
-   * @param {OMapCoordinateType} coordinates
-   * @returns {boolean}
-   */
-  intersectsCoordinate(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$u(
-          "intersectsCoordinate",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    let _coordinates = handleGetLnglatValue(coordinates);
-    return this._geometry.intersectsCoordinate(_coordinates);
-  }
-  /**
-   * 线是否在extent范围内
-   * @param {OMapExtentType} extent
-   * @returns {boolean}
-   */
-  intersectsExtent(extent) {
-    if (!isDefined(extent)) {
-      error_(
-        createMessage$u(
-          "intersectsExtent",
-          commonMessage.paramsNotDefined("extent")
-        )
-      );
-    }
-    if (!(extent instanceof Extent) && !isExtentType(extent)) {
-      error_(
-        createMessage$u(
-          "intersectsExtent",
-          commonMessage.paramsInvaildFormat("extent")
-        )
-      );
-    }
-    let _extent = handleGetExtentValue(extent);
-    return this._geometry.intersectsExtent(_extent);
-  }
-  simplify(tolerance = 0) {
-    this._geometry.simplify(tolerance);
-  }
-  transform() {
-  }
-  translate(deltaX = 0, deltaY = 0) {
-    this._geometry.translate(deltaX, deltaY);
-  }
-}
-const PACKAGE_NAME$t = "MultiPoint";
-const createMessage$t = getPackageMessage(PACKAGE_NAME$t);
-class MultiPoint extends BasicFeature {
-  constructor(coordinatesOrFeature, properties) {
-    if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage$t(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature")
-        )
-      );
-    }
-    if (coordinatesOrFeature instanceof OlFeature) {
-      super("MultiPoint", coordinatesOrFeature);
-    } else {
-      if (!coordinatesOrFeature.every((item) => isValidCoordinate(item))) {
-        error_(
-          createMessage$t(
-            "constructor",
-            commonMessage.paramsInvaildFormat(
-              "coordinatesOrFeature",
-              "Array<Lnglat or [x, y]>"
-            )
-          )
-        );
-      }
-      super(
-        "MultiPoint",
-        coordinatesOrFeature
-      );
-      if (isDefined(properties) && isObject(properties)) {
-        this.setProperties(properties);
-      }
-    }
-  }
-  _init(coordinates) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
-    if (geometryCoordinates) {
-      this._geometry = new OlGeometry.MultiPoint(geometryCoordinates);
-      this._feature = new OlFeature({
-        geometry: this._geometry
-      });
-    }
-  }
-  _initByFeature(feature) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry();
-  }
-  /**
-   * 获取点的坐标
-   * @returns {Lnglat[]} 点的坐标
-   */
-  getCoordinates() {
-    let coordinates = this._geometry.getCoordinates();
-    let _coordinates = coordinates.map((c) => {
-      return new Lnglat(c);
-    });
-    return _coordinates;
-  }
-  /**
-   * 设置点的坐标
-   * @param {OMapMultiPointGeometryCoordinatesType} coordinates 点的坐标
-   */
-  setCoordinates(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$t(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    if (!coordinates.every((item) => isValidCoordinate(item))) {
-      error_(
-        createMessage$t(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat(
-            "coordinates",
-            "Array<Lnglat or [x, y]>"
-          )
-        )
-      );
-    }
-    let _coordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
-    this._geometry.setCoordinates(_coordinates);
-  }
-  appendPoint(pointOrpointCoordinates) {
-    if (!isDefined(pointOrpointCoordinates)) {
-      error_(
-        createMessage$t(
-          "appendPoint",
-          commonMessage.paramsNotDefined("pointOrpointCoordinates")
-        )
-      );
-    }
-    let _point = null;
-    if (pointOrpointCoordinates instanceof Point) {
-      _point = pointOrpointCoordinates.getGeometry();
-    } else {
-      _point = new OlGeometry.Point(
-        handleGetLnglatValue(pointOrpointCoordinates)
-      );
-    }
-    this._geometry.appendPoint(_point);
-  }
-  getClosestPoint(pointOrpointCoordinates) {
-    if (!isDefined(pointOrpointCoordinates)) {
-      error_(
-        createMessage$t(
-          "getClosestPoint",
-          commonMessage.paramsNotDefined("pointOrpointCoordinates")
-        )
-      );
-    }
-    let _point = null;
-    if (pointOrpointCoordinates instanceof Point) {
-      _point = pointOrpointCoordinates.getCoordinates().toArray();
-    } else {
-      _point = handleGetLnglatValue(pointOrpointCoordinates);
-    }
-    let _closestPoint = this._geometry.getClosestPoint(_point);
-    return new Lnglat(_closestPoint);
-  }
-  getFirstCoordinate() {
-    return new Lnglat(...this._geometry.getFirstCoordinate());
-  }
-  getLastCoordinate() {
-    return new Lnglat(...this._geometry.getLastCoordinate());
-  }
-  getPoint(index) {
-    if (!isDefined(index)) {
-      error_(
-        createMessage$t("getPoint", commonMessage.paramsNotDefined("index"))
-      );
-    }
-    if (!isNumber(index)) {
-      error_(
-        createMessage$t(
-          "getPoint",
-          commonMessage.paramsInvaildFormat("index", "number")
-        )
-      );
-    }
-    let point = this._geometry.getPoint(index);
-    return new Point(point.getCoordinates());
-  }
-  intersectsCoordinate(coordinate) {
-    if (!isDefined(coordinate)) {
-      error_(
-        createMessage$t(
-          "intersectsCoordinate",
-          commonMessage.paramsNotDefined("coordinate")
-        )
-      );
-    }
-    let _coordinate = handleGetLnglatValue(coordinate);
-    return this._geometry.intersectsCoordinate(_coordinate);
-  }
-  intersectsExtent(extent) {
-    if (!isDefined(extent)) {
-      error_(
-        createMessage$t(
-          "intersectsExtent",
-          commonMessage.paramsNotDefined("extent")
-        )
-      );
-    }
-    let _extent = handleGetExtentValue(extent);
-    return this._geometry.intersectsExtent(_extent);
-  }
-}
-function isValidMultiLineStringCoordinates(value) {
-  return isArray(value) && value.every((item) => isValidLineStringCoordinates(item));
-}
-const PACKAGE_NAME$s = "MultiLineString";
-const createMessage$s = getPackageMessage(PACKAGE_NAME$s);
-class MultiLineString extends BasicFeature {
-  constructor(coordinatesOrFeature, properties) {
-    if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage$s(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature")
-        )
-      );
-    }
-    if (coordinatesOrFeature instanceof OlFeature) {
-      super("MultiLineString", coordinatesOrFeature);
-    } else {
-      if (!isValidMultiLineStringCoordinates(coordinatesOrFeature)) {
-        error_(
-          createMessage$s(
-            "constructor",
-            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
-          )
-        );
-        return;
-      }
-      super(
-        "MultiLineString",
-        coordinatesOrFeature
-      );
-      if (isDefined(properties) && isObject(properties)) {
-        this.setProperties(properties);
-      }
-    }
-  }
-  _init(coordinates) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return handleGetLnglatValue(c2);
-      });
-    });
-    this._geometry = new OlGeometry.MultiLineString(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry
-    });
-  }
-  _initByFeature(feature) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry();
-  }
-  /**
-   * 获取坐标
-   * @returns {Array<Array<Lnglat>>} 坐标
-   */
-  getCoordinates() {
-    let coordinates = this._geometry.getCoordinates();
-    let _coordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return new Lnglat(c2);
-      });
-    });
-    return _coordinates;
-  }
-  /**
-   * 设置坐标
-   * @param {OMapMultiLineStringGeometryCoordinatesType} coordinates 坐标
-   */
-  setCoordinates(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$s(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    if (!isValidMultiLineStringCoordinates(coordinates)) {
-      error_(
-        createMessage$s(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates")
-        )
-      );
-    }
-    let _coordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return handleGetLnglatValue(c2);
-      });
-    });
-    this._geometry.setCoordinates(_coordinates);
-  }
-}
-function isValidMultiPolygonCoordinates(value) {
-  return isArray(value) && value.every((item) => isValidPolygonCoordinates(item));
-}
-const PACKAGE_NAME$r = "MultiPolygon";
-const createMessage$r = getPackageMessage(PACKAGE_NAME$r);
-class MultiPolygon extends BasicFeature {
-  constructor(coordinatesOrFeature, properties) {
-    if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage$r(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature")
-        )
-      );
-    }
-    if (coordinatesOrFeature instanceof OlFeature) {
-      super("MultiPolygon", coordinatesOrFeature);
-    } else {
-      if (!isValidMultiPolygonCoordinates(coordinatesOrFeature)) {
-        error_(
-          createMessage$r(
-            "constructor",
-            commonMessage.paramsInvaildFormat("coordinatesOrFeature")
-          )
-        );
-      }
-      super(
-        "MultiPolygon",
-        coordinatesOrFeature
-      );
-      if (isDefined(properties) && isObject(properties)) {
-        this.setProperties(properties);
-      }
-    }
-  }
-  _init(coordinates) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return c2.map((c3) => {
-          return handleGetLnglatValue(c3);
-        });
-      });
-    });
-    this._geometry = new OlGeometry.MultiPolygon(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry
-    });
-  }
-  _initByFeature(feature) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry();
-  }
-  /**
-   * 获取坐标
-   * @returns {OMapMultiPolygonGeometryCoordinatesType``} 坐标
-   */
-  getCoordinates() {
-    let coordinates = this._geometry.getCoordinates();
-    let _coordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return c2.map((c3) => {
-          return new Lnglat(c3);
-        });
-      });
-    });
-    return _coordinates;
-  }
-  /**
-   * 设置坐标
-   * @param {OMapMultiPolygonGeometryCoordinatesType} coordinates 坐标
-   */
-  setCoordinates(coordinates) {
-    if (!isDefined(coordinates)) {
-      error_(
-        createMessage$r(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates")
-        )
-      );
-    }
-    if (!isValidMultiPolygonCoordinates(coordinates)) {
-      error_(
-        createMessage$r(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates")
-        )
-      );
-    }
-    let _coordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return c2.map((c3) => {
-          return handleGetLnglatValue(c3);
-        });
-      });
-    });
-    this._geometry.setCoordinates(_coordinates);
-  }
-}
-const PACKAGE_NAME$q = "Circle";
-const createMessage$q = getPackageMessage(PACKAGE_NAME$q);
-class Circle extends BasicFeature {
-  constructor(centerOrFeature, radius, properties) {
-    if (!isDefined(centerOrFeature)) {
-      error_(
-        createMessage$q(
-          "constructor",
-          commonMessage.paramsNotDefined("centerOrFeature")
-        )
-      );
-    }
-    if (centerOrFeature instanceof OlFeature) {
-      super("Circle", centerOrFeature);
-    } else {
-      if (!isValidCoordinate(centerOrFeature)) {
-        error_(
-          createMessage$q(
-            "constructor",
-            commonMessage.paramsInvaildFormat("centerOrFeature")
-          )
-        );
-      }
-      if (!(isDefined(radius) && isNumber(radius))) {
-        error_(
-          createMessage$q(
-            "constructor",
-            commonMessage.paramsInvaildFormat("radius")
-          )
-        );
-      }
-      super(
-        "Circle",
-        centerOrFeature,
-        radius
-      );
-      if (isDefined(properties)) {
-        this.setProperties(properties);
-      }
-    }
-  }
-  _init(coordinates, radius) {
-    let geometryCoordinates = handleGetLnglatValue(
-      coordinates
-    );
-    this._geometry = new OlGeometry.Circle(geometryCoordinates, radius);
-    this._feature = new OlFeature({
-      geometry: this._geometry
-    });
-  }
-  _initByFeature(feature) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry();
-  }
-  getCenter() {
-    let center = this._geometry.getCenter();
-    return new Lnglat(center);
-  }
-  setCenter(center) {
-    if (!isDefined(center)) {
-      error_(
-        createMessage$q("setCenter", commonMessage.paramsNotDefined("center"))
-      );
-    }
-    if (!isValidCoordinate(center)) {
-      error_(
-        createMessage$q(
-          "setCenter",
-          commonMessage.paramsInvaildFormat("center", "coordinates")
-        )
-      );
-    }
-    let _center = handleGetLnglatValue(center);
-    this._geometry.setCenter(_center);
-  }
-  getRadius() {
-    return this._geometry.getRadius();
-  }
-  setRadius(radius) {
-    if (!isDefined(radius)) {
-      error_(
-        createMessage$q("setRadius", commonMessage.paramsNotDefined("radius"))
-      );
-    }
-    if (!isNumber(radius)) {
-      error_(
-        createMessage$q(
-          "setRadius",
-          commonMessage.paramsInvaildFormat("radius", "number")
-        )
-      );
-    }
-    this._geometry.setRadius(radius);
-  }
-  /**
-   * 获取坐标
-   */
-  getCoordinates() {
-    return this.getCenter();
-  }
-  /**
-   * 设置线的坐标
-   */
-  setCoordinates(center) {
-    this.setCenter(center);
-  }
-  setCenterAndRadius(center, radius) {
-    if (!isDefined(center) || !isDefined(radius)) {
-      error_(
-        createMessage$q(
-          "setCenterAndRadius",
-          commonMessage.paramsListHaveNotDefined("center", "radius")
-        )
-      );
-    }
-    if (!isValidCoordinate(center)) {
-      error_(
-        createMessage$q(
-          "setCenterAndRadius",
-          commonMessage.paramsInvaildFormat("center")
-        )
-      );
-    }
-    if (!isNumber(radius)) {
-      error_(
-        createMessage$q(
-          "setCenterAndRadius",
-          commonMessage.paramsInvaildFormat("radius", "number")
-        )
-      );
-    }
-    let _center = handleGetLnglatValue(center);
-    this._geometry.setCenterAndRadius(_center, radius);
-  }
-}
-const OlFeatureTypeObject = {
-  Point: "Point",
-  LineString: "LineString",
-  Polygon: "Polygon",
-  MultiPoint: "MultiPoint",
-  MultiLineString: "MultiLineString",
-  MultiPolygon: "MultiPolygon",
-  LinearRing: "LinearRing",
-  Circle: "Circle"
-};
-function createBaseFeatureByOlFeature(feature) {
-  let geometry = feature.getGeometry();
-  if (!geometry) return null;
-  switch (geometry.getType()) {
-    case OlFeatureTypeObject.Point:
-      return new Point(feature);
-    case OlFeatureTypeObject.LineString:
-      return new LineString(feature);
-    case OlFeatureTypeObject.Polygon:
-      return new Polygon(feature);
-    case OlFeatureTypeObject.MultiPoint:
-      return new MultiPoint(feature);
-    case OlFeatureTypeObject.MultiLineString:
-      return new MultiLineString(feature);
-    case OlFeatureTypeObject.MultiPolygon:
-      return new MultiPolygon(feature);
-    case OlFeatureTypeObject.LinearRing:
-      return new LinearRing(feature);
-    case OlFeatureTypeObject.Circle:
-      return new Circle(feature);
-  }
-  return null;
 }
 const DrawMode = {
   /** 点 */
