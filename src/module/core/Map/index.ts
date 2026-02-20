@@ -21,7 +21,6 @@ import OlPackage, {
   OlGeometry,
   OlLayer,
 } from "../../../source/index";
-import type { OlViewInstanceType, IdType } from "../../../utils/index";
 import Lnglat from "../../basic/Lnglat/index";
 import {
   type OlCoordinateType,

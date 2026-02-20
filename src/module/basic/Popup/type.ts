@@ -6,7 +6,7 @@ import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
 import Popup from './index'
 
-export type OMapPopupIdType = string | number
+export type OMapPopupIdType = string | number | null
 export function isVaildPopupId(value: unknown): value is OMapPopupIdType {
     return isString(value) || isNumber(value);
 }

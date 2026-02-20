@@ -7,8 +7,6 @@ import type {
     OlGeometryType,
     OlGeomInstanceType,
     OMapBasicFeatureCoordinatesType,
-    BasicFeatureLike,
-    BasicFeatureInitialized
 } from './type'
 import Extent from '../../../basic/Extent/index'
 import { type OlStyleInstanceType, type  OMapStyleLike } from '../../../basic/Style/type'

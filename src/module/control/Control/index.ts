@@ -1,7 +1,10 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import{ OlInteraction } from '../../../source/index'
-import { type OMapControlType, type OMapControlIdType } from './type'
+import { warn_, error_, getPackageMessage } from '../../../utils/message'
+import {
+    type OMapControlTypeType,
+    type OMapControlIdType,
+    type OMapControlCommonType
+} from './type'
 import Event from '../../../module/util/Event/index'
 
 const PACKAGE_NAME = 'Control';
@@ -16,19 +19,19 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/10/10
  */
 
-export default class Control {
-    id: OMapControlIdType | null = null;
+export default class Control<T extends OMapControlCommonType> {
+    id: OMapControlIdType = null;
     /**
      * 交互类型
-     * @type {OMapControlType | null}
+     * @type {OMapControlTypeType}
      */
-    type: OMapControlType | null = null;
+    type!: OMapControlTypeType;
 
     /**
      * 交互实例
-     * @type {OlInteractionInstanceType}
+     * @type {T}
      */
-    _control?: any;
+    _control!: T;
 
     /**
      * 交互事件
@@ -36,32 +39,22 @@ export default class Control {
      */
     events: Event = new Event();
 
-    // map: Map | null = null;
-
-    constructor(type: OMapControlType) {
+    constructor(type: OMapControlTypeType) {
         this.type = type
-    }
-
-    protected _isInitialized(method: string) {
-        if (!isDefined(this._control)) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
     }
 
     /**
      * 获取控制实例
      */
-    getControl(): any | undefined {
+    getControl(): OMapControlCommonType {
         return this._control
     }
 
     /**
      * 获取控制ID
-     * @returns {number | string | null} 控制ID
+     * @returns {OMapControlIdType} 控制ID
      */
-    getId(): number | string | null {
+    getId(): OMapControlIdType {
         return this.id
     }
 
@@ -77,7 +70,7 @@ export default class Control {
      * 设置控制属性
      * @param properties 控制属性
      */
-    setProperties(properties: Record<string, any>): void {
+    setProperties(properties: Record<string, any>) {
         this._control.setProperties(properties)
     }
 

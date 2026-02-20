@@ -1,32 +1,45 @@
-import { OlSource } from '../../../source/index'
-import type { ManualOmit } from '../../../utils/type'
-import { type OMapSourceParamsType, DEFAULT_SOURCE_PARAMS } from '../Source/type'
-import Extent from '../../basic/Extent/index'
-import { type OlExtentType } from '../../basic/Extent/type'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OlCoordinateType } from '../../basic/Lnglat/type'
-import Size from '../../basic/Size/index'
-import { type OlSizeType } from '../../basic/Size/type'
+import { isDefined, isNumber } from '../../../utils/index';
+import { OlSource } from "../../../source/index";
+import type { ManualOmit } from "../../../utils/type";
+import {
+  type OMapSourceParamsType,
+  DEFAULT_SOURCE_PARAMS,
+  type OMapSourceParamsCommonKey,
+  handleGetSourceParams
+} from "../Source/type";
+import {
+  type OMapTileGridOptionsType,
+  handleGetTileGridParams
+} from '../tileGrid/TileGrid/type'
 
-export type OMapTileSourceTileGrid = {
-    extent?: Extent | OlExtentType;
-    minZoom: number;
-    origin?: Lnglat | OlCoordinateType;
-    origins?: Array<Lnglat | OlCoordinateType>;
-    resolutions: number[];
-    sizes: Array<Size | OlSizeType>
-    tileSize?: number | Size | OlSizeType;
-    tileSizes?: Array<number | Size | OlSizeType>;
-}
+export type OMapTileSourceType = OlSource.Tile;
+export type OlTileSourceParamsType = ConstructorParameters<
+  typeof OlSource.Tile
+>[0];
+export type CustOlTileSourceParamsType = ManualOmit<
+  OlTileSourceParamsType,
+  OMapSourceParamsCommonKey
+>;
 
 export type OMapTileSourceParamsType = OMapSourceParamsType & {
-    // cacheSize?: number;
-    // tilePixelRatio?: number;
-    tileGrid?: OMapTileSourceTileGrid;
-    transition?: number;
-    key?: string;
-    zDirection: number;
+  cacheSize?: number;
+  tilePixelRatio?: number;
+  tileGrid?: OMapTileGridOptionsType;
+  transition?: number;
+  key?: string;
+  zDirection: number;
+};
+
+export function handleGetTileSourceParams(params: OMapTileSourceParamsType) {
+    let _params = {
+      ...params,
+      ...handleGetSourceParams(params),
+    };
+    _params.tileGrid = isDefined(_params.tileGrid) ? handleGetTileGridParams(_params.tileGrid) : undefined;
+    return _params
 }
-export const DEFAULT_TILE_SOURCE_PARAMS: OMapTileSourceParamsType = Object.assign({}, DEFAULT_SOURCE_PARAMS, {
-    zDirection: 0
-})
+
+export const DEFAULT_TILE_SOURCE_PARAMS: OMapTileSourceParamsType =
+  Object.assign({}, DEFAULT_SOURCE_PARAMS, {
+    zDirection: 0,
+  });

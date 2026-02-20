@@ -1,20 +1,13 @@
 import { OlControl } from '../../../source/index'
 
-export type OMapControlZoomOptionsType = ConstructorParameters<typeof OlControl.Zoom>[0]
-export const DEFAULT_ZOOM_OPTIONS: OMapControlZoomOptionsType = {
-    duration: 250,
-    className: 'ol-zoom',
-    zoomInLabel: '+',
-    zoomOutLabel: '-',
-    zoomInTipLabel: '放大',
-    zoomOutTipLabel: '缩小',
-    zoomInClassName: 'ol-zoom-in',
-    zoomOutClassName: 'ol-zoom-out',
-    delta: 1
+export type OMapControlFullScreenOptionsType = ConstructorParameters<typeof OlControl.FullScreen>[0]
+
+export const DEFAULT_FULLSCREEN_OPTIONS: OMapControlFullScreenOptionsType = {
+    className: 'ol-full-screen',
+    activeClassName: 'ol-full-screen-true',
+    inactiveClassName: 'ol-full-screen-false',
+    tipLabel: '全屏',
+    keys: false
 }
 
-export type OMapControlZoomInstanceType = InstanceType<typeof OlControl.Zoom>
-
-export type OMapControlZoomInitialized = {
-    _control: OMapControlZoomInstanceType
-}
+export type OMapControlFullScreenType = InstanceType<typeof OlControl.FullScreen>

@@ -17,7 +17,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Projection {
-    _projection: OlProjInstanceType | null = null;
+    _projection: OlProj.Projection;
     protected code: string = "";
     protected units: ProjectionUnitsType = 'degrees';
 
@@ -29,17 +29,15 @@ export default class Projection {
             let _proj = proj as OlProjOptionsType;
             if(!isDefined(_proj.code)) {
                 error_(createMessage('constructor', '初始化参数有误'));
-                return;
             }
             result = _proj.code
             result = result.startsWith("EPSG") ? result : 'EPSG:' + result
         }
         // 到此为止，result一定是一个完整的坐标系代码，例如EPSG:4326
         this.code = result;
-        this._projection = OlProj.get(result);
+        this._projection = OlProj.get(result) as OlProj.Projection;
         if(!isDefined(this._projection)) {
             warn_(createMessage('constructor', '坐标系不存在'));
-            return;
         }
         this.units = (this._projection as OlProjInstanceType).getUnits();
     }
@@ -53,14 +51,14 @@ export default class Projection {
     }
 
     getAxisOrientation() {
-        return (this._projection as OlProjInstanceType).getAxisOrientation();
+        return this._projection.getAxisOrientation();
     }
 
     getExtent() {
-        return (this._projection as OlProjInstanceType).getExtent();
+        return this._projection.getExtent();
     }
 
-    getProjection(): OlProjInstanceType | undefined |null {
+    getProjection(): OlProj.Projection {
         return this._projection
     }
 

@@ -1,8 +1,11 @@
 import Control from './index'
+import { OlControl } from '../../../source/index'
 
-export type OMapControlType = "Zoom" | "FullScreen"
-export type OMapControlIdType = string | number
+export type OMapControlTypeType = "Zoom" | "FullScreen"
+export type OMapControlIdType = string | number | null
 
-export function isVaildControl(value: unknown): value is Control {
+export function isVaildControl(value: unknown): value is Control<OlControl.Control> {
     return value instanceof Control;
 }
+
+export type OMapControlCommonType = OlControl.Control

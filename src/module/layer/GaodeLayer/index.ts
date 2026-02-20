@@ -1,24 +1,21 @@
-import { isDefined, isNumber, defaultValue } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import { OlLayer, OlSource, OlTileGrid } from '../../../source/index'
-import BaseLayer from '../BaseLayer'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OMapCoordinateType, type OlCoordinateType } from '../../basic/Lnglat/type'
-import Size from '../../basic/Size/index'
-import { type OMapSizeType, type OlSizeType } from '../../basic/Size/type'
-import { handleGetSizeValue } from '../../basic/Size/handle'
-import { handleGetExtentValue } from '../../basic/Extent/handle'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
-import { handleGetColorValue } from '../../basic/Color/handle'
-import { 
-    DEFAULT_GAODE_LAYER_PARAMS,
-    DEFAULT_GAODE_LAYER_SOURCE_PARAMS,
-    type GaodeLayerTypeEnum,
-    type OMapGaodeLayerParamsType
-} from './type'
-import { getGaodeLayerUrlsByType } from './handle'
+import { isDefined, isNumber, defaultValue } from "../../../utils/index";
+import {
+  warn_,
+  error_,
+  getPackageMessage,
+  commonMessage,
+} from "../../../utils/message";
+import TileLayer from "../TileLayer/index";
+import XYZSource from "../../source/TileSource/subClass/XYZ/index";
+import { DEFAULT_XYZ_SOURCE_PARAMS } from "../../source/TileSource/subClass/XYZ/type";
+import {
+  type GaodeLayerTypeEnum,
+  type OMapGaodeLayerParamsType,
+  isValidGaodeLayerType,
+} from "./type";
+import { getGaodeLayerUrlsByType } from "./handle";
 
-let PACKAGE_NAME = 'GaodeLayer';
+let PACKAGE_NAME = "GaodeLayer";
 let createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
@@ -31,73 +28,33 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/10/3
  */
 
-export default class GaodeLayer extends BaseLayer {
-    /**
-     * 图层类型
-     */
-    gaodeType: GaodeLayerTypeEnum | null = null;
+export default class GaodeLayer extends TileLayer {
+  /**
+   * 图层类型
+   */
+  gaodeType!: GaodeLayerTypeEnum;
 
-    constructor(type: GaodeLayerTypeEnum, options?: OMapGaodeLayerParamsType ) {
-        super('Gaode', defaultValue(options, {}));
-        if(!isDefined(type)) {
-            error_(createMessage('GaodeLayer', "type参数不能为空"))
-            return;
-        }
-        let _layerParams = Object.assign({}, DEFAULT_GAODE_LAYER_PARAMS, {
-            ...defaultValue(options, {}),
-            source: undefined,
-            map: undefined
-        })
-        this.gaodeType = type;
-        let _sourceParams = Object.assign({}, DEFAULT_GAODE_LAYER_SOURCE_PARAMS, {
-            ...defaultValue(options?.source, {}),
-        })
-        let _source = undefined
-        if (isDefined(options) && isDefined(options.source)) {
-            let _tileGrid = undefined
-            if (isDefined(_sourceParams.tileGrid)) {
-                _tileGrid = new OlTileGrid.TileGrid({
-                    ..._sourceParams.tileGrid,
-                    extent: handleGetExtentValue(_sourceParams.tileGrid.extent),
-                    origin: handleGetLnglatValue(_sourceParams.tileGrid.origin),
-                    origins: isDefined(_sourceParams.tileGrid.origins) ? _sourceParams.tileGrid.origins.map((item: OMapCoordinateType) => {
-                        if (item instanceof Lnglat) {
-                            return (handleGetLnglatValue(item) as OlCoordinateType)
-                        }
-                        return item as OlCoordinateType
-                    }) : undefined,
-                    sizes: isDefined(_sourceParams.tileGrid.sizes) ? _sourceParams.tileGrid.sizes.map((item: OMapSizeType) => {
-                        if (item instanceof Size) {
-                            return (handleGetSizeValue(item) as OlSizeType)
-                        }
-                        return item as OlSizeType
-                    }) : undefined,
-                    tileSize: isDefined(_sourceParams.tileGrid.tileSize) ? (isNumber(_sourceParams.tileGrid.tileSize) ? _sourceParams.tileGrid.tileSize : handleGetSizeValue(_sourceParams.tileGrid.tileSize)) : undefined,
-                    tileSizes: isDefined(_sourceParams.tileGrid.tileSizes) ? _sourceParams.tileGrid.tileSizes.map((item: OMapSizeType) => {
-                        if (item instanceof Size) {
-                            return (handleGetSizeValue(item) as OlSizeType)
-                        }
-                        return item as OlSizeType
-                    }) : undefined,
-                })
-            }
-            _source = new OlSource.XYZ({
-                ..._sourceParams,
-                urls: getGaodeLayerUrlsByType(this.gaodeType),
-                tileGrid: _tileGrid
-            })
-        } else {
-            _source = new OlSource.XYZ({
-                ..._sourceParams,
-                urls: getGaodeLayerUrlsByType(this.gaodeType)
-            })
-        }
-        this._layer = new OlLayer.Tile({
-            ..._layerParams,
-            extent: isDefined(_layerParams.extent) ? handleGetExtentValue(_layerParams.extent) : undefined,
-            background: isDefined(_layerParams.background) ? handleGetColorValue(_layerParams.background) : undefined,
-            source: _source
-        })
-        this._initLayerEvent()
+  constructor(type: GaodeLayerTypeEnum, options: OMapGaodeLayerParamsType) {
+    if (!isValidGaodeLayerType(type)) {
+      error_(
+        createMessage("constructor", commonMessage.paramsInvaildEnum("type")),
+      );
     }
+    const urls = getGaodeLayerUrlsByType(type);
+    const xyzSourceParams = Object.assign(
+      {},
+      DEFAULT_XYZ_SOURCE_PARAMS,
+      options,
+      {
+        urls,
+      },
+    );
+    const xyzSource = new XYZSource(xyzSourceParams);
+    const gaodeParams = Object.assign({}, options, {
+      source: xyzSource.getSource(),
+    });
+    super(gaodeParams);
+    this.gaodeType = type;
+    this._initLayerEvent()
+  }
 }

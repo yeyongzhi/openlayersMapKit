@@ -8,18 +8,6 @@ import type { OMapMultiPolygonGeometryCoordinatesType, OlMultiPolygonGeomInstanc
 import type { OMapLinearRingGeometryCoordinatesType, OlLinearRingGeomInstanceType } from '../LinearRing/type'
 import type { OlCircleGeomInstanceType } from '../Circle/type'
 
-
-export interface BasicFeatureLike {
-    type?: OMapBasicFeatureType;
-    _feature?: OlFeatureInstanceType;
-}
-
-export interface BasicFeatureInitialized {
-    type: OMapBasicFeatureType;
-    _feature: OlFeatureInstanceType;
-    _geometry: OlGeometryType;
-}
-
 export type OlRenderFeatureInstanceType = InstanceType<typeof RenderFeature>
 export type OlFeatureInstanceType = InstanceType<typeof OlFeature>
 export type OlFeatureLike = OlRenderFeatureInstanceType | OlFeatureInstanceType

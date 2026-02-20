@@ -1,10 +1,10 @@
 
-import { isDefined, isNumber } from '../../../utils/index'
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OMapStyleLike, OMapStyleOptionsType, OlStyleInstanceType } from './type'
-import { OMapStrokeStyleDefaultOptions } from './type'
+import { error_, commonMessage } from '../../../utils/message'
+import { getPackageMessage, isDefined } from '../../../utils/index'
+import type { OMapStyleOptionsType, OlStyleInstanceType } from './type'
 import { OlStyle } from '../../../source/index'
 import {
+    getOlGeometryStyle,
     getOlFillSingleStyle,
     getOlStrokeSingleStyle,
     getOlCircleSingleStyle,
@@ -31,7 +31,10 @@ export default class Style {
     _style: OlStyleInstanceType;
 
     constructor(options: OMapStyleOptionsType) {
-        const { fill, stroke, text, circle, icon, regularShape } = options
+        if (!isDefined(options)) {
+            error_(createMessage('constructor', commonMessage.paramsNotDefined('options')))
+        }
+        const { geometry, fill, stroke, text, circle, icon, regularShape } = options
         let _image
         if (circle) {
             _image = getOlCircleSingleStyle(circle)
@@ -41,6 +44,7 @@ export default class Style {
             _image = getOlRegularShapeSingleStyle(regularShape)
         }
         let _params = Object.assign({}, options, {
+            geometry: isDefined(geometry) ? getOlGeometryStyle(geometry) : undefined,
             fill: getOlFillSingleStyle(fill),
             stroke: getOlStrokeSingleStyle(stroke),
             image: _image,

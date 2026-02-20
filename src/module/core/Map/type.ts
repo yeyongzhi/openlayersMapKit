@@ -1,4 +1,4 @@
-import OlPackage, { OlEasing } from '../../../source/index'
+import OlPackage, { OlEasing, OlLayer } from '../../../source/index'
 import { type ManualOmit } from '../../../utils/type'
 import { getDevicePixelRatio } from '../../../utils/handle'
 import Projection from '../../core/Projection/index'
@@ -10,7 +10,6 @@ import DragPan from '../../interaction/DragPan/index'
 import Popup from '../../basic/Popup/index'
 import Pixel from '../../basic/Pixel/index'
 import Lnglat from '../../basic/Lnglat/index'
-import Size from '../../basic/Size/index'
 import { type OMapCoordinateType } from '../../basic/Lnglat/type'
 import { type OMapExtentType } from '../../basic/Extent/type'
 import { type OMapSizeType } from '../../basic/Size/type'
@@ -118,7 +117,7 @@ export type OlMapOnEventType = Parameters<OlPackage.Map['on']>[0];
 export type OlViewOnEventType = Parameters<OlPackage.View['on']>[0];
 
 export type OMapForEachFeatureAtPixelOptionsType = {
-    layerFilter?: (layer: BaseLayer) => boolean;
+    layerFilter?: (layer: BaseLayer<OlLayer.Vector>) => boolean;
     hitTolerance: number;
     checkWrapped: boolean;
 }

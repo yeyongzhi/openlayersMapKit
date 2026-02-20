@@ -1,4 +1,5 @@
 import type {
+    OMapStyleOptionsGeometryType,
     OMapStyleType,
     OMapFillStyleOptionsType,
     OMapStrokeStyleOptionsType,
@@ -11,13 +12,27 @@ import type {
     OMapStyleLike,
     OMapTextStyleOptionsType
 } from './type'
-import { OlStyle } from '../../../source/index'
+import { OlStyle, OlFeature } from '../../../source/index'
 import { Color } from '../../../index'
 import Style from './index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
-import { isDefined, isFunction, isNumber } from '../../../utils/index'
+import { type OlFeatureLike } from '../../core/Feature/BasicFeature/type'
+import { createBaseFeatureByOlFeature, createBaseFeatureByOlRenderFeature } from '../../core/Feature/BasicFeature/handle'
+import { isDefined, isFunction, isString } from '../../../utils/index'
 import { handleGetColorValue } from '../Color/handle'
 import Size from '../../basic/Size/index'
+
+export function getOlGeometryStyle(geometry: OMapStyleOptionsGeometryType) {
+    if(isString(geometry)) {
+        return geometry as string
+    }
+    if(isFunction(geometry)) {
+        return (feature: OlFeatureLike) => {
+            let OMapFeature = (feature instanceof OlFeature) ? createBaseFeatureByOlFeature(feature) : createBaseFeatureByOlRenderFeature(feature)
+            return isDefined(OMapFeature) ? geometry(OMapFeature).getGeometry() : undefined
+        }
+    }
+}
 
 export function getOlFillSingleStyle(options: OMapFillStyleOptionsType | undefined) {
     if (!isDefined(options)) {

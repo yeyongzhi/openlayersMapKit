@@ -1,18 +1,23 @@
-import { isDefined, isNumber } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { OlMapInstanceType } from '../../../utils/index'
-import { OlLayer, OlSource } from '../../../source/index'
-import BaseLayer from '../BaseLayer'
-import { getTdtServiceUrl } from './layerSource'
-import { MapToken } from '../../util/index'
+import { isDefined, isNumber } from "../../../utils/index";
 import {
-    type TdtLayerTypeEnum,
-    type TdtLayerProjType,
-    type TdtLayerProjTypeEnum,
-    type OMapTdtLayerParamsType,
-} from './type'
+  warn_,
+  error_,
+  getPackageMessage,
+  commonMessage,
+} from "../../../utils/index";
+import { getTdtServiceUrl } from "./layerSource";
+import { MapToken } from "../../util/index";
+import TileLayer from "../TileLayer/index";
+import XYZSource from "../../source/TileSource/subClass/XYZ/index";
+import { DEFAULT_XYZ_SOURCE_PARAMS } from "../../source/TileSource/subClass/XYZ/type";
+import {
+  type TdtLayerTypeEnum,
+  type TdtLayerProjTypeEnum,
+  type OMapTdtLayerParamsType,
+  isValidTdtLayerType,
+} from "./type";
 
-let PACKAGE_NAME = 'TdtLayer';
+let PACKAGE_NAME = "TdtLayer";
 let createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
@@ -22,39 +27,43 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/8
- * @updateDate 2025/10/10
+ * @updateDate 2026/2/20
  */
 
+export default class TdtLayer extends TileLayer {
+  /**
+   * 图层类型
+   */
+  tdtType!: TdtLayerTypeEnum;
 
-
-export default class TdtLayer extends BaseLayer {
-    /**
-     * 图层类型
-     */
-    tdtType: TdtLayerTypeEnum | null = null;
-
-    constructor(type: TdtLayerTypeEnum, options?: OMapTdtLayerParamsType) {
-        super('Tdt', options);
-        if (!isDefined(MapToken.tdt)) {
-            warn_(createMessage('constructor', '缺少天地图key，请提前申明'))
-            return;
-        }
-        if (!isDefined(type)) {
-            error_(createMessage('constructor', '缺少参数天地图图层类型'))
-            return;
-        }
-        let _layeroptions = (options as OMapTdtLayerParamsType) || {};
-        // let _map = _layeroptions.map as OlMapInstanceType | undefined;
-        this.tdtType = type;
-        this._layer = new OlLayer.Tile({
-            ..._layeroptions,
-            extent: isDefined(_layeroptions.extent) ? _layeroptions.extent?._extent : undefined,
-            map: isDefined(_layeroptions.map) ? _layeroptions.map?._map as OlMapInstanceType : undefined,
-            background: isDefined(_layeroptions.background) ? _layeroptions.background?._color : undefined,
-            source: new OlSource.XYZ({
-                url: getTdtServiceUrl(type, (options?.proj as TdtLayerProjTypeEnum) || 'w')
-            })
-        })
-        this._initLayerEvent()
+  constructor(
+    type: TdtLayerTypeEnum,
+    proj: TdtLayerProjTypeEnum,
+    options: OMapTdtLayerParamsType,
+  ) {
+    if (!isDefined(MapToken.tdt)) {
+      error_(createMessage("constructor", "缺少天地图key，请提前申明"));
     }
+    if (!isValidTdtLayerType(type)) {
+      error_(
+        createMessage("constructor", commonMessage.paramsInvaildEnum("type")),
+      );
+    }
+    const url = getTdtServiceUrl(type, proj); // 天地图只需要 单个url 即可
+    const xyzSourceParams = Object.assign(
+      {},
+      DEFAULT_XYZ_SOURCE_PARAMS,
+      options,
+      {
+        url,
+      },
+    );
+    const xyzSource = new XYZSource(xyzSourceParams);
+    const tdtParams = Object.assign({}, options, {
+      source: xyzSource.getSource(),
+    });
+    super(tdtParams);
+    this.tdtType = type;
+    this._initLayerEvent();
+  }
 }

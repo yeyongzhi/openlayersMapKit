@@ -1,6 +1,8 @@
 import { OlProj } from '../../../source/index'
 import Projection from './index'
 
+// export type OMapProjectionType = OlProj.Projection
+
 export type OlProjType = string
 export type OMapProjectionType = OlProjType | Projection
 

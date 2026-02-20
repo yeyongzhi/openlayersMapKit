@@ -1,49 +1,39 @@
 import { isDefined, isNumber, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { warn_, error_, getPackageMessage } from '../../../utils/message'
 import{ OlControl } from '../../../source/index'
 import {
-    type OMapControlFullScreenOptionsType,
-    type OMapControlFullScreenInstanceType,
-    DEFAULT_FullScreen_OPTIONS,
-    type OMapControlFullScreenInitialized
+    type OMapControlZoomOptionsType,
+    type OMapControlZoomType,
+    DEFAULT_ZOOM_OPTIONS
 } from './type'
-import Event from '../../../module/util/Event/index'
-import Map from '../../core/Map/index'
 import Control from '../Control/index'
+import { type OMapControlIdType } from '../Control/type'
 
-const PACKAGE_NAME = 'FullScreen';
+const PACKAGE_NAME = 'Zoom';
 const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
- * @class FullScreen
- * @classdesc 全屏控件类
+ * @class Zoom
+ * @classdesc 缩放控件类
  * @author Aurora
  * @version 1.0.0
- * @createDate 2025/10/10
+ * @createDate 2025/10/9
  * @updateDate 2025/10/10
  */
 
-export default class FullScreen extends Control {
+export default class Zoom extends Control<OlControl.Zoom> {
 
-    constructor(options?: OMapControlFullScreenOptionsType)
-    constructor(id: number | string, options?: OMapControlFullScreenOptionsType)
+    constructor(options?: OMapControlZoomOptionsType)
+    constructor(id: OMapControlIdType, options?: OMapControlZoomOptionsType)
 
-    constructor(idOrOptions?: OMapControlFullScreenOptionsType | number | string, options?: OMapControlFullScreenOptionsType) {
-        super("FullScreen");
+    constructor(idOrOptions?: OMapControlZoomOptionsType | OMapControlIdType, options?: OMapControlZoomOptionsType) {
+        super("Zoom");
         if(isDefined(idOrOptions) && (isNumber(idOrOptions) || isString(idOrOptions))) {
-            this.id = idOrOptions as number | string
-            this._control = new OlControl.FullScreen(Object.assign({}, DEFAULT_FullScreen_OPTIONS, options))
+            this.id = idOrOptions as OMapControlIdType
+            this._control = new OlControl.Zoom(Object.assign({}, DEFAULT_ZOOM_OPTIONS, options))
         } else {
-            this._control = new OlControl.FullScreen(Object.assign({}, DEFAULT_FullScreen_OPTIONS, idOrOptions))
+            this._control = new OlControl.Zoom(Object.assign({}, DEFAULT_ZOOM_OPTIONS, idOrOptions))
         }
-    }
-
-    protected _isInitialized(method: string): this is OMapControlFullScreenInitialized & this {
-        if (!isDefined(this._control)) {
-            warn_(createMessage(method, '未正确实例化'));
-            return false;
-        }
-        return true;
     }
 
 }

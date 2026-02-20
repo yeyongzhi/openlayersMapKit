@@ -13,6 +13,5 @@ export const TdtLayerTypeUrls: Record<TdtLayerTypeEnum, string> = {
 }
 
 export function getTdtServiceUrl(type: TdtLayerTypeEnum, proj: TdtLayerProjTypeEnum) {
-
     return commonUrlTemplate.replace(/\{T\}/g, type + '_' + proj).replace(/\{tk\}/g, MapToken.tdt as string)
 }

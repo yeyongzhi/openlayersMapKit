@@ -78,6 +78,7 @@ export function createBaseFeatureByOlFeature(feature: OlFeatureInstanceType): Ba
     return null 
 }
 
-export function createBaseFeatureByOlRenderFeature<T>(feature: OlRenderFeatureInstanceType): any {
-    
+export function createBaseFeatureByOlRenderFeature(feature: OlRenderFeatureInstanceType): BasicFeature<OlGeometryType> | null {
+    let olFeature = OlRenderFeaturetoFeature(feature)
+    return createBaseFeatureByOlFeature(olFeature)
 }

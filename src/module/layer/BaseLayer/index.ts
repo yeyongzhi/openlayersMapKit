@@ -68,7 +68,7 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
     /**
      * 图层id，每个图层的唯一主键，用于区分图层
      */
-    protected id: BaseLayerIdType | null = null;
+    protected id: BaseLayerIdType = null;
     /**
      * 图层名称，用于显示在图层控制栏中
      */

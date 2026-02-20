@@ -1,12 +1,15 @@
+import { isDefined } from '../../../utils/index'
 import { OlLayer, OlSource } from '../../../source/index'
 import Extent from '../../basic/Extent/index'
+import { handleGetExtentValue } from '../../basic/Extent/handle'
 import Color from '../../basic/Color/index'
+import { handleGetColorValue } from '../../basic/Color/handle'
 import Map from '../../core/Map/index'
 
 /** BaseLayer */
 type CustBaseLayerType = 'XYZ' | 'WMS' | 'WMTS'
 export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt' | CustBaseLayerType
-export type BaseLayerIdType = number | string
+export type BaseLayerIdType = number | string | null
 export type BaseLayerPropertiesType = Record<string, any>
 
 export type OlBaseLayerOptionsTypeEnum = "className" | "opacity" | "visible" | "extent" | "zIndex" | "minResolution" | "maxResolution" | "minZoom" | "maxZoom" | "background" | "properties"
@@ -36,6 +39,16 @@ export type BaseLayerOptionsType = BaseLayerCommonParamsType & {
     id?: BaseLayerIdType; // 图层id
     name?: string; // 图层名称，用于显示在图层控制栏中，默认使用图层id
     map?: Map;
+}
+
+export function handleGetBaseLayerParams(params: BaseLayerOptionsType) {
+    let _params = {
+        ...params,
+        extent: isDefined(params.extent) ? handleGetExtentValue(params.extent) : undefined,
+        background: isDefined(params.background) ? handleGetColorValue(params.background) : undefined,
+        map: isDefined(params.map) ? params.map.getMap() : undefined,
+    }
+    return _params
 }
 
 export type OMapBaseLayerCommonType = OlLayer.Layer

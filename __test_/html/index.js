@@ -128,15 +128,14 @@ function initMap() {
     // 加载高德地图
     const layer = new OMap.GaodeLayer(OMap.GaodeLayerType.Vec, {
         id: "gaode_vec",
-        // minZoom: 16
     })
     map.addLayer(layer)
 
     // OMap.MapToken.tdt = ""
     // 加载天地图
     // const TDT_VEC_LAYER_GROUP = new OMap.LayerGroup("tdt_vec", [
-    //     new OMap.TdtLayer("vec"),
-    //     new OMap.TdtLayer("cva")
+    //     new OMap.TdtLayer(OMap.TdtLayerType.Vec, 'w'),
+    //     new OMap.TdtLayer(OMap.TdtLayerType.Cva, 'w')
     // ]
     // )
     // map.addLayerGroup(TDT_VEC_LAYER_GROUP)

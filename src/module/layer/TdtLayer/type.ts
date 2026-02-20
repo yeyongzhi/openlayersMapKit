@@ -1,7 +1,6 @@
-import { type OMapTileLayerParamsType } from '../TileLayer/type'
 import { ManualOmit } from "../../../utils/index";
-
-export type OMapTdtLayerParamsType = ManualOmit<OMapTileLayerParamsType, 'source'> & TdtLayerProjType
+import { OMapTileLayerParamsType } from '../TileLayer/type'
+import { OMapXYZSourceParamsType } from '../../source/TileSource/subClass/XYZ/type'
 
 /**
  * 天地图图层类型
@@ -14,14 +13,22 @@ export const TdtLayerType = {
     Cva: 'cva', // 矢量注记
     Cia: 'cia', // 影像注记
     Cta: 'cta', // 地形注记
+} as const
+export type TdtLayerTypeEnum = (typeof TdtLayerType)[keyof typeof TdtLayerType]
+
+/**
+ * 是否是合法的高德地图图层类型
+ */
+export function isValidTdtLayerType(type: any): type is TdtLayerTypeEnum {
+    return Object.values(TdtLayerType).includes(type)
 }
-export type TdtLayerTypeEnum = typeof TdtLayerType[keyof typeof TdtLayerType]
+
 /**
  * w: 球面墨卡托投影
  * c: 经纬度投影
  */
 export type TdtLayerProjTypeEnum = 'w' | 'c'
 
-export interface TdtLayerProjType {
-    proj: TdtLayerProjTypeEnum
+export type OMapTdtLayerParamsType = ManualOmit<OMapTileLayerParamsType, 'source'> & {
+    source: OMapXYZSourceParamsType;
 }

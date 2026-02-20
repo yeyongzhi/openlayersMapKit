@@ -2,7 +2,7 @@ import Style from './index'
 import { Color, Size, Pixel } from '../../../index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
-import { OlStyle } from '../../../source/index'
+import { OlStyle, OlGeometry } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/index'
 
 export type OlStyleLike = OlStyleInstanceType | Array<OlStyleInstanceType> | ((feature: OlFeatureLike, resolution: number) => (OlStyleInstanceType | undefined))
@@ -12,10 +12,13 @@ export type OMapStyleLike = Style | Array<Style> | OMapStyleFunction
 
 export type OlStyleInstanceType = InstanceType<typeof OlStyle.Style>
 
+export type OMapStyleOptionsGeometryType = string | ((feature: BaseFeature<OlGeometry.Geometry>) => BaseFeature<OlGeometry.Geometry>)
+
 export type OMapStyleOptionsType = {
-    geometry?: any;
+    geometry?: OMapStyleOptionsGeometryType;
     fill?: OMapFillStyleOptionsType,
-    // image: OMapImageStyleOptionsType, // image实际不太使用
+    // image: OMapImageStyleOptionsType
+    // image实际不太使用，实际上是以下三类
     circle?: OMapCircleStyleOptionsType,
     icon?: OMapIconStyleOptionsType,
     regularShape?: OMapRegularShapeStyleOptionsType,
