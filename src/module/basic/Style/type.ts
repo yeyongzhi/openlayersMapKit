@@ -1,99 +1,158 @@
-import Style from './index'
-import { Color, Size, Pixel } from '../../../index'
-import BaseFeature from '../../core/Feature/BasicFeature/index'
-import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
-import { OlStyle, OlGeometry } from '../../../source/index'
-import type { ManualOmit } from '../../../utils/index'
+import Style from "./index";
+import { Color, Size, Pixel } from "../../../index";
+import BaseFeature from "../../core/Feature/BasicFeature/index";
+import type { OlFeatureLike } from "../../core/Feature/BasicFeature/type";
+import { OlGeometry, OlStyle } from "../../../source/index";
+import { isFunction, type ManualOmit } from "../../../utils/index";
 
-export type OlStyleLike = OlStyleInstanceType | Array<OlStyleInstanceType> | ((feature: OlFeatureLike, resolution: number) => (OlStyleInstanceType | undefined))
+export type OMapStyleOptionsGeometryType =
+  | string
+  | ((
+      feature: BaseFeature<OlGeometry.Geometry>,
+    ) => BaseFeature<OlGeometry.Geometry>);
 
-export type OMapStyleFunction = (feature: BaseFeature<any>, resolution: number) => Style | Array<Style> | undefined
-export type OMapStyleLike = Style | Array<Style> | OMapStyleFunction
+/**
+ * 判断是否为有效单个Style样式
+ * @returns {boolean} 是否为有效样式
+ */
 
-export type OlStyleInstanceType = InstanceType<typeof OlStyle.Style>
-
-export type OMapStyleOptionsGeometryType = string | ((feature: BaseFeature<OlGeometry.Geometry>) => BaseFeature<OlGeometry.Geometry>)
-
-export type OMapStyleOptionsType = {
-    geometry?: OMapStyleOptionsGeometryType;
-    fill?: OMapFillStyleOptionsType,
-    // image: OMapImageStyleOptionsType
-    // image实际不太使用，实际上是以下三类
-    circle?: OMapCircleStyleOptionsType,
-    icon?: OMapIconStyleOptionsType,
-    regularShape?: OMapRegularShapeStyleOptionsType,
-    text?: OMapTextStyleOptionsType,
-    stroke?: OMapStrokeStyleOptionsType;
-    zIndex?: number;
-    hitDetectionRenderer?: any;
-    renderer?: any;
+export function isVaildStyle(value: unknown): value is Style {
+  return value instanceof Style;
 }
 
-export type OMapStyleType = 'fill' | 'image' | 'text' | 'stroke'
+/**
+ * 判断是否为有效Style数组样式
+ * @returns {boolean} 是否为有效样式
+ */
+export function isVaildArrayStyle(value: unknown): value is Array<Style> {
+  return Array.isArray(value) && value.every((item) => isVaildStyle(item));
+}
 
+/**
+ * 判断是否为有效Style数组样式
+ * @returns {boolean} 是否为有效样式
+ */
+export function isVaildFunctionStyle(
+  value: unknown,
+): value is OMapStyleFunction {
+  return isFunction(value);
+}
+
+export type OlStyleLike =
+  | OlStyleInstanceType
+  | Array<OlStyleInstanceType>
+  | ((
+      feature: OlFeatureLike,
+      resolution: number,
+    ) => OlStyleInstanceType | Array<OlStyleInstanceType> | undefined);
+
+export type OMapStyleFunction = (
+  feature: BaseFeature<OlGeometry.Geometry>,
+  resolution: number,
+) => Style | Array<Style> | undefined;
+export type OMapStyleLike =
+  | Style
+  | Array<Style>
+  | OMapStyleFunction
+  | undefined;
+
+export type OlStyleInstanceType = InstanceType<typeof OlStyle.Style>;
+
+export type OMapStyleOptionsType = {
+  geometry?: any;
+  fill?: OMapFillStyleOptionsType;
+  // image: OMapImageStyleOptionsType, // image实际不太使用
+  circle?: OMapCircleStyleOptionsType;
+  icon?: OMapIconStyleOptionsType;
+  regularShape?: OMapRegularShapeStyleOptionsType;
+  text?: OMapTextStyleOptionsType;
+  stroke?: OMapStrokeStyleOptionsType;
+  zIndex?: number;
+  hitDetectionRenderer?: any;
+  renderer?: any;
+};
+
+export type OMapStyleType = "fill" | "image" | "text" | "stroke";
 
 /** Fill */
 export type OMapFillStyleOptionsType = {
-    color?: Color | string;
-}
-export type OlFillStyleInstanceType = InstanceType<typeof OlStyle.Fill>
+  color?: Color | string;
+};
+export type OlFillStyleInstanceType = InstanceType<typeof OlStyle.Fill>;
 
 /** Stroke */
-type OlStrokeStyleOptionsType = ConstructorParameters<typeof OlStyle.Stroke>[0]
-type CustOlStrokeStyleOptionsType = ManualOmit<OlStrokeStyleOptionsType, 'color'>;
+type OlStrokeStyleOptionsType = ConstructorParameters<typeof OlStyle.Stroke>[0];
+type CustOlStrokeStyleOptionsType = ManualOmit<
+  OlStrokeStyleOptionsType,
+  "color"
+>;
 export type OMapStrokeStyleOptionsType = CustOlStrokeStyleOptionsType & {
-    color?: Color | string;
-}
+  color?: Color | string;
+};
 export const OMapStrokeStyleDefaultOptions: OMapStrokeStyleOptionsType = {
-    lineCap: 'round',
-    lineJoin: 'round',
-    lineDashOffset: 0,
-    miterLimit: 10
-}
-export type OlStrokeStyleInstanceType = InstanceType<typeof OlStyle.Stroke>
+  lineCap: "round",
+  lineJoin: "round",
+  lineDashOffset: 0,
+  miterLimit: 10,
+};
+export type OlStrokeStyleInstanceType = InstanceType<typeof OlStyle.Stroke>;
 
 /** Image类型
  * 实际上Image类型不太使用，需要用子类Circle、Icon或者RegularShape
  */
-type OlImageStyleOptionsType = ConstructorParameters<typeof OlStyle.Image>[0]
-type CustOlImageStyleOptionsType = ManualOmit<OlImageStyleOptionsType, 'scale'>;
+type OlImageStyleOptionsType = ConstructorParameters<typeof OlStyle.Image>[0];
+type CustOlImageStyleOptionsType = ManualOmit<OlImageStyleOptionsType, "scale">;
 export type OMapImageStyleOptionsType = CustOlImageStyleOptionsType & {
-    scale: number | Size
-}
-
+  scale: number | Size;
+};
 
 /** Circle类型 */
-type OlCircleStyleOptionsType = ConstructorParameters<typeof OlStyle.Circle>[0]
-type CustOlCircleStyleOptionsType = ManualOmit<OlCircleStyleOptionsType, keyof OlImageStyleOptionsType | 'fill' | 'stroke'>;
+type OlCircleStyleOptionsType = ConstructorParameters<typeof OlStyle.Circle>[0];
+type CustOlCircleStyleOptionsType = ManualOmit<
+  OlCircleStyleOptionsType,
+  keyof OlImageStyleOptionsType | "fill" | "stroke"
+>;
 export type OMapCircleStyleOptionsType = CustOlCircleStyleOptionsType & {
-    fill?: OMapFillStyleOptionsType,
-    stroke?: OMapStrokeStyleOptionsType,
-}
+  fill?: OMapFillStyleOptionsType;
+  stroke?: OMapStrokeStyleOptionsType;
+};
 
 /** Icon类型 */
-type OlIconStyleOptionsType = ConstructorParameters<typeof OlStyle.Icon>[0]
-type CustOlIconStyleOptionsType = ManualOmit<OlIconStyleOptionsType, keyof OlImageStyleOptionsType | 'color' | 'offset' | 'size'>;
+type OlIconStyleOptionsType = ConstructorParameters<typeof OlStyle.Icon>[0];
+type CustOlIconStyleOptionsType = ManualOmit<
+  OlIconStyleOptionsType,
+  keyof OlImageStyleOptionsType | "color" | "offset" | "size"
+>;
 export type OMapIconStyleOptionsType = CustOlIconStyleOptionsType & {
-    color?: Color | string,
-    offset?: Pixel,
-    size?: Size,
-}
+  color?: Color | string;
+  offset?: Pixel;
+  size?: Size;
+};
 
 /** RegularShape类型 */
-type OlRegularShapeStyleOptionsType = ConstructorParameters<typeof OlStyle.RegularShape>[0]
-type CustOlRegularShapeStyleOptionsType = ManualOmit<OlRegularShapeStyleOptionsType, keyof OlImageStyleOptionsType | 'fill' | 'stroke'>;
-export type OMapRegularShapeStyleOptionsType = CustOlRegularShapeStyleOptionsType & {
-    fill?: OMapFillStyleOptionsType,
-    stroke?: OMapStrokeStyleOptionsType,
-}
+type OlRegularShapeStyleOptionsType = ConstructorParameters<
+  typeof OlStyle.RegularShape
+>[0];
+type CustOlRegularShapeStyleOptionsType = ManualOmit<
+  OlRegularShapeStyleOptionsType,
+  keyof OlImageStyleOptionsType | "fill" | "stroke"
+>;
+export type OMapRegularShapeStyleOptionsType =
+  CustOlRegularShapeStyleOptionsType & {
+    fill?: OMapFillStyleOptionsType;
+    stroke?: OMapStrokeStyleOptionsType;
+  };
 
 /** Text类型 */
-type OlTextStyleOptionsType = ConstructorParameters<typeof OlStyle.Text>[0]
-type CustOlTextStyleOptionsType = ManualOmit<OlTextStyleOptionsType, 'scale' | 'fill' | 'stroke' | 'backgroundFill' | 'backgroundStroke'>;
+type OlTextStyleOptionsType = ConstructorParameters<typeof OlStyle.Text>[0];
+type CustOlTextStyleOptionsType = ManualOmit<
+  OlTextStyleOptionsType,
+  "scale" | "fill" | "stroke" | "backgroundFill" | "backgroundStroke"
+>;
 export type OMapTextStyleOptionsType = CustOlTextStyleOptionsType & {
-    scale?: number | Size,
-    fill?: OMapFillStyleOptionsType,
-    stroke?: OMapStrokeStyleOptionsType,
-    backgroundFill?: OMapFillStyleOptionsType,
-    backgroundStroke?: OMapStrokeStyleOptionsType,
-}
+  scale?: number | Size;
+  fill?: OMapFillStyleOptionsType;
+  stroke?: OMapStrokeStyleOptionsType;
+  backgroundFill?: OMapFillStyleOptionsType;
+  backgroundStroke?: OMapStrokeStyleOptionsType;
+};

@@ -967,6 +967,30 @@ const initInteractionChanged = () => {
             testVectorLayer.setVisible(false)
         }
     }
+    document.getElementById('changeFeatureStyle1').onclick = (e) => {
+        if (testVectorLayer) {
+            let feature = testVectorLayer.getFeatures()[0]
+            if (feature) {
+                console.log(feature)
+                feature.setStyle(new OMap.Style({
+                    circle: {
+                        fill: {
+                            color: '#ae3ec9'
+                        },
+                        radius: 10
+                    }
+                }))
+            }
+        }
+    }
+    document.getElementById('changeFeatureStyle2').onclick = (e) => {
+        if (testVectorLayer) {
+            let feature = testVectorLayer.getFeatures()[0]
+            if (feature) {
+                feature.setStyle(undefined)
+            }
+        }
+    }
 }
 
 function init() {

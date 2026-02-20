@@ -1097,8 +1097,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return OlExtent__namespace.isEmpty(_extent);
     }
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$B = "BasicFeature";
   const createMessage$B = getPackageMessage(PACKAGE_NAME$B);
+=======
+  function isVaildStyle(value) {
+    return value instanceof Style;
+  }
+  function isVaildArrayStyle(value) {
+    return Array.isArray(value) && value.every((item) => isVaildStyle(item));
+  }
+  function isVaildFunctionStyle(value) {
+    return isFunction(value);
+  }
+  const PACKAGE_NAME$E = "BasicFeature";
+  const createMessage$E = getPackageMessage(PACKAGE_NAME$E);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class BasicFeature {
     constructor(type, coordinatesOrFeature, radius) {
       __publicField(this, "id", null);
@@ -1106,6 +1120,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       // 非空断言操作符 !（推荐用于抽象类）
       __publicField(this, "_feature");
       __publicField(this, "_geometry");
+<<<<<<< HEAD
+=======
+      __publicField(this, "style");
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       this.type = type;
       if (coordinatesOrFeature instanceof OlFeature) {
         this._initByFeature(coordinatesOrFeature);
@@ -1122,10 +1140,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setId(id) {
       if (!isDefined(id)) {
+<<<<<<< HEAD
         error_(createMessage$B("setId", "参数id不能为空"));
       }
       if (!isNumber(id) && !isString(id)) {
         error_(createMessage$B("setId", "参数id格式有误"));
+=======
+        error_(createMessage$E("setId", "参数id不能为空"));
+      }
+      if (!isNumber(id) && !isString(id)) {
+        error_(createMessage$E("setId", "参数id格式有误"));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this.id = id;
     }
@@ -1144,10 +1169,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     get(key) {
       if (!isDefined(key)) {
+<<<<<<< HEAD
         error_(createMessage$B("get", commonMessage.paramsNotDefined("key")));
       }
       if (!isString(key)) {
         error_(createMessage$B("get", commonMessage.paramsInvaildFormat("key", "string")));
+=======
+        error_(createMessage$E("get", commonMessage.paramsNotDefined("key")));
+      }
+      if (!isString(key)) {
+        error_(createMessage$E("get", commonMessage.paramsInvaildFormat("key", "string")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       return this._feature.get(key);
     }
@@ -1164,12 +1196,21 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this._feature.getKeys();
     }
     getStyle() {
+<<<<<<< HEAD
     }
     setStyle(style) {
       let _style = handleGetStyleValue(style);
       if (isDefined(_style)) {
         this._feature.setStyle(_style);
       }
+=======
+      return this.style;
+    }
+    setStyle(style) {
+      let _style = handleGetStyleValue(style);
+      this._feature.setStyle(_style);
+      this.style = style;
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
     }
     /**
      * 获取要素的范围
@@ -1187,7 +1228,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return false;
       }
       if (!isObject(properties)) {
+<<<<<<< HEAD
         error_(createMessage$B("setProperties", commonMessage.paramsInvaildFormat("properties", "object")));
+=======
+        error_(createMessage$E("setProperties", commonMessage.paramsInvaildFormat("properties", "object")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._feature.setProperties(properties);
     }
@@ -1198,13 +1243,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return isExtentType(value);
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$A = "Point";
   const createMessage$A = getPackageMessage(PACKAGE_NAME$A);
+=======
+  const PACKAGE_NAME$D = "Point";
+  const createMessage$D = getPackageMessage(PACKAGE_NAME$D);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class Point extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
         error_(
+<<<<<<< HEAD
           createMessage$A(
+=======
+          createMessage$D(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "constructor",
             commonMessage.paramsNotDefined("coordinatesOrFeature")
           )
@@ -1215,7 +1269,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         if (!isValidCoordinate(coordinatesOrFeature)) {
           error_(
+<<<<<<< HEAD
             createMessage$A(
+=======
+            createMessage$D(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat(
                 "coordinatesOrFeature",
@@ -1257,7 +1315,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$A(
+=======
+          createMessage$D(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -1265,7 +1327,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidCoordinate(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$A(
+=======
+          createMessage$D(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsInvaildFormat("coordinates", "Lnglat or [x, y]")
           )
@@ -1298,7 +1364,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     intersectsExtent(extent) {
       if (!isDefined(extent)) {
         error_(
+<<<<<<< HEAD
           createMessage$A(
+=======
+          createMessage$D(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "intersectsExtent",
             commonMessage.paramsNotDefined("extent")
           )
@@ -1306,7 +1376,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidExtent(extent)) {
         error_(
+<<<<<<< HEAD
           createMessage$A(
+=======
+          createMessage$D(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "intersectsExtent",
             commonMessage.paramsInvaildFormat(
               "extent",
@@ -1322,13 +1396,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function isValidLineStringCoordinates(value) {
     return isArray(value) && value.every((item) => isValidCoordinate(item));
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$z = "LineString";
   const createMessage$z = getPackageMessage(PACKAGE_NAME$z);
+=======
+  const PACKAGE_NAME$C = "LineString";
+  const createMessage$C = getPackageMessage(PACKAGE_NAME$C);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class LineString extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
         error_(
+<<<<<<< HEAD
           createMessage$z(
+=======
+          createMessage$C(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "constructor",
             commonMessage.paramsNotDefined("coordinatesOrFeature")
           )
@@ -1339,7 +1422,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         if (!isValidLineStringCoordinates(coordinatesOrFeature)) {
           error_(
+<<<<<<< HEAD
             createMessage$z(
+=======
+            createMessage$C(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat("coordinatesOrFeature")
             )
@@ -1381,7 +1468,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$z(
+=======
+          createMessage$C(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -1389,7 +1480,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidLineStringCoordinates(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$z(
+=======
+          createMessage$C(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsInvaildFormat("coordinates")
           )
@@ -1407,7 +1502,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     appendCoordinate(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$z(
+=======
+          createMessage$C(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "appendCoordinate",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -1415,7 +1514,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$z(
+=======
+          createMessage$C(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "appendCoordinate",
             commonMessage.paramsInvaildFormat("coordinates")
           )
@@ -1451,10 +1554,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getCoordinateAt(fraction, dest) {
       if (!isDefined(fraction)) {
+<<<<<<< HEAD
         error_(createMessage$z("getCoordinateAt", "参数不能为空"));
       }
       if (!(isNumber(fraction) && fraction >= 0 && fraction <= 1)) {
         error_(createMessage$z("getCoordinateAt", "参数格式有误"));
+=======
+        error_(createMessage$C("getCoordinateAt", "参数不能为空"));
+      }
+      if (!(isNumber(fraction) && fraction >= 0 && fraction <= 1)) {
+        error_(createMessage$C("getCoordinateAt", "参数格式有误"));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       let result = [];
       let coordinates = this._geometry.getCoordinateAt(fraction, result);
@@ -1489,10 +1599,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     intersectsExtent(extent) {
       if (!isDefined(extent)) {
+<<<<<<< HEAD
         error_(createMessage$z("intersectsExtent", "参数extent不能为空"));
       }
       if (!isValidExtent(extent)) {
         error_(createMessage$z("intersectsExtent", "坐标格式有误"));
+=======
+        error_(createMessage$C("intersectsExtent", "参数extent不能为空"));
+      }
+      if (!isValidExtent(extent)) {
+        error_(createMessage$C("intersectsExtent", "坐标格式有误"));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       let _extent = handleGetExtentValue(extent);
       return this._geometry.intersectsExtent(_extent);
@@ -1504,13 +1621,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function isValidLinearRingCoordinates(value) {
     return isArray(value) && value.every((item) => isValidCoordinate(item));
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$y = "LinearRing";
   const createMessage$y = getPackageMessage(PACKAGE_NAME$y);
+=======
+  const PACKAGE_NAME$B = "LinearRing";
+  const createMessage$B = getPackageMessage(PACKAGE_NAME$B);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class LinearRing extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
         error_(
+<<<<<<< HEAD
           createMessage$y(
+=======
+          createMessage$B(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "constructor",
             commonMessage.paramsNotDefined("coordinatesOrFeature")
           )
@@ -1522,7 +1648,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         if (!isValidLinearRingCoordinates(coordinatesOrFeature)) {
           error_(
+<<<<<<< HEAD
             createMessage$y(
+=======
+            createMessage$B(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat("coordinatesOrFeature")
             )
@@ -1564,7 +1694,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$y(
+=======
+          createMessage$B(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -1572,7 +1706,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidLinearRingCoordinates(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$y(
+=======
+          createMessage$B(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsInvaildFormat("coordinates")
           )
@@ -1584,13 +1722,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._geometry.setCoordinates(_coordinates);
     }
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$x = "Polygon";
   const createMessage$x = getPackageMessage(PACKAGE_NAME$x);
+=======
+  const PACKAGE_NAME$A = "Polygon";
+  const createMessage$A = getPackageMessage(PACKAGE_NAME$A);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class Polygon extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
         error_(
+<<<<<<< HEAD
           createMessage$x(
+=======
+          createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "constructor",
             commonMessage.paramsNotDefined("coordinatesOrFeature")
           )
@@ -1601,7 +1748,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         if (!isValidPolygonCoordinates(coordinatesOrFeature)) {
           error_(
+<<<<<<< HEAD
             createMessage$x(
+=======
+            createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat("coordinatesOrFeature")
             )
@@ -1649,7 +1800,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$x(
+=======
+          createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -1657,7 +1812,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidPolygonCoordinates(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$x(
+=======
+          createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsInvaildFormat("coordinates")
           )
@@ -1677,7 +1836,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     appendLinearRing(linearRingParams) {
       if (!isDefined(linearRingParams)) {
         error_(
+<<<<<<< HEAD
           createMessage$x(
+=======
+          createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "appendLinearRing",
             commonMessage.paramsNotDefined("linearRingParams")
           )
@@ -1685,7 +1848,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!(linearRingParams instanceof LinearRing && isValidLinearRingCoordinates(linearRingParams))) {
         error_(
+<<<<<<< HEAD
           createMessage$x(
+=======
+          createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "appendLinearRing",
             commonMessage.paramsInvaildFormat("linearRingParams")
           )
@@ -1761,7 +1928,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     intersectsCoordinate(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$x(
+=======
+          createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "intersectsCoordinate",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -1778,7 +1949,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     intersectsExtent(extent) {
       if (!isDefined(extent)) {
         error_(
+<<<<<<< HEAD
           createMessage$x(
+=======
+          createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "intersectsExtent",
             commonMessage.paramsNotDefined("extent")
           )
@@ -1786,7 +1961,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!(extent instanceof Extent) && !isExtentType(extent)) {
         error_(
+<<<<<<< HEAD
           createMessage$x(
+=======
+          createMessage$A(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "intersectsExtent",
             commonMessage.paramsInvaildFormat("extent")
           )
@@ -1804,13 +1983,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._geometry.translate(deltaX, deltaY);
     }
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$w = "MultiPoint";
   const createMessage$w = getPackageMessage(PACKAGE_NAME$w);
+=======
+  const PACKAGE_NAME$z = "MultiPoint";
+  const createMessage$z = getPackageMessage(PACKAGE_NAME$z);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class MultiPoint extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
         error_(
+<<<<<<< HEAD
           createMessage$w(
+=======
+          createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "constructor",
             commonMessage.paramsNotDefined("coordinatesOrFeature")
           )
@@ -1821,7 +2009,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         if (!coordinatesOrFeature.every((item) => isValidCoordinate(item))) {
           error_(
+<<<<<<< HEAD
             createMessage$w(
+=======
+            createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat(
                 "coordinatesOrFeature",
@@ -1872,7 +2064,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$w(
+=======
+          createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -1880,7 +2076,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!coordinates.every((item) => isValidCoordinate(item))) {
         error_(
+<<<<<<< HEAD
           createMessage$w(
+=======
+          createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsInvaildFormat(
               "coordinates",
@@ -1897,7 +2097,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     appendPoint(pointOrpointCoordinates) {
       if (!isDefined(pointOrpointCoordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$w(
+=======
+          createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "appendPoint",
             commonMessage.paramsNotDefined("pointOrpointCoordinates")
           )
@@ -1916,7 +2120,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getClosestPoint(pointOrpointCoordinates) {
       if (!isDefined(pointOrpointCoordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$w(
+=======
+          createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "getClosestPoint",
             commonMessage.paramsNotDefined("pointOrpointCoordinates")
           )
@@ -1940,12 +2148,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getPoint(index) {
       if (!isDefined(index)) {
         error_(
+<<<<<<< HEAD
           createMessage$w("getPoint", commonMessage.paramsNotDefined("index"))
+=======
+          createMessage$z("getPoint", commonMessage.paramsNotDefined("index"))
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         );
       }
       if (!isNumber(index)) {
         error_(
+<<<<<<< HEAD
           createMessage$w(
+=======
+          createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "getPoint",
             commonMessage.paramsInvaildFormat("index", "number")
           )
@@ -1957,7 +2173,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     intersectsCoordinate(coordinate2) {
       if (!isDefined(coordinate2)) {
         error_(
+<<<<<<< HEAD
           createMessage$w(
+=======
+          createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "intersectsCoordinate",
             commonMessage.paramsNotDefined("coordinate")
           )
@@ -1969,7 +2189,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     intersectsExtent(extent) {
       if (!isDefined(extent)) {
         error_(
+<<<<<<< HEAD
           createMessage$w(
+=======
+          createMessage$z(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "intersectsExtent",
             commonMessage.paramsNotDefined("extent")
           )
@@ -1982,13 +2206,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function isValidMultiLineStringCoordinates(value) {
     return isArray(value) && value.every((item) => isValidLineStringCoordinates(item));
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$v = "MultiLineString";
   const createMessage$v = getPackageMessage(PACKAGE_NAME$v);
+=======
+  const PACKAGE_NAME$y = "MultiLineString";
+  const createMessage$y = getPackageMessage(PACKAGE_NAME$y);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class MultiLineString extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
         error_(
+<<<<<<< HEAD
           createMessage$v(
+=======
+          createMessage$y(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "constructor",
             commonMessage.paramsNotDefined("coordinatesOrFeature")
           )
@@ -1999,7 +2232,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         if (!isValidMultiLineStringCoordinates(coordinatesOrFeature)) {
           error_(
+<<<<<<< HEAD
             createMessage$v(
+=======
+            createMessage$y(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat("coordinatesOrFeature")
             )
@@ -2050,7 +2287,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$v(
+=======
+          createMessage$y(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -2058,7 +2299,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidMultiLineStringCoordinates(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$v(
+=======
+          createMessage$y(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsInvaildFormat("coordinates")
           )
@@ -2075,13 +2320,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function isValidMultiPolygonCoordinates(value) {
     return isArray(value) && value.every((item) => isValidPolygonCoordinates(item));
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$u = "MultiPolygon";
   const createMessage$u = getPackageMessage(PACKAGE_NAME$u);
+=======
+  const PACKAGE_NAME$x = "MultiPolygon";
+  const createMessage$x = getPackageMessage(PACKAGE_NAME$x);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class MultiPolygon extends BasicFeature {
     constructor(coordinatesOrFeature, properties) {
       if (!isDefined(coordinatesOrFeature)) {
         error_(
+<<<<<<< HEAD
           createMessage$u(
+=======
+          createMessage$x(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "constructor",
             commonMessage.paramsNotDefined("coordinatesOrFeature")
           )
@@ -2092,7 +2346,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         if (!isValidMultiPolygonCoordinates(coordinatesOrFeature)) {
           error_(
+<<<<<<< HEAD
             createMessage$u(
+=======
+            createMessage$x(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat("coordinatesOrFeature")
             )
@@ -2146,7 +2404,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$u(
+=======
+          createMessage$x(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsNotDefined("coordinates")
           )
@@ -2154,7 +2416,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidMultiPolygonCoordinates(coordinates)) {
         error_(
+<<<<<<< HEAD
           createMessage$u(
+=======
+          createMessage$x(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCoordinates",
             commonMessage.paramsInvaildFormat("coordinates")
           )
@@ -2170,13 +2436,22 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._geometry.setCoordinates(_coordinates);
     }
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$t = "Circle";
   const createMessage$t = getPackageMessage(PACKAGE_NAME$t);
+=======
+  const PACKAGE_NAME$w = "Circle";
+  const createMessage$w = getPackageMessage(PACKAGE_NAME$w);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class Circle extends BasicFeature {
     constructor(centerOrFeature, radius, properties) {
       if (!isDefined(centerOrFeature)) {
         error_(
+<<<<<<< HEAD
           createMessage$t(
+=======
+          createMessage$w(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "constructor",
             commonMessage.paramsNotDefined("centerOrFeature")
           )
@@ -2187,7 +2462,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         if (!isValidCoordinate(centerOrFeature)) {
           error_(
+<<<<<<< HEAD
             createMessage$t(
+=======
+            createMessage$w(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat("centerOrFeature")
             )
@@ -2195,7 +2474,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         }
         if (!(isDefined(radius) && isNumber(radius))) {
           error_(
+<<<<<<< HEAD
             createMessage$t(
+=======
+            createMessage$w(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
               "constructor",
               commonMessage.paramsInvaildFormat("radius")
             )
@@ -2231,12 +2514,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCenter(center) {
       if (!isDefined(center)) {
         error_(
+<<<<<<< HEAD
           createMessage$t("setCenter", commonMessage.paramsNotDefined("center"))
+=======
+          createMessage$w("setCenter", commonMessage.paramsNotDefined("center"))
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         );
       }
       if (!isValidCoordinate(center)) {
         error_(
+<<<<<<< HEAD
           createMessage$t(
+=======
+          createMessage$w(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCenter",
             commonMessage.paramsInvaildFormat("center", "coordinates")
           )
@@ -2251,12 +2542,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setRadius(radius) {
       if (!isDefined(radius)) {
         error_(
+<<<<<<< HEAD
           createMessage$t("setRadius", commonMessage.paramsNotDefined("radius"))
+=======
+          createMessage$w("setRadius", commonMessage.paramsNotDefined("radius"))
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         );
       }
       if (!isNumber(radius)) {
         error_(
+<<<<<<< HEAD
           createMessage$t(
+=======
+          createMessage$w(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setRadius",
             commonMessage.paramsInvaildFormat("radius", "number")
           )
@@ -2279,7 +2578,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCenterAndRadius(center, radius) {
       if (!isDefined(center) || !isDefined(radius)) {
         error_(
+<<<<<<< HEAD
           createMessage$t(
+=======
+          createMessage$w(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCenterAndRadius",
             commonMessage.paramsListHaveNotDefined("center", "radius")
           )
@@ -2287,7 +2590,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidCoordinate(center)) {
         error_(
+<<<<<<< HEAD
           createMessage$t(
+=======
+          createMessage$w(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCenterAndRadius",
             commonMessage.paramsInvaildFormat("center")
           )
@@ -2295,7 +2602,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isNumber(radius)) {
         error_(
+<<<<<<< HEAD
           createMessage$t(
+=======
+          createMessage$w(
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
             "setCenterAndRadius",
             commonMessage.paramsInvaildFormat("radius", "number")
           )
@@ -2338,10 +2649,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return null;
   }
+<<<<<<< HEAD
   function createBaseFeatureByOlRenderFeature(feature) {
     let olFeature = Feature.toFeature(feature);
     return createBaseFeatureByOlFeature(olFeature);
   }
+=======
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   function handleGetColorValue(color) {
     if (isDefined(color)) {
       return color instanceof Color ? color.getColor() : color;
@@ -2476,16 +2790,25 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     return void 0;
   };
   function handleGetStyleValue(style) {
-    if (isDefined(style)) {
-      if (style instanceof Style) {
-        return style.getStyle();
-      } else if (Array.isArray(style)) {
-        return style.map((item) => item.getStyle());
-      } else if (isFunction(style)) {
-        return void 0;
-      }
+    if (!isDefined(style)) {
+      return void 0;
     }
-    return void 0;
+    if (isVaildStyle(style)) {
+      return style.getStyle();
+    } else if (isVaildArrayStyle(style)) {
+      return style.map((item) => item.getStyle());
+    } else if (isVaildFunctionStyle(style)) {
+      return (feature, resolution) => {
+        const _feature = createBaseFeatureByOlFeature(feature);
+        const _style = style(_feature, resolution);
+        if (isVaildArrayStyle(_style)) {
+          return _style.map((item) => item.getStyle());
+        } else if (isVaildStyle(_style)) {
+          return _style.getStyle();
+        }
+        return void 0;
+      };
+    }
   }
   function getOlTextSingleStyle(options) {
     if (!isDefined(options)) {
@@ -2562,8 +2885,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const ctor = target.constructor;
     return typeof ctor === "function" ? ctor.name : void 0;
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$r = "Event";
   const createMessage$r = getPackageMessage(PACKAGE_NAME$r);
+=======
+  const PACKAGE_NAME$v = "Event";
+  const createMessage$v = getPackageMessage(PACKAGE_NAME$v);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class Event {
     constructor(target) {
       __publicField(this, "instanceName", "");
@@ -2615,7 +2943,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         try {
           item.callback.call(item.target, ...args);
         } catch (e) {
+<<<<<<< HEAD
           error_(createMessage$r("emit", `回调异常: ${String(e)}`));
+=======
+          error_(createMessage$v("emit", `回调异常: ${String(e)}`));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         }
         if (item.once) {
           list.splice(i, 1);
@@ -2639,7 +2971,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           return this;
         }
       }
+<<<<<<< HEAD
       warn_(createMessage$r("remove", `未找到【id=${id}】的监听`));
+=======
+      warn_(createMessage$v("remove", `未找到【id=${id}】的监听`));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       return this;
     }
     off(type) {
@@ -2753,8 +3089,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return result;
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$q = "Popup";
   const createMessage$q = getPackageMessage(PACKAGE_NAME$q);
+=======
+  const PACKAGE_NAME$u = "Popup";
+  const createMessage$u = getPackageMessage(PACKAGE_NAME$u);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class Popup {
     constructor(params) {
       __publicField(this, "_popup");
@@ -2824,7 +3165,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setPositioning(positioning) {
       if (!isVaildPopupPositioningType(positioning)) {
+<<<<<<< HEAD
         error_(createMessage$q("setPositioning", "参数positioning值有误"));
+=======
+        warn_(createMessage$u("setPositioning", "参数positioning值有误"));
+        return;
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._popup.setPositioning(positioning);
     }
@@ -2841,7 +3187,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setProperties(properties) {
       if (!isDefined(properties)) {
+<<<<<<< HEAD
         error_(createMessage$q("setProperties", "参数不能为空"));
+=======
+        warn_(createMessage$u("setProperties", "参数不能为空"));
+        return;
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this.events.emit(
         "change:properties",
@@ -2897,6 +3248,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     on(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
+<<<<<<< HEAD
         warn_(
           createMessage$q(
             "on",
@@ -2916,6 +3268,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
             commonMessage.paramsInvaildFormat("callback", "function")
           )
         );
+=======
+        warn_(createMessage$u("on", commonMessage.paramsListHaveNotDefined("type or callback")));
+        return;
+      }
+      if (!isOMapPopupEventType(type)) {
+        warn_(createMessage$u("on", commonMessage.paramsInvaildEnum("type")));
+        return;
+      }
+      if (!isFunction(callback)) {
+        warn_(createMessage$u("on", commonMessage.paramsInvaildFormat("callback", "function")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         return;
       }
       const unlisten = OlEvent.listen(
@@ -2930,6 +3293,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     once(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
+<<<<<<< HEAD
         warn_(
           createMessage$q(
             "on",
@@ -2949,6 +3313,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
             commonMessage.paramsInvaildFormat("callback", "function")
           )
         );
+=======
+        warn_(createMessage$u("on", commonMessage.paramsListHaveNotDefined("type or callback")));
+        return;
+      }
+      if (!isOMapPopupEventType(type)) {
+        warn_(createMessage$u("on", commonMessage.paramsInvaildEnum("type")));
+        return;
+      }
+      if (!isFunction(callback)) {
+        warn_(createMessage$u("on", commonMessage.paramsInvaildFormat("callback", "function")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         return;
       }
       const unlisten = OlEvent.listen(
@@ -2963,7 +3338,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     un(id) {
       if (!isDefined(id)) {
+<<<<<<< HEAD
         warn_(createMessage$q("un", commonMessage.paramsNotDefined("id")));
+=======
+        warn_(createMessage$u("un", commonMessage.paramsNotDefined("id")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         return;
       }
       this.events.remove(id);
@@ -2981,8 +3360,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return isArrayLength2(value) && value.every((item) => isNumber(item));
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$p = "Map";
   const createMessage$p = getPackageMessage(PACKAGE_NAME$p);
+=======
+  const PACKAGE_NAME$t = "Map";
+  const createMessage$t = getPackageMessage(PACKAGE_NAME$t);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class Projection {
     constructor(proj) {
       __publicField(this, "_projection");
@@ -2994,7 +3378,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       } else {
         let _proj = proj;
         if (!isDefined(_proj.code)) {
+<<<<<<< HEAD
           error_(createMessage$p("constructor", "初始化参数有误"));
+=======
+          error_(createMessage$t("constructor", "初始化参数有误"));
+          return;
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         }
         result = _proj.code;
         result = result.startsWith("EPSG") ? result : "EPSG:" + result;
@@ -3002,7 +3391,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.code = result;
       this._projection = OlProj__namespace.get(result);
       if (!isDefined(this._projection)) {
+<<<<<<< HEAD
         warn_(createMessage$p("constructor", "坐标系不存在"));
+=======
+        warn_(createMessage$t("constructor", "坐标系不存在"));
+        return;
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this.units = this._projection.getUnits();
     }
@@ -3023,8 +3417,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
   }
   const layerState = /* @__PURE__ */ new WeakMap();
+<<<<<<< HEAD
   let PACKAGE_NAME$o = "BaseLayer";
   let createMessage$o = getPackageMessage(PACKAGE_NAME$o);
+=======
+  let PACKAGE_NAME$s = "BaseLayer";
+  let createMessage$s = getPackageMessage(PACKAGE_NAME$s);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   const DEFAULT_LAYER_OPACITY = 1;
   const DEFAULT_LAYER_VISIBLE = true;
   const DEFAULT_LAYER_MIN_ZOOM = 0;
@@ -3082,8 +3481,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       __publicField(this, "target", null);
       let _options = defaultValue(options, {});
       this.type = type;
+<<<<<<< HEAD
       PACKAGE_NAME$o = `${type}Layer`;
       createMessage$o = getPackageMessage(PACKAGE_NAME$o);
+=======
+      PACKAGE_NAME$s = `${type}Layer`;
+      createMessage$s = getPackageMessage(PACKAGE_NAME$s);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       this.id = defaultValue(_options.id, null);
       this.name = defaultValue(_options.name, "");
       this.className = defaultValue(_options.className, "");
@@ -3157,10 +3561,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setOpacity(opacity) {
       if (!isDefined(opacity)) {
+<<<<<<< HEAD
         error_(createMessage$o("setOpacity", commonMessage.paramsNotDefined("opacity")));
       }
       if (!isVaildOpacity(opacity)) {
         error_(createMessage$o("setOpacity", commonMessage.paramsInvaildFormat("opacity", "0~1的数字")));
+=======
+        error_(createMessage$s("setOpacity", commonMessage.paramsNotDefined("opacity")));
+      }
+      if (!isVaildOpacity(opacity)) {
+        error_(createMessage$s("setOpacity", commonMessage.paramsInvaildFormat("opacity", "0~1的数字")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._layer.setOpacity(opacity);
     }
@@ -3177,10 +3588,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setVisible(visible) {
       if (!isDefined(visible)) {
+<<<<<<< HEAD
         error_(createMessage$o("setVisible", commonMessage.paramsNotDefined("visible")));
       }
       if (!isBoolean(visible)) {
         error_(createMessage$o("setVisible", commonMessage.paramsInvaildFormat("visible", "boolean类型")));
+=======
+        error_(createMessage$s("setVisible", commonMessage.paramsNotDefined("visible")));
+      }
+      if (!isBoolean(visible)) {
+        error_(createMessage$s("setVisible", commonMessage.paramsInvaildFormat("visible", "boolean类型")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._layer.setVisible(visible);
     }
@@ -3205,19 +3623,33 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setExtent(extent) {
       if (!isDefined(extent)) {
+<<<<<<< HEAD
         error_(createMessage$o("setExtent", commonMessage.paramsNotDefined("extent")));
       }
       if (!isValidExtent(extent)) {
         error_(createMessage$o("setExtent", commonMessage.paramsInvaildFormat("extent", "Extent类型")));
+=======
+        error_(createMessage$s("setExtent", commonMessage.paramsNotDefined("extent")));
+      }
+      if (!isValidExtent(extent)) {
+        error_(createMessage$s("setExtent", commonMessage.paramsInvaildFormat("extent", "Extent类型")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._layer.setExtent(handleGetExtentValue(extent));
     }
     setMinZoom(minZoom) {
       if (!isDefined(minZoom)) {
+<<<<<<< HEAD
         error_(createMessage$o("setMinZoom", commonMessage.paramsNotDefined("minZoom")));
       }
       if (!isNumber(minZoom)) {
         error_(createMessage$o("setMinZoom", commonMessage.paramsInvaildFormat("minZoom", "number类型")));
+=======
+        error_(createMessage$s("setMinZoom", commonMessage.paramsNotDefined("minZoom")));
+      }
+      if (!isNumber(minZoom)) {
+        error_(createMessage$s("setMinZoom", commonMessage.paramsInvaildFormat("minZoom", "number类型")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._layer.setMinZoom(minZoom);
     }
@@ -3226,10 +3658,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setMaxZoom(maxZoom) {
       if (!isDefined(maxZoom)) {
+<<<<<<< HEAD
         error_(createMessage$o("setMaxZoom", commonMessage.paramsNotDefined("maxZoom")));
       }
       if (!isNumber(maxZoom)) {
         error_(createMessage$o("setMaxZoom", commonMessage.paramsInvaildFormat("maxZoom", "number类型")));
+=======
+        error_(createMessage$s("setMaxZoom", commonMessage.paramsNotDefined("maxZoom")));
+      }
+      if (!isNumber(maxZoom)) {
+        error_(createMessage$s("setMaxZoom", commonMessage.paramsInvaildFormat("maxZoom", "number类型")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._layer.setMaxZoom(maxZoom);
     }
@@ -3238,10 +3677,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setMinResolution(minResolution) {
       if (!isDefined(minResolution)) {
+<<<<<<< HEAD
         error_(createMessage$o("setMinResolution", commonMessage.paramsNotDefined("minResolution")));
       }
       if (!isNumber(minResolution)) {
         error_(createMessage$o("setMinResolution", commonMessage.paramsInvaildFormat("minResolution", "number类型")));
+=======
+        error_(createMessage$s("setMinResolution", commonMessage.paramsNotDefined("minResolution")));
+      }
+      if (!isNumber(minResolution)) {
+        error_(createMessage$s("setMinResolution", commonMessage.paramsInvaildFormat("minResolution", "number类型")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._layer.setMinResolution(minResolution);
     }
@@ -3250,10 +3696,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setMaxResolution(maxResolution) {
       if (!isDefined(maxResolution)) {
+<<<<<<< HEAD
         error_(createMessage$o("setMaxResolution", commonMessage.paramsNotDefined("maxResolution")));
       }
       if (!isNumber(maxResolution)) {
         error_(createMessage$o("setMaxResolution", commonMessage.paramsInvaildFormat("maxResolution", "number类型")));
+=======
+        error_(createMessage$s("setMaxResolution", commonMessage.paramsNotDefined("maxResolution")));
+      }
+      if (!isNumber(maxResolution)) {
+        error_(createMessage$s("setMaxResolution", commonMessage.paramsInvaildFormat("maxResolution", "number类型")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._layer.setMaxResolution(maxResolution);
     }
@@ -3262,10 +3715,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setZIndex(zIndex) {
       if (!isDefined(zIndex)) {
+<<<<<<< HEAD
         error_(createMessage$o("setZIndex", commonMessage.paramsNotDefined("zIndex")));
       }
       if (!isNumber(zIndex)) {
         error_(createMessage$o("setZIndex", commonMessage.paramsInvaildFormat("zIndex", "number类型")));
+=======
+        error_(createMessage$s("setZIndex", commonMessage.paramsNotDefined("zIndex")));
+      }
+      if (!isNumber(zIndex)) {
+        error_(createMessage$s("setZIndex", commonMessage.paramsInvaildFormat("zIndex", "number类型")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       this._layer.setZIndex(zIndex);
     }
@@ -3274,10 +3734,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setProperties(properties, silent) {
       if (!isDefined(properties)) {
+<<<<<<< HEAD
         error_(createMessage$o("setProperties", commonMessage.paramsNotDefined("properties")));
       }
       if (isObject(properties)) {
         error_(createMessage$o("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
+=======
+        error_(createMessage$s("setProperties", commonMessage.paramsNotDefined("properties")));
+      }
+      if (isObject(properties)) {
+        error_(createMessage$s("setProperties", commonMessage.paramsInvaildFormat("properties", "object类型")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
       }
       let oldProperties = defaultValue(this.properties, {});
       let newProperties = Object.assign({}, oldProperties, properties);
@@ -3309,8 +3776,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this.groupId;
     }
   }
+<<<<<<< HEAD
   const PACKAGE_NAME$n = "Interaction";
   const createMessage$n = getPackageMessage(PACKAGE_NAME$n);
+=======
+  const PACKAGE_NAME$r = "Interaction";
+  const createMessage$r = getPackageMessage(PACKAGE_NAME$r);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class Interaction {
     constructor(type, params) {
       /**
@@ -3370,7 +3842,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setId(id) {
       if (!isDefined(id)) {
+<<<<<<< HEAD
         warn_(createMessage$n("_initInteractionId", commonMessage.paramsNotDefined("id")));
+=======
+        warn_(createMessage$r("_initInteractionId", commonMessage.paramsNotDefined("id")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         return;
       }
       this.id = id;
@@ -3388,7 +3864,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setActive(active) {
       if (!isBoolean(active)) {
+<<<<<<< HEAD
         warn_(createMessage$n("setActive", commonMessage.paramsInvaildFormat("active", "boolean")));
+=======
+        warn_(createMessage$r("setActive", commonMessage.paramsInvaildFormat("active", "boolean")));
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
         return;
       }
       this._interaction.setActive(active);
@@ -3473,6 +3953,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function isVaildInteraction(value) {
     return value instanceof Interaction;
   }
+<<<<<<< HEAD
+=======
+  const PACKAGE_NAME$q = "Control";
+  const createMessage$q = getPackageMessage(PACKAGE_NAME$q);
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
   class Control {
     constructor(type) {
       __publicField(this, "id", null);
@@ -3493,6 +3978,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       __publicField(this, "events", new Event());
       this.type = type;
     }
+<<<<<<< HEAD
+=======
+    _isInitialized(method) {
+      if (!isDefined(this._control)) {
+        warn_(createMessage$q(method, "未正确实例化"));
+        return false;
+      }
+      return true;
+    }
+>>>>>>> 78f733af0dd60f39b7964b584e2a4f58ccdf024d
     /**
      * 获取控制实例
      */

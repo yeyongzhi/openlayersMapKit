@@ -1,24 +1,27 @@
-import type {
-    OMapStyleOptionsGeometryType,
-    OMapStyleType,
-    OMapFillStyleOptionsType,
-    OMapStrokeStyleOptionsType,
+import {
+    type OMapStyleType,
+    type OMapFillStyleOptionsType,
+    type OMapStrokeStyleOptionsType,
     OlFillStyleInstanceType,
     OlStrokeStyleInstanceType,
     OMapCircleStyleOptionsType,
     OMapIconStyleOptionsType,
     OMapRegularShapeStyleOptionsType,
-    OlStyleInstanceType,
+    OlStyleLike,
     OMapStyleLike,
-    OMapTextStyleOptionsType
+    OMapTextStyleOptionsType,
+    isVaildStyle,
+    isVaildArrayStyle,
+    isVaildFunctionStyle,
+    OMapStyleOptionsGeometryType,
 } from './type'
 import { OlStyle, OlFeature } from '../../../source/index'
 import { Color } from '../../../index'
 import Style from './index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
-import { type OlFeatureLike } from '../../core/Feature/BasicFeature/type'
+import { OlFeatureLike, OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
 import { createBaseFeatureByOlFeature, createBaseFeatureByOlRenderFeature } from '../../core/Feature/BasicFeature/handle'
-import { isDefined, isFunction, isString } from '../../../utils/index'
+import { isDefined, isFunction, isNumber, isString } from '../../../utils/index'
 import { handleGetColorValue } from '../Color/handle'
 import Size from '../../basic/Size/index'
 
@@ -159,18 +162,26 @@ export const DEFAULT_STYLE = (feature: BaseFeature<any>, resolution: number): un
     return undefined
 }
 
-export function handleGetStyleValue(style?: OMapStyleLike): OlStyleInstanceType | Array<OlStyleInstanceType> | undefined {
-    if(isDefined(style)) {
-        if (style instanceof Style) {
-            return style.getStyle()
-        } else if (Array.isArray(style)) {
-            return style.map((item) => (item.getStyle() as OlStyleInstanceType))
-        } else if (isFunction(style)) {
-            // TODO
+export function handleGetStyleValue(style?: OMapStyleLike): OlStyleLike | undefined {
+    if(!isDefined(style)) {
+        return undefined
+    }
+    if (isVaildStyle(style)) {
+        return style.getStyle()
+    } else if (isVaildArrayStyle(style)) {
+        return style.map(item => item.getStyle())
+    } else if (isVaildFunctionStyle(style)) {
+        return (feature: OlFeatureLike, resolution: number) => {
+            const _feature = createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
+            const _style = style(_feature, resolution)
+            if(isVaildArrayStyle(_style)) {
+                return _style.map(item => item.getStyle())
+            } else if (isVaildStyle(_style)) {
+                return _style.getStyle()
+            }
             return undefined
         }
     }
-    return undefined
 }
 
 export function getOlTextSingleStyle(options: OMapTextStyleOptionsType | undefined) {
