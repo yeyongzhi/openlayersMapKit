@@ -1,18 +1,18 @@
 import { isDefined } from '../../../utils/index'
-import { OlLayer, OlSource } from '../../../source/index'
-import Extent from '../../basic/Extent/index'
+import { OlLayer, type OlSource } from '../../../source/index'
+import type Extent from '../../basic/Extent/index'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
-import Color from '../../basic/Color/index'
+import type Color from '../../basic/Color/index'
 import { handleGetColorValue } from '../../basic/Color/handle'
 import Map from '../../core/Map/index'
 
 /** BaseLayer */
-type CustBaseLayerType = 'XYZ' | 'WMS' | 'WMTS'
-export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt' | CustBaseLayerType
+type CustomBaseLayerType = 'XYZ' | 'WMS' | 'WMTS'
+export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt' | CustomBaseLayerType
 export type BaseLayerIdType = number | string | null
 export type BaseLayerPropertiesType = Record<string, any>
 
-export type OlBaseLayerOptionsTypeEnum = "className" | "opacity" | "visible" | "extent" | "zIndex" | "minResolution" | "maxResolution" | "minZoom" | "maxZoom" | "background" | "properties"
+export type OlBaseLayerOptionsKey = "className" | "opacity" | "visible" | "extent" | "zIndex" | "minResolution" | "maxResolution" | "minZoom" | "maxZoom" | "background" | "properties"
 // 此处的BaseLayerOptionsType 继承 ol.layer.Base全部属性
 // 十一个基础属性
 export type BaseLayerCommonParamsType = {
@@ -41,13 +41,15 @@ export type BaseLayerOptionsType = BaseLayerCommonParamsType & {
     map?: Map;
 }
 
-export function handleGetBaseLayerParams(params: BaseLayerOptionsType) {
+export function handleGetBaseLayerParams(params: BaseLayerOptionsType): Record<string, any> {
     let _params = {
         ...params,
         extent: isDefined(params.extent) ? handleGetExtentValue(params.extent) : undefined,
         background: isDefined(params.background) ? handleGetColorValue(params.background) : undefined,
         map: isDefined(params.map) ? params.map.getMap() : undefined,
     }
+    delete _params.id
+    delete _params.name
     return _params
 }
 

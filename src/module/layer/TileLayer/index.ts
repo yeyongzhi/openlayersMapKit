@@ -19,7 +19,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/9
- * @updateDate 2025/10/1
+ * @updateDate 2026/5/7
  */
 
 export default class TileLayer extends BaseLayer<OMapTileLayerType> {
@@ -27,8 +27,6 @@ export default class TileLayer extends BaseLayer<OMapTileLayerType> {
     constructor(options: OMapTileLayerParamsType) {
         super('Tile', options)
         let params = Object.assign({}, DEFAULT_TILE_LAYER_PARAMS, handleGetBaseLayerParams(options))
-        console.log("TileLayer params:")
-        console.log(params)
         this._layer = new OlLayer.Tile(params)
         this._initLayerEvent()
     }

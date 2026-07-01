@@ -1,7 +1,6 @@
 import type { BaseLayerCommonParamsType, BaseLayerOptionsType } from '../BaseLayer/type'
 import { type OMapTileSourceParamsType } from '../../source/TileSource/type'
-import Map from '../../core/Map/index'
-import { OlLayer, OlSource } from '../../../source/index'
+import { OlLayer } from '../../../source/index'
 
 export type OMapTileLayerType = OlLayer.Tile
 

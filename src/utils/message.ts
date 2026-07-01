@@ -2,7 +2,7 @@ function warn_(message: string): void {
     console.warn("🐞OMap Warn", message);
 }
 
-function error_(message: string): void {
+function error_(message: string): never {
     throw new Error(`⚠️OMap Error ${message}`);
 }
 

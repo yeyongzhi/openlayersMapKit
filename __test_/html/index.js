@@ -1,5 +1,5 @@
-// console.log(window.ol)
-// console.log(window.OMap);
+console.log(window.ol)
+console.log(window.OMap);
 
 const container = document.getElementById('message-container');
 let map = null

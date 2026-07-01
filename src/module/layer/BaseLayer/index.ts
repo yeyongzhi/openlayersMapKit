@@ -1,6 +1,6 @@
-import { isDefined, isBoolean, isObject, isNumber, isExtentType } from "../../../utils/index";
+import { isDefined, isBoolean, isObject, isNumber, isString } from "../../../utils/index";
 import { commonMessage } from "../../../utils/message";
-import { warn_, error_, getPackageMessage, isVaildOpacity, defaultValue } from '../../../utils/index'
+import { error_, getPackageMessage, isVaildOpacity, defaultValue } from '../../../utils/index'
 import { type OMapExtentType } from '../../basic/Extent/type'
 import Extent from '../../basic/Extent/index'
 import { isValidExtent } from '../../basic/Extent/type'
@@ -17,10 +17,7 @@ import {
     type OMapBaseLayerCommonType,
 } from './type'
 
-import { layerState } from './layerState'
 import { type LayerGroupIdType } from '../LayerGroup/type'
-let PACKAGE_NAME = 'BaseLayer';
-let createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
  * OMap 图层基类
@@ -39,21 +36,6 @@ const DEFAULT_LAYER_MAX_ZOOM: number = 22;
 const DEFAULT_LAYER_MIN_RESOLUTION: number = 0;
 const DEFAULT_LAYER_MAX_RESOLUTION: number = Infinity;
 const DEFAULT_LAYER_ZINDEX: number = 1;
-const DEFAULT_LAYER_PROPERTIES: Record<string, any> = {};
-
-const baseLayerBasicProperties = [
-    "name",
-    "className",
-    "opacity",
-    "visible",
-    "extent",
-    "minZoom",
-    "maxZoom",
-    "minResolution",
-    "maxResolution",
-    "zIndex",
-    "properties",
-]
 
 export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
@@ -61,6 +43,14 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
      * 图层类型
      */
     protected type: BaseLayerType | null = null;
+    /**
+     * 包名（用于日志输出）
+     */
+    protected _packageName: string = 'BaseLayer';
+    /**
+     * 日志消息生成函数
+     */
+    protected _createMessage!: (methodName: string, message: string) => string;
     /**
      * 图层实例（ol）
      */
@@ -76,13 +66,17 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
     className: string = ''; // 图层样式类名，用于自定义图层样式，默认无
     opacity: number = DEFAULT_LAYER_OPACITY; // 图层透明度，默认1
     visible: boolean = DEFAULT_LAYER_VISIBLE; // 图层是否可见，默认true
-    extent: Extent | null = null; // 图层范围，默认全局
+    extent: Extent | undefined = undefined; // 图层范围，默认全局
     minZoom: number = DEFAULT_LAYER_MIN_ZOOM; // 最小缩放级别，默认0
     maxZoom: number = DEFAULT_LAYER_MAX_ZOOM; // 最大缩放级别，默认22
-    minResolution: number = DEFAULT_LAYER_MIN_RESOLUTION; // 最小分辨率，默认0r
+    minResolution: number = DEFAULT_LAYER_MIN_RESOLUTION; // 最小分辨率，默认0
     maxResolution: number = DEFAULT_LAYER_MAX_RESOLUTION; // 最大分辨率，默认Infinity
-    zIndex: number = DEFAULT_LAYER_ZINDEX; // 图层层级，默认0
-    properties: BaseLayerPropertiesType = DEFAULT_LAYER_PROPERTIES; // 图层属性，用于存储图层相关信息
+    zIndex: number | undefined = undefined; // 图层层级
+    properties: BaseLayerPropertiesType = {}; // 图层属性，用于存储图层相关信息
+    /**
+     * 图层所属的图层组id，由 LayerGroup 管理
+     */
+    groupId: LayerGroupIdType | null = null;
     /**
      * 图层所属的地图对象
      */
@@ -97,8 +91,8 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
         let _options: BaseLayerOptionsType = defaultValue(options, {});
         this.type = type
         // 动态更新包名
-        PACKAGE_NAME = `${type}Layer`;
-        createMessage = getPackageMessage(PACKAGE_NAME);
+        this._packageName = `${type}Layer`;
+        this._createMessage = getPackageMessage(this._packageName);
         // 图层ID
         this.id = defaultValue(_options.id, null); 
         // 赋值其他属性
@@ -106,18 +100,16 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
         this.className = defaultValue(_options.className, '');
         this.opacity = defaultValue(_options.opacity, DEFAULT_LAYER_OPACITY);
         this.visible = defaultValue(_options.visible, DEFAULT_LAYER_VISIBLE);
-        this.extent = defaultValue(_options.extent, null);
+        this.extent = defaultValue(_options.extent, undefined);
         this.minZoom = defaultValue(_options.minZoom, DEFAULT_LAYER_MIN_ZOOM);
         this.maxZoom = defaultValue(_options.maxZoom, DEFAULT_LAYER_MAX_ZOOM);
         this.minResolution = defaultValue(_options.minResolution, DEFAULT_LAYER_MIN_RESOLUTION);
         this.maxResolution = defaultValue(_options.maxResolution, DEFAULT_LAYER_MAX_RESOLUTION);
-        this.zIndex = defaultValue(_options.zIndex, DEFAULT_LAYER_ZINDEX);
-        this.properties = defaultValue(_options.properties, DEFAULT_LAYER_PROPERTIES);
+        this.zIndex = defaultValue(_options.zIndex, undefined);
+        this.properties = defaultValue(_options.properties, {});
         this.map = defaultValue(_options.map, null);
-        // 初始化图层状态
-        layerState.set(this, {
-            groupId: null
-        })
+        // 初始化图层组id
+        this.groupId = null
     }
 
     protected _initLayerEvent(): void {
@@ -148,18 +140,62 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
     /**
      * 获取图层id
-     * @returns {BaseLayerIdType | null} 图层id
+     * @returns {BaseLayerIdType} 图层id
      */
-    getId(): BaseLayerIdType | null {
+    getId(): BaseLayerIdType {
         return this.id;
     }
 
     /**
      * 设置图层id
-     * @param {BaseLayerIdType | null} id 图层id
+     * @param {BaseLayerIdType} id 图层id
      */
-    setId(id: BaseLayerIdType | null) {
+    setId(id: BaseLayerIdType) {
         this.id = id
+    }
+
+    /**
+     * 获取图层名称
+     * @returns {string} 图层名称
+     */
+    getName(): string {
+        return this.name;
+    }
+
+    /**
+     * 设置图层名称
+     * @param {string} name 图层名称
+     */
+    setName(name: string) {
+        if (!isDefined(name)) {
+            error_(this._createMessage('setName', commonMessage.paramsNotDefined('name')));
+        }
+        if (!isString(name)) {
+            error_(this._createMessage('setName', commonMessage.paramsInvaildFormat('name', 'string类型')));
+        }
+        this.name = name;
+    }
+
+    /**
+     * 获取图层样式类名
+     * @returns {string} 样式类名
+     */
+    getClassName(): string {
+        return this.className;
+    }
+
+    /**
+     * 设置图层样式类名
+     * @param {string} className 样式类名
+     */
+    setClassName(className: string) {
+        if (!isDefined(className)) {
+            error_(this._createMessage('setClassName', commonMessage.paramsNotDefined('className')));
+        }
+        if (!isString(className)) {
+            error_(this._createMessage('setClassName', commonMessage.paramsInvaildFormat('className', 'string类型')));
+        }
+        this.className = className;
     }
 
     /**
@@ -172,6 +208,7 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
     /**
      * 获取图层数据源
+     * @returns 图层数据源实例
      */
     getSource() {
         return this._layer.getSource();
@@ -183,10 +220,10 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
      */
     setOpacity(opacity: number) {
         if (!isDefined(opacity)) {
-            error_(createMessage('setOpacity', commonMessage.paramsNotDefined('opacity')));
+            error_(this._createMessage('setOpacity', commonMessage.paramsNotDefined('opacity')));
         }
         if (!isVaildOpacity(opacity)) {
-            error_(createMessage('setOpacity', commonMessage.paramsInvaildFormat('opacity', '0~1的数字')));
+            error_(this._createMessage('setOpacity', commonMessage.paramsInvaildFormat('opacity', '0~1的数字')));
         }
         this._layer.setOpacity(opacity);
     }
@@ -205,10 +242,10 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
      */
     setVisible(visible: boolean) {
         if (!isDefined(visible)) {
-            error_(createMessage('setVisible', commonMessage.paramsNotDefined('visible')));
+            error_(this._createMessage('setVisible', commonMessage.paramsNotDefined('visible')));
         }
         if (!isBoolean(visible)) {
-            error_(createMessage('setVisible', commonMessage.paramsInvaildFormat('visible', 'boolean类型')));
+            error_(this._createMessage('setVisible', commonMessage.paramsInvaildFormat('visible', 'boolean类型')));
         }
         this._layer.setVisible(visible);
     }
@@ -236,20 +273,20 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
      */
     setExtent(extent: OMapExtentType) {
         if (!isDefined(extent)) {
-            error_(createMessage('setExtent', commonMessage.paramsNotDefined('extent')));
+            error_(this._createMessage('setExtent', commonMessage.paramsNotDefined('extent')));
         }
         if(!isValidExtent(extent)) {
-            error_(createMessage('setExtent', commonMessage.paramsInvaildFormat('extent', 'Extent类型')));
+            error_(this._createMessage('setExtent', commonMessage.paramsInvaildFormat('extent', 'Extent类型')));
         }
         this._layer.setExtent(handleGetExtentValue(extent))
     }
 
     setMinZoom(minZoom: number) {
         if (!isDefined(minZoom)) {
-            error_(createMessage('setMinZoom', commonMessage.paramsNotDefined('minZoom')));
+            error_(this._createMessage('setMinZoom', commonMessage.paramsNotDefined('minZoom')));
         }
         if (!isNumber(minZoom)) {
-            error_(createMessage('setMinZoom', commonMessage.paramsInvaildFormat('minZoom', 'number类型')));
+            error_(this._createMessage('setMinZoom', commonMessage.paramsInvaildFormat('minZoom', 'number类型')));
         }
         this._layer.setMinZoom(minZoom);
     }
@@ -260,10 +297,10 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
     setMaxZoom(maxZoom: number) {
         if (!isDefined(maxZoom)) {
-            error_(createMessage('setMaxZoom', commonMessage.paramsNotDefined('maxZoom')));
+            error_(this._createMessage('setMaxZoom', commonMessage.paramsNotDefined('maxZoom')));
         }
         if (!isNumber(maxZoom)) {
-            error_(createMessage('setMaxZoom', commonMessage.paramsInvaildFormat('maxZoom', 'number类型')));
+            error_(this._createMessage('setMaxZoom', commonMessage.paramsInvaildFormat('maxZoom', 'number类型')));
         }
         this._layer.setMaxZoom(maxZoom);
     }
@@ -274,10 +311,10 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
     setMinResolution(minResolution: number) {
         if (!isDefined(minResolution)) {
-            error_(createMessage('setMinResolution', commonMessage.paramsNotDefined('minResolution')));
+            error_(this._createMessage('setMinResolution', commonMessage.paramsNotDefined('minResolution')));
         }
         if (!isNumber(minResolution)) {
-            error_(createMessage('setMinResolution', commonMessage.paramsInvaildFormat('minResolution', 'number类型')));
+            error_(this._createMessage('setMinResolution', commonMessage.paramsInvaildFormat('minResolution', 'number类型')));
         }
         this._layer.setMinResolution(minResolution);
     }
@@ -288,10 +325,10 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
     setMaxResolution(maxResolution: number) {
         if (!isDefined(maxResolution)) {
-            error_(createMessage('setMaxResolution', commonMessage.paramsNotDefined('maxResolution')));
+            error_(this._createMessage('setMaxResolution', commonMessage.paramsNotDefined('maxResolution')));
         }
         if (!isNumber(maxResolution)) {
-            error_(createMessage('setMaxResolution', commonMessage.paramsInvaildFormat('maxResolution', 'number类型')));
+            error_(this._createMessage('setMaxResolution', commonMessage.paramsInvaildFormat('maxResolution', 'number类型')));
         }
         this._layer.setMaxResolution(maxResolution);
     }
@@ -302,10 +339,10 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
     setZIndex(zIndex: number) {
         if (!isDefined(zIndex)) {
-            error_(createMessage('setZIndex', commonMessage.paramsNotDefined('zIndex')));
+            error_(this._createMessage('setZIndex', commonMessage.paramsNotDefined('zIndex')));
         }
         if (!isNumber(zIndex)) {
-            error_(createMessage('setZIndex', commonMessage.paramsInvaildFormat('zIndex', 'number类型')));
+            error_(this._createMessage('setZIndex', commonMessage.paramsInvaildFormat('zIndex', 'number类型')));
         }
         this._layer.setZIndex(zIndex);
     }
@@ -316,10 +353,10 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
     setProperties(properties: BaseLayerPropertiesType, silent?: boolean) {
         if (!isDefined(properties)) {
-            error_(createMessage('setProperties', commonMessage.paramsNotDefined('properties')));
+            error_(this._createMessage('setProperties', commonMessage.paramsNotDefined('properties')));
         }
-        if (isObject(properties)) {
-            error_(createMessage('setProperties', commonMessage.paramsInvaildFormat('properties', 'object类型')));
+        if (!isObject(properties)) {
+            error_(this._createMessage('setProperties', commonMessage.paramsInvaildFormat('properties', 'object类型')));
         }
         let oldProperties = defaultValue(this.properties, {});
         let newProperties = Object.assign({}, oldProperties, properties)
@@ -345,14 +382,6 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
      */
     getTarget(): Map | Draw | Modify | Measure | null {
         return this.target
-    }
-
-    get groupId(): LayerGroupIdType | null {
-        return layerState.get(this)?.groupId || null;
-    }
-
-    getGroupId(): LayerGroupIdType | null {
-        return this.groupId;
     }
 
 }
