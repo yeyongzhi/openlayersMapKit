@@ -96,6 +96,22 @@ function initDom() {
     mapExtent = document.getElementById('map_extent')
 }
 
+function initPanelCollapse() {
+    const panelToggle = document.getElementById('panelToggle')
+    if (!panelToggle) return
+
+    panelToggle.onclick = () => {
+        const collapsed = document.body.classList.toggle('panel-collapsed')
+        panelToggle.title = collapsed ? '展开操作栏' : '收缩操作栏'
+        panelToggle.setAttribute('aria-label', panelToggle.title)
+        panelToggle.setAttribute('aria-expanded', String(!collapsed))
+
+        window.setTimeout(() => {
+            map?.updateSize?.()
+        }, 260)
+    }
+}
+
 function initMap() {
     map = new OMap.Map("map_container", {
         view: {
@@ -198,48 +214,67 @@ function initMap() {
 
 let drawTool = null
 function initDrawInteraction() {
+    const createDrawTool = () => {
+        const layer = drawTool?.getLayer?.()
+        const nextDrawTool = new OMap.Draw(DrawInput.value, layer ? { layer } : undefined)
+        map.addInteraction(nextDrawTool)
+        nextDrawTool.on('drawstart', (e) => {
+            console.log(e)
+        })
+        nextDrawTool.on('drawend', (e) => {
+            console.log("绘制结束")
+            console.log(e)
+            console.log(nextDrawTool.getFeatures())
+            console.log(nextDrawTool.getFeatures().length)
+        })
+        nextDrawTool.on('drawabort', (e) => {
+            console.log("取消绘制")
+        })
+        return nextDrawTool
+    }
+
+    DrawInput.onchange = () => {
+        if (!drawTool || !DrawInputChecked.checked) return
+        drawTool.destroy(false)
+        drawTool = createDrawTool()
+    }
+
     DrawInputChecked.onchange = (e) => {
         const value = e.target.checked
         console.log("DrawInput.value", value)
         if (value) {
             if (!drawTool) {
-                drawTool = new OMap.Draw(DrawInput.value)
-                map.addInteraction(drawTool)
-                drawTool.on('drawstart', (e) => {
-                    console.log(e)
-                })
-                drawTool.on('drawend', (e) => {
-                    console.log("绘制结束")
-                    console.log(e)
-                    console.log(drawTool.getFeatures())
-                    console.log(drawTool.getFeatures().length)
-                })
-                drawTool.on('drawabort', (e) => {
-                    console.log("取消绘制")
-                })
+                drawTool = createDrawTool()
             } else {
                 drawTool.setActive(true)
             }
             showMessage('绘制工具已激活', 'success')
         } else {
+            if (!drawTool) return
             drawTool.setActive(false)
             showMessage('绘制工具已禁用', 'error')
         }
     }
     abortDrawingBtn.onclick = () => {
+        if (!drawTool) return showMessage('请先开启绘制工具', 'warning')
         drawTool.cancel()
     }
     removeLastPointBtn.onclick = () => {
+        if (!drawTool) return showMessage('请先开启绘制工具', 'warning')
         drawTool.revoke()
     }
     finishDrawingBtn.onclick = () => {
+        if (!drawTool) return showMessage('请先开启绘制工具', 'warning')
         drawTool.finish()
     }
     destroyDrawBtn.onclick = () => {
+        if (!drawTool) return showMessage('请先开启绘制工具', 'warning')
         drawTool.destroy(false)
+        drawTool = null
         DrawInputChecked.checked = false
     }
     clearDrawBtn.onclick = () => {
+        if (!drawTool) return showMessage('请先开启绘制工具', 'warning')
         drawTool.clear()
     }
 }
@@ -996,6 +1031,7 @@ const initInteractionChanged = () => {
 function init() {
     initDom()
     initMap()
+    initPanelCollapse()
 
     initInteractionChanged()
 

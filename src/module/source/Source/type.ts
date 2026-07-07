@@ -1,12 +1,15 @@
-import { isDefined } from '../../../utils/index'
 import { OlSource } from '../../../source/index'
-import type { ManualOmit } from '../../../utils/type'
+import type { AttributionLike, Options as OlSourceOptions, State as OlSourceState } from 'ol/source/Source'
+import type { ProjectionLike } from 'ol/proj'
 import Projection from '../../core/Projection/index'
 
 export type OMapSourceType = OlSource.Source
 
-export type OlSourceParamsType = ConstructorParameters<typeof OlSource.Source>[0]
-export type CustomerOlSourceParamsType = ManualOmit<OlSourceParamsType, 'attributions' | 'projection'>
+export type OlSourceParamsType = OlSourceOptions
+export type OMapSourceAttributionLike = AttributionLike
+export type OMapSourceState = OlSourceState
+export type OMapSourceProjectionLike = Projection | ProjectionLike
+
 /**
  * 以下是Source基类的最终属性（一共6个）（改造了attributions、projection）
  * attributions：数据源的版权信息
@@ -16,26 +19,27 @@ export type CustomerOlSourceParamsType = ManualOmit<OlSourceParamsType, 'attribu
  * wrapX：是否_wrapX_
  * interpolate：是否插值
  */
-export type OMapSourceParamsType = CustomerOlSourceParamsType & {
-    attributions?: string | string[];
-    projection?: Projection;
+export type OMapSourceParamsType = Omit<OlSourceParamsType, 'projection'> & {
+    projection?: OMapSourceProjectionLike;
 }
+
 /**
  * OMap Source 类的公共属性键
  */
 export type OMapSourceParamsCommonKey = keyof OMapSourceParamsType
 
-export function handleGetSourceParams(params: OMapSourceParamsType): OlSourceParamsType {
+export function handleGetSourceParams(params: OMapSourceParamsType = {}): OlSourceParamsType {
+    const projection = params.projection instanceof Projection
+        ? params.projection.getProjection()
+        : params.projection
     const _params = Object.assign({}, params, {
-        projection: isDefined(params.projection) ? params.projection.getProjection() : undefined
+        projection
     })
     return _params
 }
 
-
-
 export const DEFAULT_SOURCE_PARAMS: OMapSourceParamsType = {
-    attributions: "",
+    attributions: undefined,
     attributionsCollapsible: true,
     state: "ready",
     wrapX: false,

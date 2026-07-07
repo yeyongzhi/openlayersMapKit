@@ -1,13 +1,10 @@
-import { isDefined, isNumber } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/message'
-import { 
+import { OlSource } from '../../../source/index'
+import {
     type OMapImageSourceType,
     type OMapImageSourceParamsType
 } from './type'
 import Source from '../Source/index'
-
-const PACKAGE_NAME = 'ImageSource';
-const createMessage = getPackageMessage(PACKAGE_NAME);
+import { DEFAULT_SOURCE_PARAMS, handleGetSourceParams } from '../Source/type'
 
 /**
  * ImageSource
@@ -22,8 +19,13 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class ImageSource extends Source<OMapImageSourceType>  {
 
-    constructor(params: OMapImageSourceParamsType) {
-        super(params)
+    constructor(params: OMapImageSourceParamsType = {}) {
+        const sourceParams = handleGetSourceParams({
+            ...DEFAULT_SOURCE_PARAMS,
+            ...params,
+            interpolate: params.interpolate ?? true
+        })
+        super(params, new OlSource.Image(sourceParams))
     }
 
 }

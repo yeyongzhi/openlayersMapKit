@@ -1,4 +1,5 @@
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
@@ -8,77 +9,216 @@
     --omap-success-color: #18a058;
     --omap-warning-color: #f0a020;
     --omap-error-color: #d03050;
+    --panel-width: 360px;
+    --panel-collapsed-width: 52px;
+    --panel-bg: #f7f9ff;
+    --text-color: #172033;
+    --muted-color: #68728a;
+    --line-color: rgba(0, 0, 254, 0.14);
+    --shadow-color: rgba(12, 20, 46, 0.16);
 }
 
 html,
 body {
     width: 100dvw;
     height: 100dvh;
-    margin: 0;
-    padding: 0;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
     font-size: 14px;
+    color: var(--text-color);
+    background: #eef3ff;
 }
 
 .map_container {
-    width: 75%;
+    width: calc(100% - var(--panel-width));
     height: 100%;
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 2;
+    z-index: 1;
+    transition: width 0.24s ease;
 }
 
 .handle_container {
-    width: 25%;
+    width: var(--panel-width);
     height: 100%;
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 2;
+    z-index: 3;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 10px;
-    box-sizing: border-box;
+    padding: 14px;
+    border-right: 1px solid var(--line-color);
+    background: var(--panel-bg);
+    box-shadow: 8px 0 24px var(--shadow-color);
+    transition: width 0.24s ease, padding 0.24s ease;
+}
+
+.handle_container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.handle_container::-webkit-scrollbar-thumb {
+    border: 2px solid var(--panel-bg);
+    border-radius: 999px;
+    background: rgba(0, 0, 254, 0.28);
+}
+
+.panel_header {
+    position: sticky;
+    top: -14px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 54px;
+    margin: -14px -14px 14px;
+    padding: 12px 12px 12px 16px;
+    border-bottom: 1px solid var(--line-color);
+    background: rgba(247, 249, 255, 0.94);
+    backdrop-filter: blur(10px);
+}
+
+.panel_title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 22px;
+}
+
+.panel_subtitle {
+    margin-top: 2px;
+    color: var(--muted-color);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.panel_toggle {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    padding: 0;
+    border-radius: 6px;
+    font-size: 22px;
+    line-height: 1;
 }
 
 h3 {
-    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0 10px;
+    color: var(--omap-primary-color);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 22px;
+}
+
+h3::before {
+    content: "";
+    width: 4px;
+    height: 16px;
+    border-radius: 4px;
+    background: var(--omap-primary-color);
 }
 
 h5 {
-    margin: 10px 0;
     display: flex;
-    justify-content: flex-start;
     align-items: center;
+    justify-content: flex-start;
     flex-wrap: wrap;
-    line-height: 30px;
-    border: 1px solid var(--omap-primary-color);
-    padding: 5px 10px;
-    border-radius: 4px;
+    gap: 8px;
+    min-height: 42px;
+    margin: 8px 0;
+    padding: 8px 10px;
+    border: 1px solid var(--line-color);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 8px 18px rgba(24, 34, 72, 0.06);
+    color: #263047;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 24px;
+}
+
+h5>div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+}
+
+.tips {
+    margin: 4px 0 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 254, 0.06);
+    color: var(--muted-color);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+button,
+select {
+    height: 30px;
+    border-radius: 6px;
+    font: inherit;
 }
 
 button {
-    background-color: var(--omap-primary-color);
-    padding: 5px 15px;
     border: none;
-    border-radius: 5px;
+    background-color: var(--omap-primary-color);
     color: #fff;
-    margin: 0 10px;
+    padding: 0 12px;
+    margin: 0;
     cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0, 0, 254, 0.22);
+    transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 9px 18px rgba(0, 0, 254, 0.26);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 5px 10px rgba(0, 0, 254, 0.18);
+}
+
+select {
+    min-width: 92px;
+    border: 1px solid var(--line-color);
+    background: #fff;
+    color: var(--text-color);
+    padding: 0 28px 0 10px;
+    outline: none;
+}
+
+select:focus {
+    border-color: var(--omap-primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 0, 254, 0.1);
 }
 
 .border {
     width: 100%;
-    height: 2px;
-    background-color: var(--omap-primary-color);
+    height: 1px;
+    margin: 14px 0;
+    background: var(--line-color);
 }
 
 .border_text {
-    color: var(--omap-primary-color);
-    height: 20px;
-    line-height: 20px;
     display: inline-flex;
     align-items: center;
+    max-width: 100%;
+    min-height: 24px;
+    color: var(--omap-primary-color);
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    font-weight: 600;
+    word-break: break-all;
 }
 
 .ol-test-dragbox {
@@ -87,16 +227,43 @@ button {
 }
 
 input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    margin: 0 10px;
-}
-
-input[type="checkbox"]:checked {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
     accent-color: var(--omap-primary-color);
-    /* 使用主题色作为选中颜色 */
 }
 
+body.panel-collapsed .handle_container {
+    width: var(--panel-collapsed-width);
+    padding: 0;
+}
+
+body.panel-collapsed .map_container {
+    width: calc(100% - var(--panel-collapsed-width));
+}
+
+body.panel-collapsed .panel_header {
+    top: 0;
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 10px;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+body.panel-collapsed .panel_header>div,
+body.panel-collapsed .handle_container>h3,
+body.panel-collapsed .handle_container>h5,
+body.panel-collapsed .handle_container>.border,
+body.panel-collapsed .handle_container>.tips {
+    display: none;
+}
+
+body.panel-collapsed .panel_toggle {
+    transform: rotate(180deg);
+}
 
 #message-container {
     position: fixed;
@@ -109,39 +276,37 @@ input[type="checkbox"]:checked {
     align-items: center;
     gap: 10px;
     pointer-events: none;
-    /* 防止遮挡下方点击 */
 }
 
 .message {
     pointer-events: auto;
-    /* 恢复内部元素交互 */
     padding: 12px 20px;
-    border-radius: 4px;
+    border-radius: 8px;
     color: white;
     font-size: 14px;
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
     max-width: 80vw;
     word-break: break-word;
     animation: fadeIn 0.3s ease forwards;
 }
 
 .message.info {
-    background-color: #909399;
+    background-color: #64748b;
 }
 
 .message.success {
-    background-color: #67c23a;
+    background-color: var(--omap-success-color);
 }
 
 .message.warning {
-    background-color: #e6a23c;
+    background-color: var(--omap-warning-color);
 }
 
 .message.error {
-    background-color: #f56c6c;
+    background-color: var(--omap-error-color);
 }
 
 .message .close {
@@ -176,4 +341,10 @@ input[type="checkbox"]:checked {
 .omap-dragbox {
     background-color: var(--omap-primary-color);
     opacity: 0.2;
+}
+
+@media (max-width: 900px) {
+    :root {
+        --panel-width: min(88vw, 340px);
+    }
 }

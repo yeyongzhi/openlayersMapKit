@@ -78,7 +78,7 @@ export default class Draw extends Interaction<OMapDrawType> {
     }
 
     protected initDrawEvent() {
-        this._interaction.on("drawend", (e) => {
+        this._interaction.on("drawend", (e: any) => {
             const feature: OlFeatureInstanceType = e.feature
             if (isDefined(feature)) {
                 // 根据原生的feature生成内部的feature

@@ -1,7 +1,15 @@
-import { isDefined, isNumber } from '../../../utils/index';
+import { isDefined, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/message'
-import { 
+import { OlEvent, OlSource } from '../../../source/index'
+import type { EventsKey, ListenerFunction } from 'ol/events'
+import type BaseEvent from 'ol/events/Event'
+import type Projection from '../../core/Projection/index'
+import {
+    DEFAULT_SOURCE_PARAMS,
+    handleGetSourceParams,
+    type OMapSourceAttributionLike,
     type OMapSourceParamsType,
+    type OMapSourceState,
     type OMapSourceType
 } from './type'
 
@@ -20,23 +28,64 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Source<T extends OMapSourceType> {
-    
-    _source!: T;
 
-    constructor(params: OMapSourceParamsType) {
-        
+    protected _source: T;
+
+    constructor(params: OMapSourceParamsType = {}, source?: T) {
+        const sourceParams = handleGetSourceParams({
+            ...DEFAULT_SOURCE_PARAMS,
+            ...params
+        })
+        this._source = source || new OlSource.Source(sourceParams) as T;
     }
 
-    getSource() {
+    /**
+     * 获取原生 OpenLayers Source 实例
+     */
+    getSource(): T {
         return this._source;
+    }
+
+    /**
+     * 子类初始化具体 Source 时使用
+     */
+    protected setSource(source: T) {
+        if (!isDefined(source)) {
+            error_(createMessage('setSource', 'source不能为空'));
+        }
+        this._source = source;
     }
 
     changed() {
         this._source.changed();
     }
 
-    get(key: string) {
+    dispatchEvent(event: BaseEvent | string): boolean | undefined {
+        return this._source.dispatchEvent(event);
+    }
+
+    get(key: string): any {
+        if (!isString(key)) {
+            warn_(createMessage('get', 'key必须是字符串'));
+            return undefined;
+        }
         return this._source.get(key);
+    }
+
+    set(key: string, value: any, silent?: boolean) {
+        if (!isString(key)) {
+            warn_(createMessage('set', 'key必须是字符串'));
+            return;
+        }
+        this._source.set(key, value, silent);
+    }
+
+    unset(key: string, silent?: boolean) {
+        if (!isString(key)) {
+            warn_(createMessage('unset', 'key必须是字符串'));
+            return;
+        }
+        this._source.unset(key, silent);
     }
 
     getAttributions() {
@@ -55,6 +104,30 @@ export default class Source<T extends OMapSourceType> {
         return this._source.getProjection();
     }
 
+    getRevision() {
+        return this._source.getRevision();
+    }
+
+    getState() {
+        return this._source.getState();
+    }
+
+    getWrapX() {
+        return this._source.getWrapX();
+    }
+
+    getInterpolate() {
+        return this._source.getInterpolate();
+    }
+
+    getResolutions(projection?: Projection) {
+        return this._source.getResolutions(projection?.getProjection());
+    }
+
+    getView() {
+        return this._source.getView();
+    }
+
     getProperties(): Record<string, any> {
         return this._source.getProperties();
     }
@@ -63,12 +136,45 @@ export default class Source<T extends OMapSourceType> {
         this._source.refresh();
     }
 
-    setAttributions(attributions: string | string[]) {
+    setAttributions(attributions: OMapSourceAttributionLike | undefined) {
         this._source.setAttributions(attributions);
     }
 
-    setProperties(properties: Record<string, any>) {
-        this._source.setProperties(properties);
+    setState(state: OMapSourceState) {
+        this._source.setState(state);
+    }
+
+    setProperties(properties: Record<string, any>, silent?: boolean) {
+        this._source.setProperties(properties, silent);
+    }
+
+    on(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
+        if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+            error_(createMessage('on', 'type或listener参数格式有误'));
+        }
+        return this._source.on(type, listener);
+    }
+
+    once(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
+        if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+            error_(createMessage('once', 'type或listener参数格式有误'));
+        }
+        return this._source.once(type, listener);
+    }
+
+    un(type: string | string[], listener: ListenerFunction) {
+        if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+            error_(createMessage('un', 'type或listener参数格式有误'));
+        }
+        this._source.un(type, listener);
+    }
+
+    unByKey(key: EventsKey | EventsKey[]) {
+        if (Array.isArray(key)) {
+            key.forEach(item => OlEvent.unlistenByKey(item))
+        } else {
+            OlEvent.unlistenByKey(key)
+        }
     }
 
 }
