@@ -1,342 +1,407 @@
-import { isDefined, defaultValue, isNumber, isFunction, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import { isDefined, isFunction } from '../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import { OlFeature, OlGeometry, OlInteraction, OlObservable } from '../../../source/index'
+import type { EventsKey } from 'ol/events'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlGeometry, OlFeature, OlObservable } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import Map from '../../core/Map/index'
 import Popup from '../../basic/Popup/index'
-import { type EventIdType } from '../../util/Event/type';
-import {
-    type OMapMeasureMode,
-    type OMapMeasureParamsType,
-    type OlDrawInstanceType,
-    type OMapInteractionMeasureEventType,
-    isOMapInteractionMeasureEventType,
-    type OMapMeasureResult,
-    DRAW_DEFAULT_PARAMS,
-    MeasureMode,
-    MeasureEventType,
-    type OMapMeasureType,
-    isOMapMeasureMode
-} from './type'
-import type { OMapVectorSourceType, OlVectorLayerInstanceType } from '../../layer/VectorLayer/type'
-import { DEFAULT_STYLE } from '../../basic/Style/handle'
-import {
-    getOlDrawType,
-    createMeasureTooltipElement,
-    createMeasureDistanceElement,
-    createMeasureAreaElement,
-    createMeasureMarkerElement,
-    createMeasureMarkerPopup,
-    transformDistance,
-    transformArea,
-    updateMeasureFeature,
-    getOMapMeasureMarkerId,
-    destroy as handleDestroy,
-    createMeasureAreaCloseElement
-} from './handle'
-import Pixel from '../../basic/Pixel/index';
+import Pixel from '../../basic/Pixel/index'
 import LineString from '../../core/Feature/LineString/index'
 import Polygon from '../../core/Feature/Polygon/index'
-import type { OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type';
-import { tooltipPopup, measurePopup } from './handlePopup'
+import type { OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
+import type { EventIdType } from '../../util/Event/type'
+import type { OMapVectorSourceType } from '../../layer/VectorLayer/type'
+import { DEFAULT_STYLE } from '../../basic/Style/handle'
+import {
+    DRAW_DEFAULT_PARAMS,
+    MeasureEventType,
+    MeasureMode,
+    type OMapInteractionMeasureEventType,
+    type OMapMeasureMode,
+    type OMapMeasureParamsType,
+    type OMapMeasureResult,
+    type OMapMeasureType,
+    isOMapInteractionMeasureEventType,
+    isOMapMeasureMode
+} from './type'
+import {
+    createCloseElement,
+    createMarkerElement,
+    createResultElement,
+    createTooltipElement,
+    formatArea,
+    formatDistance,
+    getGeometryPointCount,
+    getMeasureUnit,
+    getOlDrawType
+} from './handle'
 
-const PACKAGE_NAME = 'Measure';
-const createMessage = getPackageMessage(PACKAGE_NAME);
-
-let measureFeature: OlFeatureInstanceType | null = null
-let measureListener: any = null
-
-let pointMoveListener: any = null
-
-/**
- * 绘制类
- * @class Measure
- * @classdesc 测量类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/5
- * @updateDate 2025/12/30
- */
+const PACKAGE_NAME = 'Measure'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 export default class Measure extends Interaction<OMapMeasureType> {
 
-    mode: OMapMeasureMode | null = null;
+    mode: OMapMeasureMode
 
-    result: OMapMeasureResult = {
-        value: 0,
-        unit: ''
-    }
+    result: OMapMeasureResult
 
-    constructor(mode: OMapMeasureMode, params?: OMapMeasureParamsType) {
-        if(!isDefined(mode)) {
-            error_(createMessage('constructor', commonMessage.paramsNotDefined('mode')));
+    protected tooltipPopup: Popup
+    protected resultPopup: Popup
+    protected markerPopups: Popup[] = []
+    protected drawFeature: OlFeatureInstanceType | null = null
+    protected geometryListener: EventsKey | null = null
+    protected pointerMoveListener: EventsKey | null = null
+    protected eventInitialized = false
+
+    constructor(mode: OMapMeasureMode, params: OMapMeasureParamsType = {}) {
+        if (!isDefined(mode)) {
+            error_(createMessage('constructor', commonMessage.paramsNotDefined('mode')))
         }
         if (!isOMapMeasureMode(mode)) {
-            error_(createMessage('constructor', commonMessage.paramsInvaildEnum(mode)));
+            error_(createMessage('constructor', commonMessage.paramsInvaildEnum(mode)))
         }
-        let _params = defaultValue(params, {})
-        super("Measure", { id: _params.id })
-        let draw_source: OMapVectorSourceType | null = null
-        // Measure模式下，直接新建一个VectorLayer
+        super('Measure', { id: params.id })
+
+        this.mode = mode
+        this.result = {
+            value: 0,
+            unit: getMeasureUnit(mode)
+        }
+
         this.layer = new VectorLayer({
-            style: DEFAULT_STYLE
+            style: params.style || DEFAULT_STYLE
         })
-        draw_source = this.layer.getSource() as OMapVectorSourceType
-        let measureParams = Object.assign({}, DRAW_DEFAULT_PARAMS, {
-            clickTolerance: params?.clickTolerance,
-            source: draw_source,
+
+        this._interaction = new OlInteraction.Draw({
+            ...DRAW_DEFAULT_PARAMS,
+            ...params,
+            ...getOlDrawType(mode),
+            source: this.layer.getSource() as OMapVectorSourceType,
             features: undefined,
             style: undefined
         })
-        this._interaction = new OlInteraction.Draw({
-            ...getOlDrawType(mode),
-            ...measureParams,
-        })
-        this.mode = mode
-        if (mode === MeasureMode.Distance) {
-            this.result.unit = 'km'
-        } else if (mode === MeasureMode.Area) {
-            this.result.unit = 'km²'
-        }
+
+        this.tooltipPopup = this.createPopup('omap-measure-tooltip', createTooltipElement('单击地图开始测量'))
+        this.resultPopup = this.createPopup('omap-measure-result', createTooltipElement(''))
         this.initInteractionEvent()
     }
 
-    /**
-     * 初始化 测量事件
-     */
     protected initMeasureEvent() {
-        this._interaction.on("change:active", (e) => {
+        if (this.eventInitialized) {
+            return;
+        }
+        this.eventInitialized = true
+
+        this._interaction.on('change:active', () => {
             if (this._interaction.getActive()) {
                 this.onMeasureActive()
             } else {
-                this.onMeasureInActive()
+                this.onMeasureInactive()
             }
-        });
-        // 测量开始
-        this._interaction.on("drawstart", (e) => {
-            // 派发测量开始的回调函数
+        })
+
+        this._interaction.on('drawstart', event => {
             this.events.emit(MeasureEventType.measureStart, {
                 target: this,
                 type: MeasureEventType.measureStart
-            });
-            this.onMeasureStart(e.feature)
-        });
-        // 【测量结束】
-        this._interaction.on("drawend", (e) => {
-            this.onMeasureEnd()
+            })
+            this.onMeasureStart(event.feature)
+        })
+
+        this._interaction.on('drawend', event => {
+            this.onMeasureEnd(event.feature)
         })
     }
 
     protected onMeasureActive() {
-        if (isDefined(this.map)) {
-            if (!isDefined(pointMoveListener)) {
-                pointMoveListener = (this.map.getMap()).on("pointermove", (e) => {
-                    if (isDefined(tooltipPopup)) {
-                        tooltipPopup.updatePosition(e.coordinate)
-                    }
-                });
-            }
-        }
-        // 重置测量数据
         this.result.value = 0
+        this.showTooltip('单击地图开始测量')
+        this.bindPointerMove()
     }
 
-    protected onMeasureInActive() {
-        if (isDefined(pointMoveListener)) {
-            OlObservable.unByKey(pointMoveListener)
-            pointMoveListener = null
-        }
+    protected onMeasureInactive() {
+        this.unbindPointerMove()
     }
 
-    /**
-     * 测量开始
-     * @param feature 测量开始的feature
-     */
-    protected onMeasureStart(feature: OlFeatureInstanceType | null | undefined) {
-        if (isDefined(feature)) {
-            measureFeature = feature
-            updateMeasureFeature(this.mode as OMapMeasureMode, feature, (this.map as Map))
-            let lastLength = 0
-            measureListener = measureFeature.getGeometry()?.on('change', (e) => {
-                const { target } = e
-                if (isDefined(target)) {
-                    let newLength = (target instanceof OlGeometry.LineString) ? target.getCoordinates().length : target.getCoordinates()[0].length
-                    if (lastLength === 0) {
-                        lastLength = newLength
-                        if (target instanceof OlGeometry.LineString) {
-                            let startMarker = createMeasureMarkerElement("起点", 0)
-                            let popup = createMeasureMarkerPopup({
-                                id: getOMapMeasureMarkerId(0),
-                                element: startMarker,
-                                offset: new Pixel(0, -10)
-                            })
-                            popup.setPosition(target.getCoordinates()[0]);
-                            (this.map as Map).addPopup(popup);
-                            // (this.map as Map)._map?.addOverlay(popup._popup as OlPopupInstanceType)
-                        }
-                    }
-                    let value: number | undefined = undefined
-                    if (target instanceof OlGeometry.LineString) {
-                        value = this.map?.getLength(new LineString(new OlFeature({
-                            geometry: target
-                        })))
-                    } else if (target instanceof OlGeometry.Polygon) {
-                        value = this.map?.getArea(new Polygon(new OlFeature({
-                            geometry: target
-                        })))
-                    }
-                    if (isDefined(value) && isNumber(value)) {
-                        this.result.value = value
-                    }
-                    // 更新鼠标Popup的信息
-                    if (isDefined(value) && isNumber(value)) {
-                        if (target instanceof OlGeometry.LineString) {
-                            let newElement = (newLength >= 2) ? createMeasureDistanceElement(transformDistance(value as number), value === 0 ? '' : '单击继续，双击结束测量') : createMeasureTooltipElement('单击地图开始测量')
-                            tooltipPopup.setElement(newElement as HTMLElement)
-                        }
-                    }
-                    if (target instanceof OlGeometry.LineString) {
-                        if (newLength > lastLength) {
-                            let index = newLength - 1 - 1
-                            let marker = createMeasureMarkerElement(transformDistance(value as number), index)
-                            let popup = createMeasureMarkerPopup({
-                                id: getOMapMeasureMarkerId(index),
-                                element: marker,
-                                offset: new Pixel(0, -10)
-                            })
-                            popup.setPosition(target.getCoordinates()[target.getCoordinates().length - 1]);
-                            (this.map as Map).addPopup(popup)
-                            // (this.map as Map)._map?.addOverlay(popup._popup as OlPopupInstanceType)
-                            lastLength = newLength
-                        }
-                    } else if (target instanceof OlGeometry.Polygon) {
-                        if (newLength >= 4) {
-                            (this.map as Map).addPopup(measurePopup.getPopup() as Popup);
-                            measurePopup.setElement(createMeasureAreaElement(transformArea(value as number), '单击继续，双击结束测量'))
-                            measurePopup.updatePosition(target.getInteriorPoint().getCoordinates());
-                            tooltipPopup.setElement(undefined)
-                            tooltipPopup.updatePosition(undefined);
-                        }
-                    }
-                } else {
-                    warn_('target is undefined')
-                }
+    protected onMeasureStart(feature: OlFeatureInstanceType) {
+        this.clearMeasurement()
+        this.drawFeature = feature
+        this.bindGeometryChange(feature)
+    }
+
+    protected onMeasureEnd(feature: OlFeatureInstanceType) {
+        this.drawFeature = feature
+        this.unbindPointerMove()
+        this.unbindGeometryChange()
+        this.hideTooltip()
+        this.renderFinalResult()
+        this.completeAfterDrawEnd()
+    }
+
+    protected completeAfterDrawEnd() {
+        setTimeout(() => {
+            if (this.getActive()) {
+                this.setActive(false)
+            }
+            this.events.emit(MeasureEventType.measureEnd, {
+                target: this,
+                type: MeasureEventType.measureEnd
             })
+        }, 0)
+    }
+
+    protected bindPointerMove() {
+        if (!this.map || this.pointerMoveListener) {
+            return;
+        }
+        this.pointerMoveListener = this.map.getMap().on('pointermove', event => {
+            this.tooltipPopup.setPosition(event.coordinate)
+        })
+    }
+
+    protected unbindPointerMove() {
+        if (this.pointerMoveListener) {
+            OlObservable.unByKey(this.pointerMoveListener)
+            this.pointerMoveListener = null
         }
     }
 
-    /**
-     * 测量结束
-     */
-    protected onMeasureEnd() {
-        this.setActive(false)
-        if (isDefined(pointMoveListener)) {
-            OlObservable.unByKey(pointMoveListener)
-            pointMoveListener = null
+    protected bindGeometryChange(feature: OlFeatureInstanceType) {
+        const geometry = feature.getGeometry()
+        if (!geometry) {
+            return;
         }
-        if (isDefined(measureListener)) {
-            OlObservable.unByKey(measureListener);
-            OlObservable.unByKey(measureListener)
-            measureListener = null;
-        }
-        if (this.mode === MeasureMode.Distance) {
+        this.geometryListener = geometry.on('change', event => {
+            this.updateByGeometry(event.target as OlGeometry.Geometry)
+        })
+    }
 
+    protected unbindGeometryChange() {
+        if (this.geometryListener) {
+            OlObservable.unByKey(this.geometryListener)
+            this.geometryListener = null
         }
-        if (this.mode === MeasureMode.Area) {
-            const element = createMeasureAreaElement(transformArea(this.result.value as number))
+    }
+
+    protected updateByGeometry(geometry: OlGeometry.Geometry) {
+        if (geometry instanceof OlGeometry.LineString) {
+            this.updateDistance(geometry)
+            return;
+        }
+        if (geometry instanceof OlGeometry.Polygon) {
+            this.updateArea(geometry)
+        }
+    }
+
+    protected updateDistance(geometry: OlGeometry.LineString) {
+        const value = this.map?.getLength(new LineString(new OlFeature({ geometry }))) || 0
+        this.result.value = value
+
+        const pointCount = getGeometryPointCount(geometry)
+        const text = pointCount >= 2
+            ? formatDistance(value)
+            : '单击地图开始测量'
+        const helper = pointCount >= 2 ? '单击继续，双击结束测量' : undefined
+        this.tooltipPopup.setElement(createResultElement('总长', text, helper))
+        this.renderDistanceMarkers(geometry)
+    }
+
+    protected updateArea(geometry: OlGeometry.Polygon) {
+        const value = this.map?.getArea(new Polygon(new OlFeature({ geometry }))) || 0
+        this.result.value = value
+
+        if (getGeometryPointCount(geometry) < 4) {
+            this.showTooltip('单击继续绘制')
+            this.setPopupPosition(this.resultPopup)
+            return;
+        }
+
+        this.setPopupPosition(this.tooltipPopup)
+        this.setPopupElement(this.tooltipPopup)
+        this.resultPopup.setElement(createResultElement('面积', formatArea(value), '单击继续，双击结束测量'))
+        this.resultPopup.setPosition(geometry.getInteriorPoint().getCoordinates())
+    }
+
+    protected renderDistanceMarkers(geometry: OlGeometry.LineString) {
+        this.clearMarkerPopups()
+        const coordinates = geometry.getCoordinates()
+        coordinates.forEach((coordinate, index) => {
+            const text = index === 0
+                ? '起点'
+                : formatDistance(this.getDistanceToIndex(coordinates, index))
+            const popup = this.createPopup(
+                `omap-measure-marker-${index}`,
+                createMarkerElement(text, index === 0 ? undefined : () => this.removeDistancePoint(index))
+            )
+            popup.setPosition(coordinate)
+            this.addPopup(popup)
+            this.markerPopups.push(popup)
+        })
+    }
+
+    protected renderFinalResult() {
+        if (!this.drawFeature) {
+            return;
+        }
+        const geometry = this.drawFeature.getGeometry()
+        if (geometry instanceof OlGeometry.Polygon) {
+            const element = createResultElement('面积', formatArea(this.result.value))
             element.style.display = 'flex'
             element.style.alignItems = 'center'
-            element.appendChild(createMeasureAreaCloseElement(() => {
-                measurePopup.updatePosition(undefined)
-                measurePopup.setElement(undefined)
-                this.layer?.clear()
-            }))
-            measurePopup.setElement(element)
+            element.appendChild(createCloseElement(() => this.clearMeasurement()))
+            this.resultPopup.setElement(element)
+            this.resultPopup.setPosition(geometry.getInteriorPoint().getCoordinates())
+            return;
         }
-        tooltipPopup.updatePosition(undefined)
-        tooltipPopup.setElement(undefined)
-        this.events.emit(MeasureEventType.measureEnd, {
-            target: this,
-            type: MeasureEventType.measureEnd
-        });
+        if (geometry instanceof OlGeometry.LineString) {
+            this.renderDistanceMarkers(geometry)
+        }
     }
 
-    /**
-     * 取消绘制，并结束当前未完成的绘制
-     */
+    protected removeDistancePoint(index: number) {
+        const geometry = this.drawFeature?.getGeometry()
+        if (!(geometry instanceof OlGeometry.LineString)) {
+            return;
+        }
+        const coordinates = geometry.getCoordinates()
+        coordinates.splice(index, 1)
+        if (coordinates.length < 2) {
+            this.unbindGeometryChange()
+            this.clearMeasurement()
+            geometry.setCoordinates(coordinates)
+        } else {
+            geometry.setCoordinates(coordinates)
+            this.updateDistance(geometry)
+        }
+    }
+
+    protected getDistanceToIndex(coordinates: number[][], index: number): number {
+        if (!this.map) {
+            return 0;
+        }
+        return this.map.getLength(new LineString(coordinates.slice(0, index + 1)))
+    }
+
+    protected showTooltip(text: string) {
+        this.tooltipPopup.setElement(createTooltipElement(text))
+    }
+
+    protected hideTooltip() {
+        this.setPopupPosition(this.tooltipPopup)
+        this.setPopupElement(this.tooltipPopup)
+    }
+
+    protected createPopup(id: string, element: HTMLElement) {
+        return new Popup({
+            id,
+            element,
+            offset: new Pixel(0, -10)
+        })
+    }
+
+    protected addPopup(popup: Popup) {
+        if (this.map) {
+            this.map.addPopup(popup)
+        }
+    }
+
+    protected removePopup(popup: Popup) {
+        if (this.map) {
+            this.map.removePopup(popup)
+            this.map.getMap().removeOverlay(popup.getPopup())
+        }
+    }
+
+    protected clearMarkerPopups() {
+        this.markerPopups.forEach(popup => this.removePopup(popup))
+        this.markerPopups = []
+    }
+
+    protected clearMeasurement(clearLayer = true) {
+        this.clearMarkerPopups()
+        this.setPopupPosition(this.resultPopup)
+        this.setPopupElement(this.resultPopup)
+        if (clearLayer) {
+            this.layer?.clear()
+            this.drawFeature = null
+            this.result.value = 0
+        }
+    }
+
+    protected setPopupPosition(popup: Popup, coordinate?: number[]) {
+        popup.getPopup().setPosition(coordinate);
+    }
+
+    protected setPopupElement(popup: Popup, element?: HTMLElement) {
+        popup.getPopup().setElement(element);
+    }
+
     cancel() {
         this._interaction.abortDrawing()
     }
 
-    /**
-     * 删除最后一个点
-     */
     revoke() {
         this._interaction.removeLastPoint()
     }
 
-    /**
-     * 结束当前未完成的绘制
-     */
     finish() {
         this._interaction.finishDrawing()
     }
 
-    setMap(map: Map) {
-        super.setMap(map)
-        if(!isDefined<Map>(map)) {
+    setMap(map: Map | null) {
+        if (!map) {
+            this.unbindPointerMove()
+            this.unbindGeometryChange()
+            this.clearMeasurement(false)
+            this.removePopup(this.tooltipPopup)
+            this.removePopup(this.resultPopup)
+            super.setMap(null)
             return;
         }
-        this.initMeasureEvent();
-        (this.map as Map).addPopup(tooltipPopup.getPopup() as Popup);
+        super.setMap(map)
+        this.initMeasureEvent()
+        this.addPopup(this.tooltipPopup)
+        this.addPopup(this.resultPopup)
     }
 
     on(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType {
-        if (!isDefined(type) || !isDefined(callback)) {
-            error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
-        }
-        if (!isOMapInteractionMeasureEventType(type)) {
-            error_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
-        };
-        if (!isFunction(callback)) {
-            error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
-        }
-        // measure事件是由自己触发的，无需再绑定到this._interaction的原生事件上
-        const id = this.events.on(type, callback);
-        return id
+        this.validateEvent(type, callback, 'on')
+        return this.events.on(type, callback)
     }
 
     once(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
-        if (!isDefined(type) || !isDefined(callback)) {
-            error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
-        }
-        if (!isOMapInteractionMeasureEventType(type)) {
-            error_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
-        };
-        if (!isFunction(callback)) {
-            error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
-        }
-        // measure事件是由自己触发的，无需再绑定到this._interaction的原生事件上
-        const id = this.events.once(type, callback);
-        return id
+        this.validateEvent(type, callback, 'once')
+        return this.events.once(type, callback)
     }
 
     un(id: EventIdType) {
         if (!isDefined(id)) {
-            error_(createMessage('un', commonMessage.paramsNotDefined('id')));
+            error_(createMessage('un', commonMessage.paramsNotDefined('id')))
         }
         this.events.remove(id)
     }
 
-    protected destroy(destroyLayer: boolean = true) {
-        tooltipPopup.updatePosition(undefined)
-        measurePopup.updatePosition(undefined)
-        handleDestroy()
-        if (destroyLayer && (isDefined(this.getLayer()))) {
-            this._removeInteractionLayer();
+    protected validateEvent(type: OMapInteractionMeasureEventType, callback: () => void, methodName: string) {
+        if (!isDefined(type) || !isDefined(callback)) {
+            error_(createMessage(methodName, commonMessage.paramsNotDefined('type or callback')))
         }
-        super.destroy()
+        if (!isOMapInteractionMeasureEventType(type)) {
+            error_(createMessage(methodName, commonMessage.paramsInvaildEnum(type)))
+        }
+        if (!isFunction(callback)) {
+            error_(createMessage(methodName, commonMessage.paramsInvaildFormat('callback', 'function')))
+        }
+    }
+
+    protected destroy() {
+        if (this.map) {
+            super.destroy()
+            return;
+        }
+        this.unbindPointerMove()
+        this.unbindGeometryChange()
+        this.clearMeasurement(false)
     }
 
 }

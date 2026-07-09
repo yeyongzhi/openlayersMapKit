@@ -7,12 +7,13 @@ import {
     type OlVectorSourceInstanceType,
     type OMapVectorLayerType,
 } from './type'
-import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
+import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
 import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
-import { OlLayer, OlSource, OlUtil, OlFeature, OlGeometry } from '../../../source/index'
+import { OlLayer, OlUtil, OlFeature, OlGeometry } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
+import VectorSource from '../../source/VectorSource/index'
 import Draw from '../../interaction/Draw/index'
 import { DrawEventType } from '../../interaction/Draw/type'
 import { handleInteractionDrawEvent } from '../../interaction/Draw/handle'
@@ -39,6 +40,8 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
 
+    protected vectorSource!: VectorSource;
+
     features: BaseFeature<OlGeometry.Geometry>[] = []
 
     style: OMapStyleLike | undefined;
@@ -46,18 +49,18 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
     constructor(options: OMapVectorLayerOptionsFinalType = {}) {
         super('Vector', options)
         let _sourceOptions: OMapVectorSourceOptionsFinalType = isDefined(options.source) ? options.source : {}
-        let _sourceParams = {
-            ..._sourceOptions,
-            features: _sourceOptions.features ? _sourceOptions.features.map(f => {
-                return f.getFeature() as OlFeatureInstanceType
-            }) : []
-        }
+        this.vectorSource = new VectorSource(_sourceOptions)
+        this.features = _sourceOptions.features ? [..._sourceOptions.features] : []
         this._layer = new OlLayer.Vector({
-            source: new OlSource.Vector(_sourceParams)
+            source: this.vectorSource.getSource()
         })
         this.initStyle(options.style)
         this._initLayerEvent()
         this.initVectorLyaerEvent()
+    }
+
+    getVectorSource(): VectorSource {
+        return this.vectorSource;
     }
 
     /**
@@ -66,9 +69,6 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
     protected initVectorLyaerEvent() {
         (this._layer.getSource() as OlVectorSourceInstanceType).on("addfeature", (e) => {
             const { feature } = e
-            console.log("添加feature事件")
-            console.log(feature)
-            console.log(this.target)
             if(isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
                 if(this.target instanceof Draw || this.target instanceof Measure) {
@@ -76,7 +76,11 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
                     // 因此 createBaseFeatureByOlFeature 里面不能用fearure.clone()
                     let basicFeature = createBaseFeatureByOlFeature(feature as OlFeature<OlGeometry.Geometry>)
                     if(basicFeature) {
-                        this.features.push(basicFeature) // 这里是把 feature 同步一份到 this.features 里面
+                        const uid = OlUtil.getUid(basicFeature.getFeature())
+                        const index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+                        if (index === -1) {
+                            this.features.push(basicFeature) // 这里是把 feature 同步一份到 this.features 里面
+                        }
                     } else {
                         warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
                     }
@@ -188,8 +192,14 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             return;
         }
         if (this._layer.getSource()) {
-            (this._layer.getSource() as OlVectorSourceInstanceType).addFeature(feature.getFeature() as OlFeatureInstanceType)
-            this.features.push(feature)
+            const uid = OlUtil.getUid(feature.getFeature())
+            const index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
+            if (!this.vectorSource.hasFeature(feature)) {
+                this.vectorSource.addFeature(feature)
+            }
+            if (index === -1) {
+                this.features.push(feature)
+            }
         }
     }
 
@@ -212,8 +222,10 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
         }
         if (this._layer.getSource()) {
             let index = this.features.indexOf(feature);
-            (this._layer.getSource() as OlVectorSourceInstanceType).removeFeature(feature.getFeature() as OlFeatureInstanceType)
-            this.features.splice(index, 1)
+            this.vectorSource.removeFeature(feature)
+            if (index !== -1) {
+                this.features.splice(index, 1)
+            }
         }
     }
 
@@ -233,7 +245,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
         if (!this._layer.getSource()) {
             return;
         }
-        (this._layer.getSource() as OlVectorSourceInstanceType).clear()
+        this.vectorSource.clear()
         this.features = []
     }
 
@@ -312,8 +324,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
     }
 
     getSourceExtent(): Extent {
-        const extent = (this._layer.getSource() as OlVectorSourceInstanceType).getExtent()
-        return new Extent(extent)
+        return this.vectorSource.getExtent()
     }
 
     // 样式管理

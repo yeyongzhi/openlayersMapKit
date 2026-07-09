@@ -1,14 +1,14 @@
 import { OlSource } from '../../../source/index'
 import type { AttributionLike, Options as OlSourceOptions, State as OlSourceState } from 'ol/source/Source'
-import type { ProjectionLike } from 'ol/proj'
-import Projection from '../../core/Projection/index'
+import type Projection from '../../core/Projection/index'
 
 export type OMapSourceType = OlSource.Source
 
 export type OlSourceParamsType = OlSourceOptions
 export type OMapSourceAttributionLike = AttributionLike
 export type OMapSourceState = OlSourceState
-export type OMapSourceProjectionLike = Projection | ProjectionLike
+export type OMapSourceProjectionType = Projection
+export type OMapSourceProjectionLike = OMapSourceProjectionType
 
 /**
  * 以下是Source基类的最终属性（一共6个）（改造了attributions、projection）
@@ -20,7 +20,7 @@ export type OMapSourceProjectionLike = Projection | ProjectionLike
  * interpolate：是否插值
  */
 export type OMapSourceParamsType = Omit<OlSourceParamsType, 'projection'> & {
-    projection?: OMapSourceProjectionLike;
+    projection?: OMapSourceProjectionType;
 }
 
 /**
@@ -29,19 +29,11 @@ export type OMapSourceParamsType = Omit<OlSourceParamsType, 'projection'> & {
 export type OMapSourceParamsCommonKey = keyof OMapSourceParamsType
 
 export function handleGetSourceParams(params: OMapSourceParamsType = {}): OlSourceParamsType {
-    const projection = params.projection instanceof Projection
-        ? params.projection.getProjection()
-        : params.projection
+    const projection = params.projection?.getProjection()
     const _params = Object.assign({}, params, {
         projection
     })
     return _params
 }
 
-export const DEFAULT_SOURCE_PARAMS: OMapSourceParamsType = {
-    attributions: undefined,
-    attributionsCollapsible: true,
-    state: "ready",
-    wrapX: false,
-    interpolate: false
-}
+export const DEFAULT_SOURCE_PARAMS: OMapSourceParamsType = {}

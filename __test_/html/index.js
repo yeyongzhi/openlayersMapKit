@@ -381,6 +381,9 @@ function initMeasureInteraction() {
             if (!measureTool) {
                 measureTool = new OMap.Measure(measureMode)
                 map.addInteraction(measureTool)
+                measureTool.on("measure:end", () => {
+                    document.getElementById('Measure').checked = false
+                })
             } else {
                 measureTool.setActive(true)
             }
@@ -1069,7 +1072,7 @@ function init() {
 
     console.log(OMap.ProjUtil.toLonLat([3320672.1131, 582130.269]))
 
-    initImageLayer()
+    // initImageLayer()
 
     setTimeout(() => {
         // console.log(map.getAllLayers())

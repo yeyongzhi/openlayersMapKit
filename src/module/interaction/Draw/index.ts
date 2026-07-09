@@ -1,13 +1,11 @@
-import { isDefined, defaultValue, isNumber, isString, isFunction } from '../../../utils/index';
+import { isDefined, defaultValue, isFunction } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import { commonMessage } from '../../../utils/message'
 import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlEvent, OlFeature, OlGeometry } from '../../../source/index'
+import { OlInteraction, OlEvent, OlGeometry } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
-import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
-import type { OlFeatureType, OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
 import { type EventIdType } from '../../util/Event/type'
 import {
     type OMapDrawModeType,
@@ -47,24 +45,25 @@ export default class Draw extends Interaction<OMapDrawType> {
             error_(createMessage('constructor', commonMessage.paramsInvaildFormat('mode')));
         }
         let _params: OMapDrawParamsType = defaultValue(params, {})
-        super("Draw", { id: params?.id })
+        const { id, active, layer, style, ...drawOptions } = _params
+        super("Draw", { id })
         let draw_source: OMapVectorSourceType | null = null
-        if (isDefined<VectorLayer>(_params.layer)) {
-            if (_params.layer instanceof VectorLayer) {
-                this.layer = _params.layer
-                draw_source = _params.layer.getSource() as OMapVectorSourceType
+        if (isDefined<VectorLayer>(layer)) {
+            if (layer instanceof VectorLayer) {
+                this.layer = layer
+                draw_source = layer.getSource() as OMapVectorSourceType
             } else {
                 warn_(createMessage('init', commonMessage.paramsInvaildFormat('layer', 'VectorLayer')));
             }
         }
         if (!isDefined(draw_source)) {
             this.layer = new VectorLayer({
-                style: DEFAULT_STYLE
+                style: style || DEFAULT_STYLE
             })
             draw_source = (this.layer.getSource() as OlVectorSourceInstanceType)
         }
         let drawParams = Object.assign({}, OMAP_DRAW_DEFAULT_PARAMS, {
-            clickTolerance: _params.clickTolerance,
+            ...drawOptions,
             source: draw_source,
             features: undefined,
             style: undefined
@@ -75,23 +74,6 @@ export default class Draw extends Interaction<OMapDrawType> {
         })
         // 注册事件
         this.initInteractionEvent()
-    }
-
-    protected initDrawEvent() {
-        this._interaction.on("drawend", (e: any) => {
-            const feature: OlFeatureInstanceType = e.feature
-            if (isDefined(feature)) {
-                // 根据原生的feature生成内部的feature
-                let basicFeature = createBaseFeatureByOlFeature(feature as OlFeature<OlGeometry.Geometry>)
-                // console.log(basicFeature)
-                // console.log((this.layer as VectorLayer)._layer?.getSource()?.getFeatures())
-                if (basicFeature) {
-                    (this.layer as VectorLayer).addFeature(basicFeature)
-                } else {
-                    warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
-                }
-            }
-        })
     }
 
     /**
@@ -149,15 +131,7 @@ export default class Draw extends Interaction<OMapDrawType> {
     }
 
     on(type: OMapInteractionDrawEventType, callback: () => void): EventIdType {
-        if (!isDefined(type) || !isDefined(callback)) {
-            error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
-        }
-        if (!isOMapInteractionDrawEventType(type)) {
-            error_(createMessage('on', commonMessage.paramsInvaildEnum(type)));
-        };
-        if (!isFunction(callback)) {
-            error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
-        }
+        this.validateEvent(type, callback, 'on')
         const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
             if(type !== DrawEventType.drawEnd) {
                 this.events.emit(type, handleInteractionDrawEvent(this, type, e))
@@ -168,15 +142,7 @@ export default class Draw extends Interaction<OMapDrawType> {
     }
 
     once(type: OMapInteractionDrawEventType, callback: () => void): EventIdType {
-        if (!isDefined(type) || !isDefined(callback)) {
-            error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
-        }
-        if (!isOMapInteractionDrawEventType(type)) {
-            error_(createMessage('once', commonMessage.paramsInvaildEnum(type)));
-        };
-        if (!isFunction(callback)) {
-            error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
-        }
+        this.validateEvent(type, callback, 'once')
         const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
             if(type !== DrawEventType.drawEnd) {
                 this.events.emit(type, handleInteractionDrawEvent(this, type, e))
@@ -184,6 +150,18 @@ export default class Draw extends Interaction<OMapDrawType> {
         })
         const id = this.events.once(type, callback, unlisten)
         return id
+    }
+
+    protected validateEvent(type: OMapInteractionDrawEventType, callback: () => void, methodName: string) {
+        if (!isDefined(type) || !isDefined(callback)) {
+            error_(createMessage(methodName, commonMessage.paramsNotDefined('type or callback')));
+        }
+        if (!isOMapInteractionDrawEventType(type)) {
+            error_(createMessage(methodName, commonMessage.paramsInvaildEnum(type)));
+        }
+        if (!isFunction(callback)) {
+            error_(createMessage(methodName, commonMessage.paramsInvaildFormat('callback', 'function')));
+        }
     }
 
     un(id: EventIdType) {

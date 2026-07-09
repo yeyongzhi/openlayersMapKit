@@ -1,8 +1,7 @@
-import type { ManualOmit } from '../../../utils/type'
 import { OlSource, OlLayer, OlFeature, OlGeometry } from '../../../source/index'
-import { Map, Style } from '../../../index'
+import { Map } from '../../../index'
 import type { OMapStyleLike } from '../../basic/Style/type'
-import BaseFeature from '../../core/Feature/BasicFeature/index'
+import type { OMapVectorSourceParamsType } from '../../source/VectorSource/type'
 import type { BaseLayerOptionsType } from '../BaseLayer/type'
 
 export type BaseVectorLayerOptionsType = {
@@ -23,11 +22,7 @@ export const OlBaseVectorLayerDefaultOptions: BaseVectorLayerOptionsType = {
 }
 export type OMapVectorLayerOptionsFinalType = BaseLayerOptionsType & BaseVectorLayerOptionsType
 
-type OlVectorSourceOptionsType = ConstructorParameters<typeof OlSource.Vector<OlFeature<OlGeometry.Geometry>>>[0]
-type CustOlVectorSourceOptionsType = ManualOmit<OlVectorSourceOptionsType, 'features'>; // 去掉 projection类型
-export type OMapVectorSourceOptionsFinalType = CustOlVectorSourceOptionsType & {
-    features?: BaseFeature<OlGeometry.Geometry>[];
-}
+export type OMapVectorSourceOptionsFinalType = OMapVectorSourceParamsType
 
 export type OMapVectorLayerType = OlLayer.Vector
 export type OlVectorLayerInstanceType = InstanceType<typeof OlLayer.Vector>

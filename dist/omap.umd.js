@@ -3041,15 +3041,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this._projection;
     }
   }
-  const layerState = /* @__PURE__ */ new WeakMap();
   const DEFAULT_LAYER_OPACITY = 1;
   const DEFAULT_LAYER_VISIBLE = true;
   const DEFAULT_LAYER_MIN_ZOOM = 0;
   const DEFAULT_LAYER_MAX_ZOOM = 22;
   const DEFAULT_LAYER_MIN_RESOLUTION = 0;
   const DEFAULT_LAYER_MAX_RESOLUTION = Infinity;
-  const DEFAULT_LAYER_ZINDEX = 1;
-  const DEFAULT_LAYER_PROPERTIES = {};
   class BaseLayer {
     constructor(type, options) {
       /**
@@ -3083,20 +3080,24 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       // 图层透明度，默认1
       __publicField(this, "visible", DEFAULT_LAYER_VISIBLE);
       // 图层是否可见，默认true
-      __publicField(this, "extent", null);
+      __publicField(this, "extent");
       // 图层范围，默认全局
       __publicField(this, "minZoom", DEFAULT_LAYER_MIN_ZOOM);
       // 最小缩放级别，默认0
       __publicField(this, "maxZoom", DEFAULT_LAYER_MAX_ZOOM);
       // 最大缩放级别，默认22
       __publicField(this, "minResolution", DEFAULT_LAYER_MIN_RESOLUTION);
-      // 最小分辨率，默认0r
+      // 最小分辨率，默认0
       __publicField(this, "maxResolution", DEFAULT_LAYER_MAX_RESOLUTION);
       // 最大分辨率，默认Infinity
-      __publicField(this, "zIndex", DEFAULT_LAYER_ZINDEX);
-      // 图层层级，默认0
-      __publicField(this, "properties", DEFAULT_LAYER_PROPERTIES);
+      __publicField(this, "zIndex");
+      // 图层层级
+      __publicField(this, "properties", {});
       // 图层属性，用于存储图层相关信息
+      /**
+       * 图层所属的图层组id，由 LayerGroup 管理
+       */
+      __publicField(this, "groupId", null);
       /**
        * 图层所属的地图对象
        */
@@ -3114,17 +3115,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this.className = defaultValue(_options.className, "");
       this.opacity = defaultValue(_options.opacity, DEFAULT_LAYER_OPACITY);
       this.visible = defaultValue(_options.visible, DEFAULT_LAYER_VISIBLE);
-      this.extent = defaultValue(_options.extent, null);
+      this.extent = defaultValue(_options.extent, void 0);
       this.minZoom = defaultValue(_options.minZoom, DEFAULT_LAYER_MIN_ZOOM);
       this.maxZoom = defaultValue(_options.maxZoom, DEFAULT_LAYER_MAX_ZOOM);
       this.minResolution = defaultValue(_options.minResolution, DEFAULT_LAYER_MIN_RESOLUTION);
       this.maxResolution = defaultValue(_options.maxResolution, DEFAULT_LAYER_MAX_RESOLUTION);
-      this.zIndex = defaultValue(_options.zIndex, DEFAULT_LAYER_ZINDEX);
-      this.properties = defaultValue(_options.properties, DEFAULT_LAYER_PROPERTIES);
+      this.zIndex = defaultValue(_options.zIndex, void 0);
+      this.properties = defaultValue(_options.properties, {});
       this.map = defaultValue(_options.map, null);
-      layerState.set(this, {
-        groupId: null
-      });
+      this.groupId = null;
     }
     _initLayerEvent() {
       this._layer.on([
@@ -3151,17 +3150,57 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 获取图层id
-     * @returns {BaseLayerIdType | null} 图层id
+     * @returns {BaseLayerIdType} 图层id
      */
     getId() {
       return this.id;
     }
     /**
      * 设置图层id
-     * @param {BaseLayerIdType | null} id 图层id
+     * @param {BaseLayerIdType} id 图层id
      */
     setId(id) {
       this.id = id;
+    }
+    /**
+     * 获取图层名称
+     * @returns {string} 图层名称
+     */
+    getName() {
+      return this.name;
+    }
+    /**
+     * 设置图层名称
+     * @param {string} name 图层名称
+     */
+    setName(name) {
+      if (!isDefined(name)) {
+        error_(this._createMessage("setName", commonMessage.paramsNotDefined("name")));
+      }
+      if (!isString(name)) {
+        error_(this._createMessage("setName", commonMessage.paramsInvaildFormat("name", "string类型")));
+      }
+      this.name = name;
+    }
+    /**
+     * 获取图层样式类名
+     * @returns {string} 样式类名
+     */
+    getClassName() {
+      return this.className;
+    }
+    /**
+     * 设置图层样式类名
+     * @param {string} className 样式类名
+     */
+    setClassName(className) {
+      if (!isDefined(className)) {
+        error_(this._createMessage("setClassName", commonMessage.paramsNotDefined("className")));
+      }
+      if (!isString(className)) {
+        error_(this._createMessage("setClassName", commonMessage.paramsInvaildFormat("className", "string类型")));
+      }
+      this.className = className;
     }
     /**
      * 获取图层实例对象
@@ -3172,6 +3211,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     /**
      * 获取图层数据源
+     * @returns 图层数据源实例
      */
     getSource() {
       return this._layer.getSource();
@@ -3325,13 +3365,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     getTarget() {
       return this.target;
-    }
-    get groupId() {
-      var _a;
-      return ((_a = layerState.get(this)) == null ? void 0 : _a.groupId) || null;
-    }
-    getGroupId() {
-      return this.groupId;
     }
   }
   const PACKAGE_NAME$n = "Interaction";
@@ -3549,6 +3582,369 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function isVaildControl(value) {
     return value instanceof Control;
   }
+  const PACKAGE_NAME$m = "Source";
+  const createMessage$m = getPackageMessage(PACKAGE_NAME$m);
+  class Source {
+    constructor(source) {
+      __publicField(this, "_source");
+      if (!isDefined(source)) {
+        error_(createMessage$m("constructor", "source不能为空"));
+      }
+      this._source = source;
+    }
+    /**
+     * 获取原生 OpenLayers Source 实例
+     */
+    getSource() {
+      return this._source;
+    }
+    /**
+     * 子类初始化具体 Source 时使用
+     */
+    setSource(source) {
+      if (!isDefined(source)) {
+        error_(createMessage$m("setSource", "source不能为空"));
+      }
+      this._source = source;
+    }
+    changed() {
+      this._source.changed();
+    }
+    dispatchEvent(event) {
+      return this._source.dispatchEvent(event);
+    }
+    get(key) {
+      if (!isString(key)) {
+        warn_(createMessage$m("get", "key必须是字符串"));
+        return void 0;
+      }
+      return this._source.get(key);
+    }
+    set(key, value, silent) {
+      if (!isString(key)) {
+        warn_(createMessage$m("set", "key必须是字符串"));
+        return;
+      }
+      this._source.set(key, value, silent);
+    }
+    unset(key, silent) {
+      if (!isString(key)) {
+        warn_(createMessage$m("unset", "key必须是字符串"));
+        return;
+      }
+      this._source.unset(key, silent);
+    }
+    getAttributions() {
+      return this._source.getAttributions();
+    }
+    getAttributionsCollapsible() {
+      return this._source.getAttributionsCollapsible();
+    }
+    getKeys() {
+      return this._source.getKeys();
+    }
+    getProjection() {
+      const projection = this._source.getProjection();
+      return projection ? new Projection(projection.getCode()) : void 0;
+    }
+    getRevision() {
+      return this._source.getRevision();
+    }
+    getState() {
+      return this._source.getState();
+    }
+    getWrapX() {
+      return this._source.getWrapX();
+    }
+    getInterpolate() {
+      return this._source.getInterpolate();
+    }
+    getResolutions(projection) {
+      return this._source.getResolutions(projection == null ? void 0 : projection.getProjection());
+    }
+    getView() {
+      return this._source.getView();
+    }
+    getProperties() {
+      return this._source.getProperties();
+    }
+    refresh() {
+      this._source.refresh();
+    }
+    setAttributions(attributions) {
+      this._source.setAttributions(attributions);
+    }
+    setState(state) {
+      this._source.setState(state);
+    }
+    setProperties(properties, silent) {
+      this._source.setProperties(properties, silent);
+    }
+    // on(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
+    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+    //         error_(createMessage('on', 'type或listener参数格式有误'));
+    //     }
+    //     return this._source.on(type, listener);
+    // }
+    // once(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
+    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+    //         error_(createMessage('once', 'type或listener参数格式有误'));
+    //     }
+    //     return this._source.once(type, listener);
+    // }
+    // un(type: string | string[], listener: ListenerFunction) {
+    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+    //         error_(createMessage('un', 'type或listener参数格式有误'));
+    //     }
+    //     this._source.un(type, listener);
+    // }
+    // unByKey(key: EventsKey | EventsKey[]) {
+    //     if (Array.isArray(key)) {
+    //         key.forEach(item => OlEvent.unlistenByKey(item))
+    //     } else {
+    //         OlEvent.unlistenByKey(key)
+    //     }
+    // }
+  }
+  const VECTOR_SOURCE_EVENT_TYPES = {
+    addFeature: "addfeature",
+    changeFeature: "changefeature",
+    clear: "clear",
+    removeFeature: "removefeature",
+    featuresLoadStart: "featuresloadstart",
+    featuresLoadEnd: "featuresloadend",
+    featuresLoadError: "featuresloaderror"
+  };
+  const DEFAULT_VECTOR_SOURCE_PARAMS = {
+    features: [],
+    overlaps: true,
+    useSpatialIndex: true,
+    wrapX: true
+  };
+  function handleGetVectorSourceParams(params = {}) {
+    var _a;
+    return {
+      ...params,
+      features: (_a = params.features) == null ? void 0 : _a.map((feature) => feature.getFeature())
+    };
+  }
+  const PACKAGE_NAME$l = "VectorSource";
+  const createMessage$l = getPackageMessage(PACKAGE_NAME$l);
+  class VectorSource extends Source {
+    constructor(params = {}) {
+      var _a;
+      const sourceParams = handleGetVectorSourceParams({
+        ...DEFAULT_VECTOR_SOURCE_PARAMS,
+        ...params
+      });
+      super(new OlSource__namespace.Vector(sourceParams));
+      __publicField(this, "featureCache", /* @__PURE__ */ new Map());
+      (_a = params.features) == null ? void 0 : _a.forEach((feature) => this.cacheFeature(feature));
+    }
+    addFeature(feature) {
+      this.cacheFeature(feature);
+      this._source.addFeature(this.getOlFeature(feature, "addFeature"));
+    }
+    addFeatures(features) {
+      if (!Array.isArray(features)) {
+        error_(createMessage$l("addFeatures", "features必须是Feature数组"));
+      }
+      features.forEach((feature) => this.cacheFeature(feature));
+      this._source.addFeatures(features.map((feature) => this.getOlFeature(feature, "addFeatures")));
+    }
+    removeFeature(feature) {
+      this._source.removeFeature(this.getOlFeature(feature, "removeFeature"));
+      this.deleteFeatureCache(feature);
+    }
+    removeFeatures(features) {
+      if (!Array.isArray(features)) {
+        error_(createMessage$l("removeFeatures", "features必须是Feature数组"));
+      }
+      this._source.removeFeatures(features.map((feature) => this.getOlFeature(feature, "removeFeatures")));
+      features.forEach((feature) => this.deleteFeatureCache(feature));
+    }
+    clear(fast) {
+      this._source.clear(fast);
+      this.featureCache.clear();
+    }
+    forEachFeature(callback) {
+      this.validateCallback(callback, "forEachFeature");
+      return this._source.forEachFeature((feature) => {
+        const omapFeature = this.createOMapFeature(feature);
+        return omapFeature ? callback(omapFeature) : void 0;
+      });
+    }
+    forEachFeatureInExtent(extent, callback) {
+      this.validateCallback(callback, "forEachFeatureInExtent");
+      return this._source.forEachFeatureInExtent(
+        this.getOlExtent(extent, "forEachFeatureInExtent"),
+        (feature) => {
+          const omapFeature = this.createOMapFeature(feature);
+          return omapFeature ? callback(omapFeature) : void 0;
+        }
+      );
+    }
+    forEachFeatureIntersectingExtent(extent, callback) {
+      this.validateCallback(callback, "forEachFeatureIntersectingExtent");
+      return this._source.forEachFeatureIntersectingExtent(
+        this.getOlExtent(extent, "forEachFeatureIntersectingExtent"),
+        (feature) => {
+          const omapFeature = this.createOMapFeature(feature);
+          return omapFeature ? callback(omapFeature) : void 0;
+        }
+      );
+    }
+    getFeatures() {
+      return this._source.getFeatures().map((feature) => this.createOMapFeature(feature)).filter(isDefined);
+    }
+    getFeaturesCollection() {
+      return this._source.getFeaturesCollection();
+    }
+    getFeaturesAtCoordinate(coordinate2) {
+      return this._source.getFeaturesAtCoordinate(this.getOlCoordinate(coordinate2, "getFeaturesAtCoordinate")).map((feature) => this.createOMapFeature(feature)).filter(isDefined);
+    }
+    getFeaturesInExtent(extent, projection) {
+      return this._source.getFeaturesInExtent(
+        this.getOlExtent(extent, "getFeaturesInExtent"),
+        projection == null ? void 0 : projection.getProjection()
+      ).map((feature) => this.createOMapFeature(feature)).filter(isDefined);
+    }
+    getClosestFeatureToCoordinate(coordinate2, filter) {
+      const olFilter = filter ? (feature2) => {
+        const omapFeature = this.createOMapFeature(feature2);
+        return omapFeature ? filter(omapFeature) : false;
+      } : void 0;
+      const feature = this._source.getClosestFeatureToCoordinate(
+        this.getOlCoordinate(coordinate2, "getClosestFeatureToCoordinate"),
+        olFilter
+      );
+      return feature ? this.createOMapFeature(feature) : void 0;
+    }
+    getExtent(extent) {
+      const targetExtent = isDefined(extent) ? this.getOlExtent(extent, "getExtent") : void 0;
+      return new Extent(this._source.getExtent(targetExtent));
+    }
+    getFeatureById(id) {
+      if (!isString(id) && !isNumber(id)) {
+        error_(createMessage$l("getFeatureById", "id必须是字符串或数字"));
+      }
+      const feature = this._source.getFeatureById(id);
+      return feature ? this.createOMapFeature(feature) : void 0;
+    }
+    getFormat() {
+      return this._source.getFormat();
+    }
+    getOverlaps() {
+      return this._source.getOverlaps();
+    }
+    getUrl() {
+      return this._source.getUrl();
+    }
+    hasFeature(feature) {
+      return this._source.hasFeature(this.getOlFeature(feature, "hasFeature"));
+    }
+    isEmpty() {
+      return this._source.isEmpty();
+    }
+    loadFeatures(extent, resolution, projection) {
+      if (!isNumber(resolution) || !(projection instanceof Projection)) {
+        error_(createMessage$l("loadFeatures", "resolution或projection参数格式有误"));
+      }
+      this._source.loadFeatures(
+        this.getOlExtent(extent, "loadFeatures"),
+        resolution,
+        projection.getProjection()
+      );
+    }
+    removeLoadedExtent(extent) {
+      this._source.removeLoadedExtent(this.getOlExtent(extent, "removeLoadedExtent"));
+    }
+    setLoader(loader) {
+      if (!isFunction(loader)) {
+        error_(createMessage$l("setLoader", "loader必须是函数"));
+      }
+      this._source.setLoader(loader);
+    }
+    setUrl(url) {
+      if (!isString(url) && !isFunction(url)) {
+        error_(createMessage$l("setUrl", "url必须是字符串或函数"));
+      }
+      this._source.setUrl(url);
+    }
+    setOverlaps(overlaps) {
+      this._source.setOverlaps(overlaps);
+    }
+    onVector(type, listener) {
+      if (!Object.values(VECTOR_SOURCE_EVENT_TYPES).includes(type) || !isFunction(listener)) {
+        error_(createMessage$l("onVector", "type或listener参数格式有误"));
+      }
+      return this._source.on(type, listener);
+    }
+    onAddFeature(listener) {
+      return this.onVector(VECTOR_SOURCE_EVENT_TYPES.addFeature, listener);
+    }
+    onChangeFeature(listener) {
+      return this.onVector(VECTOR_SOURCE_EVENT_TYPES.changeFeature, listener);
+    }
+    onRemoveFeature(listener) {
+      return this.onVector(VECTOR_SOURCE_EVENT_TYPES.removeFeature, listener);
+    }
+    onClear(listener) {
+      return this.onVector(VECTOR_SOURCE_EVENT_TYPES.clear, listener);
+    }
+    onFeaturesLoadStart(listener) {
+      return this.onVector(VECTOR_SOURCE_EVENT_TYPES.featuresLoadStart, listener);
+    }
+    onFeaturesLoadEnd(listener) {
+      return this.onVector(VECTOR_SOURCE_EVENT_TYPES.featuresLoadEnd, listener);
+    }
+    onFeaturesLoadError(listener) {
+      return this.onVector(VECTOR_SOURCE_EVENT_TYPES.featuresLoadError, listener);
+    }
+    createOMapFeature(feature) {
+      const uid = OlUtil__namespace.getUid(feature);
+      const cachedFeature = this.featureCache.get(uid);
+      if (cachedFeature) {
+        return cachedFeature;
+      }
+      const omapFeature = createBaseFeatureByOlFeature(feature);
+      if (omapFeature) {
+        this.cacheFeature(omapFeature);
+      }
+      return omapFeature || void 0;
+    }
+    getOlFeature(feature, methodName) {
+      if (!isDefined(feature) || !isFunction(feature.getFeature)) {
+        error_(createMessage$l(methodName, "feature参数格式有误"));
+      }
+      return feature.getFeature();
+    }
+    getOlExtent(extent, methodName) {
+      const olExtent = handleGetExtentValue(extent);
+      if (!isDefined(olExtent)) {
+        error_(createMessage$l(methodName, "extent参数格式有误"));
+      }
+      return olExtent;
+    }
+    getOlCoordinate(coordinate2, methodName) {
+      const olCoordinate = handleGetLnglatValue(coordinate2);
+      if (!isDefined(olCoordinate)) {
+        error_(createMessage$l(methodName, "coordinate参数格式有误"));
+      }
+      return olCoordinate;
+    }
+    validateCallback(callback, methodName) {
+      if (!isFunction(callback)) {
+        error_(createMessage$l(methodName, "callback必须是函数"));
+      }
+    }
+    cacheFeature(feature) {
+      this.featureCache.set(OlUtil__namespace.getUid(this.getOlFeature(feature, "cacheFeature")), feature);
+    }
+    deleteFeatureCache(feature) {
+      this.featureCache.delete(OlUtil__namespace.getUid(this.getOlFeature(feature, "deleteFeatureCache")));
+    }
+  }
   const DrawMode = {
     /** 点 */
     Point: "Point",
@@ -3607,7 +4003,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     const { feature } = e;
     let targetFeature = null;
     if (isDefined(feature)) {
-      targetFeature = createBaseFeatureByOlFeature(feature);
+      targetFeature = layerFeatures.find((f) => {
+        return OlUtil__namespace.getUid(f.getFeature()) === OlUtil__namespace.getUid(feature);
+      }) || createBaseFeatureByOlFeature(feature);
     }
     return {
       type,
@@ -3633,588 +4031,436 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     measureStart: "measure:start",
     measureEnd: "measure:end"
   };
-  const OMapInteractionMeasureEventTypes = [...OMapInteractionCommonEventTypes, ...Object.values(MeasureEventType)];
+  const OMapInteractionMeasureEventTypes = [
+    ...OMapInteractionCommonEventTypes,
+    ...Object.values(MeasureEventType)
+  ];
   function isOMapInteractionMeasureEventType(value) {
     return isString(value) && OMapInteractionMeasureEventTypes.includes(value);
   }
-  const MeasureMarkerIdSuffix = "omap-measure-marker";
-  const MEASURE_MERKER_INDEX_NAME = "omap-measure-marker-index";
   function getOlDrawType(mode) {
-    let type = "Point";
-    let geometryFunction = null;
-    switch (mode) {
-      case MeasureMode.Distance:
-        type = DrawMode.LineString;
-        break;
-      case MeasureMode.Area:
-        type = DrawMode.Polygon;
-        break;
-    }
-    return { type, geometryFunction };
+    return {
+      type: mode === MeasureMode.Area ? DrawMode.Polygon : DrawMode.LineString
+    };
   }
-  let distanceElement = null;
-  let areaElement = null;
-  let distanceFeature = null;
-  let areaFeature = null;
-  let measureMap = null;
-  let measureMarkerElements = [];
-  let measureMarkerPopups = [];
-  function updateMeasureFeature(mode, feature, map) {
-    if (mode === MeasureMode.Distance) {
-      distanceFeature = feature;
-    } else if (mode === MeasureMode.Area) {
-      areaFeature = feature;
-    }
-    measureMap = map;
+  function formatDistance(distance) {
+    return `${(distance / 1e3).toFixed(2)} km`;
   }
-  function createMeasureTooltipElement(text) {
-    let div = document.createElement("div");
+  function formatArea(area) {
+    return `${(area / 1e6).toFixed(2)} km²`;
+  }
+  function getMeasureUnit(mode) {
+    return mode === MeasureMode.Area ? "km²" : "km";
+  }
+  function getGeometryPointCount(geometry) {
+    var _a;
+    if (geometry instanceof OlGeometry__namespace.LineString) {
+      return geometry.getCoordinates().length;
+    }
+    if (geometry instanceof OlGeometry__namespace.Polygon) {
+      return ((_a = geometry.getCoordinates()[0]) == null ? void 0 : _a.length) || 0;
+    }
+    return 0;
+  }
+  function createBox(className) {
+    const div = document.createElement("div");
+    div.className = className;
     div.style.padding = "2px 5px";
     div.style.borderRadius = "5px";
-    div.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-    div.style.color = "#FFFFFF";
+    div.style.backgroundColor = "#FFFFFF";
+    div.style.color = "#000000";
     div.style.fontSize = "12px";
+    div.style.boxShadow = "0 0 5px rgba(0, 0, 0, 0.25)";
+    return div;
+  }
+  function createTooltipElement(text) {
+    const div = createBox("omap-measure-tooltip");
     div.innerHTML = text;
     return div;
   }
-  function createMeasureDistanceElement(distance, tooltipText) {
-    if (!distanceElement) {
-      let div = document.createElement("div");
-      div.style.padding = "2px 5px";
-      div.style.borderRadius = "5px";
-      div.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-      div.style.color = "#FFFFFF";
-      div.style.fontSize = "12px";
-      let p = document.createElement("p");
-      p.innerHTML = createMeasureValueSpan("总长", distance);
-      div.appendChild(p);
-      if (tooltipText && tooltipText !== "") {
-        let p2 = document.createElement("p");
-        p2.className = "omap-measure-tooltip-text";
-        p2.innerHTML = tooltipText;
-        div.appendChild(p2);
-      }
-      distanceElement = div;
-    } else {
-      distanceElement.children[0].innerHTML = createMeasureValueSpan("总长", distance);
-      if (!tooltipText || tooltipText === "") {
-        if (distanceElement.children.length > 1) {
-          distanceElement.removeChild(distanceElement.children[1]);
-        }
-      } else {
-        if (distanceElement.children.length > 1) {
-          distanceElement.children[1].innerHTML = tooltipText;
-        } else {
-          let p2 = document.createElement("p");
-          p2.className = "omap-measure-tooltip-text";
-          p2.innerHTML = tooltipText;
-          distanceElement.appendChild(p2);
-        }
-      }
+  function createResultElement(label, value, helperText) {
+    const div = createBox("omap-measure-result");
+    div.innerHTML = `${label}：<span style="color: var(--omap-primary-color);margin: 0 5px;font-weight: bolder;">${value || "-"}</span>`;
+    if (helperText) {
+      const helper = document.createElement("p");
+      helper.className = "omap-measure-helper";
+      helper.style.margin = "2px 0 0";
+      helper.innerHTML = helperText;
+      div.appendChild(helper);
     }
-    return distanceElement;
-  }
-  function createMeasureAreaElement(value, tooltipText) {
-    if (!areaElement) {
-      let div = document.createElement("div");
-      div.style.padding = "2px 5px";
-      div.style.borderRadius = "5px";
-      div.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-      div.style.color = "#FFFFFF";
-      div.style.fontSize = "12px";
-      let p = document.createElement("p");
-      p.innerHTML = createMeasureValueSpan("总长", value);
-      div.appendChild(p);
-      if (tooltipText && tooltipText !== "") {
-        let p2 = document.createElement("p");
-        p2.className = "omap-measure-tooltip-text";
-        p2.innerHTML = tooltipText;
-        div.appendChild(p2);
-      }
-      areaElement = div;
-    } else {
-      areaElement.children[0].innerHTML = createMeasureValueSpan("面积", value);
-      if (!tooltipText || tooltipText === "") {
-        if (areaElement.children.length > 1) {
-          areaElement.removeChild(areaElement.children[1]);
-        }
-      } else {
-        if (areaElement.children.length > 1) {
-          areaElement.children[1].innerHTML = tooltipText;
-        } else {
-          let p2 = document.createElement("p");
-          p2.className = "omap-measure-tooltip-text";
-          p2.innerHTML = tooltipText;
-          areaElement.appendChild(p2);
-        }
-      }
-    }
-    return areaElement;
-  }
-  function createMeasureAreaCloseElement(callback) {
-    let closeElement = document.createElement("span");
-    closeElement.title = "删除";
-    closeElement.innerHTML = "×";
-    closeElement.style.color = "#FFFFFF";
-    closeElement.style.cursor = "pointer";
-    closeElement.addEventListener("click", (e) => {
-      if (isDefined(callback)) {
-        callback();
-      }
-    });
-    return closeElement;
-  }
-  function createMeasureMarkerPopup(params) {
-    let popup = new Popup(params);
-    measureMarkerPopups.push(popup);
-    return popup;
-  }
-  function createMeasureMarkerElement(distance, index) {
-    let div = document.createElement("div");
-    div.className = `${MeasureMarkerIdSuffix}-${index}`;
-    div.style.padding = "2px 5px";
-    div.style.borderRadius = "5px";
-    div.style.backgroundColor = "rgba(255, 255, 255, 0.8)";
-    div.style.color = "#000000";
-    div.style.boxShadow = "0 0 5px rgba(0, 0, 0, 0.5)";
-    let distanceElement2 = document.createElement("span");
-    distanceElement2.style.color = "var(--omap-primary-color)";
-    distanceElement2.style.margin = "0 5px";
-    distanceElement2.innerHTML = distance;
-    div.appendChild(distanceElement2);
-    if (index !== 0) {
-      let closeElement = document.createElement("span");
-      closeElement.title = "删除";
-      closeElement.innerHTML = "×";
-      closeElement.style.color = "#000000";
-      closeElement.style.cursor = "pointer";
-      div.setAttribute(MEASURE_MERKER_INDEX_NAME, index.toString());
-      closeElement.addEventListener("click", (e) => {
-        console.log("点击删除");
-        let index2 = div.getAttribute(MEASURE_MERKER_INDEX_NAME);
-        console.log(index2);
-        if (isDefined(index2)) {
-          handleDeleteFn(Number(index2));
-        }
-      });
-      div.appendChild(closeElement);
-    }
-    measureMarkerElements.push(div);
     return div;
   }
-  function handleDeleteFn(index) {
-    if (measureMarkerPopups.length === 2) {
-      handleDeletePosition();
-      measureMarkerElements = [];
-      measureMarkerPopups.forEach((_, i) => {
-        removeMeasureMarker(i);
-        if (i === measureMarkerPopups.length - 1) {
-          measureMarkerPopups = [];
-        }
-      });
-      return false;
+  function createMarkerElement(text, onClose) {
+    const div = document.createElement("div");
+    div.className = "omap-measure-marker";
+    div.style.padding = "2px 5px";
+    div.style.borderRadius = "5px";
+    div.style.backgroundColor = "#FFFFFF";
+    div.style.color = "#000000";
+    div.style.boxShadow = "0 0 5px rgba(0, 0, 0, 0.35)";
+    const value = document.createElement("span");
+    value.style.color = "var(--omap-primary-color)";
+    value.style.margin = "0 5px";
+    value.innerHTML = text;
+    div.appendChild(value);
+    if (onClose) {
+      const close = document.createElement("span");
+      close.title = "删除";
+      close.innerHTML = "×";
+      close.style.color = "#000000";
+      close.style.cursor = "pointer";
+      close.addEventListener("click", onClose);
+      div.appendChild(close);
     }
-    handleDeletePosition(index);
-    measureMarkerElements.splice(index, 1);
-    measureMarkerElements.forEach((item, index2) => {
-      item.className = `${MeasureMarkerIdSuffix}-${index2}`;
-      item.setAttribute(MEASURE_MERKER_INDEX_NAME, index2.toString());
-    });
-    removeMeasureMarker(index);
-    measureMarkerPopups.splice(index, 1);
-    measureMarkerPopups.forEach((item, index2) => {
-      item.id = getOMapMeasureMarkerId(index2);
-    });
-    updateDistance();
+    return div;
   }
-  function removeMeasureMarker(index) {
-    if (isDefined(measureMap)) {
-      let popup = measureMap.getPopupById(`omap-measure-marker-${index}`);
-      if (isDefined(popup)) {
-        measureMap.removePopup(popup);
-      }
-    }
+  function createCloseElement(onClose) {
+    const close = document.createElement("span");
+    close.title = "删除";
+    close.innerHTML = "×";
+    close.style.color = "#000000";
+    close.style.cursor = "pointer";
+    close.style.marginLeft = "5px";
+    close.addEventListener("click", onClose);
+    return close;
   }
-  function handleDeletePosition(index) {
-    let target = distanceFeature ? distanceFeature : areaFeature;
-    if (isDefined(target)) {
-      let geometry = target.getGeometry();
-      if (isDefined(geometry)) {
-        if (isDefined(index)) {
-          let coordinates = [];
-          if (geometry instanceof OlGeometry__namespace.LineString) {
-            coordinates = geometry.getCoordinates();
-          } else if (geometry instanceof OlGeometry__namespace.Polygon) {
-            coordinates = geometry.getCoordinates();
-          }
-          coordinates.splice(index, 1);
-          if (geometry instanceof OlGeometry__namespace.LineString) {
-            geometry.setCoordinates(coordinates);
-          } else if (geometry instanceof OlGeometry__namespace.Polygon) {
-            geometry.setCoordinates(coordinates);
-          }
-        } else {
-          if (geometry instanceof OlGeometry__namespace.LineString) {
-            geometry.setCoordinates([]);
-          } else if (geometry instanceof OlGeometry__namespace.Polygon) {
-            geometry.setCoordinates([]);
-          }
-        }
-      }
-    }
-  }
-  function updateDistance() {
-    if (distanceFeature) {
-      let coordinates = distanceFeature.getGeometry().getCoordinates();
-      measureMarkerElements.forEach((item, index) => {
-        if (index > 0) {
-          let calculateFeature = new LineString(coordinates.slice(0, index + 1));
-          let length = measureMap.getLength(calculateFeature);
-          item.children[0].innerHTML = isDefined(length) ? transformDistance(length) : "-";
-        }
-      });
-    }
-  }
-  function transformDistance(distance) {
-    return (distance / 1e3).toFixed(2) + " km";
-  }
-  function transformArea(area) {
-    return (area / 1e6).toFixed(2) + " km²";
-  }
-  function getOMapMeasureMarkerId(index) {
-    return `${MeasureMarkerIdSuffix}-${index}`;
-  }
-  function createMeasureValueSpan(name, value) {
-    return `${name}：<span style="color: var(--omap-primary-color);margin: 0 5px;font-weight: bolder;">${value || "-"}</span>`;
-  }
-  function destroy() {
-    measureMarkerElements.forEach((item) => {
-      item.remove();
-    });
-    measureMarkerPopups.forEach((item) => {
-      measureMap.removePopup(item);
-    });
-    distanceFeature = null;
-    areaFeature = null;
-    setTimeout(() => {
-      measureMarkerElements = [];
-      measureMarkerPopups = [];
-    }, 200);
-  }
-  class TooltipPopup {
-    constructor(text) {
-      __publicField(this, "popup");
-      this.initPopup(text || "");
-    }
-    _isInitialized() {
-      if (!isDefined(this.popup)) {
-        return false;
-      }
-      return true;
-    }
-    initPopup(text) {
-      let div = createMeasureTooltipElement(text);
-      this.popup = new Popup({
-        id: "omap-measure-popup",
-        element: div,
-        offset: new Pixel(0, -10)
-      });
-    }
-    getPopup() {
-      return this.popup;
-    }
-    updatePosition(position) {
-      this.popup.setPosition(position);
-    }
-    setElement(element) {
-      this.popup.setElement(element);
-    }
-    getElement() {
-      return this.popup.getElement();
-    }
-  }
-  const tooltipPopup = new TooltipPopup("单击地图开始测量");
-  const measurePopup = new TooltipPopup("");
-  const PACKAGE_NAME$m = "Measure";
-  const createMessage$m = getPackageMessage(PACKAGE_NAME$m);
-  let measureFeature = null;
-  let measureListener = null;
-  let pointMoveListener = null;
+  const PACKAGE_NAME$k = "Measure";
+  const createMessage$k = getPackageMessage(PACKAGE_NAME$k);
   class Measure extends Interaction {
-    constructor(mode, params) {
+    constructor(mode, params = {}) {
       if (!isDefined(mode)) {
-        error_(createMessage$m("constructor", commonMessage.paramsNotDefined("mode")));
+        error_(createMessage$k("constructor", commonMessage.paramsNotDefined("mode")));
       }
       if (!isOMapMeasureMode(mode)) {
-        error_(createMessage$m("constructor", commonMessage.paramsInvaildEnum(mode)));
+        error_(createMessage$k("constructor", commonMessage.paramsInvaildEnum(mode)));
       }
-      let _params = defaultValue(params, {});
-      super("Measure", { id: _params.id });
-      __publicField(this, "mode", null);
-      __publicField(this, "result", {
+      super("Measure", { id: params.id });
+      __publicField(this, "mode");
+      __publicField(this, "result");
+      __publicField(this, "tooltipPopup");
+      __publicField(this, "resultPopup");
+      __publicField(this, "markerPopups", []);
+      __publicField(this, "drawFeature", null);
+      __publicField(this, "geometryListener", null);
+      __publicField(this, "pointerMoveListener", null);
+      __publicField(this, "eventInitialized", false);
+      this.mode = mode;
+      this.result = {
         value: 0,
-        unit: ""
-      });
-      let draw_source = null;
+        unit: getMeasureUnit(mode)
+      };
       this.layer = new VectorLayer({
-        style: DEFAULT_STYLE
+        style: params.style || DEFAULT_STYLE
       });
-      draw_source = this.layer.getSource();
-      let measureParams = Object.assign({}, DRAW_DEFAULT_PARAMS, {
-        clickTolerance: params == null ? void 0 : params.clickTolerance,
-        source: draw_source,
+      this._interaction = new OlInteraction__namespace.Draw({
+        ...DRAW_DEFAULT_PARAMS,
+        ...params,
+        ...getOlDrawType(mode),
+        source: this.layer.getSource(),
         features: void 0,
         style: void 0
       });
-      this._interaction = new OlInteraction__namespace.Draw({
-        ...getOlDrawType(mode),
-        ...measureParams
-      });
-      this.mode = mode;
-      if (mode === MeasureMode.Distance) {
-        this.result.unit = "km";
-      } else if (mode === MeasureMode.Area) {
-        this.result.unit = "km²";
-      }
+      this.tooltipPopup = this.createPopup("omap-measure-tooltip", createTooltipElement("单击地图开始测量"));
+      this.resultPopup = this.createPopup("omap-measure-result", createTooltipElement(""));
       this.initInteractionEvent();
     }
-    /**
-     * 初始化 测量事件
-     */
     initMeasureEvent() {
-      this._interaction.on("change:active", (e) => {
+      if (this.eventInitialized) {
+        return;
+      }
+      this.eventInitialized = true;
+      this._interaction.on("change:active", () => {
         if (this._interaction.getActive()) {
           this.onMeasureActive();
         } else {
-          this.onMeasureInActive();
+          this.onMeasureInactive();
         }
       });
-      this._interaction.on("drawstart", (e) => {
+      this._interaction.on("drawstart", (event) => {
         this.events.emit(MeasureEventType.measureStart, {
           target: this,
           type: MeasureEventType.measureStart
         });
-        this.onMeasureStart(e.feature);
+        this.onMeasureStart(event.feature);
       });
-      this._interaction.on("drawend", (e) => {
-        this.onMeasureEnd();
+      this._interaction.on("drawend", (event) => {
+        this.onMeasureEnd(event.feature);
       });
     }
     onMeasureActive() {
-      if (isDefined(this.map)) {
-        if (!isDefined(pointMoveListener)) {
-          pointMoveListener = this.map.getMap().on("pointermove", (e) => {
-            if (isDefined(tooltipPopup)) {
-              tooltipPopup.updatePosition(e.coordinate);
-            }
-          });
-        }
-      }
       this.result.value = 0;
+      this.showTooltip("单击地图开始测量");
+      this.bindPointerMove();
     }
-    onMeasureInActive() {
-      if (isDefined(pointMoveListener)) {
-        OlObservable__namespace.unByKey(pointMoveListener);
-        pointMoveListener = null;
-      }
+    onMeasureInactive() {
+      this.unbindPointerMove();
     }
-    /**
-     * 测量开始
-     * @param feature 测量开始的feature
-     */
     onMeasureStart(feature) {
-      var _a;
-      if (isDefined(feature)) {
-        measureFeature = feature;
-        updateMeasureFeature(this.mode, feature, this.map);
-        let lastLength = 0;
-        measureListener = (_a = measureFeature.getGeometry()) == null ? void 0 : _a.on("change", (e) => {
-          var _a2, _b;
-          const { target } = e;
-          if (isDefined(target)) {
-            let newLength = target instanceof OlGeometry__namespace.LineString ? target.getCoordinates().length : target.getCoordinates()[0].length;
-            if (lastLength === 0) {
-              lastLength = newLength;
-              if (target instanceof OlGeometry__namespace.LineString) {
-                let startMarker = createMeasureMarkerElement("起点", 0);
-                let popup = createMeasureMarkerPopup({
-                  id: getOMapMeasureMarkerId(0),
-                  element: startMarker,
-                  offset: new Pixel(0, -10)
-                });
-                popup.setPosition(target.getCoordinates()[0]);
-                this.map.addPopup(popup);
-              }
-            }
-            let value = void 0;
-            if (target instanceof OlGeometry__namespace.LineString) {
-              value = (_a2 = this.map) == null ? void 0 : _a2.getLength(new LineString(new OlFeature({
-                geometry: target
-              })));
-            } else if (target instanceof OlGeometry__namespace.Polygon) {
-              value = (_b = this.map) == null ? void 0 : _b.getArea(new Polygon(new OlFeature({
-                geometry: target
-              })));
-            }
-            if (isDefined(value) && isNumber(value)) {
-              this.result.value = value;
-            }
-            if (isDefined(value) && isNumber(value)) {
-              if (target instanceof OlGeometry__namespace.LineString) {
-                let newElement = newLength >= 2 ? createMeasureDistanceElement(transformDistance(value), value === 0 ? "" : "单击继续，双击结束测量") : createMeasureTooltipElement("单击地图开始测量");
-                tooltipPopup.setElement(newElement);
-              }
-            }
-            if (target instanceof OlGeometry__namespace.LineString) {
-              if (newLength > lastLength) {
-                let index = newLength - 1 - 1;
-                let marker = createMeasureMarkerElement(transformDistance(value), index);
-                let popup = createMeasureMarkerPopup({
-                  id: getOMapMeasureMarkerId(index),
-                  element: marker,
-                  offset: new Pixel(0, -10)
-                });
-                popup.setPosition(target.getCoordinates()[target.getCoordinates().length - 1]);
-                this.map.addPopup(popup);
-                lastLength = newLength;
-              }
-            } else if (target instanceof OlGeometry__namespace.Polygon) {
-              if (newLength >= 4) {
-                this.map.addPopup(measurePopup.getPopup());
-                measurePopup.setElement(createMeasureAreaElement(transformArea(value), "单击继续，双击结束测量"));
-                measurePopup.updatePosition(target.getInteriorPoint().getCoordinates());
-                tooltipPopup.setElement(void 0);
-                tooltipPopup.updatePosition(void 0);
-              }
-            }
-          } else {
-            warn_("target is undefined");
-          }
-        });
-      }
+      this.clearMeasurement();
+      this.drawFeature = feature;
+      this.bindGeometryChange(feature);
     }
-    /**
-     * 测量结束
-     */
-    onMeasureEnd() {
-      this.setActive(false);
-      if (isDefined(pointMoveListener)) {
-        OlObservable__namespace.unByKey(pointMoveListener);
-        pointMoveListener = null;
+    onMeasureEnd(feature) {
+      this.drawFeature = feature;
+      this.unbindPointerMove();
+      this.unbindGeometryChange();
+      this.hideTooltip();
+      this.renderFinalResult();
+      this.completeAfterDrawEnd();
+    }
+    completeAfterDrawEnd() {
+      setTimeout(() => {
+        if (this.getActive()) {
+          this.setActive(false);
+        }
+        this.events.emit(MeasureEventType.measureEnd, {
+          target: this,
+          type: MeasureEventType.measureEnd
+        });
+      }, 0);
+    }
+    bindPointerMove() {
+      if (!this.map || this.pointerMoveListener) {
+        return;
       }
-      if (isDefined(measureListener)) {
-        OlObservable__namespace.unByKey(measureListener);
-        OlObservable__namespace.unByKey(measureListener);
-        measureListener = null;
-      }
-      if (this.mode === MeasureMode.Distance) ;
-      if (this.mode === MeasureMode.Area) {
-        const element = createMeasureAreaElement(transformArea(this.result.value));
-        element.style.display = "flex";
-        element.style.alignItems = "center";
-        element.appendChild(createMeasureAreaCloseElement(() => {
-          var _a;
-          measurePopup.updatePosition(void 0);
-          measurePopup.setElement(void 0);
-          (_a = this.layer) == null ? void 0 : _a.clear();
-        }));
-        measurePopup.setElement(element);
-      }
-      tooltipPopup.updatePosition(void 0);
-      tooltipPopup.setElement(void 0);
-      this.events.emit(MeasureEventType.measureEnd, {
-        target: this,
-        type: MeasureEventType.measureEnd
+      this.pointerMoveListener = this.map.getMap().on("pointermove", (event) => {
+        this.tooltipPopup.setPosition(event.coordinate);
       });
     }
-    /**
-     * 取消绘制，并结束当前未完成的绘制
-     */
+    unbindPointerMove() {
+      if (this.pointerMoveListener) {
+        OlObservable__namespace.unByKey(this.pointerMoveListener);
+        this.pointerMoveListener = null;
+      }
+    }
+    bindGeometryChange(feature) {
+      const geometry = feature.getGeometry();
+      if (!geometry) {
+        return;
+      }
+      this.geometryListener = geometry.on("change", (event) => {
+        this.updateByGeometry(event.target);
+      });
+    }
+    unbindGeometryChange() {
+      if (this.geometryListener) {
+        OlObservable__namespace.unByKey(this.geometryListener);
+        this.geometryListener = null;
+      }
+    }
+    updateByGeometry(geometry) {
+      if (geometry instanceof OlGeometry__namespace.LineString) {
+        this.updateDistance(geometry);
+        return;
+      }
+      if (geometry instanceof OlGeometry__namespace.Polygon) {
+        this.updateArea(geometry);
+      }
+    }
+    updateDistance(geometry) {
+      var _a;
+      const value = ((_a = this.map) == null ? void 0 : _a.getLength(new LineString(new OlFeature({ geometry })))) || 0;
+      this.result.value = value;
+      const pointCount = getGeometryPointCount(geometry);
+      const text = pointCount >= 2 ? formatDistance(value) : "单击地图开始测量";
+      const helper = pointCount >= 2 ? "单击继续，双击结束测量" : void 0;
+      this.tooltipPopup.setElement(createResultElement("总长", text, helper));
+      this.renderDistanceMarkers(geometry);
+    }
+    updateArea(geometry) {
+      var _a;
+      const value = ((_a = this.map) == null ? void 0 : _a.getArea(new Polygon(new OlFeature({ geometry })))) || 0;
+      this.result.value = value;
+      if (getGeometryPointCount(geometry) < 4) {
+        this.showTooltip("单击继续绘制");
+        this.setPopupPosition(this.resultPopup);
+        return;
+      }
+      this.setPopupPosition(this.tooltipPopup);
+      this.setPopupElement(this.tooltipPopup);
+      this.resultPopup.setElement(createResultElement("面积", formatArea(value), "单击继续，双击结束测量"));
+      this.resultPopup.setPosition(geometry.getInteriorPoint().getCoordinates());
+    }
+    renderDistanceMarkers(geometry) {
+      this.clearMarkerPopups();
+      const coordinates = geometry.getCoordinates();
+      coordinates.forEach((coordinate2, index) => {
+        const text = index === 0 ? "起点" : formatDistance(this.getDistanceToIndex(coordinates, index));
+        const popup = this.createPopup(
+          `omap-measure-marker-${index}`,
+          createMarkerElement(text, index === 0 ? void 0 : () => this.removeDistancePoint(index))
+        );
+        popup.setPosition(coordinate2);
+        this.addPopup(popup);
+        this.markerPopups.push(popup);
+      });
+    }
+    renderFinalResult() {
+      if (!this.drawFeature) {
+        return;
+      }
+      const geometry = this.drawFeature.getGeometry();
+      if (geometry instanceof OlGeometry__namespace.Polygon) {
+        const element = createResultElement("面积", formatArea(this.result.value));
+        element.style.display = "flex";
+        element.style.alignItems = "center";
+        element.appendChild(createCloseElement(() => this.clearMeasurement()));
+        this.resultPopup.setElement(element);
+        this.resultPopup.setPosition(geometry.getInteriorPoint().getCoordinates());
+        return;
+      }
+      if (geometry instanceof OlGeometry__namespace.LineString) {
+        this.renderDistanceMarkers(geometry);
+      }
+    }
+    removeDistancePoint(index) {
+      var _a;
+      const geometry = (_a = this.drawFeature) == null ? void 0 : _a.getGeometry();
+      if (!(geometry instanceof OlGeometry__namespace.LineString)) {
+        return;
+      }
+      const coordinates = geometry.getCoordinates();
+      coordinates.splice(index, 1);
+      if (coordinates.length < 2) {
+        this.unbindGeometryChange();
+        this.clearMeasurement();
+        geometry.setCoordinates(coordinates);
+      } else {
+        geometry.setCoordinates(coordinates);
+        this.updateDistance(geometry);
+      }
+    }
+    getDistanceToIndex(coordinates, index) {
+      if (!this.map) {
+        return 0;
+      }
+      return this.map.getLength(new LineString(coordinates.slice(0, index + 1)));
+    }
+    showTooltip(text) {
+      this.tooltipPopup.setElement(createTooltipElement(text));
+    }
+    hideTooltip() {
+      this.setPopupPosition(this.tooltipPopup);
+      this.setPopupElement(this.tooltipPopup);
+    }
+    createPopup(id, element) {
+      return new Popup({
+        id,
+        element,
+        offset: new Pixel(0, -10)
+      });
+    }
+    addPopup(popup) {
+      if (this.map) {
+        this.map.addPopup(popup);
+      }
+    }
+    removePopup(popup) {
+      if (this.map) {
+        this.map.removePopup(popup);
+        this.map.getMap().removeOverlay(popup.getPopup());
+      }
+    }
+    clearMarkerPopups() {
+      this.markerPopups.forEach((popup) => this.removePopup(popup));
+      this.markerPopups = [];
+    }
+    clearMeasurement(clearLayer = true) {
+      var _a;
+      this.clearMarkerPopups();
+      this.setPopupPosition(this.resultPopup);
+      this.setPopupElement(this.resultPopup);
+      if (clearLayer) {
+        (_a = this.layer) == null ? void 0 : _a.clear();
+        this.drawFeature = null;
+        this.result.value = 0;
+      }
+    }
+    setPopupPosition(popup, coordinate2) {
+      popup.getPopup().setPosition(coordinate2);
+    }
+    setPopupElement(popup, element) {
+      popup.getPopup().setElement(element);
+    }
     cancel() {
       this._interaction.abortDrawing();
     }
-    /**
-     * 删除最后一个点
-     */
     revoke() {
       this._interaction.removeLastPoint();
     }
-    /**
-     * 结束当前未完成的绘制
-     */
     finish() {
       this._interaction.finishDrawing();
     }
     setMap(map) {
-      super.setMap(map);
-      if (!isDefined(map)) {
+      if (!map) {
+        this.unbindPointerMove();
+        this.unbindGeometryChange();
+        this.clearMeasurement(false);
+        this.removePopup(this.tooltipPopup);
+        this.removePopup(this.resultPopup);
+        super.setMap(null);
         return;
       }
+      super.setMap(map);
       this.initMeasureEvent();
-      this.map.addPopup(tooltipPopup.getPopup());
+      this.addPopup(this.tooltipPopup);
+      this.addPopup(this.resultPopup);
     }
     on(type, callback) {
-      if (!isDefined(type) || !isDefined(callback)) {
-        error_(createMessage$m("on", commonMessage.paramsNotDefined("type or callback")));
-      }
-      if (!isOMapInteractionMeasureEventType(type)) {
-        error_(createMessage$m("on", commonMessage.paramsInvaildEnum(type)));
-      }
-      if (!isFunction(callback)) {
-        error_(createMessage$m("on", commonMessage.paramsInvaildFormat("callback", "function")));
-      }
-      const id = this.events.on(type, callback);
-      return id;
+      this.validateEvent(type, callback, "on");
+      return this.events.on(type, callback);
     }
     once(type, callback) {
-      if (!isDefined(type) || !isDefined(callback)) {
-        error_(createMessage$m("once", commonMessage.paramsNotDefined("type or callback")));
-      }
-      if (!isOMapInteractionMeasureEventType(type)) {
-        error_(createMessage$m("once", commonMessage.paramsInvaildEnum(type)));
-      }
-      if (!isFunction(callback)) {
-        error_(createMessage$m("once", commonMessage.paramsInvaildFormat("callback", "function")));
-      }
-      const id = this.events.once(type, callback);
-      return id;
+      this.validateEvent(type, callback, "once");
+      return this.events.once(type, callback);
     }
     un(id) {
       if (!isDefined(id)) {
-        error_(createMessage$m("un", commonMessage.paramsNotDefined("id")));
+        error_(createMessage$k("un", commonMessage.paramsNotDefined("id")));
       }
       this.events.remove(id);
     }
-    destroy(destroyLayer = true) {
-      tooltipPopup.updatePosition(void 0);
-      measurePopup.updatePosition(void 0);
-      destroy();
-      if (destroyLayer && isDefined(this.getLayer())) {
-        this._removeInteractionLayer();
+    validateEvent(type, callback, methodName) {
+      if (!isDefined(type) || !isDefined(callback)) {
+        error_(createMessage$k(methodName, commonMessage.paramsNotDefined("type or callback")));
       }
-      super.destroy();
+      if (!isOMapInteractionMeasureEventType(type)) {
+        error_(createMessage$k(methodName, commonMessage.paramsInvaildEnum(type)));
+      }
+      if (!isFunction(callback)) {
+        error_(createMessage$k(methodName, commonMessage.paramsInvaildFormat("callback", "function")));
+      }
+    }
+    destroy() {
+      if (this.map) {
+        super.destroy();
+        return;
+      }
+      this.unbindPointerMove();
+      this.unbindGeometryChange();
+      this.clearMeasurement(false);
     }
   }
-  let PACKAGE_NAME$l = "VectorLayer";
-  let createMessage$l = getPackageMessage(PACKAGE_NAME$l);
+  let PACKAGE_NAME$j = "VectorLayer";
+  let createMessage$j = getPackageMessage(PACKAGE_NAME$j);
   class VectorLayer extends BaseLayer {
     constructor(options = {}) {
       super("Vector", options);
+      __publicField(this, "vectorSource");
       __publicField(this, "features", []);
       __publicField(this, "style");
       let _sourceOptions = isDefined(options.source) ? options.source : {};
-      let _sourceParams = {
-        ..._sourceOptions,
-        features: _sourceOptions.features ? _sourceOptions.features.map((f) => {
-          return f.getFeature();
-        }) : []
-      };
+      this.vectorSource = new VectorSource(_sourceOptions);
+      this.features = _sourceOptions.features ? [..._sourceOptions.features] : [];
       this._layer = new OlLayer__namespace.Vector({
-        source: new OlSource__namespace.Vector(_sourceParams)
+        source: this.vectorSource.getSource()
       });
       this.initStyle(options.style);
       this._initLayerEvent();
       this.initVectorLyaerEvent();
+    }
+    getVectorSource() {
+      return this.vectorSource;
     }
     /**
      * 初始化矢量图层事件
@@ -4222,16 +4468,17 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     initVectorLyaerEvent() {
       this._layer.getSource().on("addfeature", (e) => {
         const { feature } = e;
-        console.log("添加feature事件");
-        console.log(feature);
-        console.log(this.target);
         if (isDefined(feature)) {
           if (this.target instanceof Draw || this.target instanceof Measure) {
             let basicFeature = createBaseFeatureByOlFeature(feature);
             if (basicFeature) {
-              this.features.push(basicFeature);
+              const uid = OlUtil__namespace.getUid(basicFeature.getFeature());
+              const index = this.features.findIndex((f) => OlUtil__namespace.getUid(f.getFeature()) === uid);
+              if (index === -1) {
+                this.features.push(basicFeature);
+              }
             } else {
-              warn_(createMessage$l("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
+              warn_(createMessage$j("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
             }
             if (this.target instanceof Draw && this.target.getActive()) {
               this.target.events.emit(DrawEventType.drawEnd, handleInteractionDrawEvent(this.target, DrawEventType.drawEnd, { feature }));
@@ -4259,7 +4506,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
             return styleFnResult ? styleFnResult.getStyle() : void 0;
           };
         } else {
-          warn_(createMessage$l("initStyle", "style格式有误"));
+          warn_(createMessage$j("initStyle", "style格式有误"));
         }
       }
       if (_style) {
@@ -4272,11 +4519,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     getFeatureById(id) {
       if (!isDefined(id)) {
-        warn_(createMessage$l("setId", "参数id不能为空"));
+        warn_(createMessage$j("setId", "参数id不能为空"));
         return;
       }
       if (!isNumber(id) && !isString(id)) {
-        warn_(createMessage$l("setId", "参数id格式有误"));
+        warn_(createMessage$j("setId", "参数id格式有误"));
         return;
       }
       let target = this.features.find((f) => {
@@ -4286,11 +4533,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     getFeaturesInExtent(extent, projection) {
       if (!isDefined(extent)) {
-        warn_(createMessage$l("getFeaturesInExtent", "extent参数不能为空"));
+        warn_(createMessage$j("getFeaturesInExtent", "extent参数不能为空"));
         return;
       }
       if (!(extent instanceof Extent) && !isExtentType(extent)) {
-        warn_(createMessage$l("getFeaturesInExtent", "extent参数格式有误"));
+        warn_(createMessage$j("getFeaturesInExtent", "extent参数格式有误"));
         return;
       }
       let _extent = extent instanceof Extent ? extent.getExtent() : extent;
@@ -4307,11 +4554,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     getFeaturesAtCoordinate(coordinates) {
       if (!isDefined(coordinates)) {
-        warn_(createMessage$l("getFeaturesAtCoordinate", "coordinates参数不能为空"));
+        warn_(createMessage$j("getFeaturesAtCoordinate", "coordinates参数不能为空"));
         return;
       }
       if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-        warn_(createMessage$l("getFeaturesAtCoordinate", "coordinates参数格式有误"));
+        warn_(createMessage$j("getFeaturesAtCoordinate", "coordinates参数格式有误"));
         return;
       }
       let _coordinates = handleGetLnglatValue(coordinates);
@@ -4328,17 +4575,23 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     addFeature(feature) {
       if (!isDefined(feature)) {
-        warn_(createMessage$l("addFeature", "参数不能为空"));
+        warn_(createMessage$j("addFeature", "参数不能为空"));
         return;
       }
       if (this._layer.getSource()) {
-        this._layer.getSource().addFeature(feature.getFeature());
-        this.features.push(feature);
+        const uid = OlUtil__namespace.getUid(feature.getFeature());
+        const index = this.features.findIndex((f) => OlUtil__namespace.getUid(f.getFeature()) === uid);
+        if (!this.vectorSource.hasFeature(feature)) {
+          this.vectorSource.addFeature(feature);
+        }
+        if (index === -1) {
+          this.features.push(feature);
+        }
       }
     }
     addFeatures(features) {
       if (!isDefined(features) || !isArray(features)) {
-        warn_(createMessage$l("addFeatures", "参数格式有误不能为空"));
+        warn_(createMessage$j("addFeatures", "参数格式有误不能为空"));
         return;
       }
       if (!isEmptyArray(features)) {
@@ -4349,18 +4602,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     removeFeature(feature) {
       if (!isDefined(feature)) {
-        warn_(createMessage$l("removeFeature", "参数不能为空"));
+        warn_(createMessage$j("removeFeature", "参数不能为空"));
         return;
       }
       if (this._layer.getSource()) {
         let index = this.features.indexOf(feature);
-        this._layer.getSource().removeFeature(feature.getFeature());
-        this.features.splice(index, 1);
+        this.vectorSource.removeFeature(feature);
+        if (index !== -1) {
+          this.features.splice(index, 1);
+        }
       }
     }
     removeFeatures(features) {
       if (!isDefined(features) || !isArray(features)) {
-        warn_(createMessage$l("removeFeatures", "参数格式有误不能为空"));
+        warn_(createMessage$j("removeFeatures", "参数格式有误不能为空"));
         return;
       }
       if (!isEmptyArray(features)) {
@@ -4373,12 +4628,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       if (!this._layer.getSource()) {
         return;
       }
-      this._layer.getSource().clear();
+      this.vectorSource.clear();
       this.features = [];
     }
     forEachFeature(callback) {
       if (!isDefined(callback) || !isFunction(callback)) {
-        warn_(createMessage$l("forEachFeature", "参数格式有误"));
+        warn_(createMessage$j("forEachFeature", "参数格式有误"));
         return;
       }
       this.features.forEach((f, i) => {
@@ -4393,7 +4648,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     forEachFeatureInExtent(extent, callback) {
       if (!isDefined(callback)) {
-        warn_(createMessage$l("forEachFeatureInExtent", "callback参数不能为空"));
+        warn_(createMessage$j("forEachFeatureInExtent", "callback参数不能为空"));
         return;
       }
       this._layer.getSource().forEachFeatureInExtent(extent.getExtent(), (feature) => {
@@ -4412,7 +4667,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     forEachFeatureIntersectingExtent(extent, callback) {
       if (!isDefined(callback)) {
-        warn_(createMessage$l("forEachFeatureIntersectingExtent", "callback参数不能为空"));
+        warn_(createMessage$j("forEachFeatureIntersectingExtent", "callback参数不能为空"));
         return;
       }
       this._layer.getSource().forEachFeatureIntersectingExtent(extent.getExtent(), (feature) => {
@@ -4425,11 +4680,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     getClosestFeatureToCoordinate(coordinates, filter) {
       if (!isDefined(coordinates)) {
-        warn_(createMessage$l("getClosestFeatureToCoordinate", "coordinates参数不能为空"));
+        warn_(createMessage$j("getClosestFeatureToCoordinate", "coordinates参数不能为空"));
         return;
       }
       if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-        warn_(createMessage$l("getClosestFeatureToCoordinate", "coordinates参数格式有误"));
+        warn_(createMessage$j("getClosestFeatureToCoordinate", "coordinates参数格式有误"));
         return;
       }
       let _coordinates = handleGetLnglatValue(coordinates);
@@ -4446,8 +4701,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this.features[resuleIndex];
     }
     getSourceExtent() {
-      const extent = this._layer.getSource().getExtent();
-      return new Extent(extent);
+      return this.vectorSource.getExtent();
     }
     // 样式管理
     /**
@@ -4463,7 +4717,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     setStyle(style) {
       if (!isDefined(style)) {
-        warn_(createMessage$l("setStyle", "style参数不能为空"));
+        warn_(createMessage$j("setStyle", "style参数不能为空"));
         return;
       }
       this.initStyle(style);
@@ -4477,35 +4731,36 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._layer.setDeclutter(declutter);
     }
   }
-  const PACKAGE_NAME$k = "Draw";
-  const createMessage$k = getPackageMessage(PACKAGE_NAME$k);
+  const PACKAGE_NAME$i = "Draw";
+  const createMessage$i = getPackageMessage(PACKAGE_NAME$i);
   class Draw extends Interaction {
     constructor(mode, params) {
       if (!isDefined(mode)) {
-        error_(createMessage$k("constructor", commonMessage.paramsNotDefined("mode")));
+        error_(createMessage$i("constructor", commonMessage.paramsNotDefined("mode")));
       }
       if (!isVaildDrawMode(mode)) {
-        error_(createMessage$k("constructor", commonMessage.paramsInvaildFormat("mode")));
+        error_(createMessage$i("constructor", commonMessage.paramsInvaildFormat("mode")));
       }
       let _params = defaultValue(params, {});
-      super("Draw", { id: params == null ? void 0 : params.id });
+      const { id, active, layer, style, ...drawOptions } = _params;
+      super("Draw", { id });
       let draw_source = null;
-      if (isDefined(_params.layer)) {
-        if (_params.layer instanceof VectorLayer) {
-          this.layer = _params.layer;
-          draw_source = _params.layer.getSource();
+      if (isDefined(layer)) {
+        if (layer instanceof VectorLayer) {
+          this.layer = layer;
+          draw_source = layer.getSource();
         } else {
-          warn_(createMessage$k("init", commonMessage.paramsInvaildFormat("layer", "VectorLayer")));
+          warn_(createMessage$i("init", commonMessage.paramsInvaildFormat("layer", "VectorLayer")));
         }
       }
       if (!isDefined(draw_source)) {
         this.layer = new VectorLayer({
-          style: DEFAULT_STYLE
+          style: style || DEFAULT_STYLE
         });
         draw_source = this.layer.getSource();
       }
       let drawParams = Object.assign({}, OMAP_DRAW_DEFAULT_PARAMS, {
-        clickTolerance: _params.clickTolerance,
+        ...drawOptions,
         source: draw_source,
         features: void 0,
         style: void 0
@@ -4516,26 +4771,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       });
       this.initInteractionEvent();
     }
-    initDrawEvent() {
-      this._interaction.on("drawend", (e) => {
-        const feature = e.feature;
-        if (isDefined(feature)) {
-          let basicFeature = createBaseFeatureByOlFeature(feature);
-          if (basicFeature) {
-            this.layer.addFeature(basicFeature);
-          } else {
-            warn_(createMessage$k("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
-          }
-        }
-      });
-    }
     /**
      * 追加坐标
      * @param coordinates 坐标
      */
     appendCoordinates(coordinates) {
       if (!isDefined(coordinates)) {
-        error_(createMessage$k("appendCoordinates", commonMessage.paramsNotDefined("coordinates")));
+        error_(createMessage$i("appendCoordinates", commonMessage.paramsNotDefined("coordinates")));
       }
       let _coordinates = coordinates.map((c) => {
         return handleGetLnglatValue(c);
@@ -4578,15 +4820,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return defaultValue(layer.getFeatures(), []);
     }
     on(type, callback) {
-      if (!isDefined(type) || !isDefined(callback)) {
-        error_(createMessage$k("on", commonMessage.paramsNotDefined("type or callback")));
-      }
-      if (!isOMapInteractionDrawEventType(type)) {
-        error_(createMessage$k("on", commonMessage.paramsInvaildEnum(type)));
-      }
-      if (!isFunction(callback)) {
-        error_(createMessage$k("on", commonMessage.paramsInvaildFormat("callback", "function")));
-      }
+      this.validateEvent(type, callback, "on");
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         if (type !== DrawEventType.drawEnd) {
           this.events.emit(type, handleInteractionDrawEvent(this, type, e));
@@ -4596,15 +4830,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     once(type, callback) {
-      if (!isDefined(type) || !isDefined(callback)) {
-        error_(createMessage$k("once", commonMessage.paramsNotDefined("type or callback")));
-      }
-      if (!isOMapInteractionDrawEventType(type)) {
-        error_(createMessage$k("once", commonMessage.paramsInvaildEnum(type)));
-      }
-      if (!isFunction(callback)) {
-        error_(createMessage$k("once", commonMessage.paramsInvaildFormat("callback", "function")));
-      }
+      this.validateEvent(type, callback, "once");
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         if (type !== DrawEventType.drawEnd) {
           this.events.emit(type, handleInteractionDrawEvent(this, type, e));
@@ -4613,15 +4839,26 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       const id = this.events.once(type, callback, unlisten);
       return id;
     }
+    validateEvent(type, callback, methodName) {
+      if (!isDefined(type) || !isDefined(callback)) {
+        error_(createMessage$i(methodName, commonMessage.paramsNotDefined("type or callback")));
+      }
+      if (!isOMapInteractionDrawEventType(type)) {
+        error_(createMessage$i(methodName, commonMessage.paramsInvaildEnum(type)));
+      }
+      if (!isFunction(callback)) {
+        error_(createMessage$i(methodName, commonMessage.paramsInvaildFormat("callback", "function")));
+      }
+    }
     un(id) {
       if (!isDefined(id)) {
-        error_(createMessage$k("un", commonMessage.paramsNotDefined(id)));
+        error_(createMessage$i("un", commonMessage.paramsNotDefined(id)));
       }
       this.events.remove(id);
     }
   }
-  let PACKAGE_NAME$j = "LayerGroup";
-  let createMessage$j = getPackageMessage(PACKAGE_NAME$j);
+  let PACKAGE_NAME$h = "LayerGroup";
+  let createMessage$h = getPackageMessage(PACKAGE_NAME$h);
   class LayerGroup {
     constructor(idOrLayers, layers) {
       /**
@@ -4632,7 +4869,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       __publicField(this, "layers", []);
       __publicField(this, "map", null);
       if (!isDefined(idOrLayers)) {
-        error_(createMessage$j("constructor", "参数不能为空"));
+        error_(createMessage$h("constructor", "参数不能为空"));
         return;
       }
       let _layers = defaultValue(layers, []);
@@ -4645,18 +4882,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return isDefined(item) && isDefined(item.getLayer()) && item instanceof BaseLayer;
       });
       if (vaildLayers.length !== _layers.length) {
-        warn_(createMessage$j("constructor", "图层参数错误，必须为BaseLayer实例，已进行过滤"));
+        warn_(createMessage$h("constructor", "图层参数错误，必须为BaseLayer实例，已进行过滤"));
       }
       vaildLayers.forEach((item) => {
-        layerState.set(item, {
-          groupId: this.id
-        });
+        item.groupId = this.id;
       });
       this.layers = vaildLayers;
       vaildLayers.forEach((item) => {
-        layerState.set(item, {
-          groupId: this.id
-        });
+        item.groupId = this.id;
       });
     }
     /**
@@ -4665,68 +4898,62 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      */
     add(layer) {
       if (!isDefined(layer)) {
-        warn_(createMessage$j("add", "参数layer不能为空"));
+        warn_(createMessage$h("add", "参数layer不能为空"));
         return;
       }
       if (!(layer instanceof BaseLayer)) {
-        warn_(createMessage$j("add", "参数layer必须为BaseLayer实例"));
+        warn_(createMessage$h("add", "参数layer必须为BaseLayer实例"));
         return;
       }
       let isExits = this.layers.some((item) => {
         return OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer.getLayer());
       });
       if (isExits) {
-        warn_(createMessage$j("add", "图层已存在"));
+        warn_(createMessage$h("add", "图层已存在"));
         return;
       }
       this.layers.push(layer);
-      layerState.set(layer, {
-        groupId: this.id
-      });
+      layer.groupId = this.id;
       if (isDefined(this.map)) {
         this.map.addLayer(layer);
       }
     }
     remove(layer) {
       if (!isDefined(layer)) {
-        warn_(createMessage$j("add", "参数layer不能为空"));
+        warn_(createMessage$h("add", "参数layer不能为空"));
         return;
       }
       if (!(layer instanceof BaseLayer)) {
-        warn_(createMessage$j("add", "参数layer必须为BaseLayer实例"));
+        warn_(createMessage$h("add", "参数layer必须为BaseLayer实例"));
         return;
       }
       let index = this.layers.findIndex((item) => {
         return OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer.getLayer());
       });
       if (index === -1) {
-        warn_(createMessage$j("remove", "图层不存在"));
+        warn_(createMessage$h("remove", "图层不存在"));
         return;
       }
       this.layers.splice(index, 1);
-      layerState.set(layer, {
-        groupId: null
-      });
+      layer.groupId = null;
       if (isDefined(this.map)) {
         this.map.removeLayer(layer);
       }
     }
     removeById(id) {
       if (!isDefined(id)) {
-        warn_(createMessage$j("removeById", "参数id不能为空"));
+        warn_(createMessage$h("removeById", "参数id不能为空"));
         return;
       }
       let index = this.layers.findIndex((item) => {
         return isDefined(item.getId()) && item.getId() === id;
       });
       if (index === -1) {
-        warn_(createMessage$j("remove", "图层不存在"));
+        warn_(createMessage$h("remove", "图层不存在"));
         return;
       }
       let layer = this.layers[index];
-      layerState.set(layer, {
-        groupId: null
-      });
+      layer.groupId = null;
       if (isDefined(this.map)) {
         this.map.removeLayer(layer);
       }
@@ -4784,8 +5011,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return obj;
   }
-  const PACKAGE_NAME$i = "MouseWheelZoom";
-  const createMessage$i = getPackageMessage(PACKAGE_NAME$i);
+  const PACKAGE_NAME$g = "MouseWheelZoom";
+  const createMessage$g = getPackageMessage(PACKAGE_NAME$g);
   const defaultMouseWheelZoomOptions = {
     condition: void 0,
     onFocusOnly: false,
@@ -4810,15 +5037,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     on(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
         error_(
-          createMessage$i("on", commonMessage.paramsNotDefined("type or callback"))
+          createMessage$g("on", commonMessage.paramsNotDefined("type or callback"))
         );
       }
       if (!isOMapInteractionMouseWheelZoomEventType(type)) {
-        error_(createMessage$i("on", commonMessage.paramsInvaildEnum(type)));
+        error_(createMessage$g("on", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
         error_(
-          createMessage$i(
+          createMessage$g(
             "on",
             commonMessage.paramsInvaildFormat("callback", "function")
           )
@@ -4836,15 +5063,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     once(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
         error_(
-          createMessage$i("once", commonMessage.paramsNotDefined("type or callback"))
+          createMessage$g("once", commonMessage.paramsNotDefined("type or callback"))
         );
       }
       if (!isOMapInteractionMouseWheelZoomEventType(type)) {
-        error_(createMessage$i("once", commonMessage.paramsInvaildEnum(type)));
+        error_(createMessage$g("once", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
         error_(
-          createMessage$i(
+          createMessage$g(
             "once",
             commonMessage.paramsInvaildFormat("callback", "function")
           )
@@ -4861,11 +5088,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     un(id) {
       if (!isDefined(id)) {
-        error_(createMessage$i("un", commonMessage.paramsNotDefined(id)));
+        error_(createMessage$g("un", commonMessage.paramsNotDefined(id)));
       }
       if (!isString(id)) {
         error_(
-          createMessage$i(
+          createMessage$g(
             "un",
             commonMessage.paramsInvaildFormat(id, "EventIdType")
           )
@@ -4899,8 +5126,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return obj;
   }
-  const PACKAGE_NAME$h = "DoubleClickZoom";
-  const createMessage$h = getPackageMessage(PACKAGE_NAME$h);
+  const PACKAGE_NAME$f = "DoubleClickZoom";
+  const createMessage$f = getPackageMessage(PACKAGE_NAME$f);
   const defaultDoubleClickZoomOptions = {
     duration: 250,
     delta: 1
@@ -4920,15 +5147,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     on(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
         error_(
-          createMessage$h("on", commonMessage.paramsNotDefined("type or callback"))
+          createMessage$f("on", commonMessage.paramsNotDefined("type or callback"))
         );
       }
       if (!isOMapInteractionDoubleClickZoomEventType(type)) {
-        error_(createMessage$h("on", commonMessage.paramsInvaildEnum(type)));
+        error_(createMessage$f("on", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
         error_(
-          createMessage$h(
+          createMessage$f(
             "on",
             commonMessage.paramsInvaildFormat("callback", "function")
           )
@@ -4946,18 +5173,18 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     once(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
         error_(
-          createMessage$h(
+          createMessage$f(
             "once",
             commonMessage.paramsNotDefined("type or callback")
           )
         );
       }
       if (!isOMapInteractionDoubleClickZoomEventType(type)) {
-        error_(createMessage$h("once", commonMessage.paramsInvaildEnum(type)));
+        error_(createMessage$f("once", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
         error_(
-          createMessage$h(
+          createMessage$f(
             "once",
             commonMessage.paramsInvaildFormat("callback", "function")
           )
@@ -4974,11 +5201,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     un(id) {
       if (!isDefined(id)) {
-        error_(createMessage$h("un", commonMessage.paramsNotDefined(id)));
+        error_(createMessage$f("un", commonMessage.paramsNotDefined(id)));
       }
       if (!isString(id)) {
         error_(
-          createMessage$h(
+          createMessage$f(
             "un",
             commonMessage.paramsInvaildFormat(id, "EventIdType")
           )
@@ -5012,8 +5239,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     return obj;
   }
-  const PACKAGE_NAME$g = "DragPan";
-  const createMessage$g = getPackageMessage(PACKAGE_NAME$g);
+  const PACKAGE_NAME$e = "DragPan";
+  const createMessage$e = getPackageMessage(PACKAGE_NAME$e);
   const defaultDragPanOptions = {
     onFocusOnly: false,
     kinetic: void 0
@@ -5027,15 +5254,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     on(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
         error_(
-          createMessage$g("on", commonMessage.paramsNotDefined("type or callback"))
+          createMessage$e("on", commonMessage.paramsNotDefined("type or callback"))
         );
       }
       if (!isOMapInteractionDragPanEventType(type)) {
-        error_(createMessage$g("on", commonMessage.paramsInvaildEnum(type)));
+        error_(createMessage$e("on", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
         error_(
-          createMessage$g(
+          createMessage$e(
             "on",
             commonMessage.paramsInvaildFormat("callback", "function")
           )
@@ -5053,15 +5280,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     once(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
         error_(
-          createMessage$g("once", commonMessage.paramsNotDefined("type or callback"))
+          createMessage$e("once", commonMessage.paramsNotDefined("type or callback"))
         );
       }
       if (!isOMapInteractionDragPanEventType(type)) {
-        error_(createMessage$g("once", commonMessage.paramsInvaildEnum(type)));
+        error_(createMessage$e("once", commonMessage.paramsInvaildEnum(type)));
       }
       if (!isFunction(callback)) {
         error_(
-          createMessage$g(
+          createMessage$e(
             "once",
             commonMessage.paramsInvaildFormat("callback", "function")
           )
@@ -5078,11 +5305,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     un(id) {
       if (!isDefined(id)) {
-        error_(createMessage$g("un", commonMessage.paramsNotDefined(id)));
+        error_(createMessage$e("un", commonMessage.paramsNotDefined(id)));
       }
       if (!isString(id)) {
         error_(
-          createMessage$g(
+          createMessage$e(
             "un",
             commonMessage.paramsInvaildFormat(id, "EventIdType")
           )
@@ -5230,8 +5457,8 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return isDefined(interaction) && interaction instanceof Measure && interaction.getActive();
     });
   }
-  const PACKAGE_NAME$f = "Map";
-  const createMessage$f = getPackageMessage(PACKAGE_NAME$f);
+  const PACKAGE_NAME$d = "Map";
+  const createMessage$d = getPackageMessage(PACKAGE_NAME$d);
   let Map$1 = class Map {
     constructor(element, options) {
       __publicField(this, "_map");
@@ -5245,14 +5472,14 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       __publicField(this, "popups", []);
       if (!isDefined(element)) {
         error_(
-          createMessage$f("constructor", commonMessage.paramsNotDefined("element"))
+          createMessage$d("constructor", commonMessage.paramsNotDefined("element"))
         );
       }
       let _options = defaultValue(options, {});
       const view_options = _options.view;
       if (!isDefined(view_options)) {
         error_(
-          createMessage$f("constructor", commonMessage.paramsNotDefined("view"))
+          createMessage$d("constructor", commonMessage.paramsNotDefined("view"))
         );
       }
       let proj = view_options.projection || new Projection("EPSG:3857");
@@ -5318,7 +5545,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setSize(size) {
       if (!isDefined(size)) {
-        error_(createMessage$f("setSize", commonMessage.paramsNotDefined("size")));
+        error_(createMessage$d("setSize", commonMessage.paramsNotDefined("size")));
       }
       let _size = handleGetSizeValue(size);
       this._map.setSize(_size);
@@ -5331,7 +5558,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setCenter(center) {
       if (!isDefined(center)) {
         error_(
-          createMessage$f("setCenter", commonMessage.paramsNotDefined("center"))
+          createMessage$d("setCenter", commonMessage.paramsNotDefined("center"))
         );
       }
       let _center = handleGetLnglatValue(center);
@@ -5342,11 +5569,11 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     setZoom(zoom) {
       if (!isDefined(zoom)) {
-        error_(createMessage$f("setZoom", commonMessage.paramsNotDefined("zoom")));
+        error_(createMessage$d("setZoom", commonMessage.paramsNotDefined("zoom")));
       }
       if (!isNumber(zoom)) {
         error_(
-          createMessage$f("setZoom", commonMessage.paramsInvaildFormat("zoom"))
+          createMessage$d("setZoom", commonMessage.paramsInvaildFormat("zoom"))
         );
       }
       this._view.setZoom(zoom);
@@ -5357,7 +5584,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setResolution(resolution) {
       if (!isDefined(resolution)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "setResolution",
             commonMessage.paramsNotDefined("resolution")
           )
@@ -5365,7 +5592,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isNumber(resolution)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "setResolution",
             commonMessage.paramsInvaildFormat("resolution")
           )
@@ -5379,7 +5606,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setRotation(rotation) {
       if (!isDefined(rotation)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "setRotation",
             commonMessage.paramsNotDefined("rotation")
           )
@@ -5387,7 +5614,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isNumber(rotation)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "setRotation",
             commonMessage.paramsInvaildFormat("rotation")
           )
@@ -5402,7 +5629,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     zoomIn(delta = 1) {
       if (isDefined(delta) && !isNumber(delta)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "zoomIn",
             commonMessage.paramsInvaildFormat("delta", "number")
           )
@@ -5413,7 +5640,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     zoomOut(delta = -1) {
       if (isDefined(delta) && !isNumber(delta)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "zoomOut",
             commonMessage.paramsInvaildFormat("delta", "number")
           )
@@ -5429,7 +5656,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     addLayer(layer) {
       if (!(layer instanceof BaseLayer)) {
         error_(
-          createMessage$f("addLayer", commonMessage.paramsInvaildFormat("layer"))
+          createMessage$d("addLayer", commonMessage.paramsInvaildFormat("layer"))
         );
       }
       let isExist = false;
@@ -5438,7 +5665,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return OlUtil__namespace.getUid(item.getLayer()) === OlUtil__namespace.getUid(layer.getLayer());
       });
       if (isExist) {
-        warn_(createMessage$f("addLayer", "图层已存在"));
+        warn_(createMessage$d("addLayer", "图层已存在"));
       } else {
         this.layers.push(layer);
         if (!isDefined(layer.getTarget())) {
@@ -5454,12 +5681,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     addLayers(layers) {
       if (!isDefined(layers)) {
         error_(
-          createMessage$f("addLayers", commonMessage.paramsNotDefined("layers"))
+          createMessage$d("addLayers", commonMessage.paramsNotDefined("layers"))
         );
       }
       if (!isArray(layers)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addLayers",
             commonMessage.paramsInvaildFormat("layers", "数组类型")
           )
@@ -5470,7 +5697,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           this.addLayer(item);
         } else {
           warn_(
-            createMessage$f(
+            createMessage$d(
               "addLayers",
               commonMessage.haveInvaildDataItem("layers")
             )
@@ -5496,12 +5723,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     removeLayer(layer) {
       if (!isDefined(layer)) {
         error_(
-          createMessage$f("removeLayer", commonMessage.paramsNotDefined("layer"))
+          createMessage$d("removeLayer", commonMessage.paramsNotDefined("layer"))
         );
       }
       if (!(layer instanceof BaseLayer)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayer",
             commonMessage.paramsInvaildFormat("layer", "BaseLayer实例")
           )
@@ -5513,7 +5740,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         layer.setTarget(null);
         this._map.removeLayer(layer.getLayer());
       } else {
-        warn_(createMessage$f("removeLayer", "图层不存在"));
+        warn_(createMessage$d("removeLayer", "图层不存在"));
       }
     }
     /**
@@ -5523,12 +5750,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     removeLayers(layers) {
       if (!isDefined(layers)) {
         error_(
-          createMessage$f("removeLayers", commonMessage.paramsNotDefined("layers"))
+          createMessage$d("removeLayers", commonMessage.paramsNotDefined("layers"))
         );
       }
       if (!isArray(layers)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayers",
             commonMessage.paramsInvaildFormat("layers", "数组类型")
           )
@@ -5539,7 +5766,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
           this.removeLayer(item);
         } else {
           warn_(
-            createMessage$f(
+            createMessage$d(
               "removeLayers",
               commonMessage.haveInvaildDataItem("layers")
             )
@@ -5554,7 +5781,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     removeLayerById(layerId) {
       if (!isDefined(layerId)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayerById",
             commonMessage.paramsNotDefined("layerId")
           )
@@ -5562,7 +5789,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       let layer = this.getLayerById(layerId);
       if (!isDefined(layer)) {
-        warn_(createMessage$f("removeLayerById", `找不到id为${layerId}的图层`));
+        warn_(createMessage$d("removeLayerById", `找不到id为${layerId}的图层`));
       } else {
         this.removeLayer(layer);
       }
@@ -5582,7 +5809,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     addLayerGroup(group) {
       if (!isDefined(group)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addLayerGroup",
             commonMessage.paramsNotDefined("layerGroup")
           )
@@ -5590,7 +5817,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isVaildLayerGroup(group)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addLayerGroup",
             commonMessage.paramsInvaildFormat("layerGroup", "LayerGroup实例")
           )
@@ -5616,7 +5843,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     removeLayerGroup(group) {
       if (!isDefined(group)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayerGroup",
             commonMessage.paramsNotDefined("layerGroup")
           )
@@ -5624,7 +5851,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isVaildLayerGroup(group)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayerGroup",
             commonMessage.paramsInvaildFormat("layerGroup", "LayerGroup实例")
           )
@@ -5642,7 +5869,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         this.removeLayers(group.getAllLayers());
         this.layerGroups = this.layerGroups.splice(index, 1);
       } else {
-        warn_(createMessage$f("removeLayerGroup", "图层组不存在"));
+        warn_(createMessage$d("removeLayerGroup", "图层组不存在"));
       }
     }
     /**
@@ -5652,7 +5879,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     removeLayerGroupById(groupId) {
       if (!isDefined(groupId)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayerGroupById",
             commonMessage.paramsNotDefined("groupId")
           )
@@ -5660,7 +5887,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isVaildGroupId(groupId)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayerGroupById",
             commonMessage.paramsInvaildFormat("groupId", "number或string类型")
           )
@@ -5674,7 +5901,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         this.removeLayers(this.layerGroups[index].getAllLayers());
         this.layerGroups = this.layerGroups.splice(index, 1);
       } else {
-        warn_(createMessage$f("removeLayerGroupById", "图层组不存在"));
+        warn_(createMessage$d("removeLayerGroupById", "图层组不存在"));
       }
     }
     /**
@@ -5694,7 +5921,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getLayerGroupById(groupId) {
       if (!isDefined(groupId)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayerGroupById",
             commonMessage.paramsNotDefined("groupId")
           )
@@ -5702,7 +5929,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isVaildGroupId(groupId)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "removeLayerGroupById",
             commonMessage.paramsInvaildFormat("groupId", "number或string类型")
           )
@@ -5712,7 +5939,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return isDefined(item.getId()) && item.getId() === groupId;
       });
       if (index === -1) {
-        warn_(createMessage$f("getLayerGroupById", "未找到图层组"));
+        warn_(createMessage$d("getLayerGroupById", "未找到图层组"));
         return null;
       }
       return this.layerGroups[index];
@@ -5726,15 +5953,15 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     on(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
         error_(
-          createMessage$f("on", commonMessage.paramsNotDefined("type or callback"))
+          createMessage$d("on", commonMessage.paramsNotDefined("type or callback"))
         );
       }
       if (!isOMapMapEventType(type)) {
-        error_(createMessage$f("on", commonMessage.paramsInvaildEnum("type")));
+        error_(createMessage$d("on", commonMessage.paramsInvaildEnum("type")));
       }
       if (!isFunction(callback)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "on",
             commonMessage.paramsInvaildFormat("callback", "function")
           )
@@ -5759,18 +5986,18 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     once(type, callback) {
       if (!isDefined(type) || !isDefined(callback)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "once",
             commonMessage.paramsNotDefined("type or callback")
           )
         );
       }
       if (!isOMapMapEventType(type)) {
-        error_(createMessage$f("once", commonMessage.paramsInvaildEnum("type")));
+        error_(createMessage$d("once", commonMessage.paramsInvaildEnum("type")));
       }
       if (!isFunction(callback)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "once",
             commonMessage.paramsInvaildFormat("callback", "function")
           )
@@ -5796,7 +6023,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     un(id) {
       if (!isDefined(id)) {
-        error_(createMessage$f("un", commonMessage.paramsNotDefined("id")));
+        error_(createMessage$d("un", commonMessage.paramsNotDefined("id")));
       }
       this.events.remove(id);
     }
@@ -5815,7 +6042,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setProperties(properties) {
       if (!isDefined(properties)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "setProperties",
             commonMessage.paramsNotDefined("properties")
           )
@@ -5823,7 +6050,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isObject(properties)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "setProperties",
             commonMessage.paramsInvaildFormat("properties", "object类型")
           )
@@ -5844,7 +6071,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     addInteraction(interaction) {
       if (!isDefined(interaction)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addInteraction",
             commonMessage.paramsNotDefined("interaction")
           )
@@ -5852,7 +6079,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isVaildInteraction(interaction)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addInteraction",
             commonMessage.paramsInvaildFormat("interaction", "Interaction类型")
           )
@@ -5865,7 +6092,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return OlUtil__namespace.getUid(i.getInteraction()) === OlUtil__namespace.getUid(interaction.getInteraction());
       });
       if (index !== -1) {
-        warn_(createMessage$f("addInteraction", "该交互已添加到地图中"));
+        warn_(createMessage$d("addInteraction", "该交互已添加到地图中"));
       } else {
         if (interaction instanceof Draw || interaction instanceof Measure) {
           const layer = interaction.getLayer();
@@ -5908,7 +6135,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     removeInteraction(interaction) {
       if (!isDefined(interaction)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addInteraction",
             commonMessage.paramsNotDefined("interaction")
           )
@@ -5916,7 +6143,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isVaildInteraction(interaction)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addInteraction",
             commonMessage.paramsInvaildFormat("interaction", "Interaction类型")
           )
@@ -5929,7 +6156,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return OlUtil__namespace.getUid(i.getInteraction()) === OlUtil__namespace.getUid(interaction.getInteraction());
       });
       if (index === -1) {
-        warn_(createMessage$f("removeInteraction", "该交互未添加到地图中"));
+        warn_(createMessage$d("removeInteraction", "该交互未添加到地图中"));
       } else {
         if (interaction instanceof Draw || interaction instanceof Measure) {
           const layer = interaction.getLayer();
@@ -5953,12 +6180,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     addControl(control) {
       if (!isDefined(control)) {
         error_(
-          createMessage$f("addControl", commonMessage.paramsNotDefined("control"))
+          createMessage$d("addControl", commonMessage.paramsNotDefined("control"))
         );
       }
       if (!isVaildControl(control)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addControl",
             commonMessage.paramsInvaildFormat("control", "Control类型")
           )
@@ -5968,7 +6195,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return OlUtil__namespace.getUid(i.getControl()) === OlUtil__namespace.getUid(control.getControl());
       });
       if (index !== -1) {
-        warn_(createMessage$f("addControl", "该控件已添加到地图中"));
+        warn_(createMessage$d("addControl", "该控件已添加到地图中"));
         return;
       }
       if (isDefined(control.getControl())) {
@@ -5991,12 +6218,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getControlById(id) {
       if (!isDefined(id)) {
         error_(
-          createMessage$f("getControlById", commonMessage.paramsNotDefined("id"))
+          createMessage$d("getControlById", commonMessage.paramsNotDefined("id"))
         );
       }
       if (!isNumber(id) && !isString(id)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "getControlById",
             commonMessage.paramsInvaildFormat("id", "OMapControlIdType类型")
           )
@@ -6014,12 +6241,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     removeControl(control) {
       if (!isDefined(control)) {
         error_(
-          createMessage$f("addControl", commonMessage.paramsNotDefined("control"))
+          createMessage$d("addControl", commonMessage.paramsNotDefined("control"))
         );
       }
       if (!isVaildControl(control)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addControl",
             commonMessage.paramsInvaildFormat("control", "Control类型")
           )
@@ -6029,7 +6256,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return OlUtil__namespace.getUid(i.getControl()) === OlUtil__namespace.getUid(control.getControl());
       });
       if (index === -1) {
-        warn_(createMessage$f("removeControl", "该控件未添加到地图中"));
+        warn_(createMessage$d("removeControl", "该控件未添加到地图中"));
         return;
       }
       if (isDefined(control.getControl())) {
@@ -6047,12 +6274,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     addPopup(popup) {
       if (!isDefined(popup)) {
         error_(
-          createMessage$f("addPopup", commonMessage.paramsNotDefined("popup"))
+          createMessage$d("addPopup", commonMessage.paramsNotDefined("popup"))
         );
       }
       if (!isVaildPopup(popup)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addPopup",
             commonMessage.paramsInvaildFormat("popup", "Popup类型")
           )
@@ -6062,7 +6289,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return OlUtil__namespace.getUid(i.getPopup()) === OlUtil__namespace.getUid(popup.getPopup());
       });
       if (index !== -1) {
-        warn_(createMessage$f("addPopup", "该弹窗已添加到地图中"));
+        warn_(createMessage$d("addPopup", "该弹窗已添加到地图中"));
         return;
       }
       if (isDefined(popup.getPopup())) {
@@ -6081,12 +6308,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getPopupById(id) {
       if (!isDefined(id)) {
         error_(
-          createMessage$f("getPopupById", commonMessage.paramsNotDefined("id"))
+          createMessage$d("getPopupById", commonMessage.paramsNotDefined("id"))
         );
       }
       if (!isVaildPopupId(id)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "getPopupById",
             commonMessage.paramsInvaildFormat("id", "OMapPopupIdType类型")
           )
@@ -6100,12 +6327,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getPopupByProperties(filter) {
       if (!isDefined(filter)) {
         error_(
-          createMessage$f("getPopupById", commonMessage.paramsNotDefined("filter"))
+          createMessage$d("getPopupById", commonMessage.paramsNotDefined("filter"))
         );
       }
       if (!isFunction(filter)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "getPopupById",
             commonMessage.paramsInvaildFormat("filter", "函数类型")
           )
@@ -6131,12 +6358,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     removePopup(popup) {
       if (!isDefined(popup)) {
         error_(
-          createMessage$f("addPopup", commonMessage.paramsNotDefined("popup"))
+          createMessage$d("addPopup", commonMessage.paramsNotDefined("popup"))
         );
       }
       if (!isVaildPopup(popup)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "addPopup",
             commonMessage.paramsInvaildFormat("popup", "Popup类型")
           )
@@ -6146,7 +6373,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         return OlUtil__namespace.getUid(i.getPopup()) === OlUtil__namespace.getUid(popup.getPopup());
       });
       if (index == -1) {
-        warn_(createMessage$f("removePopup", "该弹窗未添加到地图中"));
+        warn_(createMessage$d("removePopup", "该弹窗未添加到地图中"));
         return;
       }
       if (isDefined(popup.getPopup())) {
@@ -6186,7 +6413,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     forEachFeatureAtPixel(pixel, callback, options) {
       if (!isDefined(pixel)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "forEachFeatureAtPixel",
             commonMessage.paramsNotDefined("pixel")
           )
@@ -6239,7 +6466,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getCoordinateFromPixel(pixel) {
       if (!isDefined(pixel)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "getCoordinateFromPixel",
             commonMessage.paramsNotDefined("pixel")
           )
@@ -6247,7 +6474,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidPixel(pixel)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "getCoordinateFromPixel",
             commonMessage.paramsInvaildFormat("pixel", "OMapPixelType类型")
           )
@@ -6264,7 +6491,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getPixelFromCoordinate(coordinate2) {
       if (!isDefined(coordinate2)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "getPixelFromCoordinate",
             commonMessage.paramsNotDefined("coordinate")
           )
@@ -6272,7 +6499,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       }
       if (!isValidCoordinate(coordinate2)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "getPixelFromCoordinate",
             commonMessage.paramsInvaildFormat(
               "coordinate",
@@ -6301,7 +6528,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     getFeaturesAtPixel(pixel, options) {
       if (!isDefined(pixel)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "getFeaturesAtPixel",
             commonMessage.paramsNotDefined("pixel")
           )
@@ -6419,7 +6646,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     centerOn(coordinate2, size, position) {
       if (!isDefined(coordinate2) || !isDefined(size) || !isDefined(position)) {
         warn_(
-          createMessage$f(
+          createMessage$d(
             "centerOn",
             commonMessage.paramsListHaveNotDefined(
               "coordinate",
@@ -6448,12 +6675,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     fit(featureOrExtent, options) {
       if (!isDefined(featureOrExtent)) {
         error_(
-          createMessage$f("fit", commonMessage.paramsNotDefined("featureOrExtent"))
+          createMessage$d("fit", commonMessage.paramsNotDefined("featureOrExtent"))
         );
       }
       if (!(featureOrExtent instanceof BasicFeature) && !isValidExtent(featureOrExtent)) {
         error_(
-          createMessage$f(
+          createMessage$d(
             "fit",
             commonMessage.paramsInvaildFormat("featureOrExtent")
           )
@@ -6503,7 +6730,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     setConstrainResolution(enabled) {
       if (!isBoolean(enabled)) {
         warn_(
-          createMessage$f(
+          createMessage$d(
             "setProperties",
             commonMessage.paramsInvaildFormat("enabled", "boolean类型")
           )
@@ -6531,181 +6758,165 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       background: isDefined(params.background) ? handleGetColorValue(params.background) : void 0,
       map: isDefined(params.map) ? params.map.getMap() : void 0
     };
+    delete _params.id;
+    delete _params.name;
     return _params;
   }
   class TileLayer extends BaseLayer {
     constructor(options) {
       super("Tile", options);
       let params = Object.assign({}, DEFAULT_TILE_LAYER_PARAMS, handleGetBaseLayerParams(options));
-      console.log("TileLayer params:");
-      console.log(params);
       this._layer = new OlLayer__namespace.Tile(params);
       this._initLayerEvent();
     }
   }
-  class Source {
-    constructor(params) {
-      __publicField(this, "_source");
+  function handleGetProjectionValue(projection) {
+    if (isDefined(projection)) {
+      return projection instanceof Projection ? projection.getProjection() : projection;
     }
-    getSource() {
-      return this._source;
-    }
-    changed() {
-      this._source.changed();
-    }
-    get(key) {
-      return this._source.get(key);
-    }
-    getAttributions() {
-      return this._source.getAttributions();
-    }
-    getAttributionsCollapsible() {
-      return this._source.getAttributionsCollapsible();
-    }
-    getKeys() {
-      return this._source.getKeys();
-    }
-    getProjection() {
-      return this._source.getProjection();
-    }
-    getProperties() {
-      return this._source.getProperties();
-    }
-    refresh() {
-      this._source.refresh();
-    }
-    setAttributions(attributions) {
-      this._source.setAttributions(attributions);
-    }
-    setProperties(properties) {
-      this._source.setProperties(properties);
-    }
+    return void 0;
   }
-  function handleGetSourceParams(params) {
-    const _params = Object.assign({}, params, {
-      projection: isDefined(params.projection) ? params.projection.getProjection() : void 0
-    });
-    return _params;
-  }
-  const DEFAULT_SOURCE_PARAMS = {
-    attributions: "",
+  const TILE_SOURCE_EVENT_TYPES = {
+    tileLoadStart: "tileloadstart",
+    tileLoadEnd: "tileloadend",
+    tileLoadError: "tileloaderror"
+  };
+  const DEFAULT_TILE_SOURCE_PARAMS = {
     attributionsCollapsible: true,
-    state: "ready",
+    interpolate: false,
     wrapX: false,
-    interpolate: false
+    zDirection: 0
   };
   function handleGetTileGridParams(params) {
-    let _params = {
+    var _a, _b, _c;
+    return {
       ...params,
-      extent: isDefined(params.extent) ? handleGetExtentValue(params.extent) : void 0,
-      origin: isDefined(params.origin) ? handleGetLnglatValue(params.origin) : void 0,
-      origins: isDefined(params.origins) ? params.origins.map((item) => {
-        return handleGetLnglatValue(item);
-      }) : void 0,
-      sizes: isDefined(params.sizes) ? params.sizes.map((item) => {
-        return handleGetSizeValue(item);
-      }) : void 0,
-      tileSize: isDefined(params.tileSize) ? isNumber(params.tileSize) ? params.tileSize : handleGetSizeValue(params.tileSize) : void 0,
-      tileSizes: isDefined(params.tileSizes) ? params.tileSizes.map((item) => {
-        return isNumber(item) ? item : handleGetSizeValue(item);
-      }) : void 0
+      extent: params.extent ? handleGetExtentValue(params.extent) : void 0,
+      origin: params.origin ? handleGetLnglatValue(params.origin) : void 0,
+      origins: (_a = params.origins) == null ? void 0 : _a.map((item) => handleGetLnglatValue(item)),
+      sizes: (_b = params.sizes) == null ? void 0 : _b.map((item) => handleGetSizeValue(item)),
+      tileSize: typeof params.tileSize === "number" ? params.tileSize : params.tileSize ? handleGetSizeValue(params.tileSize) : void 0,
+      tileSizes: (_c = params.tileSizes) == null ? void 0 : _c.map((item) => typeof item === "number" ? item : handleGetSizeValue(item))
     };
-    return _params;
   }
-  const DEFAULT_TILE_GRID = {
-    minZoom: 0,
-    tileSize: [256, 256]
-  };
-  function handleGetTileSourceParams(params) {
-    let _params = {
+  function handleGetTileGrid(tileGrid) {
+    if (!tileGrid) {
+      return void 0;
+    }
+    if (tileGrid instanceof OlTileGrid__namespace.TileGrid) {
+      return tileGrid;
+    }
+    return new OlTileGrid__namespace.TileGrid(handleGetTileGridParams(tileGrid));
+  }
+  function handleGetTileSourceParams(params = {}) {
+    return {
       ...params,
-      ...handleGetSourceParams(params)
+      projection: handleGetProjectionValue(params.projection),
+      tileGrid: handleGetTileGrid(params.tileGrid)
     };
-    _params.tileGrid = isDefined(_params.tileGrid) ? handleGetTileGridParams(_params.tileGrid) : void 0;
-    return _params;
   }
-  const DEFAULT_TILE_SOURCE_PARAMS = Object.assign({}, DEFAULT_SOURCE_PARAMS, {
-    zDirection: 0
-  });
-  class TileGrid {
-    constructor(options) {
-      /**
-       * 地图 TileGrid 实例
-       */
+  const PACKAGE_NAME$c = "TileSource";
+  const createMessage$c = getPackageMessage(PACKAGE_NAME$c);
+  class TileSource extends Source {
+    constructor(source) {
+      super(source);
       __publicField(this, "_tileGrid");
-      let params = handleGetTileGridParams(options);
-      this._tileGrid = new OlTileGrid__namespace.TileGrid(
-        Object.assign({}, DEFAULT_TILE_GRID, params)
-      );
+      this._tileGrid = source.getTileGrid() || void 0;
+    }
+    clear() {
+      this._source.clear();
+    }
+    getGutterForProjection(projection) {
+      if (!(projection instanceof Projection)) {
+        error_(createMessage$c("getGutterForProjection", "projection参数格式有误"));
+      }
+      return this._source.getGutterForProjection(projection.getProjection());
+    }
+    getKey() {
+      return this._source.getKey();
+    }
+    getTile(z, x, y, pixelRatio, projection) {
+      if (!isNumber(z) || !isNumber(x) || !isNumber(y) || !isNumber(pixelRatio) || !(projection instanceof Projection)) {
+        error_(createMessage$c("getTile", "z、x、y、pixelRatio或projection参数格式有误"));
+      }
+      return this._source.getTile(z, x, y, pixelRatio, projection.getProjection());
     }
     getTileGrid() {
-      return this._tileGrid;
+      return this._source.getTileGrid();
     }
-    getExtent() {
-      return this._tileGrid.getExtent();
-    }
-    getMaxZoom() {
-      return this._tileGrid.getMaxZoom();
-    }
-    getMinZoom() {
-      return this._tileGrid.getMinZoom();
-    }
-    getOrigin(zoom) {
-      return this._tileGrid.getOrigin(zoom);
-    }
-    getResolution(zoom) {
-      return this._tileGrid.getResolution(zoom);
-    }
-    getResolutions() {
-      return this._tileGrid.getResolutions();
-    }
-  }
-  class TileSource extends Source {
-    constructor(params) {
-      super(params);
-      /**
-       * 赋值  TileSource 的 tileGrid
-       */
-      __publicField(this, "_tileGrid");
-      let _params = Object.assign({}, DEFAULT_TILE_SOURCE_PARAMS, params);
-      if (isDefined(_params.tileGrid)) {
-        this._tileGrid = new TileGrid(_params.tileGrid);
+    getTileGridForProjection(projection) {
+      if (!(projection instanceof Projection)) {
+        error_(createMessage$c("getTileGridForProjection", "projection参数格式有误"));
       }
+      return this._source.getTileGridForProjection(projection.getProjection());
+    }
+    getTilePixelRatio(pixelRatio) {
+      if (!isNumber(pixelRatio)) {
+        error_(createMessage$c("getTilePixelRatio", "pixelRatio必须是数字"));
+      }
+      return this._source.getTilePixelRatio(pixelRatio);
+    }
+    getTilePixelSize(z, pixelRatio, projection) {
+      if (!isNumber(z) || !isNumber(pixelRatio) || !(projection instanceof Projection)) {
+        error_(createMessage$c("getTilePixelSize", "z、pixelRatio或projection参数格式有误"));
+      }
+      return this._source.getTilePixelSize(z, pixelRatio, projection.getProjection());
+    }
+    getTileCoordForTileUrlFunction(tileCoord, projection) {
+      if (!this.isTileCoord(tileCoord)) {
+        error_(createMessage$c("getTileCoordForTileUrlFunction", "tileCoord参数格式有误"));
+      }
+      if (isDefined(projection) && !(projection instanceof Projection)) {
+        error_(createMessage$c("getTileCoordForTileUrlFunction", "projection参数格式有误"));
+      }
+      return this._source.getTileCoordForTileUrlFunction(tileCoord, projection == null ? void 0 : projection.getProjection());
+    }
+    onTile(type, listener) {
+      if (!Object.values(TILE_SOURCE_EVENT_TYPES).includes(type) || !isFunction(listener)) {
+        error_(createMessage$c("onTile", "type或listener参数格式有误"));
+      }
+      return this._source.on(type, listener);
+    }
+    onTileLoadStart(listener) {
+      return this.onTile(TILE_SOURCE_EVENT_TYPES.tileLoadStart, listener);
+    }
+    onTileLoadEnd(listener) {
+      return this.onTile(TILE_SOURCE_EVENT_TYPES.tileLoadEnd, listener);
+    }
+    onTileLoadError(listener) {
+      return this.onTile(TILE_SOURCE_EVENT_TYPES.tileLoadError, listener);
+    }
+    isTileCoord(tileCoord) {
+      return Array.isArray(tileCoord) && tileCoord.length === 3 && tileCoord.every((item) => isNumber(item));
     }
   }
-  const DEFAULT_XYZ_SOURCE_PARAMS = Object.assign(
-    {},
-    DEFAULT_TILE_SOURCE_PARAMS,
-    {
-      attributionsCollapsible: true,
-      interpolate: true,
-      reprojectionErrorThreshold: 0.5,
-      maxZoom: 42,
-      minZoom: 0,
-      tilePixelRatio: 1,
-      gutter: 0,
-      tileSize: 256,
-      crossOrigin: "anonymous",
-      transition: 250,
-      zDirection: 0
-    }
-  );
-  function handleGetXYZSourceParams(params) {
-    const _params = Object.assign(params, handleGetTileSourceParams(params), {
-      tileSize: isNumber(params.tileSize) ? params.tileSize : handleGetSizeValue(params.tileSize)
-    });
-    return _params;
+  const DEFAULT_XYZ_SOURCE_PARAMS = {
+    ...DEFAULT_TILE_SOURCE_PARAMS,
+    attributionsCollapsible: true,
+    interpolate: true,
+    projection: "EPSG:3857",
+    reprojectionErrorThreshold: 0.5,
+    maxZoom: 42,
+    minZoom: 0,
+    tilePixelRatio: 1,
+    tileSize: [256, 256],
+    gutter: 0,
+    wrapX: true,
+    transition: 250,
+    zDirection: 0
+  };
+  function handleGetXYZSourceParams(params = {}) {
+    return {
+      ...handleGetTileSourceParams(params),
+      tileSize: typeof params.tileSize === "number" ? params.tileSize : params.tileSize ? handleGetSizeValue(params.tileSize) : void 0
+    };
   }
   class XYZSource extends TileSource {
-    constructor(options) {
-      super(options);
-      const params = Object.assign({}, DEFAULT_XYZ_SOURCE_PARAMS, options);
-      let _params = handleGetXYZSourceParams(params);
-      const tileGrid = isDefined(this._tileGrid) ? this._tileGrid.getTileGrid() : void 0;
-      this._source = new OlSource__namespace.XYZ({
-        ..._params,
-        tileGrid
-      });
+    constructor(params = {}) {
+      super(new OlSource__namespace.XYZ(handleGetXYZSourceParams({
+        ...DEFAULT_XYZ_SOURCE_PARAMS,
+        ...params
+      })));
     }
   }
   const GaodeLayerType = {
@@ -6740,13 +6951,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     if (!isDefined(type)) return [];
     return GaodeLayerTypeUrls[type];
   }
-  let PACKAGE_NAME$e = "GaodeLayer";
-  let createMessage$e = getPackageMessage(PACKAGE_NAME$e);
+  let PACKAGE_NAME$b = "GaodeLayer";
+  let createMessage$b = getPackageMessage(PACKAGE_NAME$b);
   class GaodeLayer extends TileLayer {
     constructor(type, options) {
       if (!isValidGaodeLayerType(type)) {
         error_(
-          createMessage$e("constructor", commonMessage.paramsInvaildEnum("type"))
+          createMessage$b("constructor", commonMessage.paramsInvaildEnum("type"))
         );
       }
       const urls = getGaodeLayerUrlsByType(type);
@@ -6771,12 +6982,12 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._initLayerEvent();
     }
   }
-  const PACKAGE_NAME$d = "ProjUtil";
-  const createMessage$d = getPackageMessage(PACKAGE_NAME$d);
+  const PACKAGE_NAME$a = "ProjUtil";
+  const createMessage$a = getPackageMessage(PACKAGE_NAME$a);
   class ProjUtil {
     static fromLonLat(coordinate2, projection) {
       if (!isDefined(coordinate2)) {
-        warn_(createMessage$d("fromLonLat", "coordinate参数不能为空"));
+        warn_(createMessage$a("fromLonLat", "coordinate参数不能为空"));
         return void 0;
       }
       let _coords = coordinate2;
@@ -6789,7 +7000,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     }
     static toLonLat(coordinate2, projection) {
       if (!isDefined(coordinate2)) {
-        warn_(createMessage$d("toLonLat", "coordinate参数不能为空"));
+        warn_(createMessage$a("toLonLat", "coordinate参数不能为空"));
         return void 0;
       }
       let _coords = coordinate2;
@@ -6856,12 +7067,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       default:
         return {};
     }
-  }
-  function handleGetProjectionValue(projection) {
-    if (isDefined(projection)) {
-      return projection instanceof Projection ? projection.getProjection() : projection;
-    }
-    return void 0;
   }
   function readFeature$2(source, options) {
     const format = getFormatTool();
@@ -7000,7 +7205,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     if (isDefined(module2) && isDefined(module2[key])) {
       return module2[key](...args);
     } else {
-      error_(createMessage$c(key, `当前格式化工具不支持${key}方法`));
+      error_(createMessage$9(key, `当前格式化工具不支持${key}方法`));
       return void 0;
     }
   }
@@ -7022,19 +7227,19 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function handleWriteFeaturesObject(type, features, options) {
     return handle(type, "writeFeaturesObject", features, options);
   }
-  const PACKAGE_NAME$c = "Format";
-  const createMessage$c = getPackageMessage(PACKAGE_NAME$c);
+  const PACKAGE_NAME$9 = "Format";
+  const createMessage$9 = getPackageMessage(PACKAGE_NAME$9);
   class Format {
     constructor(type, options) {
       __publicField(this, "type");
       __publicField(this, "options");
       __publicField(this, "_format");
       if (!isDefined(type)) {
-        error_(createMessage$c("constructor", "初始化参数有误"));
+        error_(createMessage$9("constructor", "初始化参数有误"));
         return;
       }
       if (!isVaildFormatType(type)) {
-        error_(createMessage$c("constructor", "初始化参数有误"));
+        error_(createMessage$9("constructor", "初始化参数有误"));
         return;
       }
       this.type = type;
@@ -7107,16 +7312,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   function isValidTdtLayerType(type) {
     return Object.values(TdtLayerType).includes(type);
   }
-  let PACKAGE_NAME$b = "TdtLayer";
-  let createMessage$b = getPackageMessage(PACKAGE_NAME$b);
+  let PACKAGE_NAME$8 = "TdtLayer";
+  let createMessage$8 = getPackageMessage(PACKAGE_NAME$8);
   class TdtLayer extends TileLayer {
     constructor(type, proj, options) {
       if (!isDefined(MapTokenProxy.tdt)) {
-        error_(createMessage$b("constructor", "缺少天地图key，请提前申明"));
+        error_(createMessage$8("constructor", "缺少天地图key，请提前申明"));
       }
       if (!isValidTdtLayerType(type)) {
         error_(
-          createMessage$b("constructor", commonMessage.paramsInvaildEnum("type"))
+          createMessage$8("constructor", commonMessage.paramsInvaildEnum("type"))
         );
       }
       const url = getTdtServiceUrl(type, proj);
@@ -7159,13 +7364,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
     transition: 250,
     zDirection: 0
   };
-  let PACKAGE_NAME$a = "TileLayer";
-  let createMessage$a = getPackageMessage(PACKAGE_NAME$a);
+  let PACKAGE_NAME$7 = "TileLayer";
+  let createMessage$7 = getPackageMessage(PACKAGE_NAME$7);
   class XYZLayer extends BaseLayer {
     constructor(options) {
       super("XYZ", defaultValue(options, {}));
       if (!isDefined(options.source)) {
-        error_(createMessage$a("constructor", "source参数是必须的"));
+        error_(createMessage$7("constructor", "source参数是必须的"));
         return;
       }
       let _layerParams = Object.assign({}, DEFAULT_XYZ_LAYER_PARAMS, {
@@ -7214,205 +7419,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         ..._layerParams,
         extent: isDefined(_layerParams.extent) ? handleGetExtentValue(_layerParams.extent) : void 0,
         background: isDefined(_layerParams.background) ? handleGetColorValue(_layerParams.background) : void 0,
-        source: _source
-      });
-      this._initLayerEvent();
-    }
-  }
-  const DEFAULT_WMTS_LAYER_PARAMS = {
-    preload: 0,
-    cacheSize: 512
-  };
-  const DEFAULT_WMTS_LAYER_SOURCE_PARAMS = {
-    attributionsCollapsible: true,
-    interpolate: true,
-    projection: "EPSG:3857",
-    reprojectionErrorThreshold: 0.5,
-    requestEncoding: "KVP",
-    layer: "",
-    style: "",
-    tilePixelRatio: 1,
-    format: "image/jpeg",
-    version: "1.0.0",
-    matrixSet: "EPSG:3857",
-    wrapX: true,
-    transition: 250,
-    zDirection: 0
-  };
-  let PACKAGE_NAME$9 = "WMTSLayer";
-  let createMessage$9 = getPackageMessage(PACKAGE_NAME$9);
-  class WMTSLayer extends BaseLayer {
-    constructor(options) {
-      super("WMS", defaultValue(options, {}));
-      if (!isDefined(options.source)) {
-        warn_(createMessage$9("constructor", "缺少source参数"));
-        return;
-      }
-      let _layerParams = Object.assign({}, DEFAULT_WMTS_LAYER_PARAMS, {
-        ...options,
-        source: void 0,
-        map: void 0
-      });
-      let _sourceParams = Object.assign({}, DEFAULT_WMTS_LAYER_SOURCE_PARAMS, {
-        ...defaultValue(options.source, {})
-      });
-      console.log("_sourceParams");
-      console.log(_sourceParams);
-      let _source = void 0;
-      if (isDefined(options.source)) {
-        let _tileGrid = void 0;
-        if (isDefined(_sourceParams.tileGrid)) {
-          _tileGrid = new OlTileGrid__namespace.WMTS({
-            ..._sourceParams.tileGrid,
-            extent: handleGetExtentValue(_sourceParams.tileGrid.extent),
-            origin: handleGetLnglatValue(_sourceParams.tileGrid.origin),
-            origins: isDefined(_sourceParams.tileGrid.origins) ? _sourceParams.tileGrid.origins.map((item) => {
-              if (item instanceof Lnglat) {
-                return handleGetLnglatValue(item);
-              }
-              return item;
-            }) : void 0,
-            sizes: isDefined(_sourceParams.tileGrid.sizes) ? _sourceParams.tileGrid.sizes.map((item) => {
-              if (item instanceof Size) {
-                return handleGetSizeValue(item);
-              }
-              return item;
-            }) : void 0,
-            tileSize: isDefined(_sourceParams.tileGrid.tileSize) ? isNumber(_sourceParams.tileGrid.tileSize) ? _sourceParams.tileGrid.tileSize : handleGetSizeValue(_sourceParams.tileGrid.tileSize) : void 0,
-            tileSizes: isDefined(_sourceParams.tileGrid.tileSizes) ? _sourceParams.tileGrid.tileSizes.map((item) => {
-              if (item instanceof Size) {
-                return handleGetSizeValue(item);
-              }
-              return item;
-            }) : void 0
-          });
-        }
-        _source = new OlSource__namespace.WMTS({
-          ..._sourceParams,
-          projection: handleGetProjectionValue(_sourceParams.projection),
-          tileGrid: _tileGrid
-        });
-      }
-      this._layer = new OlLayer__namespace.Tile({
-        ..._layerParams,
-        extent: isDefined(_layerParams.extent) ? handleGetExtentValue(_layerParams.extent) : void 0,
-        background: isDefined(_layerParams.background) ? handleGetColorValue(_layerParams.background) : void 0,
-        source: _source
-      });
-      this._initLayerEvent();
-    }
-  }
-  const DEFAULT_WMS_LAYER_PARAMS = {
-    preload: 0,
-    cacheSize: 512
-  };
-  const DEFAULT_WMS_LAYER_SOURCE_PARAMS = {
-    attributionsCollapsible: true,
-    interpolate: true,
-    params: {},
-    hidpi: true,
-    projection: "EPSG:3857",
-    reprojectionErrorThreshold: 0.5,
-    gutter: 0,
-    wrapX: true,
-    transition: 250,
-    zDirection: 0
-  };
-  let PACKAGE_NAME$8 = "WMSLayer";
-  let createMessage$8 = getPackageMessage(PACKAGE_NAME$8);
-  class WMSLayer extends BaseLayer {
-    constructor(options) {
-      super("WMS", defaultValue(options, {}));
-      if (!isDefined(options.source)) {
-        warn_(createMessage$8("constructor", "缺少source参数"));
-        return;
-      }
-      let _layerParams = Object.assign({}, DEFAULT_WMS_LAYER_PARAMS, {
-        ...options,
-        source: void 0,
-        map: void 0
-      });
-      let _sourceParams = Object.assign({}, DEFAULT_WMS_LAYER_SOURCE_PARAMS, {
-        ...defaultValue(options.source, {})
-      });
-      let _source = void 0;
-      if (isDefined(options.source)) {
-        let _tileGrid = void 0;
-        if (isDefined(_sourceParams.tileGrid)) {
-          _tileGrid = new OlTileGrid__namespace.TileGrid({
-            ..._sourceParams.tileGrid,
-            extent: handleGetExtentValue(_sourceParams.tileGrid.extent),
-            origin: handleGetLnglatValue(_sourceParams.tileGrid.origin),
-            origins: isDefined(_sourceParams.tileGrid.origins) ? _sourceParams.tileGrid.origins.map((item) => {
-              if (item instanceof Lnglat) {
-                return handleGetLnglatValue(item);
-              }
-              return item;
-            }) : void 0,
-            sizes: isDefined(_sourceParams.tileGrid.sizes) ? _sourceParams.tileGrid.sizes.map((item) => {
-              if (item instanceof Size) {
-                return handleGetSizeValue(item);
-              }
-              return item;
-            }) : void 0,
-            tileSize: isDefined(_sourceParams.tileGrid.tileSize) ? isNumber(_sourceParams.tileGrid.tileSize) ? _sourceParams.tileGrid.tileSize : handleGetSizeValue(_sourceParams.tileGrid.tileSize) : void 0,
-            tileSizes: isDefined(_sourceParams.tileGrid.tileSizes) ? _sourceParams.tileGrid.tileSizes.map((item) => {
-              if (item instanceof Size) {
-                return handleGetSizeValue(item);
-              }
-              return item;
-            }) : void 0
-          });
-        }
-        _source = new OlSource__namespace.TileWMS({
-          ..._sourceParams,
-          projection: handleGetProjectionValue(_sourceParams.projection),
-          tileGrid: _tileGrid
-        });
-      }
-      this._layer = new OlLayer__namespace.Tile({
-        ..._layerParams,
-        extent: isDefined(_layerParams.extent) ? handleGetExtentValue(_layerParams.extent) : void 0,
-        background: isDefined(_layerParams.background) ? handleGetColorValue(_layerParams.background) : void 0,
-        source: _source
-      });
-      this._initLayerEvent();
-    }
-  }
-  const DEFAULT_IMAGE_LAYER_PARAMS = {};
-  const DEFAULT_IMAGE_STATIC_SOURCE_PARAMS = {
-    interpolate: true,
-    imageExtent: new Extent(0, 0, 0, 0),
-    url: ""
-  };
-  let PACKAGE_NAME$7 = "ImageLayer";
-  let createMessage$7 = getPackageMessage(PACKAGE_NAME$7);
-  class ImageLayer extends BaseLayer {
-    constructor(options) {
-      super("Image", defaultValue(options, {}));
-      if (!isDefined(options.source)) {
-        warn_(createMessage$7("constructor", "缺少source参数"));
-        return;
-      }
-      let _layerParams = Object.assign({}, DEFAULT_IMAGE_LAYER_PARAMS, {
-        ...options,
-        source: void 0,
-        map: void 0
-      });
-      let _sourceParams = Object.assign({}, DEFAULT_IMAGE_STATIC_SOURCE_PARAMS, {
-        ...defaultValue(options.source, {})
-      });
-      let _source = void 0;
-      if (isDefined(options.source)) {
-        _source = new OlSource__namespace.ImageStatic({
-          ..._sourceParams,
-          extent: isDefined(_sourceParams.imageExtent) ? handleGetExtentValue(_sourceParams.imageExtent) : void 0,
-          projection: handleGetProjectionValue(_sourceParams.projection)
-        });
-      }
-      this._layer = new OlLayer__namespace.Image({
-        ..._layerParams,
-        extent: isDefined(_layerParams.extent) ? handleGetExtentValue(_layerParams.extent) : void 0,
         source: _source
       });
       this._initLayerEvent();
@@ -7673,19 +7679,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       if (!isDefined(params)) {
         error_(createMessage$4("init", commonMessage.paramsNotDefined("params")));
       }
-      super("Modify", { id: params.id });
+      const { id, active, layer, ...modifyOptions } = params;
+      super("Modify", { id });
       __publicField(this, "records", []);
       let modify_source = null;
-      if (!isDefined(params.layer)) {
+      if (!isDefined(layer)) {
         error_(createMessage$4("init", "layer参数不能为空"));
       }
-      if (isDefined(params.layer) && !(params.layer instanceof VectorLayer)) {
+      if (isDefined(layer) && !(layer instanceof VectorLayer)) {
         error_(createMessage$4("init", "layer参数不属于VectorLayer类型"));
       }
-      this.layer = params.layer;
-      modify_source = params.layer.getSource();
+      this.layer = layer;
+      modify_source = layer.getSource();
       let _params = Object.assign({}, defaultModifyOptions, {
-        ...params,
+        ...modifyOptions,
         source: modify_source
       });
       this._interaction = new OlInteraction__namespace.Modify(_params);
@@ -7693,41 +7700,49 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._initModifyEvent();
     }
     _initModifyEvent() {
-      let originFeatures = this.layer.getFeatures();
-      let originFeaturesList = (originFeatures || []).map((o) => {
+      this.pushRecord(this.layer.getFeatures());
+      this._interaction.on("modifyend", (e) => {
+        const modifiedFeatures = e.features.getArray().map((feature) => this.findFeatureByOlFeature(feature)).filter(isDefined);
+        this.pushRecord(modifiedFeatures);
+      });
+    }
+    createSnapshot(features) {
+      return features.map((feature) => {
         return {
-          id: o.getId(),
-          originFeatureId: OlUtil__namespace.getUid(o.getFeature()),
-          type: o.type,
-          coordinates: o.getCoordinates()
+          id: feature.getId(),
+          originFeatureId: OlUtil__namespace.getUid(feature.getFeature()),
+          type: feature.type,
+          coordinates: feature.getCoordinates()
         };
       });
+    }
+    pushRecord(features) {
       this.records.push({
         time: getCurrentDateTime(),
-        features: originFeaturesList,
-        version: 1
+        features: this.createSnapshot(features),
+        version: this.records.length + 1
       });
-      this._interaction.on("modifyend", (e) => {
-        let features = e.features.getArray();
-        let newList = [];
-        features.forEach((f) => {
-          let target = this.layer.getFeatures().find((item) => {
-            return OlUtil__namespace.getUid(item.getFeature()) === OlUtil__namespace.getUid(f);
-          });
-          if (target) {
-            newList.push({
-              id: target.getId(),
-              originFeatureId: OlUtil__namespace.getUid(target.getFeature()),
-              type: target.type,
-              coordinates: target.getCoordinates()
-            });
-          }
-        });
-        this.records.push({
-          time: getCurrentDateTime(),
-          features: newList,
-          version: this.records.length + 1
-        });
+    }
+    findFeatureByOlFeature(feature) {
+      return this.layer.getFeatures().find((item) => {
+        return OlUtil__namespace.getUid(item.getFeature()) === OlUtil__namespace.getUid(feature);
+      });
+    }
+    findFeatureByRecord(record) {
+      return this.layer.getFeatures().find((item) => {
+        if (record.id) {
+          return record.id === item.id;
+        }
+        return OlUtil__namespace.getUid(item.getFeature()) === record.originFeatureId;
+      });
+    }
+    restoreSnapshot(features) {
+      features.forEach((feature) => {
+        const record = feature;
+        const target = this.findFeatureByRecord(record);
+        if (isDefined(target)) {
+          target.setCoordinates(record.coordinates);
+        }
       });
     }
     canInsertPoint() {
@@ -7769,18 +7784,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         this.cancel();
         return false;
       }
-      const { features } = this.records[targetIndex];
-      features.forEach((f) => {
-        let target = this.layer.getFeatures().find((item) => {
-          if (f.id) {
-            return f.id === item.id;
-          }
-          return OlUtil__namespace.getUid(item.getFeature()) === f.originFeatureId;
-        });
-        if (isDefined(target)) {
-          target.setCoordinates(f.coordinates);
-        }
-      });
+      this.restoreSnapshot(this.records[targetIndex].features);
       this.records.splice(targetIndex + 1);
       return true;
     }
@@ -7788,32 +7792,13 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
      * 取消当前全部修改，也就是回到初始状态
      */
     cancel() {
-      const { features } = this.records[0];
-      features.forEach((f) => {
-        let target = this.layer.getFeatures().find((item) => {
-          if (f.id) {
-            return f.id === item.id;
-          }
-          return OlUtil__namespace.getUid(item.getFeature()) === f.originFeatureId;
-        });
-        if (target) {
-          target.setCoordinates(f.coordinates);
-        }
-      });
+      this.restoreSnapshot(this.records[0].features);
       this.records = [
         this.records[0]
       ];
     }
     on(type, callback) {
-      if (!isDefined(type) || !isDefined(callback)) {
-        error_(createMessage$4("on", commonMessage.paramsNotDefined("type or callback")));
-      }
-      if (!isOMapInteractionModifyEventType(type)) {
-        error_(createMessage$4("on", commonMessage.paramsInvaildEnum(type)));
-      }
-      if (!isFunction(callback)) {
-        error_(createMessage$4("on", commonMessage.paramsInvaildFormat("callback", "function")));
-      }
+      this.validateEvent(type, callback, "on");
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         this.events.emit(type, handleModifyEvent(this, type, e));
       });
@@ -7821,20 +7806,23 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     once(type, callback) {
-      if (!isDefined(type) || !isDefined(callback)) {
-        error_(createMessage$4("once", commonMessage.paramsNotDefined("type or callback")));
-      }
-      if (!isOMapInteractionModifyEventType(type)) {
-        error_(createMessage$4("once", commonMessage.paramsInvaildEnum(type)));
-      }
-      if (!isFunction(callback)) {
-        error_(createMessage$4("once", commonMessage.paramsInvaildFormat("callback", "function")));
-      }
+      this.validateEvent(type, callback, "once");
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         this.events.emit(type, handleModifyEvent(this, type, e));
       });
       const id = this.events.once(type, callback, unlisten);
       return id;
+    }
+    validateEvent(type, callback, methodName) {
+      if (!isDefined(type) || !isDefined(callback)) {
+        error_(createMessage$4(methodName, commonMessage.paramsNotDefined("type or callback")));
+      }
+      if (!isOMapInteractionModifyEventType(type)) {
+        error_(createMessage$4(methodName, commonMessage.paramsInvaildEnum(type)));
+      }
+      if (!isFunction(callback)) {
+        error_(createMessage$4(methodName, commonMessage.paramsInvaildFormat("callback", "function")));
+      }
     }
     un(id) {
       if (!isDefined(id)) {
@@ -7849,29 +7837,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   ];
   function isOMapInteractionSelectEventType(value) {
     return isString(value) && OMapInteractionSelectEventTypes.includes(value);
-  }
-  let selectLayers = [];
-  let selectFeatures = [];
-  function updateSelectLayers(layers) {
-    selectLayers = layers;
-  }
-  function updateSelectFeatures(features) {
-    selectFeatures = features;
-    selectLayers = [];
-  }
-  function getTargetFeature(id) {
-    let result = null;
-    if (selectLayers.length) {
-      for (const layer of selectLayers) {
-        let target = layer.getFeatures().find((f) => OlUtil__namespace.getUid(f.getFeature()) === id);
-        if (target) {
-          result = target;
-        }
-      }
-    } else {
-      result = selectFeatures.find((f) => OlUtil__namespace.getUid(f.getFeature()) === id);
-    }
-    return result;
   }
   function handleInteractionSelectEvent(target, type, e) {
     let result = {
@@ -7895,7 +7860,10 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   };
   class Select extends Interaction {
     constructor(params) {
-      super("Select", { id: params == null ? void 0 : params.id });
+      const { id, active, layers: inputLayers, features, style, filter, ...selectOptions } = params || {};
+      super("Select", { id });
+      __publicField(this, "layers", []);
+      __publicField(this, "features", []);
       /**
        * 当前选择的要素
        */
@@ -7905,19 +7873,20 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
        */
       __publicField(this, "deselected", []);
       let layers = [];
-      if (isDefined(params == null ? void 0 : params.layers)) {
-        updateSelectLayers(params.layers);
-        layers = params.layers.map((l) => l.getLayer());
+      if (isDefined(inputLayers)) {
+        this.layers = inputLayers;
+        layers = inputLayers.map((l) => l.getLayer());
       }
-      if (isDefined(params == null ? void 0 : params.features)) {
-        updateSelectFeatures(params.features);
+      if (isDefined(features)) {
+        this.features = features;
+        this.layers = [];
       }
       this._interaction = new OlInteraction__namespace.Select(
         Object.assign({}, defaultSelectOptions, {
-          ...params,
-          layers,
-          style: this.initStyle(params == null ? void 0 : params.style),
-          filter: this.initFilter(params == null ? void 0 : params.filter)
+          ...selectOptions,
+          layers: layers.length ? layers : void 0,
+          style: this.initStyle(style),
+          filter: this.initFilter(filter)
         })
       );
       this.initInteractionEvent();
@@ -7939,7 +7908,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
         } else if (isFunction(style)) {
           _style = (feature, resolution) => {
             let uid = OlUtil__namespace.getUid(feature);
-            let targetFeature = getTargetFeature(uid);
+            let targetFeature = this.getTargetFeature(uid);
             let styleFnResult = style(targetFeature, resolution);
             return styleFnResult ? styleFnResult.getStyle() : void 0;
           };
@@ -7950,10 +7919,16 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return _style;
     }
     initFilter(filter) {
-      if (isDefined(filter)) {
+      if (isDefined(filter) || this.features.length) {
         return (feature, layer) => {
           var _a;
-          let targetFeature = getTargetFeature(OlUtil__namespace.getUid(feature));
+          let targetFeature = this.getTargetFeature(OlUtil__namespace.getUid(feature));
+          if (!targetFeature) {
+            return false;
+          }
+          if (!isDefined(filter)) {
+            return true;
+          }
           let targetLayer = (_a = this.map) == null ? void 0 : _a.getAllLayers().find((l) => OlUtil__namespace.getUid(l.getLayer()) === OlUtil__namespace.getUid(layer));
           return filter(
             targetFeature,
@@ -7971,16 +7946,46 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       this._interaction.on("select", (e) => {
         const { selected, deselected } = e;
         this.selected = selected.map((s) => {
-          return getTargetFeature(
+          return this.getTargetFeature(
             OlUtil__namespace.getUid(s)
           );
         }).filter((f) => f !== null);
         this.deselected = deselected.map((d) => {
-          return getTargetFeature(
+          return this.getTargetFeature(
             OlUtil__namespace.getUid(d)
           );
         }).filter((f) => f !== null);
       });
+    }
+    getTargetFeature(id) {
+      if (this.layers.length) {
+        for (const layer of this.layers) {
+          const target = layer.getFeatures().find((feature) => {
+            return OlUtil__namespace.getUid(feature.getFeature()) === id;
+          });
+          if (target) {
+            return target;
+          }
+        }
+        return null;
+      }
+      if (!this.features.length && this.map) {
+        for (const layer of this.map.getAllLayers()) {
+          if (!(layer instanceof VectorLayer)) {
+            continue;
+          }
+          const target = layer.getFeatures().find((feature) => {
+            return OlUtil__namespace.getUid(feature.getFeature()) === id;
+          });
+          if (target) {
+            return target;
+          }
+        }
+        return null;
+      }
+      return this.features.find((feature) => {
+        return OlUtil__namespace.getUid(feature.getFeature()) === id;
+      }) || null;
     }
     getSelected() {
       return this.selected;
@@ -7989,22 +7994,7 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return this.deselected;
     }
     on(type, callback) {
-      if (!isDefined(type) || !isDefined(callback)) {
-        error_(
-          createMessage$3("on", commonMessage.paramsNotDefined("type or callback"))
-        );
-      }
-      if (!isOMapInteractionSelectEventType(type)) {
-        error_(createMessage$3("on", commonMessage.paramsInvaildEnum(type)));
-      }
-      if (!isFunction(callback)) {
-        error_(
-          createMessage$3(
-            "on",
-            commonMessage.paramsInvaildFormat("callback", "function")
-          )
-        );
-      }
+      this.validateEvent(type, callback, "on");
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         this.events.emit(type, handleInteractionSelectEvent(this, type));
       });
@@ -8012,30 +8002,30 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
       return id;
     }
     once(type, callback) {
-      if (!isDefined(type) || !isDefined(callback)) {
-        error_(
-          createMessage$3(
-            "once",
-            commonMessage.paramsNotDefined("type or callback")
-          )
-        );
-      }
-      if (!isOMapInteractionSelectEventType(type)) {
-        error_(createMessage$3("once", commonMessage.paramsInvaildEnum(type)));
-      }
-      if (!isFunction(callback)) {
-        error_(
-          createMessage$3(
-            "once",
-            commonMessage.paramsInvaildFormat("callback", "function")
-          )
-        );
-      }
+      this.validateEvent(type, callback, "once");
       const unlisten = OlEvent.listen(this._interaction, type, (e) => {
         this.events.emit(type, handleInteractionSelectEvent(this, type));
       });
       const id = this.events.once(type, callback, unlisten);
       return id;
+    }
+    validateEvent(type, callback, methodName) {
+      if (!isDefined(type) || !isDefined(callback)) {
+        error_(
+          createMessage$3(methodName, commonMessage.paramsNotDefined("type or callback"))
+        );
+      }
+      if (!isOMapInteractionSelectEventType(type)) {
+        error_(createMessage$3(methodName, commonMessage.paramsInvaildEnum(type)));
+      }
+      if (!isFunction(callback)) {
+        error_(
+          createMessage$3(
+            methodName,
+            commonMessage.paramsInvaildFormat("callback", "function")
+          )
+        );
+      }
     }
     un(id) {
       if (!isDefined(id)) {
@@ -8430,11 +8420,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   exports2.FullScreen = FullScreen;
   exports2.GaodeLayer = GaodeLayer;
   exports2.GaodeLayerType = GaodeLayerType;
-  exports2.ImageLayer = ImageLayer;
   exports2.InteractionExtent = InteractionExtent;
   exports2.InteractionType = InteractionType;
   exports2.KeyboardZoom = KeyboardZoom;
-  exports2.LayerGroup = LayerGroup;
   exports2.LineString = LineString;
   exports2.LinearRing = LinearRing;
   exports2.Link = Link;
@@ -8462,8 +8450,6 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
   exports2.TdtLayerType = TdtLayerType;
   exports2.TileLayer = TileLayer;
   exports2.VectorLayer = VectorLayer;
-  exports2.WMSLayer = WMSLayer;
-  exports2.WMTSLayer = WMTSLayer;
   exports2.XYZLayer = XYZLayer;
   exports2.Zoom = Zoom;
   Object.defineProperty(exports2, Symbol.toStringTag, { value: "Module" });

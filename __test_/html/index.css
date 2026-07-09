@@ -95,14 +95,15 @@ body {
 }
 
 .panel_toggle {
-    flex: 0 0 32px;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     margin: 0;
     padding: 0;
-    border-radius: 6px;
-    font-size: 22px;
-    line-height: 1;
+    border-radius: 8px;
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 h3 {

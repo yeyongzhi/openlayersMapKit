@@ -1,14 +1,11 @@
 import { isDefined, isString } from '../../../utils/index';
 import { warn_, error_, getPackageMessage } from '../../../utils/message'
-import { OlEvent, OlSource } from '../../../source/index'
+import { OlEvent } from '../../../source/index'
 import type { EventsKey, ListenerFunction } from 'ol/events'
 import type BaseEvent from 'ol/events/Event'
-import type Projection from '../../core/Projection/index'
+import Projection from '../../core/Projection/index'
 import {
-    DEFAULT_SOURCE_PARAMS,
-    handleGetSourceParams,
     type OMapSourceAttributionLike,
-    type OMapSourceParamsType,
     type OMapSourceState,
     type OMapSourceType
 } from './type'
@@ -27,16 +24,15 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/9/30
  */
 
-export default class Source<T extends OMapSourceType> {
+export default abstract class Source<T extends OMapSourceType> {
 
     protected _source: T;
 
-    constructor(params: OMapSourceParamsType = {}, source?: T) {
-        const sourceParams = handleGetSourceParams({
-            ...DEFAULT_SOURCE_PARAMS,
-            ...params
-        })
-        this._source = source || new OlSource.Source(sourceParams) as T;
+    constructor(source: T) {
+        if (!isDefined(source)) {
+            error_(createMessage('constructor', 'source不能为空'));
+        }
+        this._source = source;
     }
 
     /**
@@ -100,8 +96,9 @@ export default class Source<T extends OMapSourceType> {
         return this._source.getKeys();
     }
 
-    getProjection() {
-        return this._source.getProjection();
+    getProjection(): Projection | undefined {
+        const projection = this._source.getProjection();
+        return projection ? new Projection(projection.getCode()) : undefined;
     }
 
     getRevision() {
@@ -148,33 +145,33 @@ export default class Source<T extends OMapSourceType> {
         this._source.setProperties(properties, silent);
     }
 
-    on(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
-        if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
-            error_(createMessage('on', 'type或listener参数格式有误'));
-        }
-        return this._source.on(type, listener);
-    }
+    // on(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
+    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+    //         error_(createMessage('on', 'type或listener参数格式有误'));
+    //     }
+    //     return this._source.on(type, listener);
+    // }
 
-    once(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
-        if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
-            error_(createMessage('once', 'type或listener参数格式有误'));
-        }
-        return this._source.once(type, listener);
-    }
+    // once(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
+    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+    //         error_(createMessage('once', 'type或listener参数格式有误'));
+    //     }
+    //     return this._source.once(type, listener);
+    // }
 
-    un(type: string | string[], listener: ListenerFunction) {
-        if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
-            error_(createMessage('un', 'type或listener参数格式有误'));
-        }
-        this._source.un(type, listener);
-    }
+    // un(type: string | string[], listener: ListenerFunction) {
+    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+    //         error_(createMessage('un', 'type或listener参数格式有误'));
+    //     }
+    //     this._source.un(type, listener);
+    // }
 
-    unByKey(key: EventsKey | EventsKey[]) {
-        if (Array.isArray(key)) {
-            key.forEach(item => OlEvent.unlistenByKey(item))
-        } else {
-            OlEvent.unlistenByKey(key)
-        }
-    }
+    // unByKey(key: EventsKey | EventsKey[]) {
+    //     if (Array.isArray(key)) {
+    //         key.forEach(item => OlEvent.unlistenByKey(item))
+    //     } else {
+    //         OlEvent.unlistenByKey(key)
+    //     }
+    // }
 
 }

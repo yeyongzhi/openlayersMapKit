@@ -1,7 +1,6 @@
 import {
   isDefined,
   isFunction,
-  isNumber,
   isString,
   isArray,
 } from "../../../utils/index";
@@ -14,7 +13,6 @@ import {
 import BaseFeature from "../../core/Feature/BasicFeature/index";
 import Style from "../../basic/Style/index";
 import Interaction from "../Interaction/index";
-import Event from "../../util/Event/index";
 import { type EventIdType } from "../../util/Event/type";
 import VectorLayer from "../../layer/VectorLayer/index";
 import { type OMapVectorLayerType } from "../../layer/VectorLayer/type";
@@ -22,10 +20,7 @@ import type {
   OlStyleInstanceType,
   OMapStyleLike,
 } from "../../basic/Style/type";
-import type {
-  OlFeatureInstanceType,
-  OlFeatureLike,
-} from "../../core/Feature/BasicFeature/type";
+import type { OlFeatureLike } from "../../core/Feature/BasicFeature/type";
 import {
   OlGeometry,
   OlInteraction,
@@ -34,17 +29,11 @@ import {
 } from "../../../source/index";
 import {
   type OMapSelectParamsType,
-  type OlInteractionSelectInstanceType,
   type OMapInteractionSelectEventType,
   type OMapSelectType,
   isOMapInteractionSelectEventType,
 } from "./type";
-import {
-  getTargetFeature,
-  updateSelectLayers,
-  updateSelectFeatures,
-  handleInteractionSelectEvent,
-} from "./handle";
+import { handleInteractionSelectEvent } from "./handle";
 
 const PACKAGE_NAME = "Select";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -69,6 +58,9 @@ const defaultSelectOptions = {
 };
 
 export default class Select extends Interaction<OMapSelectType> {
+  protected layers: VectorLayer[] = [];
+  protected features: BaseFeature<OlGeometry.Geometry>[] = [];
+
   /**
    * 当前选择的要素
    */
@@ -79,22 +71,24 @@ export default class Select extends Interaction<OMapSelectType> {
   deselected: BaseFeature<OlGeometry.Geometry>[] = [];
 
   constructor(params?: OMapSelectParamsType) {
-    super("Select", { id: params?.id });
+    const { id, active, layers: inputLayers, features, style, filter, ...selectOptions } = params || {};
+    super("Select", { id });
     let layers: OMapVectorLayerType[] = [];
     // layers的优先级低于features
-    if (isDefined(params?.layers)) {
-      updateSelectLayers(params.layers);
-      layers = params.layers.map((l) => l.getLayer());
+    if (isDefined(inputLayers)) {
+      this.layers = inputLayers;
+      layers = inputLayers.map((l) => l.getLayer());
     }
-    if (isDefined(params?.features)) {
-      updateSelectFeatures(params.features);
+    if (isDefined(features)) {
+      this.features = features;
+      this.layers = [];
     }
     this._interaction = new OlInteraction.Select(
       Object.assign({}, defaultSelectOptions, {
-        ...params,
-        layers,
-        style: this.initStyle(params?.style),
-        filter: this.initFilter(params?.filter),
+        ...selectOptions,
+        layers: layers.length ? layers : undefined,
+        style: this.initStyle(style),
+        filter: this.initFilter(filter),
       }),
     );
     // 注册事件
@@ -137,7 +131,7 @@ export default class Select extends Interaction<OMapSelectType> {
       } else if (isFunction(style)) {
         _style = (feature: OlFeatureLike, resolution: number) => {
           let uid = OlUtil.getUid(feature);
-          let targetFeature = getTargetFeature(uid);
+          let targetFeature = this.getTargetFeature(uid);
           let styleFnResult = (style as Function)(targetFeature, resolution);
           return styleFnResult ? styleFnResult.getStyle() : undefined;
         };
@@ -158,9 +152,15 @@ export default class Select extends Interaction<OMapSelectType> {
   ):
     | ((feature: OlFeatureLike, layer: OMapVectorLayerType) => boolean)
     | undefined {
-    if (isDefined(filter)) {
+    if (isDefined(filter) || this.features.length) {
       return (feature: OlFeatureLike, layer: OMapVectorLayerType) => {
-        let targetFeature = getTargetFeature(OlUtil.getUid(feature));
+        let targetFeature = this.getTargetFeature(OlUtil.getUid(feature));
+        if (!targetFeature) {
+          return false;
+        }
+        if (!isDefined(filter)) {
+          return true;
+        }
         let targetLayer = this.map
           ?.getAllLayers()
           .find((l) => OlUtil.getUid(l.getLayer()) === OlUtil.getUid(layer));
@@ -182,19 +182,50 @@ export default class Select extends Interaction<OMapSelectType> {
       const { selected, deselected } = e;
       this.selected = selected
         .map((s) => {
-          return getTargetFeature(
+          return this.getTargetFeature(
             OlUtil.getUid(s),
           ) as BaseFeature<OlGeometry.Geometry> | null;
         })
         .filter((f) => f !== null);
       this.deselected = deselected
         .map((d) => {
-          return getTargetFeature(
+          return this.getTargetFeature(
             OlUtil.getUid(d),
           ) as BaseFeature<OlGeometry.Geometry> | null;
         })
         .filter((f) => f !== null);
     });
+  }
+
+  protected getTargetFeature(id: string): BaseFeature<OlGeometry.Geometry> | null {
+    if (this.layers.length) {
+      for (const layer of this.layers) {
+        const target = layer.getFeatures().find((feature) => {
+          return OlUtil.getUid(feature.getFeature()) === id;
+        });
+        if (target) {
+          return target;
+        }
+      }
+      return null;
+    }
+    if (!this.features.length && this.map) {
+      for (const layer of this.map.getAllLayers()) {
+        if (!(layer instanceof VectorLayer)) {
+          continue;
+        }
+        const target = layer.getFeatures().find((feature) => {
+          return OlUtil.getUid(feature.getFeature()) === id;
+        });
+        if (target) {
+          return target;
+        }
+      }
+      return null;
+    }
+    return this.features.find((feature) => {
+      return OlUtil.getUid(feature.getFeature()) === id;
+    }) || null;
   }
 
   getSelected(): BaseFeature<OlGeometry.Geometry>[] {
@@ -206,22 +237,7 @@ export default class Select extends Interaction<OMapSelectType> {
   }
 
   on(type: OMapInteractionSelectEventType, callback: () => void): EventIdType {
-    if (!isDefined(type) || !isDefined(callback)) {
-      error_(
-        createMessage("on", commonMessage.paramsNotDefined("type or callback")),
-      );
-    }
-    if (!isOMapInteractionSelectEventType(type)) {
-      error_(createMessage("on", commonMessage.paramsInvaildEnum(type)));
-    }
-    if (!isFunction(callback)) {
-      error_(
-        createMessage(
-          "on",
-          commonMessage.paramsInvaildFormat("callback", "function"),
-        ),
-      );
-    }
+    this.validateEvent(type, callback, "on");
     const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
       this.events.emit(type, handleInteractionSelectEvent(this, type, e));
     });
@@ -233,30 +249,35 @@ export default class Select extends Interaction<OMapSelectType> {
     type: OMapInteractionSelectEventType,
     callback: () => void,
   ): EventIdType {
-    if (!isDefined(type) || !isDefined(callback)) {
-      error_(
-        createMessage(
-          "once",
-          commonMessage.paramsNotDefined("type or callback"),
-        ),
-      );
-    }
-    if (!isOMapInteractionSelectEventType(type)) {
-      error_(createMessage("once", commonMessage.paramsInvaildEnum(type)));
-    }
-    if (!isFunction(callback)) {
-      error_(
-        createMessage(
-          "once",
-          commonMessage.paramsInvaildFormat("callback", "function"),
-        ),
-      );
-    }
+    this.validateEvent(type, callback, "once");
     const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
       this.events.emit(type, handleInteractionSelectEvent(this, type, e));
     });
     const id = this.events.once(type, callback, unlisten);
     return id;
+  }
+
+  protected validateEvent(
+    type: OMapInteractionSelectEventType,
+    callback: () => void,
+    methodName: string,
+  ) {
+    if (!isDefined(type) || !isDefined(callback)) {
+      error_(
+        createMessage(methodName, commonMessage.paramsNotDefined("type or callback")),
+      );
+    }
+    if (!isOMapInteractionSelectEventType(type)) {
+      error_(createMessage(methodName, commonMessage.paramsInvaildEnum(type)));
+    }
+    if (!isFunction(callback)) {
+      error_(
+        createMessage(
+          methodName,
+          commonMessage.paramsInvaildFormat("callback", "function"),
+        ),
+      );
+    }
   }
 
   un(id: EventIdType) {

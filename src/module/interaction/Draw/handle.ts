@@ -39,11 +39,9 @@ export function handleInteractionDrawEvent(
     const { feature } = e
     let targetFeature: BasicFeature<OlGeometry.Geometry> | null = null
     if (isDefined(feature)) {
-        // 此方法无法找到targetFeature
-        // targetFeature = layerFeatures.find(f => {
-        //     return OlUtil.getUid(f.getFeature()) === OlUtil.getUid(feature)
-        // }) || null
-        targetFeature = createBaseFeatureByOlFeature(feature)
+        targetFeature = layerFeatures.find(f => {
+            return OlUtil.getUid(f.getFeature()) === OlUtil.getUid(feature)
+        }) || createBaseFeatureByOlFeature(feature)
     }
     return {
         type,
