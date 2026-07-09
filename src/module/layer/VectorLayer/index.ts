@@ -8,9 +8,8 @@ import {
     type OMapVectorLayerType,
 } from './type'
 import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
-import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
-import { OlLayer, OlUtil, OlFeature, OlGeometry } from '../../../source/index'
+import { OlLayer, OlFeature, OlGeometry } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import VectorSource from '../../source/VectorSource/index'
@@ -19,10 +18,9 @@ import { DrawEventType } from '../../interaction/Draw/type'
 import { handleInteractionDrawEvent } from '../../interaction/Draw/handle'
 import Measure from '../../interaction/Measure/index'
 import Extent from '../../basic/Extent/index'
-import type { OlExtentType, OMapExtentType } from '../../basic/Extent/type'
+import type { OMapExtentType } from '../../basic/Extent/type'
 import Lnglat from '../../basic/Lnglat/index'
-import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
+import type { OMapCoordinateType } from '../../basic/Lnglat/type'
 import { Projection, Style } from '../../../index'
 
 let PACKAGE_NAME = 'VectorLayer';
@@ -42,15 +40,12 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
 
     protected vectorSource!: VectorSource;
 
-    features: BaseFeature<OlGeometry.Geometry>[] = []
-
     style: OMapStyleLike | undefined;
 
     constructor(options: OMapVectorLayerOptionsFinalType = {}) {
         super('Vector', options)
         let _sourceOptions: OMapVectorSourceOptionsFinalType = isDefined(options.source) ? options.source : {}
         this.vectorSource = new VectorSource(_sourceOptions)
-        this.features = _sourceOptions.features ? [..._sourceOptions.features] : []
         this._layer = new OlLayer.Vector({
             source: this.vectorSource.getSource()
         })
@@ -72,17 +67,9 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             if(isDefined(feature)) {
                 // 根据原生的feature生成内部的feature
                 if(this.target instanceof Draw || this.target instanceof Measure) {
-                    // 这里一定要保证原生的feature 和 basicFeature 状态是同步的
-                    // 因此 createBaseFeatureByOlFeature 里面不能用fearure.clone()
-                    let basicFeature = createBaseFeatureByOlFeature(feature as OlFeature<OlGeometry.Geometry>)
-                    if(basicFeature) {
-                        const uid = OlUtil.getUid(basicFeature.getFeature())
-                        const index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-                        if (index === -1) {
-                            this.features.push(basicFeature) // 这里是把 feature 同步一份到 this.features 里面
-                        }
-                    } else {
-                        warn_(createMessage('createBaseFeatureByOlFeature', '根据olFeature创建BasicFeature出错'));
+                    const basicFeature = this.syncFeatureFromOlFeature(feature as OlFeature<OlGeometry.Geometry>)
+                    if(!basicFeature) {
+                        warn_(createMessage('syncFeatureFromOlFeature', '根据olFeature同步BasicFeature出错'));
                     }
                     // 绘制结束事件 需要在 addfeature 事件之后 触发，才能获取到完整的 feature
                     if(this.target instanceof Draw && this.target.getActive()) {
@@ -106,9 +93,10 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
                 _style = (style as Style[]).map(s => (s.getStyle() as OlStyleInstanceType))
             } else if (isFunction(style)) {
                 _style = (feature: OlFeatureLike, resolution: number) => {
-                    let uid = OlUtil.getUid(feature)
-                    let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-                    let styleFnResult = (style as Function)(index !== - 1 ? this.features[index] : null, resolution)
+                    const omapFeature = feature instanceof OlFeature
+                        ? this.syncFeatureFromOlFeature(feature as OlFeature<OlGeometry.Geometry>)
+                        : undefined
+                    let styleFnResult = (style as Function)(omapFeature || null, resolution)
                     return styleFnResult ? styleFnResult.getStyle() : undefined
                 }
             } else {
@@ -122,7 +110,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
     }
 
     getFeatures(): BaseFeature<OlGeometry.Geometry>[] {
-        return this.features
+        return this.vectorSource.getFeatures() as BaseFeature<OlGeometry.Geometry>[]
     }
 
     getFeatureById(id: number | string): BaseFeature<OlGeometry.Geometry> | undefined {
@@ -134,10 +122,15 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             warn_(createMessage('setId', '参数id格式有误'));
             return;
         }
-        let target = this.features.find(f => {
-            return isDefined(f.getId()) && f.getId() === id
-        })
-        return target || undefined
+        return this.vectorSource.getFeatureById(id) as BaseFeature<OlGeometry.Geometry> | undefined
+    }
+
+    getFeatureByOlFeature(feature: OlFeature<OlGeometry.Geometry>): BaseFeature<OlGeometry.Geometry> | undefined {
+        if (!isDefined(feature)) {
+            warn_(createMessage('getFeatureByOlFeature', 'feature参数不能为空'));
+            return;
+        }
+        return this.syncFeatureFromOlFeature(feature)
     }
 
     getFeaturesInExtent(extent: OMapExtentType, projection: Projection): BaseFeature<OlGeometry.Geometry>[] | undefined {
@@ -149,17 +142,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             warn_(createMessage('getFeaturesInExtent', 'extent参数格式有误'));
             return;
         }
-        let _extent = (extent instanceof Extent) ? extent.getExtent() : extent;
-        let features = (this._layer.getSource() as OlVectorSourceInstanceType).getFeaturesInExtent(_extent as OlExtentType)
-        let _features: BaseFeature<OlGeometry.Geometry>[] = []
-        features.forEach(f => {
-            let uid = OlUtil.getUid(f)
-            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-            if (index !== -1) {
-                _features.push(this.features[index])
-            }
-        })
-        return _features
+        return this.vectorSource.getFeaturesInExtent(extent, projection) as BaseFeature<OlGeometry.Geometry>[]
 
     }
 
@@ -172,17 +155,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数格式有误'));
             return;
         }
-        let _coordinates = handleGetLnglatValue(coordinates);
-        const features = (this._layer.getSource() as OlVectorSourceInstanceType).getFeaturesAtCoordinate(_coordinates as OlCoordinateType)
-        let _features: BaseFeature<OlGeometry.Geometry>[] = []
-        features.forEach(f => {
-            let uid = OlUtil.getUid(f)
-            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-            if (index !== -1) {
-                _features.push(this.features[index])
-            }
-        })
-        return _features
+        return this.vectorSource.getFeaturesAtCoordinate(coordinates) as BaseFeature<OlGeometry.Geometry>[]
 
     }
 
@@ -192,13 +165,8 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             return;
         }
         if (this._layer.getSource()) {
-            const uid = OlUtil.getUid(feature.getFeature())
-            const index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
             if (!this.vectorSource.hasFeature(feature)) {
                 this.vectorSource.addFeature(feature)
-            }
-            if (index === -1) {
-                this.features.push(feature)
             }
         }
     }
@@ -221,11 +189,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             return;
         }
         if (this._layer.getSource()) {
-            let index = this.features.indexOf(feature);
             this.vectorSource.removeFeature(feature)
-            if (index !== -1) {
-                this.features.splice(index, 1)
-            }
         }
     }
 
@@ -246,7 +210,6 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             return;
         }
         this.vectorSource.clear()
-        this.features = []
     }
 
     forEachFeature(callback: (feature: BaseFeature<OlGeometry.Geometry>, index: number) => void): void {
@@ -254,7 +217,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             warn_(createMessage('forEachFeature', '参数格式有误'));
             return;
         }
-        this.features.forEach((f, i) => {
+        this.getFeatures().forEach((f, i) => {
             callback(f, i)
         })
     }
@@ -270,12 +233,9 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             warn_(createMessage('forEachFeatureInExtent', 'callback参数不能为空'));
             return;
         }
-        (this._layer.getSource() as OlVectorSourceInstanceType).forEachFeatureInExtent(extent.getExtent() as number[], (feature: any) => {
-            let uid = OlUtil.getUid(feature)
-            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-            if (isDefined(index) && index !== -1) {
-                callback(this.features[index], 0)
-            }
+        let index = 0
+        this.vectorSource.forEachFeatureInExtent(extent, (feature) => {
+            callback(feature as BaseFeature<OlGeometry.Geometry>, index++)
         })
     }
 
@@ -290,12 +250,9 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             warn_(createMessage('forEachFeatureIntersectingExtent', 'callback参数不能为空'));
             return;
         }
-        (this._layer.getSource() as OlVectorSourceInstanceType).forEachFeatureIntersectingExtent(extent.getExtent() as number[], (feature: any) => {
-            let uid = OlUtil.getUid(feature)
-            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-            if (isDefined(index) && index !== -1) {
-                callback(this.features[index], 0)
-            }
+        let index = 0
+        this.vectorSource.forEachFeatureIntersectingExtent(extent, (feature) => {
+            callback(feature as BaseFeature<OlGeometry.Geometry>, index++)
         })
     }
 
@@ -308,18 +265,7 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数格式有误'));
             return;
         }
-        let _coordinates = handleGetLnglatValue(coordinates);
-        let filterFunction = filter ? (feature: OlFeatureLike) => {
-            let uid = OlUtil.getUid(feature)
-            let index = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === uid)
-            return filter(this.features[index])
-        } : undefined
-        const re = (this._layer.getSource() as OlVectorSourceInstanceType).getClosestFeatureToCoordinate(_coordinates as OlCoordinateType, filterFunction)
-        let resuleIndex = this.features.findIndex(f => OlUtil.getUid(f.getFeature()) === OlUtil.getUid(re))
-        if (resuleIndex === -1) {
-            return undefined;
-        }
-        return this.features[resuleIndex]
+        return this.vectorSource.getClosestFeatureToCoordinate(coordinates, filter) as BaseFeature<OlGeometry.Geometry> | undefined
 
     }
 
@@ -355,6 +301,10 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
      */
     setDeclutter(declutter: boolean | string | number): void {
         this._layer.setDeclutter(declutter)
+    }
+
+    protected syncFeatureFromOlFeature(feature: OlFeature<OlGeometry.Geometry>): BaseFeature<OlGeometry.Geometry> | undefined {
+        return this.vectorSource.getFeatureByOlFeature(feature) as BaseFeature<OlGeometry.Geometry> | undefined
     }
 
 }

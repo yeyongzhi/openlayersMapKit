@@ -1,9 +1,8 @@
-import { isDefined, isNumber, isCoordinatesType, isString, defaultValue } from '../../../../utils/index';
-import { getFormatTool } from "./index";
+import { defaultValue } from '../../../../utils/index';
 import { OlFormat, RenderFeature, OlFeature } from '../../../../source/index'
 import {
     type OMapFormatReadFeatureOptionsType,
-    type OMapGeoJSONFormatInstanceType,
+    type OMapKMLFormatInstanceType,
     type OMapFormatWriteFeatureOptionsType,
     DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS,
 } from '../type';
@@ -11,31 +10,27 @@ import { createBaseFeatureByOlFeature } from '../../../core/Feature/BasicFeature
 import { type OlRenderFeatureInstanceType, type OlFeatureInstanceType } from '../../../core/Feature/BasicFeature/type';
 import BasicFeature from '../../../core/Feature/BasicFeature/index';
 
-function readFeature(source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
-    const format = getFormatTool()
-    const feature = (format as OMapGeoJSONFormatInstanceType).readFeature(source, defaultValue(options, {}));
+function readFeature(format: OMapKMLFormatInstanceType, source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
+    const feature = (format as OMapKMLFormatInstanceType).readFeature(source, defaultValue(options, {}));
     const _feature = createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
     return _feature
 }
 
-function readFeatures(source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
-    const format = getFormatTool()
-    const features = (format as OMapGeoJSONFormatInstanceType).readFeatures(source, defaultValue(options, {}));
+function readFeatures(format: OMapKMLFormatInstanceType, source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
+    const features = (format as OMapKMLFormatInstanceType).readFeatures(source, defaultValue(options, {}));
     const _features = features.map((feature: OlFeature | RenderFeature) => {
         return createBaseFeatureByOlFeature<any>(feature as OlFeature)
     })
     return _features
 }
 
-function writeFeatures(features: Array<BasicFeature<any>>, options ?: OMapFormatWriteFeatureOptionsType): string {
-    const format = getFormatTool()
-    const source = (format as OMapGeoJSONFormatInstanceType).writeFeatures(features.map((feature: BasicFeature<any>) => feature.getFeature() as OlFeatureInstanceType), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
+function writeFeatures(format: OMapKMLFormatInstanceType, features: Array<BasicFeature<any>>, options ?: OMapFormatWriteFeatureOptionsType): string {
+    const source = (format as OMapKMLFormatInstanceType).writeFeatures(features.map((feature: BasicFeature<any>) => feature.getFeature() as OlFeatureInstanceType), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
     return source
 }
 
-function writeFeaturesNode(features: Array<BasicFeature<any>>, options ?: OMapFormatWriteFeatureOptionsType) {
-    const format = getFormatTool()
-    const source = (format as OMapGeoJSONFormatInstanceType).writeFeaturesObject(features.map((feature: BasicFeature<any>) => feature.getFeature() as OlFeatureInstanceType), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
+function writeFeaturesNode(format: OMapKMLFormatInstanceType, features: Array<BasicFeature<any>>, options ?: OMapFormatWriteFeatureOptionsType) {
+    const source = (format as OMapKMLFormatInstanceType).writeFeaturesNode(features.map((feature: BasicFeature<any>) => feature.getFeature() as OlFeatureInstanceType), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
     return source
 }
 

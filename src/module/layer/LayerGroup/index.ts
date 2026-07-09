@@ -10,7 +10,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
  * @class LayerGroup
- * @classdesc 更便捷的管理多个图层
+ * @classdesc OMap 业务图层组，用于批量管理多个 BaseLayer；不是 ol/layer/Group 的原生封装。
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/7/9
@@ -52,10 +52,6 @@ export default class LayerGroup {
         if(vaildLayers.length !== _layers.length) {
             warn_(createMessage('constructor', '图层参数错误，必须为BaseLayer实例，已进行过滤'));
         }
-        // 初始化图层状态
-        vaildLayers.forEach((item: BaseLayer<any>) => {
-            item.groupId = this.id
-        })
         this.layers = vaildLayers;
         vaildLayers.forEach((item: BaseLayer<any>) => {
             item.groupId = this.id
@@ -91,11 +87,11 @@ export default class LayerGroup {
 
     remove(layer: BaseLayer<any>): void {
         if(!isDefined(layer)) {
-            warn_(createMessage('add', '参数layer不能为空'));
+            warn_(createMessage('remove', '参数layer不能为空'));
             return;
         }
         if(!(layer instanceof BaseLayer)) {
-            warn_(createMessage('add', '参数layer必须为BaseLayer实例'));
+            warn_(createMessage('remove', '参数layer必须为BaseLayer实例'));
             return;
         }
         let index: number = this.layers.findIndex((item: BaseLayer<any>) => {
@@ -136,9 +132,10 @@ export default class LayerGroup {
         if(isDefined(this.map)) {
             this.map.removeLayers(this.layers);
         }
-        setTimeout(() => {
-            this.layers = [];
-        }, 300)
+        this.layers.forEach((layer) => {
+            layer.groupId = null
+        })
+        this.layers = [];
     }
 
     getAllLayers(): BaseLayer<any>[] {

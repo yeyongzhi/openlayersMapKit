@@ -90,12 +90,21 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
         this._feature.changed()
     }
 
-    dispatchEvent() {
-
+    dispatchEvent(event: string | any): boolean | undefined {
+        return this._feature.dispatchEvent(event)
     }
 
-    clone() {
-
+    clone(): this {
+        const FeatureCtor = this.constructor as new (feature: OlFeatureInstanceType) => this
+        const clonedFeature = this._feature.clone() as OlFeatureInstanceType
+        const cloned = new FeatureCtor(clonedFeature)
+        if (isDefined(this.id)) {
+            cloned.setId(this.id)
+        }
+        if (isDefined(this.style)) {
+            cloned.setStyle(this.style)
+        }
+        return cloned
     }
 
     get(key: string): any {
@@ -116,8 +125,8 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
         return this._geometry
     }
 
-    getGeometryName() : string | void {
-
+    getGeometryName() : string {
+        return this._feature.getGeometryName()
     }
 
     getKeys() : string[] {

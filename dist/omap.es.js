@@ -1135,9 +1135,20 @@ class BasicFeature {
   changed() {
     this._feature.changed();
   }
-  dispatchEvent() {
+  dispatchEvent(event) {
+    return this._feature.dispatchEvent(event);
   }
   clone() {
+    const FeatureCtor = this.constructor;
+    const clonedFeature = this._feature.clone();
+    const cloned = new FeatureCtor(clonedFeature);
+    if (isDefined(this.id)) {
+      cloned.setId(this.id);
+    }
+    if (isDefined(this.style)) {
+      cloned.setStyle(this.style);
+    }
+    return cloned;
   }
   get(key) {
     if (!isDefined(key)) {
@@ -1156,6 +1167,7 @@ class BasicFeature {
     return this._geometry;
   }
   getGeometryName() {
+    return this._feature.getGeometryName();
   }
   getKeys() {
     return this._feature.getKeys();
@@ -2472,7 +2484,7 @@ const DEFAULT_STYLE = (feature, resolution) => {
   }
   return void 0;
 };
-function handleGetStyleValue(style) {
+function handleGetStyleValue(style, featureResolver) {
   if (!isDefined(style)) {
     return void 0;
   }
@@ -2637,9 +2649,7 @@ class Event {
       const idx = list.findIndex((item) => item.id === id);
       if (idx !== -1) {
         const item = list[idx];
-        if (isDefined(item.unlisten) && isFunction(item.unlisten)) {
-          item.unlisten();
-        }
+        this.disposeUnlisten(item.unlisten);
         list.splice(idx, 1);
         if (list.length === 0) this.events.delete(type);
         return this;
@@ -2652,7 +2662,7 @@ class Event {
     if (type === void 0) {
       for (const list of this.events.values()) {
         for (const item of list) {
-          if (item.unlisten) OlEvent.unlistenByKey(item.unlisten);
+          this.disposeUnlisten(item.unlisten);
         }
       }
       this.events.clear();
@@ -2660,7 +2670,7 @@ class Event {
       const list = this.events.get(type);
       if (list) {
         for (const item of list) {
-          if (item.unlisten) OlEvent.unlistenByKey(item.unlisten);
+          this.disposeUnlisten(item.unlisten);
         }
         this.events.delete(type);
       }
@@ -2680,6 +2690,18 @@ class Event {
   listenerCount(type) {
     var _a;
     return ((_a = this.events.get(type)) == null ? void 0 : _a.length) || 0;
+  }
+  disposeUnlisten(unlisten) {
+    if (!isDefined(unlisten)) return;
+    if (isFunction(unlisten)) {
+      unlisten();
+      return;
+    }
+    if (Array.isArray(unlisten)) {
+      unlisten.forEach((item) => OlEvent.unlistenByKey(item));
+      return;
+    }
+    OlEvent.unlistenByKey(unlisten);
   }
 }
 function isVaildPopupId(value) {
@@ -3341,14 +3363,14 @@ class BaseLayer {
   }
   /**
    * 设置图层当前的对象
-   * @param {Map | Draw | Modify | Measure} target 图层所属的对象
+   * @param {Map | OMapLayerTarget} target 图层所属的对象
    */
   setTarget(target) {
     this.target = target;
   }
   /**
    * 获取图层当前的对象
-   * @returns {Map | Draw | Modify | Measure | null} 图层所属的对象
+   * @returns {Map | OMapLayerTarget | null} 图层所属的对象
    */
   getTarget() {
     return this.target;
@@ -3783,6 +3805,9 @@ class VectorSource extends Source {
   }
   getFeatures() {
     return this._source.getFeatures().map((feature) => this.createOMapFeature(feature)).filter(isDefined);
+  }
+  getFeatureByOlFeature(feature) {
+    return this.createOMapFeature(feature);
   }
   getFeaturesCollection() {
     return this._source.getFeaturesCollection();
@@ -4457,15 +4482,9 @@ class VectorLayer extends BaseLayer {
       const { feature } = e;
       if (isDefined(feature)) {
         if (this.target instanceof Draw || this.target instanceof Measure) {
-          let basicFeature = createBaseFeatureByOlFeature(feature);
-          if (basicFeature) {
-            const uid = OlUtil.getUid(basicFeature.getFeature());
-            const index = this.features.findIndex((f) => OlUtil.getUid(f.getFeature()) === uid);
-            if (index === -1) {
-              this.features.push(basicFeature);
-            }
-          } else {
-            warn_(createMessage$j("createBaseFeatureByOlFeature", "根据olFeature创建BasicFeature出错"));
+          const basicFeature = this.syncFeatureFromOlFeature(feature);
+          if (!basicFeature) {
+            warn_(createMessage$j("syncFeatureFromOlFeature", "根据olFeature同步BasicFeature出错"));
           }
           if (this.target instanceof Draw && this.target.getActive()) {
             this.target.events.emit(DrawEventType.drawEnd, handleInteractionDrawEvent(this.target, DrawEventType.drawEnd, { feature }));
@@ -4487,9 +4506,8 @@ class VectorLayer extends BaseLayer {
         _style = style.map((s) => s.getStyle());
       } else if (isFunction(style)) {
         _style = (feature, resolution) => {
-          let uid = OlUtil.getUid(feature);
-          let index = this.features.findIndex((f) => OlUtil.getUid(f.getFeature()) === uid);
-          let styleFnResult = style(index !== -1 ? this.features[index] : null, resolution);
+          const omapFeature = feature instanceof OlFeature ? this.syncFeatureFromOlFeature(feature) : void 0;
+          let styleFnResult = style(omapFeature || null, resolution);
           return styleFnResult ? styleFnResult.getStyle() : void 0;
         };
       } else {
@@ -4502,6 +4520,7 @@ class VectorLayer extends BaseLayer {
     }
   }
   getFeatures() {
+    this.syncFeaturesFromSource();
     return this.features;
   }
   getFeatureById(id) {
@@ -4513,10 +4532,7 @@ class VectorLayer extends BaseLayer {
       warn_(createMessage$j("setId", "参数id格式有误"));
       return;
     }
-    let target = this.features.find((f) => {
-      return isDefined(f.getId()) && f.getId() === id;
-    });
-    return target || void 0;
+    return this.vectorSource.getFeatureById(id);
   }
   getFeaturesInExtent(extent, projection) {
     if (!isDefined(extent)) {
@@ -4527,17 +4543,7 @@ class VectorLayer extends BaseLayer {
       warn_(createMessage$j("getFeaturesInExtent", "extent参数格式有误"));
       return;
     }
-    let _extent = extent instanceof Extent ? extent.getExtent() : extent;
-    let features = this._layer.getSource().getFeaturesInExtent(_extent);
-    let _features = [];
-    features.forEach((f) => {
-      let uid = OlUtil.getUid(f);
-      let index = this.features.findIndex((f2) => OlUtil.getUid(f2.getFeature()) === uid);
-      if (index !== -1) {
-        _features.push(this.features[index]);
-      }
-    });
-    return _features;
+    return this.vectorSource.getFeaturesInExtent(extent, projection);
   }
   getFeaturesAtCoordinate(coordinates) {
     if (!isDefined(coordinates)) {
@@ -4548,17 +4554,7 @@ class VectorLayer extends BaseLayer {
       warn_(createMessage$j("getFeaturesAtCoordinate", "coordinates参数格式有误"));
       return;
     }
-    let _coordinates = handleGetLnglatValue(coordinates);
-    const features = this._layer.getSource().getFeaturesAtCoordinate(_coordinates);
-    let _features = [];
-    features.forEach((f) => {
-      let uid = OlUtil.getUid(f);
-      let index = this.features.findIndex((f2) => OlUtil.getUid(f2.getFeature()) === uid);
-      if (index !== -1) {
-        _features.push(this.features[index]);
-      }
-    });
-    return _features;
+    return this.vectorSource.getFeaturesAtCoordinate(coordinates);
   }
   addFeature(feature) {
     if (!isDefined(feature)) {
@@ -4623,7 +4619,7 @@ class VectorLayer extends BaseLayer {
       warn_(createMessage$j("forEachFeature", "参数格式有误"));
       return;
     }
-    this.features.forEach((f, i) => {
+    this.getFeatures().forEach((f, i) => {
       callback(f, i);
     });
   }
@@ -4716,6 +4712,28 @@ class VectorLayer extends BaseLayer {
    */
   setDeclutter(declutter) {
     this._layer.setDeclutter(declutter);
+  }
+  syncFeatureFromOlFeature(feature) {
+    const basicFeature = this.vectorSource.getFeatureByOlFeature(feature);
+    if (!basicFeature) return void 0;
+    const uid = OlUtil.getUid(basicFeature.getFeature());
+    const index = this.features.findIndex((f) => OlUtil.getUid(f.getFeature()) === uid);
+    if (index === -1) {
+      this.features.push(basicFeature);
+    } else {
+      this.features[index] = basicFeature;
+    }
+    return basicFeature;
+  }
+  removeFeatureByOlFeature(feature) {
+    const uid = OlUtil.getUid(feature);
+    const index = this.features.findIndex((f) => OlUtil.getUid(f.getFeature()) === uid);
+    if (index !== -1) {
+      this.features.splice(index, 1);
+    }
+  }
+  syncFeaturesFromSource() {
+    this.features = this.vectorSource.getFeatures();
   }
 }
 const PACKAGE_NAME$i = "Draw";
@@ -5854,7 +5872,7 @@ let Map$1 = class Map2 {
     if (index !== -1) {
       group.setMap(null);
       this.removeLayers(group.getAllLayers());
-      this.layerGroups = this.layerGroups.splice(index, 1);
+      this.layerGroups.splice(index, 1);
     } else {
       warn_(createMessage$d("removeLayerGroup", "图层组不存在"));
     }
@@ -5886,7 +5904,7 @@ let Map$1 = class Map2 {
     if (index !== -1) {
       this.layerGroups[index].setMap(null);
       this.removeLayers(this.layerGroups[index].getAllLayers());
-      this.layerGroups = this.layerGroups.splice(index, 1);
+      this.layerGroups.splice(index, 1);
     } else {
       warn_(createMessage$d("removeLayerGroupById", "图层组不存在"));
     }
@@ -7055,37 +7073,31 @@ function getDefaultOptionsByType(type) {
       return {};
   }
 }
-function readFeature$2(source, options) {
-  const format = getFormatTool();
+function readFeature$2(format, source, options) {
   const feature = format.readFeature(source, defaultValue(options, {}));
   const _feature = createBaseFeatureByOlFeature(feature);
   return _feature;
 }
-function readFeatures$2(source, options) {
-  const format = getFormatTool();
+function readFeatures$2(format, source, options) {
   const features = format.readFeatures(source, defaultValue(options, {}));
   const _features = features.map((feature) => {
     return createBaseFeatureByOlFeature(feature);
   });
   return _features;
 }
-function writeFeature$1(feature, options) {
-  const format = getFormatTool();
+function writeFeature$1(format, feature, options) {
   const source = format.writeFeature(feature.getFeature(), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
   return source;
 }
-function writeFeatureObject(feature, options) {
-  const format = getFormatTool();
+function writeFeatureObject(format, feature, options) {
   const source = format.writeFeatureObject(feature.getFeature(), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
   return source;
 }
-function writeFeatures$2(features, options) {
-  const format = getFormatTool();
+function writeFeatures$2(format, features, options) {
   const source = format.writeFeatures(features.map((feature) => feature.getFeature()), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
   return source;
 }
-function writeFeaturesObject(features, options) {
-  const format = getFormatTool();
+function writeFeaturesObject(format, features, options) {
   const source = format.writeFeaturesObject(features.map((feature) => feature.getFeature()), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
   return source;
 }
@@ -7097,27 +7109,23 @@ const GeoJSON = {
   writeFeatures: writeFeatures$2,
   writeFeaturesObject
 };
-function readFeature$1(source, options) {
-  const format = getFormatTool();
+function readFeature$1(format, source, options) {
   const feature = format.readFeature(source, defaultValue(options, {}));
   const _feature = createBaseFeatureByOlFeature(feature);
   return _feature;
 }
-function readFeatures$1(source, options) {
-  const format = getFormatTool();
+function readFeatures$1(format, source, options) {
   const features = format.readFeatures(source, defaultValue(options, {}));
   const _features = features.map((feature) => {
     return createBaseFeatureByOlFeature(feature);
   });
   return _features;
 }
-function writeFeature(feature, options) {
-  const format = getFormatTool();
+function writeFeature(format, feature, options) {
   const source = format.writeFeature(feature.getFeature(), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
   return source;
 }
-function writeFeatures$1(features, options) {
-  const format = getFormatTool();
+function writeFeatures$1(format, features, options) {
   const source = format.writeFeatures(features.map((feature) => feature.getFeature()), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
   return source;
 }
@@ -7127,32 +7135,24 @@ const WKT = {
   writeFeature,
   writeFeatures: writeFeatures$1
 };
-const WKT$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: WKT
-}, Symbol.toStringTag, { value: "Module" }));
-function readFeature(source, options) {
-  const format = getFormatTool();
+function readFeature(format, source, options) {
   const feature = format.readFeature(source, defaultValue(options, {}));
   const _feature = createBaseFeatureByOlFeature(feature);
   return _feature;
 }
-function readFeatures(source, options) {
-  const format = getFormatTool();
+function readFeatures(format, source, options) {
   const features = format.readFeatures(source, defaultValue(options, {}));
   const _features = features.map((feature) => {
     return createBaseFeatureByOlFeature(feature);
   });
   return _features;
 }
-function writeFeatures(features, options) {
-  const format = getFormatTool();
+function writeFeatures(format, features, options) {
   const source = format.writeFeatures(features.map((feature) => feature.getFeature()), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
   return source;
 }
-function writeFeaturesNode(features, options) {
-  const format = getFormatTool();
-  const source = format.writeFeaturesObject(features.map((feature) => feature.getFeature()), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
+function writeFeaturesNode(format, features, options) {
+  const source = format.writeFeaturesNode(features.map((feature) => feature.getFeature()), Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {})));
   return source;
 }
 const KML = {
@@ -7161,17 +7161,6 @@ const KML = {
   writeFeatures,
   writeFeaturesNode
 };
-const KML$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: KML
-}, Symbol.toStringTag, { value: "Module" }));
-let formatTool = null;
-function updateFormatTool(format) {
-  formatTool = format;
-}
-function getFormatTool() {
-  return formatTool;
-}
 function getMoudule(type) {
   let module = null;
   switch (type) {
@@ -7179,40 +7168,43 @@ function getMoudule(type) {
       module = GeoJSON;
       break;
     case OMapFormatType.WKT:
-      module = WKT$1;
+      module = WKT;
       break;
     case OMapFormatType.KML:
-      module = KML$1;
+      module = KML;
       break;
   }
   return module;
 }
-function handle(type, key, ...args) {
+function handle(format, type, key, ...args) {
   const module = getMoudule(type);
   if (isDefined(module) && isDefined(module[key])) {
-    return module[key](...args);
+    return module[key](format, ...args);
   } else {
     error_(createMessage$9(key, `当前格式化工具不支持${key}方法`));
     return void 0;
   }
 }
-function handleReadFeature(type, source, options) {
-  return handle(type, "readFeature", source, options);
+function handleReadFeature(format, type, source, options) {
+  return handle(format, type, "readFeature", source, options);
 }
-function handleReadFeatures(type, source, options) {
-  return handle(type, "readFeatures", source, options);
+function handleReadFeatures(format, type, source, options) {
+  return handle(format, type, "readFeatures", source, options);
 }
-function handleWriteFeature(type, feature, options) {
-  return handle(type, "writeFeature", feature, options);
+function handleWriteFeature(format, type, feature, options) {
+  return handle(format, type, "writeFeature", feature, options);
 }
-function handleWriteFeatureObject(type, feature, options) {
-  return handle(type, "writeFeatureObject", feature, options);
+function handleWriteFeatureObject(format, type, feature, options) {
+  return handle(format, type, "writeFeatureObject", feature, options);
 }
-function handleWriteFeatures(type, features, options) {
-  return handle(type, "writeFeatures", features, options);
+function handleWriteFeatures(format, type, features, options) {
+  return handle(format, type, "writeFeatures", features, options);
 }
-function handleWriteFeaturesObject(type, features, options) {
-  return handle(type, "writeFeaturesObject", features, options);
+function handleWriteFeaturesObject(format, type, features, options) {
+  return handle(format, type, "writeFeaturesObject", features, options);
+}
+function handleWriteFeaturesNode(format, type, features, options) {
+  return handle(format, type, "writeFeaturesNode", features, options);
 }
 const PACKAGE_NAME$9 = "Format";
 const createMessage$9 = getPackageMessage(PACKAGE_NAME$9);
@@ -7257,25 +7249,27 @@ class Format {
         });
         break;
     }
-    updateFormatTool(this._format);
   }
   readFeature(source, options) {
-    return handleReadFeature(this.type, source, options);
+    return handleReadFeature(this._format, this.type, source, options);
   }
   readFeatures(source, options) {
-    return handleReadFeatures(this.type, source, options);
+    return handleReadFeatures(this._format, this.type, source, options);
   }
   writeFeature(feature, options) {
-    return handleWriteFeature(this.type, feature, options);
+    return handleWriteFeature(this._format, this.type, feature, options);
   }
   writeFeatureObject(feature, options) {
-    return handleWriteFeatureObject(this.type, feature, options);
+    return handleWriteFeatureObject(this._format, this.type, feature, options);
   }
   writeFeatures(features, options) {
-    return handleWriteFeatures(this.type, features, options);
+    return handleWriteFeatures(this._format, this.type, features, options);
   }
   writeFeaturesObject(features, options) {
-    return handleWriteFeaturesObject(this.type, features, options);
+    return handleWriteFeaturesObject(this._format, this.type, features, options);
+  }
+  writeFeaturesNode(features, options) {
+    return handleWriteFeaturesNode(this._format, this.type, features, options);
   }
 }
 const commonUrlTemplate = `http://t{0-7}.tianditu.com/DataServer?T={T}&tk={tk}&x={x}&y={y}&l={z}`;

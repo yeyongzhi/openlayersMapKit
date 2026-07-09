@@ -580,7 +580,7 @@ export default class Map {
     if (index !== -1) {
       group.setMap(null);
       this.removeLayers(group.getAllLayers());
-      this.layerGroups = this.layerGroups.splice(index, 1);
+      this.layerGroups.splice(index, 1);
     } else {
       warn_(createMessage("removeLayerGroup", "图层组不存在"));
     }
@@ -613,7 +613,7 @@ export default class Map {
     if (index !== -1) {
       this.layerGroups[index].setMap(null);
       this.removeLayers(this.layerGroups[index].getAllLayers());
-      this.layerGroups = this.layerGroups.splice(index, 1);
+      this.layerGroups.splice(index, 1);
     } else {
       warn_(createMessage("removeLayerGroupById", "图层组不存在"));
     }

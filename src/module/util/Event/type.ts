@@ -1,3 +1,5 @@
+import type { EventsKey } from 'ol/events'
+
 export interface EventItem<T extends readonly unknown[] = readonly unknown[]> {
     id: string;
     target?: any;
@@ -9,8 +11,4 @@ export interface EventItem<T extends readonly unknown[] = readonly unknown[]> {
 
 export type EventIdType = EventItem['id']
 
-export type OMapEventsKeyType = {
-    listener: (...args: any[]) => void;
-    target: any;
-    type: string
-}
+export type OMapEventsKeyType = EventsKey | EventsKey[] | (() => void)

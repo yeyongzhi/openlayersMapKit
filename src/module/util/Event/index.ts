@@ -92,10 +92,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
             const idx = list.findIndex(item => item.id === id);
             if (idx !== -1) {
                 const item = list[idx];
-                // 👇 调用 unlisten（如果有）
-                if (isDefined(item.unlisten) && isFunction(item.unlisten)) {
-                    item.unlisten();
-                }
+                this.disposeUnlisten(item.unlisten);
                 list.splice(idx, 1);
                 if (list.length === 0) this.events.delete(type);
                 return this;
@@ -110,7 +107,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
             // 清空全部
             for (const list of this.events.values()) {
                 for (const item of list) {
-                    if (item.unlisten) OlEvent.unlistenByKey(item.unlisten);
+                    this.disposeUnlisten(item.unlisten);
                 }
             }
             this.events.clear();
@@ -118,7 +115,7 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
             const list = this.events.get(type as string);
             if (list) {
                 for (const item of list) {
-                    if (item.unlisten) OlEvent.unlistenByKey(item.unlisten);
+                    this.disposeUnlisten(item.unlisten);
                 }
                 this.events.delete(type as string);
             }
@@ -140,6 +137,19 @@ export default class Event<Events extends Record<string, readonly unknown[]> = R
 
     listenerCount<K extends keyof Events>(type: K): number {
         return this.events.get(type as string)?.length || 0;
+    }
+
+    private disposeUnlisten(unlisten?: OMapEventsKeyType) {
+        if (!isDefined(unlisten)) return;
+        if (isFunction(unlisten)) {
+            unlisten();
+            return;
+        }
+        if (Array.isArray(unlisten)) {
+            unlisten.forEach(item => OlEvent.unlistenByKey(item));
+            return;
+        }
+        OlEvent.unlistenByKey(unlisten);
     }
 
 }

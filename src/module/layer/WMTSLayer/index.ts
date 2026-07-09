@@ -1,31 +1,24 @@
-import { defaultValue, isDefined, isString, isNumber } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import OlPackage, { OlLayer, OlSource, OlTileGrid } from '../../../source/index'
-import { Projection } from '../../../index'
-import { handleGetProjectionValue } from '../../core/Projection/handle'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OMapCoordinateType, type OlCoordinateType } from '../../basic/Lnglat/type'
-import Size from '../../basic/Size/index'
-import { type OMapSizeType, type OlSizeType } from '../../basic/Size/type'
-import { handleGetSizeValue } from '../../basic/Size/handle'
+import { defaultValue, isDefined } from '../../../utils/index';
+import { warn_, getPackageMessage } from '../../../utils/index'
+import { OlLayer } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
 import { handleGetColorValue } from '../../basic/Color/handle'
+import WMTSSource from '../../source/TileSource/subClass/WMTSSource/index'
 import {
     type OMapWMTSLayerParamsType,
     DEFAULT_WMTS_LAYER_PARAMS,
-    type OMapWMTSLayerSourceParamsType,
     DEFAULT_WMTS_LAYER_SOURCE_PARAMS
 } from './type'
+import type { OMapWMTSSourceParamsType } from '../../source/TileSource/subClass/WMTSSource/type'
 
 let PACKAGE_NAME = 'WMTSLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
- * WMS图层类
+ * WMTS图层类
  * @class WMTSLayer
- * @classdesc 基础的WMS地图服务
+ * @classdesc 基础的WMTS地图服务
  * @author Aurora
  * @version 1.0.0
  * @createDate 2025/10/2
@@ -35,7 +28,7 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
 export default class WMTSLayer extends BaseLayer {
 
     constructor(options: OMapWMTSLayerParamsType) {
-        super('WMS', defaultValue(options, {}))
+        super('WMTS', defaultValue(options, {}))
         if (!isDefined(options.source)) {
             warn_(createMessage('constructor', '缺少source参数'))
             return;
@@ -48,43 +41,7 @@ export default class WMTSLayer extends BaseLayer {
         let _sourceParams = Object.assign({}, DEFAULT_WMTS_LAYER_SOURCE_PARAMS, {
             ...defaultValue(options.source, {}),
         })
-        console.log("_sourceParams")
-        console.log(_sourceParams)
-        let _source = undefined
-        if (isDefined(options.source)) {
-            let _tileGrid = undefined
-            if (isDefined(_sourceParams.tileGrid)) {
-                _tileGrid = new OlTileGrid.WMTS({
-                    ..._sourceParams.tileGrid,
-                    extent: handleGetExtentValue(_sourceParams.tileGrid.extent),
-                    origin: handleGetLnglatValue(_sourceParams.tileGrid.origin),
-                    origins: isDefined(_sourceParams.tileGrid.origins) ? _sourceParams.tileGrid.origins.map((item: OMapCoordinateType) => {
-                        if (item instanceof Lnglat) {
-                            return (handleGetLnglatValue(item) as OlCoordinateType)
-                        }
-                        return item as OlCoordinateType
-                    }) : undefined,
-                    sizes: isDefined(_sourceParams.tileGrid.sizes) ? _sourceParams.tileGrid.sizes.map((item: OMapSizeType) => {
-                        if (item instanceof Size) {
-                            return (handleGetSizeValue(item) as OlSizeType)
-                        }
-                        return item as OlSizeType
-                    }) : undefined,
-                    tileSize: isDefined(_sourceParams.tileGrid.tileSize) ? (isNumber(_sourceParams.tileGrid.tileSize) ? _sourceParams.tileGrid.tileSize : handleGetSizeValue(_sourceParams.tileGrid.tileSize)) : undefined,
-                    tileSizes: isDefined(_sourceParams.tileGrid.tileSizes) ? _sourceParams.tileGrid.tileSizes.map((item: OMapSizeType) => {
-                        if (item instanceof Size) {
-                            return (handleGetSizeValue(item) as OlSizeType)
-                        }
-                        return item as OlSizeType
-                    }) : undefined,
-                })
-            }
-            _source = new OlSource.WMTS({
-                ..._sourceParams,
-                projection: handleGetProjectionValue(_sourceParams.projection),
-                tileGrid: _tileGrid
-            })
-        }
+        let _source = new WMTSSource(_sourceParams as OMapWMTSSourceParamsType).getSource()
         this._layer = new OlLayer.Tile({
             ..._layerParams,
             extent: isDefined(_layerParams.extent) ? handleGetExtentValue(_layerParams.extent) : undefined,

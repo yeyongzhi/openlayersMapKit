@@ -12,6 +12,10 @@ export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt' | Cust
 export type BaseLayerIdType = number | string | null
 export type BaseLayerPropertiesType = Record<string, any>
 
+export interface OMapLayerTarget {
+    type?: string | null;
+}
+
 export type OlBaseLayerOptionsKey = "className" | "opacity" | "visible" | "extent" | "zIndex" | "minResolution" | "maxResolution" | "minZoom" | "maxZoom" | "background" | "properties"
 // 此处的BaseLayerOptionsType 继承 ol.layer.Base全部属性
 // 十一个基础属性

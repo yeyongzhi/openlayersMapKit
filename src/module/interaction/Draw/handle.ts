@@ -1,10 +1,9 @@
 import { OlDrawCreateBox } from '../../../source/index'
 import type { OMapDrawModeType, OlDrawType, OMapInteractionDrawEventType } from './type'
-import { OlGeometry, OlUtil } from '../../../source/index'
+import { OlGeometry } from '../../../source/index'
 import Draw from './index'
 import { isDefined, defaultValue } from '../../../utils/define'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
-import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 
 export function getOlDrawType(mode: OMapDrawModeType): { type: OlDrawType, geometryFunction: any } {
     let type: OlDrawType = 'Point'
@@ -39,9 +38,7 @@ export function handleInteractionDrawEvent(
     const { feature } = e
     let targetFeature: BasicFeature<OlGeometry.Geometry> | null = null
     if (isDefined(feature)) {
-        targetFeature = layerFeatures.find(f => {
-            return OlUtil.getUid(f.getFeature()) === OlUtil.getUid(feature)
-        }) || createBaseFeatureByOlFeature(feature)
+        targetFeature = layer?.getFeatureByOlFeature(feature) || null
     }
     return {
         type,

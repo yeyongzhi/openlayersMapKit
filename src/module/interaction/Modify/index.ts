@@ -105,9 +105,7 @@ export default class Modify extends Interaction<OMapModifyType> {
     }
 
     protected findFeatureByOlFeature(feature: any): BasicFeature<OlGeometry.Geometry> | undefined {
-        return (this.layer as VectorLayer).getFeatures().find(item => {
-            return OlUtil.getUid(item.getFeature()) === OlUtil.getUid(feature)
-        })
+        return (this.layer as VectorLayer).getFeatureByOlFeature(feature)
     }
 
     protected findFeatureByRecord(record: SampleRecordItem): BasicFeature<OlGeometry.Geometry> | undefined {

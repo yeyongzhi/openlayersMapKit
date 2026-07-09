@@ -6,15 +6,13 @@ import Extent from '../../basic/Extent/index'
 import { isValidExtent } from '../../basic/Extent/type'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
 import Map from '../../core/Map/index'
-import Draw from '../../interaction/Draw/index'
-import Modify from '../../interaction/Modify/index'
-import Measure from '../../interaction/Measure/index'
 import {
     type BaseLayerType,
     type BaseLayerIdType,
     type BaseLayerOptionsType,
     type BaseLayerPropertiesType,
     type OMapBaseLayerCommonType,
+    type OMapLayerTarget,
 } from './type'
 
 import { type LayerGroupIdType } from '../LayerGroup/type'
@@ -85,7 +83,7 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
     /**
      * 图层所属的对象
      */
-    target: Map | Draw | Modify | Measure | null = null;
+    target: Map | OMapLayerTarget | null = null;
 
     constructor(type: BaseLayerType, options?: BaseLayerOptionsType) {
         let _options: BaseLayerOptionsType = defaultValue(options, {});
@@ -370,17 +368,17 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType> {
 
     /**
      * 设置图层当前的对象
-     * @param {Map | Draw | Modify | Measure} target 图层所属的对象
+     * @param {Map | OMapLayerTarget} target 图层所属的对象
      */
-    setTarget(target: Map | Draw | Modify | Measure | null) {
+    setTarget(target: Map | OMapLayerTarget | null) {
         this.target = target;
     }
 
     /**
      * 获取图层当前的对象
-     * @returns {Map | Draw | Modify | Measure | null} 图层所属的对象
+     * @returns {Map | OMapLayerTarget | null} 图层所属的对象
      */
-    getTarget(): Map | Draw | Modify | Measure | null {
+    getTarget(): Map | OMapLayerTarget | null {
         return this.target
     }
 

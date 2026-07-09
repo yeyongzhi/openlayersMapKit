@@ -1,23 +1,16 @@
-import { defaultValue, isDefined, isString, isNumber } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import OlPackage, { OlLayer, OlSource, OlTileGrid } from '../../../source/index'
-import { Projection } from '../../../index'
-import { handleGetProjectionValue } from '../../core/Projection/handle'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OMapCoordinateType, type OlCoordinateType } from '../../basic/Lnglat/type'
-import Size from '../../basic/Size/index'
-import { type OMapSizeType, type OlSizeType } from '../../basic/Size/type'
-import { handleGetSizeValue } from '../../basic/Size/handle'
+import { defaultValue, isDefined } from '../../../utils/index';
+import { warn_, getPackageMessage } from '../../../utils/index'
+import { OlLayer } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle';
 import { handleGetColorValue } from '../../basic/Color/handle'
+import TileWMSSource from '../../source/TileSource/subClass/TileWMSSource/index'
 import {
     type OMapWMSLayerParamsType,
     DEFAULT_WMS_LAYER_PARAMS,
-    type OMapWMSLayerSourceParamsType,
     DEFAULT_WMS_LAYER_SOURCE_PARAMS
 } from './type'
+import type { OMapTileWMSSourceParamsType } from '../../source/TileSource/subClass/TileWMSSource/type'
 
 let PACKAGE_NAME = 'WMSLayer';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -48,41 +41,7 @@ export default class WMSLayer extends BaseLayer {
         let _sourceParams = Object.assign({}, DEFAULT_WMS_LAYER_SOURCE_PARAMS, {
             ...defaultValue(options.source, {}),
         })
-        let _source = undefined
-        if (isDefined(options.source)) {
-            let _tileGrid = undefined
-            if (isDefined(_sourceParams.tileGrid)) {
-                _tileGrid = new OlTileGrid.TileGrid({
-                    ..._sourceParams.tileGrid,
-                    extent: handleGetExtentValue(_sourceParams.tileGrid.extent),
-                    origin: handleGetLnglatValue(_sourceParams.tileGrid.origin),
-                    origins: isDefined(_sourceParams.tileGrid.origins) ? _sourceParams.tileGrid.origins.map((item: OMapCoordinateType) => {
-                        if (item instanceof Lnglat) {
-                            return (handleGetLnglatValue(item) as OlCoordinateType)
-                        }
-                        return item as OlCoordinateType
-                    }) : undefined,
-                    sizes: isDefined(_sourceParams.tileGrid.sizes) ? _sourceParams.tileGrid.sizes.map((item: OMapSizeType) => {
-                        if (item instanceof Size) {
-                            return (handleGetSizeValue(item) as OlSizeType)
-                        }
-                        return item as OlSizeType
-                    }) : undefined,
-                    tileSize: isDefined(_sourceParams.tileGrid.tileSize) ? (isNumber(_sourceParams.tileGrid.tileSize) ? _sourceParams.tileGrid.tileSize : handleGetSizeValue(_sourceParams.tileGrid.tileSize)) : undefined,
-                    tileSizes: isDefined(_sourceParams.tileGrid.tileSizes) ? _sourceParams.tileGrid.tileSizes.map((item: OMapSizeType) => {
-                        if (item instanceof Size) {
-                            return (handleGetSizeValue(item) as OlSizeType)
-                        }
-                        return item as OlSizeType
-                    }) : undefined,
-                })
-            }
-            _source = new OlSource.TileWMS({
-                ..._sourceParams,
-                projection: handleGetProjectionValue(_sourceParams.projection),
-                tileGrid: _tileGrid
-            })
-        }
+        let _source = new TileWMSSource(_sourceParams as OMapTileWMSSourceParamsType).getSource()
         this._layer = new OlLayer.Tile({
             ..._layerParams,
             extent: isDefined(_layerParams.extent) ? handleGetExtentValue(_layerParams.extent) : undefined,

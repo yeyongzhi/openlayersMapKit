@@ -20,9 +20,13 @@ import type {
   OlStyleInstanceType,
   OMapStyleLike,
 } from "../../basic/Style/type";
-import type { OlFeatureLike } from "../../core/Feature/BasicFeature/type";
+import type {
+  OlFeatureInstanceType,
+  OlFeatureLike,
+} from "../../core/Feature/BasicFeature/type";
 import {
   OlGeometry,
+  OlFeature,
   OlInteraction,
   OlUtil,
   OlEvent,
@@ -130,8 +134,7 @@ export default class Select extends Interaction<OMapSelectType> {
         );
       } else if (isFunction(style)) {
         _style = (feature: OlFeatureLike, resolution: number) => {
-          let uid = OlUtil.getUid(feature);
-          let targetFeature = this.getTargetFeature(uid);
+          let targetFeature = this.getTargetFeature(feature);
           let styleFnResult = (style as Function)(targetFeature, resolution);
           return styleFnResult ? styleFnResult.getStyle() : undefined;
         };
@@ -154,7 +157,7 @@ export default class Select extends Interaction<OMapSelectType> {
     | undefined {
     if (isDefined(filter) || this.features.length) {
       return (feature: OlFeatureLike, layer: OMapVectorLayerType) => {
-        let targetFeature = this.getTargetFeature(OlUtil.getUid(feature));
+        let targetFeature = this.getTargetFeature(feature);
         if (!targetFeature) {
           return false;
         }
@@ -182,27 +185,23 @@ export default class Select extends Interaction<OMapSelectType> {
       const { selected, deselected } = e;
       this.selected = selected
         .map((s) => {
-          return this.getTargetFeature(
-            OlUtil.getUid(s),
-          ) as BaseFeature<OlGeometry.Geometry> | null;
+          return this.getTargetFeature(s) as BaseFeature<OlGeometry.Geometry> | null;
         })
         .filter((f) => f !== null);
       this.deselected = deselected
         .map((d) => {
-          return this.getTargetFeature(
-            OlUtil.getUid(d),
-          ) as BaseFeature<OlGeometry.Geometry> | null;
+          return this.getTargetFeature(d) as BaseFeature<OlGeometry.Geometry> | null;
         })
         .filter((f) => f !== null);
     });
   }
 
-  protected getTargetFeature(id: string): BaseFeature<OlGeometry.Geometry> | null {
+  protected getTargetFeature(feature: OlFeatureLike): BaseFeature<OlGeometry.Geometry> | null {
     if (this.layers.length) {
       for (const layer of this.layers) {
-        const target = layer.getFeatures().find((feature) => {
-          return OlUtil.getUid(feature.getFeature()) === id;
-        });
+        const target = feature instanceof OlFeature
+          ? layer.getFeatureByOlFeature(feature as OlFeatureInstanceType)
+          : this.findLayerFeatureByUid(layer, OlUtil.getUid(feature));
         if (target) {
           return target;
         }
@@ -214,18 +213,25 @@ export default class Select extends Interaction<OMapSelectType> {
         if (!(layer instanceof VectorLayer)) {
           continue;
         }
-        const target = layer.getFeatures().find((feature) => {
-          return OlUtil.getUid(feature.getFeature()) === id;
-        });
+        const target = feature instanceof OlFeature
+          ? layer.getFeatureByOlFeature(feature as OlFeatureInstanceType)
+          : this.findLayerFeatureByUid(layer, OlUtil.getUid(feature));
         if (target) {
           return target;
         }
       }
       return null;
     }
+    const id = OlUtil.getUid(feature);
     return this.features.find((feature) => {
       return OlUtil.getUid(feature.getFeature()) === id;
     }) || null;
+  }
+
+  protected findLayerFeatureByUid(layer: VectorLayer, uid: string): BaseFeature<OlGeometry.Geometry> | undefined {
+    return layer.getFeatures().find((feature) => {
+      return OlUtil.getUid(feature.getFeature()) === uid;
+    });
   }
 
   getSelected(): BaseFeature<OlGeometry.Geometry>[] {

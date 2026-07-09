@@ -16,13 +16,13 @@ import { handleGetProjectionValue } from '../../core/Projection/handle';
 import BasicFeature from '../../core/Feature/BasicFeature/index';
 import { handleGetStyleValue } from '../../basic/Style/handle';
 import {
-    updateFormatTool,
     handleReadFeature,
     handleReadFeatures,
     handleWriteFeature,
     handleWriteFeatureObject,
     handleWriteFeatures,
     handleWriteFeaturesObject,
+    handleWriteFeaturesNode,
 } from './module/index'
 
 const PACKAGE_NAME = 'Format';
@@ -83,31 +83,34 @@ export default class Format {
                 });
                 break;
         }
-        updateFormatTool(this._format as OMapFormatInstanceType)
     }
 
     readFeature(source: unknown, options?: unknown) {
-        return handleReadFeature(this.type as string, source, options)
+        return handleReadFeature(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, source, options)
     }
 
     readFeatures(source: unknown, options?: unknown) {
-        return handleReadFeatures(this.type as string, source, options)
+        return handleReadFeatures(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, source, options)
     }
 
     writeFeature(feature: BasicFeature<any>, options?: OMapFormatWriteFeatureOptionsType): string {
-        return handleWriteFeature(this.type as string, feature, options)
+        return handleWriteFeature(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, feature, options)
     }
 
     writeFeatureObject(feature: BasicFeature<any>, options?: OMapFormatWriteFeatureOptionsType) {
-        return handleWriteFeatureObject(this.type as string, feature, options)
+        return handleWriteFeatureObject(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, feature, options)
     }
 
     writeFeatures(features: Array<BasicFeature<any>>, options?: OMapFormatWriteFeatureOptionsType): string {
-        return handleWriteFeatures(this.type as string, features, options)
+        return handleWriteFeatures(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, features, options)
     }
 
     writeFeaturesObject(features: Array<BasicFeature<any>>, options?: OMapFormatWriteFeatureOptionsType) {
-        return handleWriteFeaturesObject(this.type as string, features, options)
+        return handleWriteFeaturesObject(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, features, options)
+    }
+
+    writeFeaturesNode(features: Array<BasicFeature<any>>, options?: OMapFormatWriteFeatureOptionsType) {
+        return handleWriteFeaturesNode(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, features, options)
     }
 
 }

@@ -49,6 +49,7 @@ export default class VectorSource extends Source<OMapVectorSourceType> {
         })
         super(new OlSource.Vector(sourceParams))
         params.features?.forEach(feature => this.cacheFeature(feature));
+        this.initFeatureCacheEvents();
     }
 
     addFeature(feature: OMapVectorSourceFeature) {
@@ -123,6 +124,10 @@ export default class VectorSource extends Source<OMapVectorSourceType> {
             .getFeatures()
             .map(feature => this.createOMapFeature(feature))
             .filter(isDefined);
+    }
+
+    getFeatureByOlFeature(feature: OMapVectorSourceOlFeature): OMapVectorSourceFeature | undefined {
+        return this.createOMapFeature(feature);
     }
 
     getFeaturesCollection() {
@@ -312,6 +317,26 @@ export default class VectorSource extends Source<OMapVectorSourceType> {
 
     protected deleteFeatureCache(feature: OMapVectorSourceFeature) {
         this.featureCache.delete(OlUtil.getUid(this.getOlFeature(feature, 'deleteFeatureCache')));
+    }
+
+    protected deleteFeatureCacheByOlFeature(feature: OMapVectorSourceOlFeature) {
+        this.featureCache.delete(OlUtil.getUid(feature));
+    }
+
+    protected initFeatureCacheEvents() {
+        this._source.on(VECTOR_SOURCE_EVENT_TYPES.addFeature, event => {
+            if (event.feature) {
+                this.createOMapFeature(event.feature);
+            }
+        });
+        this._source.on(VECTOR_SOURCE_EVENT_TYPES.removeFeature, event => {
+            if (event.feature) {
+                this.deleteFeatureCacheByOlFeature(event.feature);
+            }
+        });
+        this._source.on(VECTOR_SOURCE_EVENT_TYPES.clear, () => {
+            this.featureCache.clear();
+        });
     }
 
 }

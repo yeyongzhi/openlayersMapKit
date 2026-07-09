@@ -162,7 +162,7 @@ export const DEFAULT_STYLE = (feature: BaseFeature<any>, resolution: number): un
     return undefined
 }
 
-export function handleGetStyleValue(style?: OMapStyleLike): OlStyleLike | undefined {
+export function handleGetStyleValue(style?: OMapStyleLike, featureResolver?: (feature: OlFeatureLike) => BaseFeature<any> | undefined): OlStyleLike | undefined {
     if(!isDefined(style)) {
         return undefined
     }
@@ -172,7 +172,7 @@ export function handleGetStyleValue(style?: OMapStyleLike): OlStyleLike | undefi
         return style.map(item => item.getStyle())
     } else if (isVaildFunctionStyle(style)) {
         return (feature: OlFeatureLike, resolution: number) => {
-            const _feature = createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
+            const _feature = featureResolver ? featureResolver(feature) : createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
             const _style = style(_feature, resolution)
             if(isVaildArrayStyle(_style)) {
                 return _style.map(item => item.getStyle())

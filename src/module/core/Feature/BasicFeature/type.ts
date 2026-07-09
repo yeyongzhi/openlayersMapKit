@@ -16,7 +16,7 @@ export type OlFeatureOptionsType = {
     properties?: Record<string, any>
 }
 
-export type OMapBasicFeatureType = "Point" | "LineString" | "Polygon" | "MultiPoint" | "MultiLineString" | "MultiPolygon" | 'LinearRing' | 'Circle' | 'GeometryCollection'
+export type OMapBasicFeatureType = "Point" | "LineString" | "Polygon" | "MultiPoint" | "MultiLineString" | "MultiPolygon" | 'LinearRing' | 'Circle'
 export const OlFeatureTypeObject = {
     Point: 'Point',
     LineString: 'LineString',
@@ -26,9 +26,7 @@ export const OlFeatureTypeObject = {
     MultiPolygon: 'MultiPolygon',
     LinearRing: 'LinearRing',
     Circle: 'Circle',
-    GeometryCollection: 'GeometryCollection',
 }
-type OlGeometryCollectionGeomInstanceType = InstanceType<typeof OlGeometry.GeometryCollection>
 
 export type OlFeatureType = OlFeature<OlGeometry.Point> |
 OlFeature<OlGeometry.MultiPoint> |
@@ -56,7 +54,6 @@ OlGeometry.Polygon |
 OlGeometry.MultiPolygon |
 OlGeometry.LinearRing | 
 OlGeometry.Circle | 
-OlGeometry.GeometryCollection |
 OlGeometry.Geometry | 
 OlGeometry.SimpleGeometry
 
@@ -70,8 +67,7 @@ OlMultiLineStringGeomInstanceType |
 OlPolygonGeomInstanceType | 
 OlMultiPolygonGeomInstanceType |
 OlLinearRingGeomInstanceType | 
-OlCircleGeomInstanceType | 
-OlGeometryCollectionGeomInstanceType
+OlCircleGeomInstanceType
 
 /**
  * ol原生的 Geometry实例坐标 类型
