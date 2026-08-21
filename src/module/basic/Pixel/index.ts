@@ -27,6 +27,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Pixel {
+  static from(value: OMapPixelType): Pixel {
+    return value instanceof Pixel ? value.clone() : new Pixel(value);
+  }
+
   /**
    * @type {number[]}
    * @example [100, 200]
@@ -138,7 +142,11 @@ export default class Pixel {
   }
 
   toArray(): number[] {
-    return this._pixel;
+    return [...this._pixel];
+  }
+
+  clone(): Pixel {
+    return new Pixel(this._pixel);
   }
 
   /**

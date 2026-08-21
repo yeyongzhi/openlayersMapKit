@@ -35,7 +35,7 @@ const DEFAULT_LAYER_MIN_RESOLUTION: number = 0;
 const DEFAULT_LAYER_MAX_RESOLUTION: number = Infinity;
 const DEFAULT_LAYER_ZINDEX: number = 1;
 
-export default class BaseLayer<T extends OMapBaseLayerCommonType> {
+export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayerCommonType> {
 
     /**
      * 图层类型

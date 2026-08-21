@@ -11,6 +11,10 @@ export * from './module/core';
  */
 export * from './module/layer';
 /**
+ * 数据源模块
+ */
+export * from './module/source';
+/**
  * 交互模块
  */
 export * from './module/interaction';

@@ -1,4 +1,6 @@
-import { Lnglat, Extent, Projection } from "../index";
+import Extent from '../module/basic/Extent/index'
+import Lnglat from '../module/basic/Lnglat/index'
+import Projection from '../module/core/Projection/index'
 import OlPackage, { OlLayer, OlSource } from '../source/index'
 import { OlProjInstanceType } from './olType/projection'
 
@@ -6,39 +8,40 @@ export type IdType = number | string | null
 
 /** 工具类 */
 export type ManualOmit<T, K extends keyof any> = {
-    [P in keyof T as P extends K ? never : P]: T[P];
-};
+  [P in keyof T as P extends K ? never : P]: T[P]
+}
 
 // export * from './olType/projection'
 // export * from './olType/source'
 // export * from './olType/map'
 
-export type EmptyArray = [];
+export type EmptyArray = []
 
-export type LnglatType = number[];
+export type LnglatType = number[]
 
 export type PropertiesType = Record<string, any>
 
 /** View */
 export type OlViewInstanceType = InstanceType<typeof OlPackage.View>
-export type OlViewOptionsType = ConstructorParameters<typeof OlPackage.View>[0];
-type OlViewOptionsTypeKeysToOmit = 'center' | 'extent' | 'projection';
-type OlViewOptionsOmitType = ManualOmit<OlViewOptionsType, OlViewOptionsTypeKeysToOmit>;
+export type OlViewOptionsType = ConstructorParameters<typeof OlPackage.View>[0]
+type OlViewOptionsTypeKeysToOmit = 'center' | 'extent' | 'projection'
+type OlViewOptionsOmitType = ManualOmit<OlViewOptionsType, OlViewOptionsTypeKeysToOmit>
 type CustomerOlViewOptionsType = {
-    projection: Projection | string;
-    center: Lnglat | Array<number>;
-    extent: Extent | Array<number>;
-};
-export type OlViewOptionsFinalType = OlViewOptionsOmitType & CustomerOlViewOptionsType;
+  projection: Projection | string
+  center: Lnglat | Array<number>
+  extent: Extent | Array<number>
+}
+export type OlViewOptionsFinalType = OlViewOptionsOmitType & CustomerOlViewOptionsType
 /** -------------------------------- */
 
 /** Map */
 export type OlMapInstanceType = InstanceType<typeof OlPackage.Map>
-export type MapContainerType = string | HTMLElement | HTMLDivElement; // 容器类型，支持字符串、HTMLElement、HTMLDivElement
-export type OlMapOptionsType = ConstructorParameters<typeof OlPackage.Map>[0];
-type OlMapOptionsTypeKeysToOmit = 'layers' | 'controls' | 'interactions' | 'overlays' | 'target' | 'view';
+export type MapContainerType = string | HTMLElement | HTMLDivElement // 容器类型，支持字符串、HTMLElement、HTMLDivElement
+export type OlMapOptionsType = ConstructorParameters<typeof OlPackage.Map>[0]
+type OlMapOptionsTypeKeysToOmit =
+  'layers' | 'controls' | 'interactions' | 'overlays' | 'target' | 'view'
 
-export type OlMapOptionsOmitType = ManualOmit<OlMapOptionsType, OlMapOptionsTypeKeysToOmit>; // 可行
+export type OlMapOptionsOmitType = ManualOmit<OlMapOptionsType, OlMapOptionsTypeKeysToOmit> // 可行
 
 // 测试使用
 // export type azsx<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
@@ -46,10 +49,10 @@ export type OlMapOptionsOmitType = ManualOmit<OlMapOptionsType, OlMapOptionsType
 // export type OlMapOptionsOmitType3 = azsx<OlMapOptionsType, 'layers'>;
 
 export type CustomerOlMapOptionsType = {
-    layers: Array<any>;
-    controls: Array<any>;
-    interactions: Array<any>; // 地图的默认交互列表
-    overlays: Array<string>;
-    view: OlViewOptionsFinalType;
-};
-export type OlMapOptionsFinalType = OlMapOptionsOmitType & CustomerOlMapOptionsType;
+  layers: Array<any>
+  controls: Array<any>
+  interactions: Array<any> // 地图的默认交互列表
+  overlays: Array<string>
+  view: OlViewOptionsFinalType
+}
+export type OlMapOptionsFinalType = OlMapOptionsOmitType & CustomerOlMapOptionsType

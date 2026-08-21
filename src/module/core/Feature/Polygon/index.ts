@@ -184,7 +184,7 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
     if (linearRingParams instanceof LinearRing) {
       this._geometry.appendLinearRing(linearRingParams.getGeometry());
     } else {
-      let coordinates = linearRingParams.map((l) => {
+      const coordinates = (linearRingParams as OMapLinearRingGeometryCoordinatesType).map((l) => {
         return handleGetLnglatValue(l);
       });
       this._geometry.appendLinearRing(

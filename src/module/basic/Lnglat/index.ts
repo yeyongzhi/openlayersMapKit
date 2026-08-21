@@ -13,7 +13,7 @@ import {
   commonMessage,
 } from "../../../utils/message";
 import { handleGetLnglatValue } from "./handle";
-import { type OlCoordinateType } from "./type";
+import { type OlCoordinateType, type OMapCoordinateType } from "./type";
 
 const PACKAGE_NAME = "Lnglat";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -26,6 +26,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @LastUpdateDate 2026/2/3
  */
 export default class Lnglat {
+  static from(value: OMapCoordinateType): Lnglat {
+    return value instanceof Lnglat ? value.clone() : new Lnglat(value);
+  }
+
   /**
    * 经纬度数组
    * @type {OlCoordinateType}
@@ -125,7 +129,7 @@ export default class Lnglat {
    * @param {OMapCoordinateType} lnglat 经纬度对象
    * @returns {boolean} 判断结果
    */
-  equals(lnglat: Lnglat): boolean {
+  equals(lnglat: OMapCoordinateType): boolean {
     if (!isDefined(lnglat)) {
       error_(createMessage("equals", commonMessage.paramsNotDefined("lnglat")));
     }
@@ -140,7 +144,11 @@ export default class Lnglat {
    * @returns {OlCoordinateType} 经纬度数组
    */
   toArray(): OlCoordinateType {
-    return this._lnglat;
+    return [...this._lnglat] as OlCoordinateType;
+  }
+
+  clone(): Lnglat {
+    return new Lnglat(this._lnglat);
   }
 
   /**

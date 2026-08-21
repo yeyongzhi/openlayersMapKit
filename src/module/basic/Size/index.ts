@@ -27,6 +27,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Size {
+  static from(value: OMapSizeType): Size {
+    return value instanceof Size ? value.clone() : new Size(value);
+  }
+
   /**
    * @type {number[]}
    * @example [20, 15]
@@ -136,7 +140,11 @@ export default class Size {
    * @returns {OlSizeType} size
    */
   toArray(): OlSizeType {
-    return this._size;
+    return [...this._size] as OlSizeType;
+  }
+
+  clone(): Size {
+    return new Size(this._size);
   }
 
   /**

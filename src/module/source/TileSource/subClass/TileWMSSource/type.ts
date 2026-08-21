@@ -26,6 +26,6 @@ export const DEFAULT_TILE_WMS_SOURCE_PARAMS: OMapTileWMSSourceParamsType = {
     zDirection: 0
 }
 
-export function handleGetTileWMSSourceParams(params: OMapTileWMSSourceParamsType = {}) {
+export function handleGetTileWMSSourceParams(params: OMapTileWMSSourceParamsType = DEFAULT_TILE_WMS_SOURCE_PARAMS) {
     return handleGetTileSourceParams(params);
 }

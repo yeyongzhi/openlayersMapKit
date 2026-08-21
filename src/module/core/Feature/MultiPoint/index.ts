@@ -194,11 +194,11 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
   }
 
   getFirstCoordinate(): Lnglat {
-    return new Lnglat(...this._geometry.getFirstCoordinate());
+    return new Lnglat(this._geometry.getFirstCoordinate());
   }
 
   getLastCoordinate(): Lnglat {
-    return new Lnglat(...this._geometry.getLastCoordinate());
+    return new Lnglat(this._geometry.getLastCoordinate());
   }
 
   getPoint(index: number): Point {

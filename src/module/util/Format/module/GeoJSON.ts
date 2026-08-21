@@ -12,14 +12,14 @@ import BasicFeature from '../../../core/Feature/BasicFeature/index';
 
 function readFeature(format: OMapGeoJSONFormatInstanceType, source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
     const feature = (format as OMapGeoJSONFormatInstanceType).readFeature(source, defaultValue(options, {}));
-    const _feature = createBaseFeatureByOlFeature<any>(feature as OlFeatureInstanceType)
+    const _feature = createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
     return _feature
 }
 
 function readFeatures(format: OMapGeoJSONFormatInstanceType, source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
     const features = (format as OMapGeoJSONFormatInstanceType).readFeatures(source, defaultValue(options, {}));
     const _features = features.map((feature: OlFeature | RenderFeature) => {
-        return createBaseFeatureByOlFeature<any>(feature as OlFeature)
+        return createBaseFeatureByOlFeature(feature as OlFeature)
     })
     return _features
 }

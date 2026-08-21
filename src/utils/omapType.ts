@@ -1,3 +1,3 @@
-import { Lnglat, Extent, Projection } from "../index";
+import Projection from '../module/core/Projection/index'
 
 export type OMapProjType = Projection | string

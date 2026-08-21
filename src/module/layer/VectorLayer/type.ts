@@ -1,24 +1,24 @@
 import { OlSource, OlLayer, OlFeature, OlGeometry } from '../../../source/index'
-import { Map } from '../../../index'
+import Map from '../../core/Map/index'
 import type { OMapStyleLike } from '../../basic/Style/type'
 import type { OMapVectorSourceParamsType } from '../../source/VectorSource/type'
 import type { BaseLayerOptionsType } from '../BaseLayer/type'
 
 export type BaseVectorLayerOptionsType = {
-    renderOrder?: () => number;
-    renderBuffer?: number;
-    source?: OMapVectorSourceOptionsFinalType;
-    map?: Map;
-    declutter?: boolean | string | number;
-    style?: OMapStyleLike;
-    updateWhileAnimating?: boolean;
-    updateWhileInteracting?: boolean;
+  renderOrder?: () => number
+  renderBuffer?: number
+  source?: OMapVectorSourceOptionsFinalType
+  map?: Map
+  declutter?: boolean | string | number
+  style?: OMapStyleLike
+  updateWhileAnimating?: boolean
+  updateWhileInteracting?: boolean
 }
 export const OlBaseVectorLayerDefaultOptions: BaseVectorLayerOptionsType = {
-    renderBuffer: 100,
-    declutter: false,
-    updateWhileAnimating: false,
-    updateWhileInteracting: false
+  renderBuffer: 100,
+  declutter: false,
+  updateWhileAnimating: false,
+  updateWhileInteracting: false
 }
 export type OMapVectorLayerOptionsFinalType = BaseLayerOptionsType & BaseVectorLayerOptionsType
 
@@ -27,6 +27,8 @@ export type OMapVectorSourceOptionsFinalType = OMapVectorSourceParamsType
 export type OMapVectorLayerType = OlLayer.Vector
 export type OlVectorLayerInstanceType = InstanceType<typeof OlLayer.Vector>
 export type OMapVectorSourceType = OlSource.Vector
-export type OlVectorSourceInstanceType = InstanceType<typeof OlSource.Vector<OlFeature<OlGeometry.Geometry>>>
+export type OlVectorSourceInstanceType = InstanceType<
+  typeof OlSource.Vector<OlFeature<OlGeometry.Geometry>>
+>
 
 export type OMapVectorLayerStyleType = OMapStyleLike

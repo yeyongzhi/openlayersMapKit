@@ -1,4 +1,4 @@
-import { OlCoordinateType } from "./basic";
+import type { OlCoordinateType } from '../../module/basic/Lnglat/type'
 import Lnglat from '../../module/basic/Lnglat/index'
 
 export interface OlAnimationOptions {

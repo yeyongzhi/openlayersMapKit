@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import * as JavaScriptObfuscator from 'javascript-obfuscator';
 import { createFilter } from '@rollup/pluginutils';
+import dts from 'vite-plugin-dts';
 
 // 🔑 判断是否启用混淆（通过环境变量 OBFUSCATE）
 const shouldObfuscate = process.env.OBFUSCATE === 'true';
@@ -19,7 +20,7 @@ export default defineConfig({
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'OMap',
       formats: ['umd', 'es'],
-      fileName: (format) => `omap.${format}.js`
+      fileName: (format) => format === 'es' ? 'omap.es.mjs' : 'omap.umd.cjs'
     },
     rollupOptions: {
       external: (id) => id === 'ol' || id.startsWith('ol/'),
@@ -87,5 +88,12 @@ export default defineConfig({
       ] : []
     }
   },
-  plugins: []
+  plugins: [
+    dts({
+      entryRoot: 'src',
+      insertTypesEntry: true,
+      rollupTypes: true,
+      tsconfigPath: path.resolve(__dirname, 'tsconfig.json')
+    })
+  ]
 })

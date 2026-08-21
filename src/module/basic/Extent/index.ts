@@ -30,6 +30,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Extent {
+  static from(value: OMapExtentType): Extent {
+    return value instanceof Extent ? value.clone() : new Extent(value);
+  }
+
   /**
    * extent数组
    * @type {OlExtentType}
@@ -81,7 +85,15 @@ export default class Extent {
   }
 
   getExtent(): OlExtentType {
-    return this._extent;
+    return [...this._extent];
+  }
+
+  equals(extent: OMapExtentType): boolean {
+    return Extent.equals(this, extent);
+  }
+
+  clone(): Extent {
+    return new Extent(this._extent);
   }
 
   /**
@@ -154,7 +166,7 @@ export default class Extent {
   }
 
   toArray(): OlExtentType {
-    return this._extent;
+    return [...this._extent];
   }
 
   /**

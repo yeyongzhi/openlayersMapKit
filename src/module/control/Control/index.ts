@@ -19,7 +19,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/10/10
  */
 
-export default class Control<T extends OMapControlCommonType> {
+export default class Control<T extends OMapControlCommonType = OMapControlCommonType> {
     id: OMapControlIdType = null;
     /**
      * 交互类型

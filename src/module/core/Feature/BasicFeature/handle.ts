@@ -1,84 +1,102 @@
+import { OlFeature, OlGeometry, OlRenderFeaturetoFeature } from '../../../../source/index'
+import Circle from '../Circle/index'
+import LineString from '../LineString/index'
+import LinearRing from '../LinearRing/index'
+import MultiLineString from '../MultiLineString/index'
+import MultiPoint from '../MultiPoint/index'
+import MultiPolygon from '../MultiPolygon/index'
+import Point from '../Point/index'
+import Polygon from '../Polygon/index'
 import BasicFeature from './index'
-import Point from "../Point/index"
-import LineString from "../LineString/index"
-import Polygon from "../Polygon/index"
-import MultiPoint from "../MultiPoint/index"
-import MultiLineString from "../MultiLineString/index"
-import MultiPolygon from "../MultiPolygon/index"
-import LinearRing from "../LinearRing/index"
-import Circle from "../Circle/index"
-import type {
-    OlFeatureInstanceType,
-    OlGeometryType,
-    OlRenderFeatureInstanceType,
+import {
+  getRegisteredFeature,
+  getRegisteredRenderFeature,
+  registerFeature,
+  registerRenderFeature
+} from './registry'
+import {
+  OlFeatureTypeObject,
+  type OlFeatureInstanceType,
+  type OlGeometryType,
+  type OlRenderFeatureInstanceType
 } from './type'
-import { OlFeature, OlGeometry } from '../../../../source/index'
-import { OlFeatureTypeObject } from './type'
-import { OlRenderFeaturetoFeature } from '../../../../source/index'
-
-
-/**
- * 根据ol Feature创建BasicFeature
- */
 
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.Point>
-): BasicFeature<OlGeometry.Point>;
+  feature: OlFeature<OlGeometry.Point>
+): BasicFeature<OlGeometry.Point>
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.LineString>
-): BasicFeature<OlGeometry.LineString>;
+  feature: OlFeature<OlGeometry.LineString>
+): BasicFeature<OlGeometry.LineString>
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.Polygon>
-): BasicFeature<OlGeometry.Polygon>;
+  feature: OlFeature<OlGeometry.Polygon>
+): BasicFeature<OlGeometry.Polygon>
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.MultiPoint>
-): BasicFeature<OlGeometry.MultiPoint>;
+  feature: OlFeature<OlGeometry.MultiPoint>
+): BasicFeature<OlGeometry.MultiPoint>
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.MultiLineString>
-): BasicFeature<OlGeometry.MultiLineString>;
+  feature: OlFeature<OlGeometry.MultiLineString>
+): BasicFeature<OlGeometry.MultiLineString>
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.MultiPolygon>
-): BasicFeature<OlGeometry.MultiPolygon>;
+  feature: OlFeature<OlGeometry.MultiPolygon>
+): BasicFeature<OlGeometry.MultiPolygon>
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.LinearRing>
-): BasicFeature<OlGeometry.LinearRing>;
+  feature: OlFeature<OlGeometry.LinearRing>
+): BasicFeature<OlGeometry.LinearRing>
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.Circle>
-): BasicFeature<OlGeometry.Circle>;
+  feature: OlFeature<OlGeometry.Circle>
+): BasicFeature<OlGeometry.Circle>
 export function createBaseFeatureByOlFeature(
-    feature: OlFeature<OlGeometry.Geometry>
-): BasicFeature<OlGeometry.Geometry>;
+  feature: OlFeature<OlGeometry.Geometry>
+): BasicFeature<OlGeometry.Geometry>
 
-/**
- * 具体实现
- * @param feature 
- * @returns 
- */
-export function createBaseFeatureByOlFeature(feature: OlFeatureInstanceType): BasicFeature<OlGeometryType> | null {
-    let geometry = feature.getGeometry()
-    if (!geometry) return null
-    switch (geometry.getType()) {
-        case OlFeatureTypeObject.Point:
-            return new Point(feature) as BasicFeature<OlGeometry.Point>
-        case OlFeatureTypeObject.LineString:
-            return new LineString(feature) as BasicFeature<OlGeometry.LineString>
-        case OlFeatureTypeObject.Polygon:
-            return new Polygon(feature) as BasicFeature<OlGeometry.Polygon> 
-        case OlFeatureTypeObject.MultiPoint:
-            return new MultiPoint(feature) as BasicFeature<OlGeometry.MultiPoint>
-        case OlFeatureTypeObject.MultiLineString:
-            return new MultiLineString(feature) as BasicFeature<OlGeometry.MultiLineString>
-        case OlFeatureTypeObject.MultiPolygon:
-            return new MultiPolygon(feature) as BasicFeature<OlGeometry.MultiPolygon>
-        case OlFeatureTypeObject.LinearRing:
-            return new LinearRing(feature) as BasicFeature<OlGeometry.LinearRing>
-        case OlFeatureTypeObject.Circle:
-            return new Circle(feature) as BasicFeature<OlGeometry.Circle>
-    }
-    return null 
+/** Resolves a native OpenLayers Feature to its stable OMap wrapper. */
+export function createBaseFeatureByOlFeature(
+  feature: OlFeatureInstanceType
+): BasicFeature<OlGeometryType> | null {
+  const registered = getRegisteredFeature(feature)
+  if (registered) return registered
+
+  const geometry = feature.getGeometry()
+  if (!geometry) return null
+
+  let wrapper: BasicFeature<OlGeometryType> | null = null
+  switch (geometry.getType()) {
+    case OlFeatureTypeObject.Point:
+      wrapper = new Point(feature)
+      break
+    case OlFeatureTypeObject.LineString:
+      wrapper = new LineString(feature)
+      break
+    case OlFeatureTypeObject.Polygon:
+      wrapper = new Polygon(feature)
+      break
+    case OlFeatureTypeObject.MultiPoint:
+      wrapper = new MultiPoint(feature)
+      break
+    case OlFeatureTypeObject.MultiLineString:
+      wrapper = new MultiLineString(feature)
+      break
+    case OlFeatureTypeObject.MultiPolygon:
+      wrapper = new MultiPolygon(feature)
+      break
+    case OlFeatureTypeObject.LinearRing:
+      wrapper = new LinearRing(feature)
+      break
+    case OlFeatureTypeObject.Circle:
+      wrapper = new Circle(feature)
+      break
+  }
+
+  return wrapper ? registerFeature(feature, wrapper) : null
 }
 
-export function createBaseFeatureByOlRenderFeature(feature: OlRenderFeatureInstanceType): BasicFeature<OlGeometryType> | null {
-    let olFeature = OlRenderFeaturetoFeature(feature)
-    return createBaseFeatureByOlFeature(olFeature)
+/** Resolves a render Feature and preserves wrapper identity for repeated callbacks. */
+export function createBaseFeatureByOlRenderFeature(
+  feature: OlRenderFeatureInstanceType
+): BasicFeature<OlGeometryType> | null {
+  const registered = getRegisteredRenderFeature(feature)
+  if (registered) return registered
+
+  const wrapper = createBaseFeatureByOlFeature(OlRenderFeaturetoFeature(feature))
+  return wrapper ? registerRenderFeature(feature, wrapper) : null
 }

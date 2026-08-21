@@ -29,6 +29,10 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Color {
+    static from(value: Color | ColorType): Color {
+        return value instanceof Color ? value.clone() : new Color(value)
+    }
+
     /**
      * 颜色值
      * 所有的颜色值均以string的格式输出
@@ -147,6 +151,18 @@ export default class Color {
 
     getColor(): string {
         return this._color;
+    }
+
+    equals(color: Color | ColorType): boolean {
+        return this._color === Color.from(color)._color
+    }
+
+    clone(): Color {
+        return new Color(this._color)
+    }
+
+    toString(): string {
+        return this._color
     }
 
     /**

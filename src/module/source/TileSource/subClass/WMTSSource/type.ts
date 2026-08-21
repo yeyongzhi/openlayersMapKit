@@ -26,7 +26,7 @@ export type OMapWMTSSourceTileGrid = {
 
 export type OMapWMTSSourceParamsType = Omit<OlWMTSSourceOptions, 'projection' | 'tileGrid'> & {
     projection?: OMapProjectionType;
-    tileGrid?: OMapWMTSSourceTileGrid | OMapWMTSSourceTileGridInstance;
+    tileGrid: OMapWMTSSourceTileGrid | OMapWMTSSourceTileGridInstance;
 }
 
 export const DEFAULT_WMTS_SOURCE_PARAMS: Partial<OMapWMTSSourceParamsType> = {
@@ -49,10 +49,7 @@ export function handleGetWMTSSourceParams(params: OMapWMTSSourceParamsType) {
     }
 }
 
-export function handleGetWMTSTileGrid(tileGrid?: OMapWMTSSourceParamsType['tileGrid']) {
-    if (!tileGrid) {
-        return undefined;
-    }
+export function handleGetWMTSTileGrid(tileGrid: OMapWMTSSourceParamsType['tileGrid']) {
     if (tileGrid instanceof OlTileGrid.WMTS) {
         return tileGrid;
     }

@@ -19,7 +19,7 @@ function readFeature(format: OMapKMLFormatInstanceType, source: ArrayBuffer | Do
 function readFeatures(format: OMapKMLFormatInstanceType, source: ArrayBuffer | Document | Element | Record<string, any> | string, options?: OMapFormatReadFeatureOptionsType) {
     const features = (format as OMapKMLFormatInstanceType).readFeatures(source, defaultValue(options, {}));
     const _features = features.map((feature: OlFeature | RenderFeature) => {
-        return createBaseFeatureByOlFeature<any>(feature as OlFeature)
+        return createBaseFeatureByOlFeature(feature as OlFeature)
     })
     return _features
 }

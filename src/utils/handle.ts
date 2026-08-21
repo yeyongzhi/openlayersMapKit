@@ -20,5 +20,5 @@ export function getCurrentDateTime() {
 }
 
 export function getDevicePixelRatio() {
-    return defaultValue(window.devicePixelRatio, 1);
+    return typeof window === 'undefined' ? 1 : defaultValue(window.devicePixelRatio, 1);
 }

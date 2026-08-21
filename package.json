@@ -1,28 +1,64 @@
 {
   "name": "omap",
-  "version": "1.0.0-beta1",
-  "description": "一个基于openlayers封装的地图引擎开发包，提供一系列开发类，用于快速开发地图应用。",
-  "main": "index.js",
-  "module": "dist/omap.es.js",
+  "version": "0.1.0-beta.1",
+  "description": "基于 OpenLayers 的类型安全地图应用开发 SDK。",
+  "homepage": "https://github.com/yeyongzhi/openlayersMapKit#readme",
+  "bugs": {
+    "url": "https://github.com/yeyongzhi/openlayersMapKit/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeyongzhi/openlayersMapKit.git"
+  },
+  "type": "commonjs",
+  "main": "./dist/omap.umd.cjs",
+  "module": "./dist/omap.es.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/omap.es.mjs",
+      "require": "./dist/omap.umd.cjs"
+    }
+  },
   "files": [
-    "dist/**/*",
-    "index.js",
-    "src/**/*",
+    "dist",
     "README.md",
     "LICENSE"
   ],
-  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.4.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:obf": "OBFUSCATE=true vite build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src tests vite.config.ts vitest.config.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "check:package": "publint && attw --pack . --ignore-rules false-cjs",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm docs:build && pnpm check:package",
+    "prepack": "pnpm typecheck && pnpm test && pnpm build"
   },
   "keywords": [
     "openlayers",
     "map",
     "gis",
-    "mapKit"
+    "mapkit",
+    "typescript",
+    "gis-sdk"
   ],
   "author": "Aurora",
   "license": "MIT",
@@ -30,11 +66,23 @@
     "ol": "^10.6.1"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@eslint/js": "^10.0.1",
     "@rollup/pluginutils": "^5.3.0",
     "@types/node": "^24.0.7",
+    "@vitest/coverage-v8": "^4.1.11",
+    "eslint": "^10.8.1",
     "javascript-obfuscator": "^5.1.0",
+    "prettier": "^3.9.6",
+    "publint": "^0.3.24",
     "rollup-plugin-obfuscator": "^1.1.0",
     "terser": "^5.44.1",
-    "vite": "6.3.5"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.67.0",
+    "vite": "6.3.5",
+    "vite-plugin-dts": "^5.0.3",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.1.11",
+    "vue": "^3.5.41"
   }
 }

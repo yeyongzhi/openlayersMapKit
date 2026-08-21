@@ -1,8 +1,10 @@
-import { isDefined, isNumber, isCoordinatesType, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { isDefined, isString } from '../../../utils/index';
+import { warn_, getPackageMessage } from '../../../utils/index'
 import { OlProj } from '../../../source/index'
-import { Lnglat, Projection } from '../../../index'
-import type { OMapProjType, OlProjInstanceType } from '../../../utils/index'
+import Lnglat from '../../basic/Lnglat/index'
+import Projection from '../../core/Projection/index'
+import type { OMapProjType } from '../../../utils/index'
+import type { OlProjInstanceType } from '../../core/Projection/type'
 
 const PACKAGE_NAME = 'ProjUtil';
 const createMessage = getPackageMessage(PACKAGE_NAME);
