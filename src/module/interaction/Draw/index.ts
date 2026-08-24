@@ -14,8 +14,12 @@ import {
   type OMapInteractionDrawEventType,
   isOMapInteractionDrawEventType,
   OMAP_DRAW_DEFAULT_PARAMS,
-  type OMapDrawType
+  type OMapDrawType,
+  type OMapDrawEvent,
+  type OMapDrawEventMap,
+  type OlDrawEventPayloadType
 } from './type'
+import Event from '../../util/Event/index'
 import type { OlVectorSourceInstanceType, OMapVectorSourceType } from '../../layer/VectorLayer/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
 import { getOlDrawType, handleInteractionDrawEvent } from './handle'
@@ -35,6 +39,9 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  */
 
 export default class Draw extends Interaction<OMapDrawType> {
+  /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+  declare events: Event<OMapDrawEventMap>
+
   constructor(mode: OMapDrawModeType, params?: OMapDrawParamsType) {
     if (!isDefined(mode)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('mode')))
@@ -75,6 +82,7 @@ export default class Draw extends Interaction<OMapDrawType> {
     }
     // 注册事件
     this.initInteractionEvent()
+    this.events = new Event<OMapDrawEventMap>(this)
   }
 
   /**
@@ -141,19 +149,19 @@ export default class Draw extends Interaction<OMapDrawType> {
     return defaultValue(layer.getFeatures(), [])
   }
 
-  on(type: OMapInteractionDrawEventType, callback: () => void): EventIdType {
+  on(type: OMapInteractionDrawEventType, callback: (e: OMapDrawEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'on')
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-      this.events.emit(type, handleInteractionDrawEvent(this, type, e))
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleInteractionDrawEvent(this, type, e as OlDrawEventPayloadType))
     })
     const id = this.events.on(type, callback, unlisten)
     return id
   }
 
-  once(type: OMapInteractionDrawEventType, callback: () => void): EventIdType {
+  once(type: OMapInteractionDrawEventType, callback: (e: OMapDrawEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'once')
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-      this.events.emit(type, handleInteractionDrawEvent(this, type, e))
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleInteractionDrawEvent(this, type, e as OlDrawEventPayloadType))
     })
     const id = this.events.once(type, callback, unlisten)
     return id
@@ -161,7 +169,7 @@ export default class Draw extends Interaction<OMapDrawType> {
 
   protected validateEvent(
     type: OMapInteractionDrawEventType,
-    callback: () => void,
+    callback: (e: OMapDrawEvent) => void,
     methodName: string
   ) {
     if (!isDefined(type) || !isDefined(callback)) {

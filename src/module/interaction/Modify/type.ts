@@ -6,10 +6,16 @@ import {
 } from "../../../source/index";
 import type { ManualOmit } from "../../../utils/type";
 import { isString } from "../../../utils/dataType";
+import type { ModifyEvent } from "ol/interaction/Modify";
+import type { ObjectEvent } from "ol/Object";
+import type BaseEvent from "ol/events/Event";
+import type MapBrowserEvent from "ol/MapBrowserEvent";
+import type Modify from "./index";
 import VectorLayer from "../../layer/VectorLayer/index";
 import BasicFeature from "../../core/Feature/BasicFeature/index";
 import type { OMapPointGeometryCoordinatesType } from "../../core/Feature/Point/type";
 import type { OMapLineStringGeometryCoordinatesType } from "../../core/Feature/LineString/type";
+import type { OMapBasicFeatureCoordinatesType } from "../../core/Feature/BasicFeature/type";
 import type { OMapPolygonGeometryCoordinatesType } from "../../core/Feature/Polygon/type";
 import {
   type OMapInteractionCommonParamsType,
@@ -33,6 +39,30 @@ export const OMapInteractionModifyEventTypes = [
 ] as const;
 export type OMapInteractionModifyEventType =
   (typeof OMapInteractionModifyEventTypes)[number];
+
+/**
+ * OL 原生事件 payload：
+ * modifystart/modifyend 为 `ModifyEvent`，change/change:active/propertychange 为 `ObjectEvent`，error 为 `BaseEvent`
+ */
+export type OlModifyEventPayloadType = ModifyEvent | ObjectEvent | BaseEvent;
+
+/**
+ * OMap 用户回调收到的事件 payload
+ */
+export interface OMapModifyEvent {
+  /** 事件类型 */
+  type: OMapInteractionModifyEventType;
+  /** 触发事件的 Modify 实例 */
+  target: Modify;
+  /** 触发修改的原生地图浏览器事件（change 系列事件时为 undefined） */
+  mapBrowserEvent: MapBrowserEvent | undefined;
+}
+
+/** 事件名 → 用户回调参数映射 */
+export type OMapModifyEventMap = Record<
+  OMapInteractionModifyEventType,
+  [OMapModifyEvent]
+>;
 
 export function isOMapInteractionModifyEventType(
   value: unknown,
@@ -63,7 +93,7 @@ export interface SampleRecordItem {
    * 针对Modify，目前只考虑修改坐标的情况
    * TODO：后续可以接入修改样式Style、修改属性Properties
    */
-  coordinates: any;
+  coordinates: OMapBasicFeatureCoordinatesType;
 }
 
 export interface ModifyRecordItem {

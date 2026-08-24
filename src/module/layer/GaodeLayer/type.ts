@@ -12,8 +12,8 @@ export type GaodeLayerTypeEnum = (typeof GaodeLayerType)[keyof typeof GaodeLayer
 /**
  * 是否是合法的高德地图图层类型
  */
-export function isValidGaodeLayerType(type: any): type is GaodeLayerTypeEnum {
-    return Object.values(GaodeLayerType).includes(type)
+export function isValidGaodeLayerType(type: unknown): type is GaodeLayerTypeEnum {
+    return Object.values(GaodeLayerType).includes(type as GaodeLayerTypeEnum)
 }
 
 export type OMapGaodeLayerParamsType = ManualOmit<OMapTileLayerParamsType, 'source'> & {

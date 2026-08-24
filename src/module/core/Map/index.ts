@@ -1009,9 +1009,9 @@ export default class Map {
           }
           if (item instanceof VectorLayer) {
             let layerFeatures = defaultValue(item.getFeatures(), [])
-            layerFeatures.forEach((f: BaseFeature<any>) => {
+            layerFeatures.forEach((f: BaseFeature<OlGeometry.Geometry>) => {
               if (OlUtil.getUid(feature) === OlUtil.getUid(f.getFeature())) {
-                targetFeature = f as BaseFeature<any>
+                targetFeature = f
               }
             })
           }
@@ -1020,7 +1020,7 @@ export default class Map {
       },
       {
         ...params,
-        layerFilter: (layer: any) => {
+        layerFilter: (layer: OlLayer.Layer) => {
           if (!isDefined(params.layerFilter)) return true
           const targetLayer = this.layers.find((l) => {
             return OlUtil.getUid(l) === OlUtil.getUid(layer)
@@ -1074,11 +1074,11 @@ export default class Map {
     return new Pixel(pixel as OlPixelType)
   }
 
-  getEventCoordinate(event: any): Lnglat {
+  getEventCoordinate(event: MouseEvent): Lnglat {
     return new Lnglat(this._map.getEventCoordinate(event))
   }
 
-  getEventPixel(event: any): Pixel {
+  getEventPixel(event: UIEvent): Pixel {
     return new Pixel(this._map.getEventPixel(event) as OlPixelType)
   }
 
@@ -1102,7 +1102,7 @@ export default class Map {
     )
     let features = this._map.getFeaturesAtPixel(handleGetPixelValue(pixel), {
       ...params,
-      layerFilter: (layer: any) => {
+      layerFilter: (layer: OlLayer.Layer) => {
         if (!isDefined(params.layerFilter)) return true
         const targetLayer = this.layers.find((l) => {
           return OlUtil.getUid(l) === OlUtil.getUid(layer)

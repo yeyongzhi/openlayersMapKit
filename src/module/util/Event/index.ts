@@ -20,10 +20,10 @@ export default class Event<
   protected instanceName: string = ''
   private localCounter = 0 // 本实例内的递增序号
   private events = new Map<string, Array<EventItem<any>>>() // 记录事件类型和事件回调
-  private target: any = null
+  private target: unknown = null
   private total: number = 0
 
-  constructor(target?: any) {
+  constructor(target?: unknown) {
     this.events.clear()
     this.target = target
     this.instanceName = getConstructorName(target) || ''

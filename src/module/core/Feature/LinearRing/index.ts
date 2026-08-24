@@ -15,8 +15,7 @@ import {
   type OMapLinearRingType,
 } from "./type";
 import Lnglat from "../../../basic/Lnglat/index";
-import { type OlCoordinateType } from "../../../basic/Lnglat/type";
-import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import { normalizeCoordinates } from "../../../basic/Lnglat/handle";
 
 const PACKAGE_NAME = "LinearRing";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -66,19 +65,10 @@ export default class LinearRing extends BasicFeature<OMapLinearRingType> {
   }
 
   protected _init(coordinates: OMapLinearRingGeometryCoordinatesType) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
-    this._geometry = new OlGeometry.LinearRing(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry,
-    });
+    this._geometry = new OlGeometry.LinearRing(normalizeCoordinates(coordinates));
+    this._feature = this._createFeature(this._geometry)
   }
 
-  protected _initByFeature(feature: OlFeatureInstanceType) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry() as OlLinearRingGeomInstanceType;
-  }
 
   /**
    * 获取LinearRing的坐标
@@ -112,9 +102,7 @@ export default class LinearRing extends BasicFeature<OMapLinearRingType> {
         ),
       );
     }
-    let _coordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
+    let _coordinates = normalizeCoordinates(coordinates);
     this._geometry.setCoordinates(_coordinates);
   }
 }

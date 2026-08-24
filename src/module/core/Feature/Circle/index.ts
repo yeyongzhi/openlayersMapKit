@@ -17,10 +17,9 @@ import type { OlFeatureInstanceType } from "../BasicFeature/type";
 import Lnglat from "../../../basic/Lnglat/index";
 import {
   type OMapCoordinateType,
-  type OlCoordinateType,
   isValidCoordinate,
 } from "../../../basic/Lnglat/type";
-import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import { handleGetLnglatValue, normalizeCoordinates } from "../../../basic/Lnglat/handle";
 
 const PACKAGE_NAME = "Circle";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -82,19 +81,10 @@ export default class Circle extends BasicFeature<OMapCircleType> {
     coordinates: OMapPointGeometryCoordinatesType,
     radius?: number,
   ) {
-    let geometryCoordinates = handleGetLnglatValue(
-      coordinates,
-    ) as OlCoordinateType;
-    this._geometry = new OlGeometry.Circle(geometryCoordinates, radius);
-    this._feature = new OlFeature({
-      geometry: this._geometry,
-    });
+    this._geometry = new OlGeometry.Circle(normalizeCoordinates(coordinates), radius);
+    this._feature = this._createFeature(this._geometry)
   }
 
-  protected _initByFeature(feature: OlFeatureInstanceType) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry() as OlCircleGeomInstanceType;
-  }
 
   getCenter(): Lnglat {
     let center = this._geometry.getCenter();

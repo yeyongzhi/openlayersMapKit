@@ -1,13 +1,14 @@
 import { OlDrawCreateBox } from '../../../source/index'
-import type { OMapDrawModeType, OlDrawType, OMapInteractionDrawEventType } from './type'
+import type { GeometryFunction } from 'ol/interaction/Draw'
+import type { OMapDrawModeType, OlDrawType, OMapInteractionDrawEventType, OlDrawEventPayloadType, OMapDrawEvent } from './type'
 import { OlGeometry } from '../../../source/index'
 import Draw from './index'
 import { isDefined, defaultValue } from '../../../utils/define'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
 
-export function getOlDrawType(mode: OMapDrawModeType): { type: OlDrawType, geometryFunction: any } {
+export function getOlDrawType(mode: OMapDrawModeType): { type: OlDrawType, geometryFunction: GeometryFunction | undefined } {
     let type: OlDrawType = 'Point'
-    let geometryFunction: any = null
+    let geometryFunction: GeometryFunction | undefined = undefined
     switch (mode) {
         case 'Point':
         case 'LineString':
@@ -28,14 +29,15 @@ export function getOlDrawType(mode: OMapDrawModeType): { type: OlDrawType, geome
 export function handleInteractionDrawEvent(
     target: Draw,
     type: OMapInteractionDrawEventType,
-    e: any
-) {
+    e: OlDrawEventPayloadType
+): OMapDrawEvent {
     const layer = target.getLayer();
     let layerFeatures: BasicFeature<OlGeometry.Geometry>[] = []
     if (isDefined(layer)) {
         layerFeatures = defaultValue(layer.getFeatures(), [])
     }
-    const { feature } = e
+    // 仅 DrawEvent 携带 feature 字段（change 系列事件没有）
+    const feature = 'feature' in e ? e.feature : undefined
     let targetFeature: BasicFeature<OlGeometry.Geometry> | null = null
     if (isDefined(feature)) {
         targetFeature = layer?.getFeatureByOlFeature(feature) || null

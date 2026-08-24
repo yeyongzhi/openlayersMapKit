@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Color, Extent, Lnglat, Pixel, Size } from '../../src/index'
+import { Color, Extent, LngLat, Lnglat, Pixel, Size } from '../../src/index'
 
 describe('basic value objects', () => {
   it('creates and compares coordinates', () => {
@@ -41,5 +41,26 @@ describe('basic value objects', () => {
     expect(color.toString()).toBe('rgb(255, 0, 0)')
     expect(color.equals(color.clone())).toBe(true)
     expect(Color.from(color)).not.toBe(color)
+  })
+})
+
+describe('Lnglat / LngLat compatibility alias', () => {
+  it('LngLat is the same class as Lnglat and yields equal values', () => {
+    expect(LngLat).toBe(Lnglat)
+
+    const byAlias = new LngLat(120.12345, 30.54321)
+    const byLegacy = new Lnglat(120.12345, 30.54321)
+
+    expect(byAlias.equals(byLegacy)).toBe(true)
+    expect(byLegacy.equals(byAlias)).toBe(true)
+    expect(byAlias).toBeInstanceOf(Lnglat)
+    expect(byAlias).toBeInstanceOf(LngLat)
+    expect(byLegacy).toBeInstanceOf(LngLat)
+  })
+
+  it('LngLat is re-exported from the package root and interoperates with Lnglat APIs', () => {
+    expect(new LngLat([119, 28]).toArray()).toEqual([119, 28])
+    expect(Lnglat.from(new LngLat([119, 28])).equals(new Lnglat([119, 28]))).toBe(true)
+    expect(new LngLat(119, 28).clone()).toBeInstanceOf(Lnglat)
   })
 })

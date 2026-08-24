@@ -14,6 +14,8 @@ import { type OMapCoordinateType } from '../../basic/Lnglat/type'
 import { type OMapExtentType } from '../../basic/Extent/type'
 import { type OMapSizeType } from '../../basic/Size/type'
 import BaseLayer from '../../layer/BaseLayer/index'
+import type { OMapBaseLayerCommonType } from '../../layer/BaseLayer/type'
+import Control from '../../control/Control/index'
 
 /** View */
 export type OMapViewType = OlPackage.View
@@ -39,8 +41,8 @@ type OlMapOptionsTypeKeysToOmit =
 export type OlMapOptionsOmitType = ManualOmit<OlMapOptionsType, OlMapOptionsTypeKeysToOmit> // 可行
 
 export type CustomerOlMapOptionsType = {
-  layers: Array<any>
-  controls: Array<any>
+  layers: Array<BaseLayer<OMapBaseLayerCommonType>>
+  controls: Array<Control>
   interactions: Array<Interaction<OMapInteractionCommonType>> // 地图的默认交互列表
   popups: Array<Popup>
   view?: OlViewOptionsFinalType

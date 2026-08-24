@@ -31,7 +31,7 @@ import {
   type OMapPointType,
   type OMapPointGeometryCoordinatesType,
 } from "../Point/type";
-import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import { handleGetLnglatValue, normalizeCoordinates } from "../../../basic/Lnglat/handle";
 import { handleGetExtentValue } from "../../../basic/Extent/handle";
 
 const PACKAGE_NAME = "MultiPoint";
@@ -92,21 +92,10 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
   }
 
   protected _init(coordinates: OMapMultiPointGeometryCoordinatesType) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
-    if (geometryCoordinates) {
-      this._geometry = new OlGeometry.MultiPoint(geometryCoordinates);
-      this._feature = new OlFeature({
-        geometry: this._geometry,
-      });
-    }
+    this._geometry = new OlGeometry.MultiPoint(normalizeCoordinates(coordinates));
+    this._feature = this._createFeature(this._geometry)
   }
 
-  protected _initByFeature(feature: OlFeatureInstanceType) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry() as OlMultiPointGeomInstanceType;
-  }
 
   /**
    * 获取点的坐标
@@ -144,9 +133,7 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
         ),
       );
     }
-    let _coordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c);
-    });
+    let _coordinates = normalizeCoordinates(coordinates);
     this._geometry.setCoordinates(_coordinates);
   }
 

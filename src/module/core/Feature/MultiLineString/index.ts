@@ -20,8 +20,7 @@ import {
 } from "./type";
 import type { OlFeatureInstanceType } from "../BasicFeature/type";
 import Lnglat from "../../../basic/Lnglat/index";
-import { type OlCoordinateType } from "../../../basic/Lnglat/type";
-import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import { normalizeCoordinates } from "../../../basic/Lnglat/handle";
 
 const PACKAGE_NAME = "MultiLineString";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -79,21 +78,10 @@ export default class MultiLineString extends BasicFeature<OMapMultiLineStringTyp
   }
 
   protected _init(coordinates: OMapMultiLineStringGeometryCoordinatesType) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return handleGetLnglatValue(c2);
-      });
-    });
-    this._geometry = new OlGeometry.MultiLineString(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry,
-    });
-  }
+		this._geometry = new OlGeometry.MultiLineString(normalizeCoordinates(coordinates));
+		this._feature = this._createFeature(this._geometry)
+	}
 
-  protected _initByFeature(feature: OlFeatureInstanceType) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry() as OlMultiLineStringGeomInstanceType;
-  }
 
   /**
    * 获取坐标
@@ -130,11 +118,7 @@ export default class MultiLineString extends BasicFeature<OMapMultiLineStringTyp
         ),
       );
     }
-    let _coordinates: Array<Array<OlCoordinateType>> = coordinates.map((c) => {
-      return c.map((c2) => {
-        return handleGetLnglatValue(c2);
-      });
-    });
+    let _coordinates = normalizeCoordinates(coordinates);
     this._geometry.setCoordinates(_coordinates);
   }
 }

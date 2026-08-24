@@ -2,8 +2,9 @@ import { isDefined, isFunction } from '../../../utils/index'
 import { error_, getPackageMessage } from '../../../utils/index'
 import { commonMessage } from '../../../utils/message'
 import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
+import type { OMapBasicFeatureCoordinatesType } from '../../core/Feature/BasicFeature/type'
 import { getCurrentDateTime } from '../../../utils/handle'
-import { OlInteraction, OlUtil, OlGeometry, OlEvent } from '../../../source/index'
+import { OlInteraction, OlUtil, OlGeometry, OlEvent, OlFeature } from '../../../source/index'
 import Interaction from '../Interaction/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
@@ -15,8 +16,12 @@ import {
   type ModifyRecordItem,
   type SampleRecordItem,
   isOMapInteractionModifyEventType,
-  type OMapModifyType
+  type OMapModifyType,
+  type OMapModifyEvent,
+  type OMapModifyEventMap,
+  type OlModifyEventPayloadType
 } from './type'
+import Event from '../../util/Event/index'
 import { handleModifyEvent } from './handle'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
 
@@ -47,6 +52,8 @@ const defaultModifyOptions = {
 }
 
 export default class Modify extends Interaction<OMapModifyType> {
+  /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+  declare events: Event<OMapModifyEventMap>
   records: Array<ModifyRecordItem> = []
 
   constructor(params: OMapModifyParamsType) {
@@ -73,6 +80,7 @@ export default class Modify extends Interaction<OMapModifyType> {
       this._interaction.setActive(active)
     }
     this.initInteractionEvent()
+    this.events = new Event<OMapModifyEventMap>(this)
     // 初始化Modify事件
     this._initModifyEvent()
   }
@@ -82,7 +90,7 @@ export default class Modify extends Interaction<OMapModifyType> {
     const key = this._interaction.on('modifyend', (e) => {
       const modifiedFeatures = e.features
         .getArray()
-        .map((feature: any) => this.findFeatureByOlFeature(feature))
+        .map((feature: OlFeature<OlGeometry.Geometry>) => this.findFeatureByOlFeature(feature))
         .filter(isDefined)
       this.pushRecord(modifiedFeatures)
     })
@@ -95,7 +103,7 @@ export default class Modify extends Interaction<OMapModifyType> {
         id: feature.getId(),
         originFeatureId: OlUtil.getUid(feature.getFeature()),
         type: feature.type,
-        coordinates: feature.getCoordinates()
+        coordinates: feature.getCoordinates() as OMapBasicFeatureCoordinatesType
       }
     })
   }
@@ -108,7 +116,7 @@ export default class Modify extends Interaction<OMapModifyType> {
     })
   }
 
-  protected findFeatureByOlFeature(feature: any): BasicFeature<OlGeometry.Geometry> | undefined {
+  protected findFeatureByOlFeature(feature: OlFeature<OlGeometry.Geometry>): BasicFeature<OlGeometry.Geometry> | undefined {
     return (this.layer as VectorLayer).getFeatureByOlFeature(feature)
   }
 
@@ -188,19 +196,19 @@ export default class Modify extends Interaction<OMapModifyType> {
     this.records = [this.records[0]]
   }
 
-  on(type: OMapInteractionModifyEventType, callback: () => void): EventIdType {
+  on(type: OMapInteractionModifyEventType, callback: (e: OMapModifyEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'on')
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-      this.events.emit(type, handleModifyEvent(this, type, e))
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleModifyEvent(this, type, e as OlModifyEventPayloadType))
     })
     const id = this.events.on(type, callback, unlisten)
     return id
   }
 
-  once(type: OMapInteractionModifyEventType, callback: () => void): EventIdType {
+  once(type: OMapInteractionModifyEventType, callback: (e: OMapModifyEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'once')
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-      this.events.emit(type, handleModifyEvent(this, type, e))
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleModifyEvent(this, type, e as OlModifyEventPayloadType))
     })
     const id = this.events.once(type, callback, unlisten)
     return id
@@ -208,7 +216,7 @@ export default class Modify extends Interaction<OMapModifyType> {
 
   protected validateEvent(
     type: OMapInteractionModifyEventType,
-    callback: () => void,
+    callback: (e: OMapModifyEvent) => void,
     methodName: string
   ) {
     if (!isDefined(type) || !isDefined(callback)) {

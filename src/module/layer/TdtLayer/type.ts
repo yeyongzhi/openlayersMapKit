@@ -19,8 +19,8 @@ export type TdtLayerTypeEnum = (typeof TdtLayerType)[keyof typeof TdtLayerType]
 /**
  * 是否是合法的高德地图图层类型
  */
-export function isValidTdtLayerType(type: any): type is TdtLayerTypeEnum {
-    return Object.values(TdtLayerType).includes(type)
+export function isValidTdtLayerType(type: unknown): type is TdtLayerTypeEnum {
+    return Object.values(TdtLayerType).includes(type as TdtLayerTypeEnum)
 }
 
 /**

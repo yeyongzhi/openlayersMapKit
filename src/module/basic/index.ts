@@ -3,11 +3,11 @@
  */
 import Size from './Size/index';
 import Pixel from './Pixel/index';
-import Lnglat from './Lnglat/index';
+import Lnglat, { LngLat } from './Lnglat/index';
 import Color from './Color/index';
 import Extent from './Extent/index';
 import Style from './Style/index';
 import Popup from './Popup/index';
 
-export { Size, Pixel, Lnglat, Color, Extent, Style, Popup }
+export { Size, Pixel, Lnglat, LngLat, Color, Extent, Style, Popup }
 export { PopupPositioning } from './Popup/type'

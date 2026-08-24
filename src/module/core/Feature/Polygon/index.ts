@@ -29,10 +29,9 @@ import Point from "../Point/index";
 import LinearRing from "../LinearRing/index";
 import Lnglat from "../../../basic/Lnglat/index";
 import {
-  type OlCoordinateType,
   type OMapCoordinateType,
 } from "../../../basic/Lnglat/type";
-import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import { handleGetLnglatValue, normalizeCoordinates } from "../../../basic/Lnglat/handle";
 import Extent from "../../../basic/Extent/index";
 import type { OlExtentType, OMapExtentType } from "../../../basic/Extent/type";
 import { handleGetExtentValue } from "../../../basic/Extent/handle";
@@ -93,21 +92,10 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
     coordinates: OMapPolygonGeometryCoordinatesType,
     radius?: number,
   ) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return handleGetLnglatValue(c2) as OlCoordinateType;
-      });
-    });
-    this._geometry = new OlGeometry.Polygon(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry,
-    });
+    this._geometry = new OlGeometry.Polygon(normalizeCoordinates(coordinates));
+    this._feature = this._createFeature(this._geometry)
   }
 
-  protected _initByFeature(feature: OlFeatureInstanceType) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry() as OlPolygonGeomInstanceType;
-  }
 
   /**
    * 获取多边形的坐标
@@ -145,11 +133,7 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
         ),
       );
     }
-    let _coordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return handleGetLnglatValue(c2);
-      });
-    });
+    let _coordinates = normalizeCoordinates(coordinates);
     this._geometry.setCoordinates(_coordinates);
   }
 

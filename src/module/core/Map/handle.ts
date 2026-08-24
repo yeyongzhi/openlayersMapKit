@@ -76,7 +76,7 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
 }
 
 export function isOMapMapEventType(type: unknown): type is OMapEventType {
-    return isString(type) && OMapMapEventTypes.includes(type as any)
+    return isString(type) && OMapMapEventTypes.includes(type as OMapEventType)
 }
 
 /**

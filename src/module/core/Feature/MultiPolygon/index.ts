@@ -18,7 +18,7 @@ import {
 } from "./type";
 import type { OlFeatureInstanceType } from "../BasicFeature/type";
 import Lnglat from "../../../basic/Lnglat/index";
-import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import { normalizeCoordinates } from "../../../basic/Lnglat/handle";
 
 const PACKAGE_NAME = "MultiPolygon";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -75,23 +75,10 @@ export default class MultiPolygon extends BasicFeature<OMapMultiPolygonType> {
   }
 
   protected _init(coordinates: OMapMultiPolygonGeometryCoordinatesType) {
-    let geometryCoordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return c2.map((c3) => {
-          return handleGetLnglatValue(c3);
-        });
-      });
-    });
-    this._geometry = new OlGeometry.MultiPolygon(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry,
-    });
+    this._geometry = new OlGeometry.MultiPolygon(normalizeCoordinates(coordinates));
+    this._feature = this._createFeature(this._geometry)
   }
 
-  protected _initByFeature(feature: OlFeatureInstanceType) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry() as OlMultiPolygonGeomInstanceType;
-  }
 
   /**
    * 获取坐标
@@ -130,13 +117,7 @@ export default class MultiPolygon extends BasicFeature<OMapMultiPolygonType> {
         ),
       );
     }
-    let _coordinates = coordinates.map((c) => {
-      return c.map((c2) => {
-        return c2.map((c3) => {
-          return handleGetLnglatValue(c3);
-        });
-      });
-    });
+    let _coordinates = normalizeCoordinates(coordinates);
     this._geometry.setCoordinates(_coordinates);
   }
 }

@@ -24,6 +24,8 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @author yyz
  * @CreateDate 2025/06/30
  * @LastUpdateDate 2026/2/3
+ * @deprecated 请使用 {@link LngLat} 替代。`LngLat` 与 `Lnglat` 指向同一类、完全等价，
+ * 新代码统一使用 `LngLat`；内部引用将在后续批次统一迁移。
  */
 export default class Lnglat {
   static from(value: OMapCoordinateType): Lnglat {
@@ -161,3 +163,10 @@ export default class Lnglat {
     return `[${this._lnglat[0]?.toFixed(_place)}, ${this._lnglat[1]?.toFixed(_place)}]`;
   }
 }
+
+/**
+ * 经纬度（推荐名称）。
+ * `LngLat` 与 `Lnglat` 指向同一个类，二者完全等价；
+ * 新代码请使用 `LngLat`，`Lnglat` 仅作为兼容别名保留。
+ */
+export const LngLat = Lnglat

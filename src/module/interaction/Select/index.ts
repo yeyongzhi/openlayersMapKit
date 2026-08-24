@@ -13,8 +13,12 @@ import {
   type OMapSelectParamsType,
   type OMapInteractionSelectEventType,
   type OMapSelectType,
+  type OMapSelectEvent,
+  type OMapSelectEventMap,
+  type OlSelectEventPayloadType,
   isOMapInteractionSelectEventType
 } from './type'
+import Event from '../../util/Event/index'
 import { handleInteractionSelectEvent } from './handle'
 
 const PACKAGE_NAME = 'Select'
@@ -40,6 +44,8 @@ const defaultSelectOptions = {
 }
 
 export default class Select extends Interaction<OMapSelectType> {
+  /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+  declare events: Event<OMapSelectEventMap>
   protected layers: VectorLayer[] = []
   protected features: BaseFeature<OlGeometry.Geometry>[] = []
 
@@ -86,6 +92,7 @@ export default class Select extends Interaction<OMapSelectType> {
     }
     // 注册事件
     this.initInteractionEvent()
+    this.events = new Event<OMapSelectEventMap>(this)
     this.initSelectEvent()
   }
 
@@ -112,9 +119,14 @@ export default class Select extends Interaction<OMapSelectType> {
         _style = (style as Style[]).map((s) => s.getStyle() as OlStyleInstanceType)
       } else if (isFunction(style)) {
         _style = (feature: OlFeatureLike, resolution: number) => {
-          let targetFeature = this.getTargetFeature(feature)
-          let styleFnResult = (style as Function)(targetFeature, resolution)
-          return styleFnResult ? styleFnResult.getStyle() : undefined
+          const targetFeature = this.getTargetFeature(feature)
+          const styleFn = style as (
+            feature: BaseFeature<OlGeometry.Geometry> | null,
+            resolution: number
+          ) => Style | Array<Style> | undefined
+          const styleFnResult = styleFn(targetFeature, resolution)
+          const single = Array.isArray(styleFnResult) ? styleFnResult[0] : styleFnResult
+          return single ? single.getStyle() : undefined
         }
       } else {
         warn_(createMessage('initStyle', 'style格式有误'))
@@ -281,19 +293,19 @@ export default class Select extends Interaction<OMapSelectType> {
     return this._interaction.getFeatures()
   }
 
-  on(type: OMapInteractionSelectEventType, callback: () => void): EventIdType {
+  on(type: OMapInteractionSelectEventType, callback: (e: OMapSelectEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'on')
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-      this.events.emit(type, handleInteractionSelectEvent(this, type, e))
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType))
     })
     const id = this.events.on(type, callback, unlisten)
     return id
   }
 
-  once(type: OMapInteractionSelectEventType, callback: () => void): EventIdType {
+  once(type: OMapInteractionSelectEventType, callback: (e: OMapSelectEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'once')
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-      this.events.emit(type, handleInteractionSelectEvent(this, type, e))
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType))
     })
     const id = this.events.once(type, callback, unlisten)
     return id
@@ -301,7 +313,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   protected validateEvent(
     type: OMapInteractionSelectEventType,
-    callback: () => void,
+    callback: (e: OMapSelectEvent) => void,
     methodName: string
   ) {
     if (!isDefined(type) || !isDefined(callback)) {

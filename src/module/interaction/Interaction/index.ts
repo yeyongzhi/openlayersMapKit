@@ -11,6 +11,7 @@ import Map from '../../core/Map/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import { OlEvent } from '../../../source/index'
 import type { EventsKey } from 'ol/events'
+import type { ObjectEvent } from 'ol/Object'
 
 const PACKAGE_NAME = 'Interaction'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -77,7 +78,7 @@ export default class Interaction<T extends OMapInteractionCommonType> {
   }
 
   protected initInteractionEvent() {
-    const key = this.getInteraction().on('change:active', (e: any) => {
+    const key = this.getInteraction().on('change:active', (e: ObjectEvent) => {
       if (e.type === 'change:active') {
         this.active = this.getActive()
       }

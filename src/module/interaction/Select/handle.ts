@@ -1,12 +1,12 @@
-import { OMapInteractionSelectEventType } from './type'
+import { type OMapInteractionSelectEventType, type OlSelectEventPayloadType, type OMapSelectEvent } from './type'
 import Select from './index'
 
 export function handleInteractionSelectEvent(
   target: Select,
   type: OMapInteractionSelectEventType,
-  _e: any
-) {
-  let result = {
+  _e: OlSelectEventPayloadType
+): OMapSelectEvent {
+  let result: OMapSelectEvent = {
     target,
     type,
     selected: target.getSelected(),

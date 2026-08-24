@@ -1,6 +1,7 @@
 import { OlFeature, OlGeometry } from '../../../../source/index'
 import { isDefined, isNumber, isObject, isString } from '../../../../utils/index'
 import { warn_, error_, getPackageMessage, commonMessage } from '../../../../utils/message'
+import type BaseEvent from 'ol/events/Event'
 import type {
   OlFeatureInstanceType,
   OMapBasicFeatureType,
@@ -54,7 +55,22 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
 
   protected abstract _init(coordinates: OMapBasicFeatureCoordinatesType, radius?: number): void
 
-  protected abstract _initByFeature(feature: OlFeatureInstanceType): void
+  /**
+   * 由原生 OpenLayers Feature 初始化 wrapper。
+   * 默认实现对所有 Geometry 一致，统一在基类维护，子类无需重复。
+   * 配合 registerFeature 的 WeakMap 注册，保证同一原生 Feature 复用同一 wrapper。
+   */
+  protected _initByFeature(feature: OlFeatureInstanceType): void {
+    this._feature = feature
+    this._geometry = feature.getGeometry() as T
+  }
+
+  /**
+   * 统一创建原生 OpenLayers Feature，消除各 Geometry 子类重复的 `new OlFeature`。
+   */
+  protected _createFeature(geometry: T): OlFeatureInstanceType {
+    return new OlFeature({ geometry })
+  }
 
   /**
    * 获取原生的Openlayers Feature对象
@@ -100,7 +116,7 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
     this._feature.changed()
   }
 
-  dispatchEvent(event: string | any): boolean | undefined {
+  dispatchEvent(event: BaseEvent | string): boolean | undefined {
     return this._feature.dispatchEvent(event)
   }
 

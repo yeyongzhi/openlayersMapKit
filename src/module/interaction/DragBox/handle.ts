@@ -1,22 +1,19 @@
 import { isDefined } from '../../../utils/define'
-import type { OMapInteractionDragBoxEventType, DragBoxEndEventFunctionType, DragBoxEndEvent } from "./type";
+import type { OMapInteractionDragBoxEventType, OlDragBoxEventPayloadType, OMapDragBoxEvent, DragBoxEndEventFunctionType, DragBoxEndEvent } from "./type";
 import DragBox from "./index";
 import Pixel from '../../basic/Pixel/index'
 import Lnglat from '../../basic/Lnglat/index'
 
-interface OMapDragBoxEventTarget {
-    target: DragBox;
-    type: OMapInteractionDragBoxEventType;
-    pixel?: Pixel;
-    coordinate?: Lnglat;
-}
-
-export function handleInteractionDragBoxEvent(target: DragBox, type: OMapInteractionDragBoxEventType, e: any) {
-    let result: OMapDragBoxEventTarget = {
+export function handleInteractionDragBoxEvent(target: DragBox, type: OMapInteractionDragBoxEventType, e: OlDragBoxEventPayloadType): OMapDragBoxEvent {
+    // 仅 DragBoxEvent（boxstart/boxdrag/boxend/boxcancel）携带 coordinate/mapBrowserEvent
+    const mapBrowserEvent = 'mapBrowserEvent' in e ? e.mapBrowserEvent : undefined
+    const coordinate = 'coordinate' in e ? e.coordinate : undefined
+    let result: OMapDragBoxEvent = {
         target,
         type,
-        pixel: new Pixel(e.pixel),
-        coordinate: new Lnglat(e.coordinate),
+        // DragBoxEvent 本身不含 pixel，取其 mapBrowserEvent.pixel
+        pixel: isDefined(mapBrowserEvent?.pixel) ? new Pixel(mapBrowserEvent.pixel) : undefined,
+        coordinate: isDefined(coordinate) ? new Lnglat(coordinate) : undefined,
     }
     return result
 }

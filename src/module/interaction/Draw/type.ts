@@ -1,6 +1,11 @@
-import { OlSource, OlLayer, OlInteraction } from '../../../source/index'
+import { OlSource, OlLayer, OlInteraction, OlGeometry, OlFeature } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
+import type { DrawEvent } from 'ol/interaction/Draw'
+import type { ObjectEvent } from 'ol/Object'
+import type BaseEvent from 'ol/events/Event'
+import type BasicFeature from '../../core/Feature/BasicFeature/index'
+import type Draw from './index'
 import Style from '../../basic/Style/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import type { OMapStyleLike } from '../../basic/Style/type'
@@ -76,6 +81,36 @@ export const OMapInteractionDrawEventTypes = [
   ...Object.values(DrawEventType)
 ] as const
 export type OMapInteractionDrawEventType = (typeof OMapInteractionDrawEventTypes)[number]
+
+/**
+ * OL 原生事件 payload：
+ * drawstart/drawend/drawabort 为 `DrawEvent`，change/change:active/propertychange 为 `ObjectEvent`，error 为 `BaseEvent`
+ */
+export type OlDrawEventPayloadType =
+  | DrawEvent
+  | ObjectEvent
+  | BaseEvent
+  /**
+   * VectorLayer 在 addfeature 之后合成 drawEnd 事件时构造的最小 payload（仅含 feature）
+   */
+  | { feature: OlFeature<OlGeometry.Geometry> }
+
+/**
+ * OMap 用户回调收到的事件 payload
+ */
+export interface OMapDrawEvent {
+  /** 事件类型 */
+  type: OMapInteractionDrawEventType
+  /** 触发事件的 Draw 实例 */
+  target: Draw
+  /** 绘制图层当前的全部 Feature */
+  features: BasicFeature<OlGeometry.Geometry>[]
+  /** 本事件关联的 Feature（drawend 时为新完成的 Feature，其余事件可能为 null） */
+  feature: BasicFeature<OlGeometry.Geometry> | null
+}
+
+/** 事件名 → 用户回调参数映射 */
+export type OMapDrawEventMap = Record<OMapInteractionDrawEventType, [OMapDrawEvent]>
 
 // 类型守卫函数
 export function isOMapInteractionDrawEventType(

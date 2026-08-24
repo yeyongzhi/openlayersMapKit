@@ -13,5 +13,5 @@ export function isValidPixel(
   if (value instanceof Pixel) {
     return true;
   }
-  return isArrayLength2(value) && value.every((item: any) => isNumber(item));
+  return isArrayLength2(value) && value.every((item) => isNumber(item));
 }

@@ -117,8 +117,13 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             feature instanceof OlFeature
               ? this.syncFeatureFromOlFeature(feature as OlFeature<OlGeometry.Geometry>)
               : undefined
-          let styleFnResult = (style as Function)(omapFeature || null, resolution)
-          return styleFnResult ? styleFnResult.getStyle() : undefined
+          const styleFn = style as (
+            feature: BaseFeature<OlGeometry.Geometry> | null,
+            resolution: number
+          ) => Style | Array<Style> | undefined
+          const styleFnResult = styleFn(omapFeature || null, resolution)
+          const single = Array.isArray(styleFnResult) ? styleFnResult[0] : styleFnResult
+          return single ? single.getStyle() : undefined
         }
       } else {
         warn_(createMessage('initStyle', 'style格式有误'))

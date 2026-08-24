@@ -14,7 +14,7 @@ import type {
 } from "./type";
 import type { OlFeatureInstanceType } from "../BasicFeature/type";
 import Lnglat from "../../../basic/Lnglat/index";
-import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import { handleGetLnglatValue, normalizeCoordinates } from "../../../basic/Lnglat/handle";
 import { isValidCoordinate } from "../../../basic/Lnglat/type";
 import Extent from "../../../basic/Extent/index";
 import { handleGetExtentValue } from "../../../basic/Extent/handle";
@@ -76,17 +76,10 @@ export default class Point extends BasicFeature<OMapPointType> {
   }
 
   protected _init(coordinates: OMapPointGeometryCoordinatesType) {
-    let geometryCoordinates = handleGetLnglatValue(coordinates);
-    this._geometry = new OlGeometry.Point(geometryCoordinates);
-    this._feature = new OlFeature({
-      geometry: this._geometry
-    });
+    this._geometry = new OlGeometry.Point(normalizeCoordinates(coordinates));
+    this._feature = this._createFeature(this._geometry)
   }
 
-  protected _initByFeature(feature: OlFeatureInstanceType) {
-    this._feature = feature;
-    this._geometry = feature.getGeometry() as OMapPointType;
-  }
 
   /**
    * 获取点的坐标

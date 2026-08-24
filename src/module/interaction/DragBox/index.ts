@@ -22,6 +22,9 @@ import {
   type OlDragBoxInstanceType,
   type OMapInteractionDragBoxEventType,
   type OMapDragBoxType,
+  type OMapDragBoxEvent,
+  type OMapDragBoxEventMap,
+  type OlDragBoxEventPayloadType,
   isOMapInteractionDragBoxEventType,
 } from "./type";
 import {
@@ -43,6 +46,8 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class DragBox extends Interaction<OMapDragBoxType> {
+  /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+  declare events: Event<OMapDragBoxEventMap>
   extent: Extent | null = null;
 
   constructor(params?: OMapDragBoxParamsType) {
@@ -59,13 +64,13 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
     // 注册事件
     this.initInteractionEvent();
     this._initDragBoxEvent();
-    this.events = new Event<Record<OMapInteractionDragBoxEventType, unknown[]>>(
+    this.events = new Event<OMapDragBoxEventMap>(
       this,
     );
   }
 
   private _initDragBoxEvent() {
-    this._interaction.on("boxend", (e: any) => {
+    this._interaction.on("boxend", (e) => {
       const extent = this._interaction.getGeometry().getExtent();
       this.extent = isDefined(extent) ? new Extent(extent) : null;
       DragBoxParamsBoxEndHandle.emit({
@@ -76,7 +81,7 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
     });
   }
 
-  on(type: OMapInteractionDragBoxEventType, callback: () => void): EventIdType {
+  on(type: OMapInteractionDragBoxEventType, callback: (e: OMapDragBoxEvent) => void): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(
         createMessage("on", commonMessage.paramsNotDefined("type or callback")),
@@ -93,8 +98,8 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-      this.events.emit(type, handleInteractionDragBoxEvent(this, type, e));
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleInteractionDragBoxEvent(this, type, e as OlDragBoxEventPayloadType));
     });
     const id = this.events.on(type, callback, unlisten);
     return id;
@@ -102,7 +107,7 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
 
   once(
     type: OMapInteractionDragBoxEventType,
-    callback: () => void,
+    callback: (e: OMapDragBoxEvent) => void,
   ): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(
@@ -120,8 +125,8 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-      this.events.emit(type, handleInteractionDragBoxEvent(this, type, e));
+    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+      this.events.emit(type, handleInteractionDragBoxEvent(this, type, e as OlDragBoxEventPayloadType));
     });
     const id = this.events.once(type, callback, unlisten);
     return id;

@@ -74,6 +74,6 @@ export function isOMapPopupEventType(
 ): value is OMapPopupEventType {
     return (
         isString(value) &&
-        OMapPupupEventTypes.includes(value as any)
+        OMapPupupEventTypes.includes(value as OMapPopupEventType)
     );
 }

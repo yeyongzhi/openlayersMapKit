@@ -10,10 +10,14 @@ import { OlInteraction, OlEvent } from '../../../source/index'
 import {
     type OMapExtentParamsType,
     type OMapInteractionExtentEventType,
+    type OMapExtentEvent,
+    type OMapExtentEventMap,
+    type OlExtentEventPayloadType,
     isOMapInteractionExtentEventType,
     type OMapInteractionExtentType,
     OMAP_EXTENT_DEFAULT_PARAMS
 } from './type'
+import Event from '../../util/Event/index'
 import type { EventIdType, OMapEventsKeyType } from '../../util/Event/type'
 import { handleInteractionExtentEvent } from './handle'
 
@@ -32,6 +36,8 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 
 
 export default class InteractionExtent extends Interaction<OMapInteractionExtentType> {
+    /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+    declare events: Event<OMapExtentEventMap>
 
     constructor(params?: OMapExtentParamsType) {
         super("InteractionExtent", { id: params?.id })
@@ -42,6 +48,7 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
         this._interaction = new OlInteraction.Extent(Object.assign({}, OMAP_EXTENT_DEFAULT_PARAMS, defaultValue(_params, {})))
         // 注册事件
         this.initInteractionEvent()
+        this.events = new Event<OMapExtentEventMap>(this)
     }
 
     /**
@@ -68,7 +75,7 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
         this._interaction.setExtent(_extent)
     }
 
-    on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType {
+    on(type: OMapInteractionExtentEventType, callback: (e: OMapExtentEvent) => void): EventIdType {
         if (!isDefined(type) || !isDefined(callback)) {
             error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')));
         }
@@ -78,14 +85,14 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
         if (!isFunction(callback)) {
             error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
         }
-        const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-            this.events.emit(type, handleInteractionExtentEvent(this, type, e))
+        const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+            this.events.emit(type, handleInteractionExtentEvent(this, type, e as OlExtentEventPayloadType))
         })
         const id = this.events.on(type, callback, unlisten)
         return id
     }
 
-    once(type: OMapInteractionExtentEventType, callback: () => void): EventIdType {
+    once(type: OMapInteractionExtentEventType, callback: (e: OMapExtentEvent) => void): EventIdType {
         if (!isDefined(type) || !isDefined(callback)) {
             error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')));
         }
@@ -95,8 +102,8 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
         if (!isFunction(callback)) {
             error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')));
         }
-        const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
-            this.events.emit(type, handleInteractionExtentEvent(this, type, e))
+        const unlisten = OlEvent.listen(this._interaction, type, (e) => {
+            this.events.emit(type, handleInteractionExtentEvent(this, type, e as OlExtentEventPayloadType))
         })
         const id = this.events.once(type, callback, unlisten)
         return id

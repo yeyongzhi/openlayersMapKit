@@ -22,7 +22,7 @@ import {
 import type { OlFeatureInstanceType } from "../BasicFeature/type";
 import Lnglat from "../../../basic/Lnglat/index";
 import { type OlCoordinateType } from "../../../basic/Lnglat/type";
-import { handleGetLnglatValue } from "../../../basic/Lnglat/handle";
+import { handleGetLnglatValue, normalizeCoordinates } from "../../../basic/Lnglat/handle";
 import Extent from "../../../basic/Extent/index";
 import { type OMapExtentType, isValidExtent } from "../../../basic/Extent/type";
 import { type OMapPointGeometryCoordinatesType } from "../Point/type";
@@ -81,19 +81,10 @@ export default class LineString extends BasicFeature<OMapLineStringType> {
 	}
 
 	protected _init(coordinates: OMapLineStringGeometryCoordinatesType) {
-		let geometryCoordinates = coordinates.map((c) => {
-			return handleGetLnglatValue(c);
-		});
-		this._geometry = new OlGeometry.LineString(geometryCoordinates);
-		this._feature = new OlFeature({
-			geometry: this._geometry,
-		});
+		this._geometry = new OlGeometry.LineString(normalizeCoordinates(coordinates));
+		this._feature = this._createFeature(this._geometry)
 	}
 
-	protected _initByFeature(feature: OlFeatureInstanceType) {
-		this._feature = feature;
-		this._geometry = feature.getGeometry() as OMapLineStringType;
-	}
 
 	/**
 	 * 获取线的坐标
@@ -127,9 +118,7 @@ export default class LineString extends BasicFeature<OMapLineStringType> {
 				),
 			);
 		}
-		let _coordinates = coordinates.map((c) => {
-			return handleGetLnglatValue(c);
-		});
+		let _coordinates = normalizeCoordinates(coordinates);
 		this._geometry.setCoordinates(_coordinates);
 	}
 
