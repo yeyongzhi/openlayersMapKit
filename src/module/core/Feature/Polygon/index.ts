@@ -13,6 +13,7 @@ import {
 } from "../../../../utils/message";
 import { OlFeature, OlGeometry } from "../../../../source/index";
 import BasicFeature from "../BasicFeature";
+import type { PropertiesType } from '../../../../utils/type'
 import {
   type OMapPolygonGeometryCoordinatesType,
   type OlPolygonGeomInstanceType,
@@ -52,7 +53,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 export default class Polygon extends BasicFeature<OMapPolygonType> {
   constructor(
     args: OMapPolygonGeometryCoordinatesType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   );
   constructor(args: OlFeatureInstanceType);
 
@@ -60,7 +61,7 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
     coordinatesOrFeature:
       | OMapPolygonGeometryCoordinatesType
       | OlFeatureInstanceType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(
@@ -235,7 +236,7 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    */
   getInteriorPoint(): Point {
     let result = this._geometry.getInteriorPoint().getCoordinates();
-    return new Point(result);
+    return new Point(result as OMapCoordinateType);
   }
 
   /**

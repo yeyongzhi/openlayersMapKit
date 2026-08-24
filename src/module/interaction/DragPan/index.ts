@@ -9,6 +9,7 @@ import {
     type OMapInteractionDragPanEventType,
 } from './type'
 import { handleInteractionDragPanEvent } from "./handle";
+import type { InteractionPropertyChangeEvent } from '../handle'
 import { type EventIdType } from "../../util/Event/type";
 
 const PACKAGE_NAME = 'DragPan';
@@ -57,7 +58,7 @@ export default class DragPan extends Interaction<OMapDragPanType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(
         type,
         handleInteractionDragPanEvent(this, type, e),
@@ -87,7 +88,7 @@ export default class DragPan extends Interaction<OMapDragPanType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(
         type,
         handleInteractionDragPanEvent(this, type, e),

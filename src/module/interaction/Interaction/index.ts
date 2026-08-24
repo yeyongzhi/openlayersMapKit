@@ -12,6 +12,7 @@ import VectorLayer from '../../layer/VectorLayer/index'
 import { OlEvent } from '../../../source/index'
 import type { EventsKey } from 'ol/events'
 import type { ObjectEvent } from 'ol/Object'
+import type { PropertiesType } from '../../../utils/type'
 
 const PACKAGE_NAME = 'Interaction'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -50,9 +51,9 @@ export default class Interaction<T extends OMapInteractionCommonType> {
   protected layer: VectorLayer | null = null
   /**
    * 交互属性
-   * @type {Record<string, any>}
+   * @type {PropertiesType}
    */
-  properties: Record<string, any> = {}
+  properties: PropertiesType = {}
 
   /**
    * 交互是否激活
@@ -136,9 +137,9 @@ export default class Interaction<T extends OMapInteractionCommonType> {
 
   /**
    * 获取交互属性
-   * @returns {Record<string, any>} 交互属性
+   * @returns {PropertiesType} 交互属性
    */
-  getProperties(): Record<string, any> {
+  getProperties(): PropertiesType {
     return this.properties
   }
 
@@ -146,7 +147,7 @@ export default class Interaction<T extends OMapInteractionCommonType> {
    * 设置交互属性
    * @param properties 交互属性
    */
-  setProperties(properties: Record<string, any>): void {
+  setProperties(properties: PropertiesType): void {
     this._interaction.setProperties(properties)
     this.properties = properties
   }

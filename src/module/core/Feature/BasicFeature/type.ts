@@ -7,13 +7,14 @@ import type { OMapPolygonGeometryCoordinatesType, OlPolygonGeomInstanceType } fr
 import type { OMapMultiPolygonGeometryCoordinatesType, OlMultiPolygonGeomInstanceType } from '../MultiPolygon/type'
 import type { OMapLinearRingGeometryCoordinatesType, OlLinearRingGeomInstanceType } from '../LinearRing/type'
 import type { OlCircleGeomInstanceType } from '../Circle/type'
+import type { PropertiesType } from '../../../../utils/type'
 
 export type OlRenderFeatureInstanceType = InstanceType<typeof RenderFeature>
 export type OlFeatureInstanceType = InstanceType<typeof OlFeature>
 export type OlFeatureLike = OlRenderFeatureInstanceType | OlFeatureInstanceType
 export type OlFeatureOptionsType = {
     geometry: OlGeomInstanceType,
-    properties?: Record<string, any>
+    properties?: PropertiesType
 }
 
 export type OMapBasicFeatureType = "Point" | "LineString" | "Polygon" | "MultiPoint" | "MultiLineString" | "MultiPolygon" | 'LinearRing' | 'Circle'

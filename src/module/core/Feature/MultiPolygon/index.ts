@@ -10,6 +10,7 @@ import {
 } from "../../../../utils/message";
 import { OlFeature, OlGeometry } from "../../../../source/index";
 import BasicFeature from "../BasicFeature";
+import type { PropertiesType } from '../../../../utils/type'
 import {
   type OMapMultiPolygonGeometryCoordinatesType,
   type OlMultiPolygonGeomInstanceType,
@@ -35,7 +36,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 export default class MultiPolygon extends BasicFeature<OMapMultiPolygonType> {
   constructor(
     args: OMapMultiPolygonGeometryCoordinatesType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   );
   constructor(args: OlFeatureInstanceType);
 
@@ -43,7 +44,7 @@ export default class MultiPolygon extends BasicFeature<OMapMultiPolygonType> {
     coordinatesOrFeature:
       | OMapMultiPolygonGeometryCoordinatesType
       | OlFeatureInstanceType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(

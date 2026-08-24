@@ -5,6 +5,8 @@ import { type OMapProjectionType } from '../../core/Projection/type'
 import type { BaseLayerCommonParamsType, BaseLayerOptionsType } from '../BaseLayer/type'
 import { type OMapTileSourceTileGrid } from '../../source/TileSource/type'
 
+type OlXYZOptions = NonNullable<ConstructorParameters<typeof OlSource.XYZ>[0]>
+
 export type OMapXYZLayerParamsType = BaseLayerOptionsType & {
     preload: number;
     cacheSize: number;
@@ -31,7 +33,7 @@ export type OMapXYZLayerSourceParamsType = {
     tilePixelRatio: number;
     tileSize: OMapSizeType;
     gutter: number;
-    tileUrlFunction?: any;
+    tileUrlFunction?: OlXYZOptions['tileUrlFunction'];
     url?: string;
     urls?: string[];
     wrapX: boolean;

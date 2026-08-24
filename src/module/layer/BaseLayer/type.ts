@@ -5,12 +5,13 @@ import { handleGetExtentValue } from '../../basic/Extent/handle'
 import type Color from '../../basic/Color/index'
 import { handleGetColorValue } from '../../basic/Color/handle'
 import Map from '../../core/Map/index'
+import type { PropertiesType } from '../../../utils/type'
 
 /** BaseLayer */
 type CustomBaseLayerType = 'XYZ' | 'WMS' | 'WMTS'
 export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt' | CustomBaseLayerType
 export type BaseLayerIdType = number | string | null
-export type BaseLayerPropertiesType = Record<string, any>
+export type BaseLayerPropertiesType = PropertiesType
 
 export interface OMapLayerTarget {
     type?: string | null;
@@ -36,7 +37,7 @@ export type BaseLayerCommonParamsType = {
     /**
      * properties是ol不具备的初始化属性，但是有对应的方法
      */
-    properties?: Record<string, any>;
+    properties?: BaseLayerPropertiesType;
 }
 // 增加三个属性
 export type BaseLayerOptionsType = BaseLayerCommonParamsType & {
@@ -45,7 +46,7 @@ export type BaseLayerOptionsType = BaseLayerCommonParamsType & {
     map?: Map;
 }
 
-export function handleGetBaseLayerParams(params: BaseLayerOptionsType): Record<string, any> {
+export function handleGetBaseLayerParams(params: BaseLayerOptionsType) {
     let _params = {
         ...params,
         extent: isDefined(params.extent) ? handleGetExtentValue(params.extent) : undefined,

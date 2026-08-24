@@ -24,6 +24,7 @@ import {
 import Lnglat from "../../basic/Lnglat/index";
 import { type EventIdType } from "../../util/Event/type";
 import { handleInteractionLinkEvent } from "./handle";
+import type { InteractionPropertyChangeEvent } from '../handle'
 
 const PACKAGE_NAME = "Link";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -86,7 +87,7 @@ export default class Link extends Interaction<OMapLinkType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(type, handleInteractionLinkEvent(this, type, e));
     });
     const id = this.events.on(type, callback, unlisten);
@@ -110,7 +111,7 @@ export default class Link extends Interaction<OMapLinkType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(type, handleInteractionLinkEvent(this, type, e));
     });
     const id = this.events.once(type, callback, unlisten);

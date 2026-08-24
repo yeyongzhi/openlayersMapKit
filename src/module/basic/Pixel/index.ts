@@ -36,7 +36,7 @@ export default class Pixel {
    * @example [100, 200]
    * @private
    */
-  _pixel: number[] = [0, 0];
+  _pixel: OlPixelType = [0, 0];
 
   constructor(x: number, y: number);
   constructor(pixel: number[]);
@@ -84,7 +84,7 @@ export default class Pixel {
    * 获取像素坐标
    * @returns {number[] | undefined} 像素坐标
    */
-  getPixel(): number[] {
+  getPixel(): OlPixelType {
     return this._pixel;
   }
 
@@ -92,8 +92,8 @@ export default class Pixel {
    * 设置像素坐标
    * @param {number[]} pixel 像素坐标
    */
-  setPixel(pixel: number[]) {
-    this._pixel = pixel;
+  setPixel(pixel: OlPixelType) {
+    this._pixel = [...pixel];
   }
 
   /**
@@ -141,7 +141,7 @@ export default class Pixel {
     return this._pixel[0] === otherPixel[0] && this._pixel[1] === otherPixel[1];
   }
 
-  toArray(): number[] {
+  toArray(): OlPixelType {
     return [...this._pixel];
   }
 

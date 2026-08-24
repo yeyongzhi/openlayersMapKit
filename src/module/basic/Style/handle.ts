@@ -15,7 +15,7 @@ import {
   isVaildFunctionStyle,
   OMapStyleOptionsGeometryType
 } from './type'
-import { OlStyle, OlFeature } from '../../../source/index'
+import { OlStyle, OlFeature, OlGeometry } from '../../../source/index'
 import Color from '../Color/index'
 import Style from './index'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
@@ -147,7 +147,10 @@ export function getOlRegularShapeSingleStyle(
 /**
  * 矢量图层的默认样式
  */
-export const DEFAULT_STYLE = (feature: BaseFeature<any>, resolution: number): undefined | Style => {
+export const DEFAULT_STYLE = (
+  feature: BaseFeature<OlGeometry.Geometry>,
+  resolution: number
+): undefined | Style => {
   if (!isDefined(feature)) return undefined
   if (feature.getType() === 'Point') {
     return new Style({
@@ -184,7 +187,7 @@ export const DEFAULT_STYLE = (feature: BaseFeature<any>, resolution: number): un
 
 export function handleGetStyleValue(
   style?: OMapStyleLike,
-  featureResolver?: (feature: OlFeatureLike) => BaseFeature<any> | undefined
+  featureResolver?: (feature: OlFeatureLike) => BaseFeature<OlGeometry.Geometry> | undefined
 ): OlStyleLike | undefined {
   if (!isDefined(style)) {
     return undefined

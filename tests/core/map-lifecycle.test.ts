@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import OMap from '../../src/module/core/Map/index'
 import { createDefaultMapInteractions } from '../../src/module/core/Map/type'
+import { handleMapOnCallBack } from '../../src/module/core/Map/handle'
 
 interface MapInternals {
   _map: {
@@ -51,5 +52,33 @@ describe('Map lifecycle', () => {
     expect(internals._map.setTarget).toHaveBeenCalledOnce()
     expect(internals._map.setTarget).toHaveBeenCalledWith(undefined)
     expect(internals._map.dispose).toHaveBeenCalledOnce()
+  })
+})
+
+describe('Map event payloads', () => {
+  it('preserves zero values in view change events', () => {
+    const map = Object.assign(Object.create(OMap.prototype) as OMap, {
+      getRotation: vi.fn(() => 90)
+    })
+
+    const event = handleMapOnCallBack(map, 'view:change:rotation', {
+      oldValue: 0,
+      newValue: 0
+    })
+
+    expect(event?.oldValue).toBe(0)
+    expect(event?.newValue).toBe(0)
+    expect(map.getRotation).not.toHaveBeenCalled()
+  })
+
+  it('converts map browser coordinates and pixels to value objects', () => {
+    const map = Object.create(OMap.prototype) as OMap
+    const event = handleMapOnCallBack(map, 'map:click', {
+      coordinate: [120, 30],
+      pixel: [10, 20]
+    })
+
+    expect(event?.coordinate?.toArray()).toEqual([120, 30])
+    expect(event?.pixel?.toArray()).toEqual([10, 20])
   })
 })

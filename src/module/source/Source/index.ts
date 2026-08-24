@@ -9,6 +9,7 @@ import {
     type OMapSourceState,
     type OMapSourceType
 } from './type'
+import type { PropertiesType } from '../../../utils/type'
 
 const PACKAGE_NAME = 'Source';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -60,15 +61,15 @@ export default abstract class Source<T extends OMapSourceType> {
         return this._source.dispatchEvent(event);
     }
 
-    get(key: string): any {
+    get<Value = unknown>(key: string): Value | undefined {
         if (!isString(key)) {
             warn_(createMessage('get', 'key必须是字符串'));
             return undefined;
         }
-        return this._source.get(key);
+        return this._source.get(key) as Value;
     }
 
-    set(key: string, value: any, silent?: boolean) {
+    set(key: string, value: unknown, silent?: boolean) {
         if (!isString(key)) {
             warn_(createMessage('set', 'key必须是字符串'));
             return;
@@ -125,7 +126,7 @@ export default abstract class Source<T extends OMapSourceType> {
         return this._source.getView();
     }
 
-    getProperties(): Record<string, any> {
+    getProperties(): PropertiesType {
         return this._source.getProperties();
     }
 
@@ -141,7 +142,7 @@ export default abstract class Source<T extends OMapSourceType> {
         this._source.setState(state);
     }
 
-    setProperties(properties: Record<string, any>, silent?: boolean) {
+    setProperties(properties: PropertiesType, silent?: boolean) {
         this._source.setProperties(properties, silent);
     }
 

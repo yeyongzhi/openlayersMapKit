@@ -13,6 +13,7 @@ import {
 } from "../../../../utils/message";
 import { OlExtentType, OlFeature, OlGeometry } from "../../../../source/index";
 import BasicFeature from "../BasicFeature";
+import type { PropertiesType } from '../../../../utils/type'
 import {
 	type OMapLineStringGeometryCoordinatesType,
 	type OlLineStringGeomInstanceType,
@@ -44,7 +45,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 export default class LineString extends BasicFeature<OMapLineStringType> {
 	constructor(
 		args: OMapLineStringGeometryCoordinatesType,
-		properties?: Record<string, any>,
+		properties?: PropertiesType,
 	);
 	constructor(args: OlFeatureInstanceType);
 
@@ -52,7 +53,7 @@ export default class LineString extends BasicFeature<OMapLineStringType> {
 		coordinatesOrFeature:
 			| OMapLineStringGeometryCoordinatesType
 			| OlFeatureInstanceType,
-		properties?: Record<string, any>,
+		properties?: PropertiesType,
 	) {
 		if (!isDefined(coordinatesOrFeature)) {
 			error_(

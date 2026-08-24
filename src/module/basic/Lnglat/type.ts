@@ -1,8 +1,7 @@
 import Lnglat from './index'
-import type { Coordinate } from '../../../source/index'
 import { isCoordinatesType } from "../../../utils/dataType";
 
-export type OlCoordinateType = Coordinate
+export type OlCoordinateType = [number, number]
 export type OMapCoordinateType = OlCoordinateType | Lnglat
 
 /**

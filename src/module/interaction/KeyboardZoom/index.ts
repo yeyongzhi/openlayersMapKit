@@ -22,6 +22,7 @@ import {
 } from "./type";
 import { type EventIdType } from "../../util/Event/type";
 import { handleInteractionKeyboardZoomEvent } from "./handle";
+import type { InteractionPropertyChangeEvent } from '../handle'
 
 const PACKAGE_NAME = "KeyboardZoom";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -70,7 +71,7 @@ export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(type, handleInteractionKeyboardZoomEvent(this, type, e));
     });
     const id = this.events.on(type, callback, unlisten);
@@ -97,7 +98,7 @@ export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(type, handleInteractionKeyboardZoomEvent(this, type, e));
     });
     const id = this.events.once(type, callback, unlisten);

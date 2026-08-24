@@ -23,6 +23,7 @@ import {
 } from "./type";
 import { type EventIdType } from "../../util/Event/type";
 import { handleInteractionDoubleClickZoomEvent } from "./handle";
+import type { InteractionPropertyChangeEvent } from '../handle'
 
 const PACKAGE_NAME = "DoubleClickZoom";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -75,7 +76,7 @@ export default class DoubleClickZoom extends Interaction<OMapDoubleClickZoomType
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(
         type,
         handleInteractionDoubleClickZoomEvent(this, type, e),
@@ -108,7 +109,7 @@ export default class DoubleClickZoom extends Interaction<OMapDoubleClickZoomType
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(
         type,
         handleInteractionDoubleClickZoomEvent(this, type, e),

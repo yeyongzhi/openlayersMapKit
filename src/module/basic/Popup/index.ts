@@ -35,9 +35,10 @@ import {
   type OMapPopupEventType,
   isOMapPopupEventType,
 } from "./type";
-import { createDefaultContentElement, handlePopupEvent } from "./handle";
+import { createDefaultContentElement, handlePopupEvent, type PopupEventChange } from "./handle";
 import { handleGetLnglatValue } from "../Lnglat/handle";
 import { handleGetPixelValue } from "../Pixel/handle";
+import type { PropertiesType } from '../../../utils/type'
 
 const PACKAGE_NAME = "Popup";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -71,7 +72,7 @@ export default class Popup {
   /**
    * 弹窗属性
    */
-  properties: Record<string, any> = {};
+  properties: PropertiesType = {};
   /**
    * 事件对象
    */
@@ -144,17 +145,17 @@ export default class Popup {
 
   /**
    * 获取弹窗属性
-   * @returns {Record<string, any> | undefined} 弹窗属性
+   * @returns {PropertiesType} 弹窗属性
    */
-  getProperties(): Record<string, any> | undefined {
+  getProperties(): PropertiesType {
     return this.properties;
   }
 
   /**
    * 设置弹窗属性
-   * @param {Record<string, any>} properties 弹窗属性
+   * @param {PropertiesType} properties 弹窗属性
    */
-  setProperties(properties: Record<string, any>) {
+  setProperties(properties: PropertiesType) {
     if (!isDefined(properties)) {
       error_(createMessage("setProperties", "参数不能为空"));
     }
@@ -246,7 +247,7 @@ export default class Popup {
     const unlisten = OlEvent.listen(
       this._popup as OlPopupInstanceType,
       type,
-      (e: any) => {
+      (e: PopupEventChange) => {
         this.events.emit(type, handlePopupEvent(this, type, e));
       },
     );
@@ -283,7 +284,7 @@ export default class Popup {
     const unlisten = OlEvent.listen(
       this._popup as OlPopupInstanceType,
       type,
-      (e: any) => {
+      (e: PopupEventChange) => {
         this.events.emit(type, handlePopupEvent(this, type, e));
       },
     );

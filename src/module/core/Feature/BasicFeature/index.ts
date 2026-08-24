@@ -133,14 +133,14 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
     return cloned
   }
 
-  get(key: string): any {
+  get<Value = unknown>(key: string): Value {
     if (!isDefined(key)) {
       error_(createMessage('get', commonMessage.paramsNotDefined('key')))
     }
     if (!isString(key)) {
       error_(createMessage('get', commonMessage.paramsInvaildFormat('key', 'string')))
     }
-    return this._feature.get(key)
+    return this._feature.get(key) as Value
   }
 
   /**

@@ -1,5 +1,5 @@
 import { isDefined, isString } from '../../../utils/index';
-import { type OMapEventType, type OMapEventTarget, OMapMapEventTypes } from './type'
+import { type OMapEventType, type OMapEventTarget, OMapMapEventTypes, type OlMapEventPayload, type OlMapEventPayloadFields } from './type'
 import Lnglat from '../../basic/Lnglat/index'
 import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
@@ -14,60 +14,61 @@ export function MapEventTypeIsMap(type: OMapEventType): boolean {
     return type && type.startsWith('map:')
 }
 
-export function handleMapOnCallBack(target: Map, type: OMapEventType, e: any) {
+export function handleMapOnCallBack(target: Map, type: OMapEventType, e: OlMapEventPayload) {
     let result: OMapEventTarget | null = {
         target,
         type
     }
     if(!isDefined(e)) return result
+    const payload = e as OlMapEventPayloadFields
     switch (type) {
         case 'map:click':
         case 'map:singleclick':
         case 'map:dbclick':
-            if (isDefined(e.pixel)) {
-                result.pixel = new Pixel((e.pixel as OlCoordinateType))
+            if (isDefined(payload.pixel)) {
+                result.pixel = new Pixel((payload.pixel as OlCoordinateType))
             }
-            if (isDefined(e.coordinate)) {
-                result.coordinate = new Lnglat((e.coordinate as OlCoordinateType))
+            if (isDefined(payload.coordinate)) {
+                result.coordinate = new Lnglat((payload.coordinate as OlCoordinateType))
             }
             break;
         case 'map:propertychange':
-            if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat((e.oldValue as OlCoordinateType)) : e.oldValue
-            if (e.key === 'size') {
-                result.newValue = e.newValue || (target as Map).getSize()
+            if (isDefined(payload.oldValue)) result.oldValue = (payload.key === 'center') ? new Lnglat((payload.oldValue as OlCoordinateType)) : payload.oldValue
+            if (payload.key === 'size') {
+                result.newValue = isDefined(payload.newValue) ? payload.newValue : target.getSize()
             } else {
-                result.newValue = e.newValue
+                result.newValue = payload.newValue
             }
-            result.key = e.key
+            result.key = payload.key
             break;
         case 'map:moveend':
-            if (e.oldCenter) result.oldValue = new Lnglat((e.oldCenter as OlCoordinateType))
-            result.newValue = e.newCenter || (target as Map).getCenter()
+            if (isDefined(payload.oldCenter)) result.oldValue = new Lnglat((payload.oldCenter as OlCoordinateType))
+            result.newValue = isDefined(payload.newCenter) ? new Lnglat(payload.newCenter as OlCoordinateType) : target.getCenter()
             break;
         case 'view:change:resolution':
-            if (e.oldValue) result.oldValue = e.oldValue
-            result.newValue = e.newValue || (target as Map).getResolution()
+            if (isDefined(payload.oldValue)) result.oldValue = payload.oldValue
+            result.newValue = isDefined(payload.newValue) ? payload.newValue : target.getResolution()
             break;
         case 'view:change:center':
-            if (e.oldValue) result.oldValue = new Lnglat((e.oldValue as OlCoordinateType))
-            result.newValue = e.newValue || (target as Map).getCenter()
+            if (isDefined(payload.oldValue)) result.oldValue = new Lnglat((payload.oldValue as OlCoordinateType))
+            result.newValue = isDefined(payload.newValue) ? new Lnglat(payload.newValue as OlCoordinateType) : target.getCenter()
             break;
         case 'view:change:rotation':
-            if (e.oldValue) result.oldValue = e.oldValue
-            result.newValue = e.newValue || (target as Map).getRotation()
+            if (isDefined(payload.oldValue)) result.oldValue = payload.oldValue
+            result.newValue = isDefined(payload.newValue) ? payload.newValue : target.getRotation()
             break;
         case 'view:propertychange':
-            if (e.oldValue) result.oldValue = (e.key === 'center') ? new Lnglat((e.oldValue as OlCoordinateType)) : e.oldValue
-            if (e.key === 'center') {
-                result.newValue = e.newValue || (target as Map).getCenter()
-            } else if (e.key === 'rotation') {
-                result.newValue = e.newValue || (target as Map).getRotation()
-            } else if (e.key === 'resolution') {
-                result.newValue = e.newValue || (target as Map).getResolution()
+            if (isDefined(payload.oldValue)) result.oldValue = (payload.key === 'center') ? new Lnglat((payload.oldValue as OlCoordinateType)) : payload.oldValue
+            if (payload.key === 'center') {
+                result.newValue = isDefined(payload.newValue) ? new Lnglat(payload.newValue as OlCoordinateType) : target.getCenter()
+            } else if (payload.key === 'rotation') {
+                result.newValue = isDefined(payload.newValue) ? payload.newValue : target.getRotation()
+            } else if (payload.key === 'resolution') {
+                result.newValue = isDefined(payload.newValue) ? payload.newValue : target.getResolution()
             } else {
-                result.newValue = e.newValue
+                result.newValue = payload.newValue
             }
-            result.key = e.key
+            result.key = payload.key
             break;
         default:
             break;

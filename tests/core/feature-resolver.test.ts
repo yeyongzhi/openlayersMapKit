@@ -35,4 +35,18 @@ describe('Feature resolver', () => {
       createBaseFeatureByOlFeature(nativeFeature)
     )
   })
+
+  it('preserves typed properties across wrapper resolution', () => {
+    const wrapper = new Point([120, 30], {
+      name: 'sample',
+      metadata: { category: 'station' }
+    })
+    const resolved = createBaseFeatureByOlFeature(wrapper.getFeature())
+
+    expect(resolved).toBe(wrapper)
+    expect(resolved?.get<string>('name')).toBe('sample')
+    expect(resolved?.get<{ category: string }>('metadata')).toEqual({
+      category: 'station'
+    })
+  })
 })

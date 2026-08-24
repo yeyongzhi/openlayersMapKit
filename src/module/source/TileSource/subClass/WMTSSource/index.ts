@@ -44,7 +44,7 @@ export default class WMTSSource extends TileSource<OMapWMTSSourceType> {
         return this._source.getVersion();
     }
 
-    updateDimensions(dimensions: Record<string, any>) {
+    updateDimensions(dimensions: Record<string, unknown>) {
         this._source.updateDimensions(dimensions);
     }
 

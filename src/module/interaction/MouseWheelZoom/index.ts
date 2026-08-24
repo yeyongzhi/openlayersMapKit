@@ -23,6 +23,7 @@ import {
     handleInteractionMouseWheelZoomEvent
 } from './handle'
 import { type EventIdType } from "../../util/Event/type";
+import type { InteractionPropertyChangeEvent } from '../handle'
 
 const PACKAGE_NAME = "MouseWheelZoom";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -80,7 +81,7 @@ export default class MouseWheelZoom extends Interaction<OMapMouseWheelZoomType> 
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(
         type,
         handleInteractionMouseWheelZoomEvent(this, type, e),
@@ -110,7 +111,7 @@ export default class MouseWheelZoom extends Interaction<OMapMouseWheelZoomType> 
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(
         type,
         handleInteractionMouseWheelZoomEvent(this, type, e),

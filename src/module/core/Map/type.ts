@@ -16,6 +16,9 @@ import { type OMapSizeType } from '../../basic/Size/type'
 import BaseLayer from '../../layer/BaseLayer/index'
 import type { OMapBaseLayerCommonType } from '../../layer/BaseLayer/type'
 import Control from '../../control/Control/index'
+import type BaseEvent from 'ol/events/Event'
+import type Map from './index'
+import type { Coordinate } from '../../../source/index'
 
 /** View */
 export type OMapViewType = OlPackage.View
@@ -101,14 +104,26 @@ export const OMapMapInteractionIgnoreEventTypes = ['map:click', 'map:dbclick', '
 export type OMapEventType = (typeof OMapMapEventTypes)[number]
 
 export type OMapEventTarget = {
-  target: any
+  target: Map
   type: OMapEventType
-  oldValue?: any
-  newValue?: any
+  oldValue?: unknown
+  newValue?: unknown
   pixel?: Pixel
   coordinate?: Lnglat
   key?: string
 }
+
+export type OlMapEventPayloadFields = {
+  pixel?: Coordinate
+  coordinate?: Coordinate
+  key?: string
+  oldValue?: unknown
+  newValue?: unknown
+  oldCenter?: Coordinate
+  newCenter?: Coordinate
+}
+
+export type OlMapEventPayload = BaseEvent | Event | OlMapEventPayloadFields
 
 export type OMapEventCallBack = (event: OMapEventTarget) => void
 export type OlMapOnEventType = Parameters<OlPackage.Map['on']>[0]

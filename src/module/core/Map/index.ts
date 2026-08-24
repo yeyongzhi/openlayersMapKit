@@ -9,6 +9,7 @@ import {
   isObject
 } from '../../../utils/index'
 import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import type { PropertiesType } from '../../../utils/type'
 import OlPackage, { OlUtil, OlSphere, OlEvent, OlGeometry, OlLayer } from '../../../source/index'
 import Lnglat from '../../basic/Lnglat/index'
 import {
@@ -42,6 +43,7 @@ import {
   type OlFeatureLike,
   type OlGeometryType
 } from '../Feature/BasicFeature/type'
+import type { OlMapEventPayload } from './type'
 import Interaction from '../../interaction/Interaction/index'
 import {
   type OMapInteractionIdType,
@@ -576,7 +578,7 @@ export default class Map {
     const unlisten = OlEvent.listen(
       target,
       isMapTarget ? type.replace('map:', '') : type.replace('view:', ''),
-      (e: any) => {
+      (e: OlMapEventPayload) => {
         let isInteracting =
           isMapMeasuring(defaultValue(this.getInteractions(), [])) ||
           isMapDrawing(defaultValue(this.getInteractions(), []))
@@ -605,7 +607,7 @@ export default class Map {
     const unlisten = OlEvent.listen(
       target,
       isMapTarget ? type.replace('map:', '') : type.replace('view:', ''),
-      (e: any) => {
+      (e: OlMapEventPayload) => {
         let isInteracting =
           isMapMeasuring(defaultValue(this.getInteractions(), [])) ||
           isMapDrawing(defaultValue(this.getInteractions(), []))
@@ -632,17 +634,17 @@ export default class Map {
 
   /**
    * 获取地图属性
-   * @returns {Record<string, any>} 地图属性
+   * @returns {PropertiesType} 地图属性
    */
-  getProperties(): Record<string, any> {
+  getProperties(): PropertiesType {
     return defaultValue(this._map.getProperties(), {})
   }
 
   /**
    * 设置地图属性
-   * @param {Record<string, any>} properties 地图属性
+   * @param {PropertiesType} properties 地图属性
    */
-  setProperties(properties: Record<string, any>): void {
+  setProperties(properties: PropertiesType): void {
     if (!isDefined(properties)) {
       error_(createMessage('setProperties', commonMessage.paramsNotDefined('properties')))
     }
@@ -903,7 +905,7 @@ export default class Map {
     return defaultValue(popup, null)
   }
 
-  getPopupByProperties(filter: (properties: Record<string, any>) => boolean): Popup[] {
+  getPopupByProperties(filter: (properties: PropertiesType) => boolean): Popup[] {
     if (!isDefined(filter)) {
       error_(createMessage('getPopupById', commonMessage.paramsNotDefined('filter')))
     }
@@ -911,8 +913,7 @@ export default class Map {
       error_(createMessage('getPopupById', commonMessage.paramsInvaildFormat('filter', '函数类型')))
     }
     const popups = this.popups.filter((p: Popup) => {
-      if (!isDefined(p.getProperties())) return false
-      return filter(p.getProperties() as Record<string, any>)
+      return filter(p.getProperties())
     })
     return popups
   }

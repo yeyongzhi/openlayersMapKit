@@ -6,6 +6,7 @@ import {
     type OMapControlCommonType
 } from './type'
 import Event from '../../../module/util/Event/index'
+import type { PropertiesType } from '../../../utils/type'
 
 const PACKAGE_NAME = 'Control';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -62,7 +63,7 @@ export default class Control<T extends OMapControlCommonType = OMapControlCommon
      * 获取控制属性
      * @returns {Record<string, any>} 控制属性
      */
-    getProperties(): Record<string, any> {
+    getProperties(): PropertiesType {
         return this._control.getProperties()
     }
 
@@ -70,7 +71,7 @@ export default class Control<T extends OMapControlCommonType = OMapControlCommon
      * 设置控制属性
      * @param properties 控制属性
      */
-    setProperties(properties: Record<string, any>) {
+    setProperties(properties: PropertiesType) {
         this._control.setProperties(properties)
     }
 

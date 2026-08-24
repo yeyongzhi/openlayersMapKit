@@ -81,7 +81,7 @@ export default class Size {
    * 获取size
    * @returns {OlSizeType} size
    */
-  getSize(): number[] {
+  getSize(): OlSizeType {
     return this._size;
   }
 

@@ -19,7 +19,7 @@ export type EmptyArray = []
 
 export type LnglatType = number[]
 
-export type PropertiesType = Record<string, any>
+export type PropertiesType = Record<string, unknown>
 
 /** View */
 export type OlViewInstanceType = InstanceType<typeof OlPackage.View>

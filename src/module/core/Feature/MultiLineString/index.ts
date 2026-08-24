@@ -12,6 +12,7 @@ import {
 } from "../../../../utils/message";
 import { OlExtentType, OlFeature, OlGeometry } from "../../../../source/index";
 import BasicFeature from "../BasicFeature";
+import type { PropertiesType } from '../../../../utils/type'
 import {
   OMapMultiLineStringGeometryCoordinatesType,
   OlMultiLineStringGeomInstanceType,
@@ -37,7 +38,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 export default class MultiLineString extends BasicFeature<OMapMultiLineStringType> {
   constructor(
     args: OMapMultiLineStringGeometryCoordinatesType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   );
   constructor(args: OlFeatureInstanceType);
 
@@ -45,7 +46,7 @@ export default class MultiLineString extends BasicFeature<OMapMultiLineStringTyp
     coordinatesOrFeature:
       | OMapMultiLineStringGeometryCoordinatesType
       | OlFeatureInstanceType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(

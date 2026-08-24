@@ -14,6 +14,7 @@ import {
 import { getDefaultOptionsByType, isVaildFormatType } from './handle'
 import { handleGetProjectionValue } from '../../core/Projection/handle';
 import BasicFeature from '../../core/Feature/BasicFeature/index';
+import type { OlGeometryType } from '../../core/Feature/BasicFeature/type'
 import { handleGetStyleValue } from '../../basic/Style/handle';
 import {
     handleReadFeature,
@@ -44,8 +45,10 @@ export default class Format {
     _format?: OMapFormatInstanceType;
 
     constructor(type: typeof OMapFormatType.GeoJSON, options: OMapFormatGeoJSONOptions);
+    constructor(type: typeof OMapFormatType.WKT, options?: OMapFormatWKTOptions);
+    constructor(type: typeof OMapFormatType.KML, options?: OMapFormatKMLOptions);
 
-    constructor(type: OMapFormatTypeEnum, options?: OMapFormatGeoJSONOptions) {
+    constructor(type: OMapFormatTypeEnum, options?: OMapFormatOptionsType) {
         if(!isDefined(type)) {
             error_(createMessage('constructor', '初始化参数有误'));
             return;
@@ -93,23 +96,23 @@ export default class Format {
         return handleReadFeatures(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, source, options)
     }
 
-    writeFeature(feature: BasicFeature<any>, options?: OMapFormatWriteFeatureOptionsType): string {
+    writeFeature(feature: BasicFeature<OlGeometryType>, options?: OMapFormatWriteFeatureOptionsType): string {
         return handleWriteFeature(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, feature, options)
     }
 
-    writeFeatureObject(feature: BasicFeature<any>, options?: OMapFormatWriteFeatureOptionsType) {
+    writeFeatureObject(feature: BasicFeature<OlGeometryType>, options?: OMapFormatWriteFeatureOptionsType) {
         return handleWriteFeatureObject(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, feature, options)
     }
 
-    writeFeatures(features: Array<BasicFeature<any>>, options?: OMapFormatWriteFeatureOptionsType): string {
+    writeFeatures(features: Array<BasicFeature<OlGeometryType>>, options?: OMapFormatWriteFeatureOptionsType): string {
         return handleWriteFeatures(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, features, options)
     }
 
-    writeFeaturesObject(features: Array<BasicFeature<any>>, options?: OMapFormatWriteFeatureOptionsType) {
+    writeFeaturesObject(features: Array<BasicFeature<OlGeometryType>>, options?: OMapFormatWriteFeatureOptionsType) {
         return handleWriteFeaturesObject(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, features, options)
     }
 
-    writeFeaturesNode(features: Array<BasicFeature<any>>, options?: OMapFormatWriteFeatureOptionsType) {
+    writeFeaturesNode(features: Array<BasicFeature<OlGeometryType>>, options?: OMapFormatWriteFeatureOptionsType) {
         return handleWriteFeaturesNode(this._format as OMapFormatInstanceType, this.type as OMapFormatTypeEnum, features, options)
     }
 

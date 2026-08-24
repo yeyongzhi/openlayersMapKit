@@ -1,6 +1,6 @@
 import { isString, isNumber } from '../../../utils/dataType'
 import { OlOverlay } from '../../../source/index'
-import type { ManualOmit } from '../../../utils/type'
+import type { ManualOmit, PropertiesType } from '../../../utils/type'
 import Lnglat from '../../basic/Lnglat/index'
 import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Pixel from '../../basic/Pixel/index'
@@ -24,7 +24,7 @@ export type OMapPopupParamsType = CustOlPopupParamsType & {
     offset?: Pixel;
     position?: Lnglat | OlCoordinateType;
     content?: string;
-    properties?: Record<string, any>;
+    properties?: PropertiesType;
     positioning?: PopupPositioningType;
 }
 export type OMapPopupType = OlOverlay

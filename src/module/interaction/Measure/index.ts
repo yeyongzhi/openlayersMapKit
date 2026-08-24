@@ -12,6 +12,7 @@ import Polygon from '../../core/Feature/Polygon/index'
 import type { OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
 import type { EventIdType } from '../../util/Event/type'
 import type { OMapVectorSourceType } from '../../layer/VectorLayer/type'
+import type { OlCoordinateType } from '../../basic/Lnglat/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
 import {
   DRAW_DEFAULT_PARAMS,
@@ -172,7 +173,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
       return
     }
     this.pointerMoveListener = this.map.getMap().on('pointermove', (event) => {
-      this.tooltipPopup.setPosition(event.coordinate)
+      this.tooltipPopup.setPosition(event.coordinate as OlCoordinateType)
     })
   }
 
@@ -236,12 +237,14 @@ export default class Measure extends Interaction<OMapMeasureType> {
     this.resultPopup.setElement(
       createResultElement('面积', formatArea(value), '单击继续，双击结束测量')
     )
-    this.resultPopup.setPosition(geometry.getInteriorPoint().getCoordinates())
+    this.resultPopup.setPosition(
+      geometry.getInteriorPoint().getCoordinates() as OlCoordinateType
+    )
   }
 
   protected renderDistanceMarkers(geometry: OlGeometry.LineString) {
     this.clearMarkerPopups()
-    const coordinates = geometry.getCoordinates()
+    const coordinates = geometry.getCoordinates() as OlCoordinateType[]
     coordinates.forEach((coordinate, index) => {
       const text =
         index === 0 ? '起点' : formatDistance(this.getDistanceToIndex(coordinates, index))
@@ -249,7 +252,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
         `omap-measure-marker-${index}`,
         createMarkerElement(text, index === 0 ? undefined : () => this.removeDistancePoint(index))
       )
-      popup.setPosition(coordinate)
+      popup.setPosition(coordinate as OlCoordinateType)
       this.addPopup(popup)
       this.markerPopups.push(popup)
     })
@@ -266,7 +269,9 @@ export default class Measure extends Interaction<OMapMeasureType> {
       element.style.alignItems = 'center'
       element.appendChild(createCloseElement(() => this.clearMeasurement()))
       this.resultPopup.setElement(element)
-      this.resultPopup.setPosition(geometry.getInteriorPoint().getCoordinates())
+      this.resultPopup.setPosition(
+        geometry.getInteriorPoint().getCoordinates() as OlCoordinateType
+      )
       return
     }
     if (geometry instanceof OlGeometry.LineString) {
@@ -279,7 +284,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
     if (!(geometry instanceof OlGeometry.LineString)) {
       return
     }
-    const coordinates = geometry.getCoordinates()
+    const coordinates = geometry.getCoordinates() as OlCoordinateType[]
     coordinates.splice(index, 1)
     if (coordinates.length < 2) {
       this.unbindGeometryChange()
@@ -291,7 +296,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
     }
   }
 
-  protected getDistanceToIndex(coordinates: number[][], index: number): number {
+  protected getDistanceToIndex(coordinates: OlCoordinateType[], index: number): number {
     if (!this.map) {
       return 0
     }

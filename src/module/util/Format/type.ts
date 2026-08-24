@@ -1,6 +1,6 @@
 import { type OMapProjectionType } from '../../core/Projection/type'
 import { type OMapExtentType } from '../../basic/Extent/type'
-import { OlFormat } from '../../../source/index'
+import { OlFeature, OlFormat } from '../../../source/index'
 import Style from '../../basic/Style/index'
 
 export const OMapFormatType = {
@@ -17,7 +17,7 @@ export interface OMapFormatGeoJSONOptions {
     featureProjection?: OMapProjectionType;
     geometryName?: string;
     extractGeometryName: boolean;
-    featureClass?: any;
+    featureClass?: typeof OlFeature;
 }
 
 export interface OMapFormatWKTOptions {

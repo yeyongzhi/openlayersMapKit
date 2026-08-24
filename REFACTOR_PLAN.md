@@ -4,7 +4,7 @@
 > 基线版本：`1.0.0-beta1`（历史未发布版本）  
 > 当前开发版本：`0.1.0-beta.1`（内部预发布版本，公开发布前仍需满足下述门禁）  
 > 计划建立：2026-08-20  
-> 最近校准：2026-08-22（normalizeCoordinates 抽取完成）  
+> 最近校准：2026-08-24（Format 构造类型与读写测试矩阵补齐）
 > 目标：将旧版 OpenLayers 封装整理成可测试、可维护、可发布的 TypeScript SDK，并通过 GitHub Actions 自动部署 VitePress 文档站。
 
 ## 1. 总体原则
@@ -35,8 +35,20 @@
 
 ### 当前执行快照
 
+- 2026-08-24：完成 `basic/Style` 类型安全岛收敛：`geometry` 改为 `OMapStyleOptionsGeometryType`，`renderer`/`hitDetectionRenderer` 对齐 OpenLayers `RenderFunction`，默认样式与 resolver 回调移除 `BaseFeature<any>`；`pnpm typecheck` 与 63 个 Vitest 用例通过。
+- 2026-08-24：补齐 `Format` 的 GeoJSON/WKT 读写、集合输出、resolver registry 复用及 KML 构造测试；修复 WKT/KML 构造函数缺少公开 overload 的类型缺陷，并将 `featureClass: any` 收敛为当前 resolver 支持的原生 `OlFeature` 构造器、格式类型守卫入参改为 `unknown`。当前共 11 个测试文件、68 个测试用例。
+- 2026-08-24：完成 `util/Format` 模块首轮 `any` 清零：公开及内部写入参数统一为 `BasicFeature<OlGeometryType>`，结构化读取输入改为 `Record<string, unknown>`，动态格式分派器改为显式模块联合与泛型返回值；类型检查、68 个测试和库构建通过。
+- 2026-08-24：清理 `src/source/index.ts` 聚合入口的纯转导出本地绑定，将 RenderFeature helpers、Draw geometry factories 与 `OlTarget` 改为直接 re-export；公共导出名称保持不变，库构建的 3 组未使用导入 warning 已清零。
+- 2026-08-24：完成 Coordinate、Extent、Pixel、Size 固定 tuple 类型收敛：坐标固定为二元组、范围固定为四元组，Pixel/Size 的内部字段及 getter/toArray 返回值同步精确化；OpenLayers 宽泛 `Coordinate` 仅在已知几何边界显式收窄，运行时逻辑不变。
+- 2026-08-24：推进 properties 泛型模型收敛：公共 `PropertiesType` 改为 `Record<string, unknown>`，`BasicFeature.get<Value>()` 与 `Source.get<Value>()` 支持调用方声明返回类型，全部 Geometry 构造参数以及 Feature、Source、Layer、Map、Popup、Control、Interaction 的通用 properties API 移除显式 `any`；新增 wrapper 属性复用测试。WMS/WMTS 参数字典与 interaction event payload 属独立语义，留待对应类型批次处理。
+- 2026-08-24：启动 Interaction typed event payload 批次：抽取共享 `handleInteractionActiveChangeEvent`，为 DoubleClickZoom、DragPan、DragZoom、KeyboardZoom、Link、MouseWheelZoom 六类基础交互的 handle 与底层 listener 入口移除重复的 `e: any`/`Record<string, any>` 事件转换逻辑；共享入口兼容 OpenLayers `BaseEvent`/`ObjectEvent` 与 DOM `Event`，通过字段守卫读取 property-change payload；补充 initial/change 两类 active payload 测试，并正确保留 `oldValue: false`。
+- 2026-08-24：完成 `core/Map` 显式 `any` 清零：建立 `OlMapEventPayload` 与结构化字段模型，底层 on/once listener 和 `handleMapOnCallBack` 使用同一事件联合类型，对外 `OMapEventTarget.target` 固定为 Map、old/new value 改为 `unknown`；同时修复 rotation/resolution 等事件用 `||` 丢失 `0` 以及 oldValue falsy 值被跳过的问题，新增零值和 click 坐标转换测试。
+- 2026-08-24：完成 `LayerGroup` 泛型桥接与 BaseLayer 属性事件入口收敛：组内图层统一为 `BaseLayer<OMapBaseLayerCommonType>`，移除构造、增删、查询链路中的 `BaseLayer<any>`；BaseLayer propertychange listener 改为兼容 OpenLayers `BaseEvent | Event` 并通过字段守卫读取 key。新增分组增删、groupId 同步和重复图层防护测试。
+- 2026-08-24：完成 `basic/Popup` 显式 `any` 清零：on/once 底层 listener 与 `handlePopupEvent` 统一使用 `PopupEventChange` 联合类型，兼容 OpenLayers `BaseEvent`、DOM `Event` 和属性变化字段，并通过字段守卫提取 key/oldValue/newValue；properties 文档签名同步为 `PropertiesType`。
+- 2026-08-24：完成 WMS/WMTS/XYZ 瓦片参数安全岛收敛：tileClass、tileLoadFunction、tileUrlFunction 直接复用 OpenLayers 官方 Options 字段类型，WMS 参数与 WMTS dimensions 改为 unknown 字典，UTFGrid callback 数据改为 unknown；新增 TileWMSSource 参数 set/update 回归测试。上述 Layer/Source 子模块显式 `any` 已清零。
+
 - 工程质量、npm 包结构、声明文件、CI/Pages/Release 工作流骨架已经建立。
-- 当前有 10 个测试文件、63 个测试用例，覆盖 basic 值对象、normalizeCoordinates、Event、Feature resolver、Feature factory 参数化矩阵、VectorSource、Map 生命周期以及 Draw/Modify/Select 关键路径。
+- 当前有 14 个测试文件、76 个测试用例，覆盖 basic 值对象、normalizeCoordinates、Event、Feature resolver、Feature properties、Feature factory 参数化矩阵、Format、VectorSource、TileWMS 参数、LayerGroup、Map 生命周期与事件 payload、Interaction 公共事件以及 Draw/Modify/Select 关键路径。
 - `pnpm check` 当前可以通过；ESLint 仍有约 200 个存量 warning，历史文件尚未全部迁移到 Prettier。
 - Vector/Interaction 主链路已收口；Feature factory（registry + 初始化去重 + 参数化矩阵）已完成，坐标归一化已抽取 `normalizeCoordinates` 统一各 Geometry 子类 `_init`/`setCoordinates`，`Lnglat → LngLat` 兼容别名已建立；类型系统收敛、Map 拆分、浏览器测试和完整文档仍是后续重点。
 - 当前版本仅用于内部联调，不满足公开 Beta 或稳定版发布条件。
@@ -69,7 +81,7 @@
 - [x] 引入 Vitest 和覆盖率工具。
 - [x] 增加 `typecheck`、`lint`、`format:check`、`test`、`test:coverage`、`check` 脚本。
 - [x] 创建测试配置与测试目录。
-- [x] 为 basic、Event、VectorSource、Map 生命周期和 Draw/Modify/Select 建立首批单元测试；Feature factory、Format 与浏览器测试待补。
+- [x] 为 basic、Event、Feature factory、Format、VectorSource、Map 生命周期和 Draw/Modify/Select 建立首批单元测试；浏览器测试待补。
 - [x] CI 中使用 `pnpm install --frozen-lockfile`。
 - [ ] 分批清理历史未使用导入与参数；当前 ESLint 无错误，但仍有存量 warning。
 
@@ -103,7 +115,7 @@
 - [ ] Feature/Source/Layer properties 改为泛型属性模型。
 - [ ] 建立 typed event map，精确推导所有回调 payload。
 - [x] 用精确函数签名替换 `Function`（裸 `Function` 类型已清零：style 回调改精确签名、`isFunction` 约束改 `AnyFunction`；loader/filter 回调精确化并入 typed event map/properties 批次继续）。
-- [ ] 坐标与范围使用固定 tuple 类型。
+- [x] 坐标与范围使用固定 tuple 类型。
 - [ ] 统一公开错误类型和参数错误策略。
 
 验收：公共声明文件不再暴露无意义的 `any`，严格类型检查通过。
@@ -179,7 +191,7 @@
 任务：
 
 - [x] Vitest 基线：basic 值对象、Event、VectorSource、Map 生命周期、Draw、Modify、Select。
-- [ ] Vitest 扩展：坐标转换、Format、Feature factory、全部 Geometry、Measure、Popup、Control。
+- [ ] Vitest 扩展：坐标转换、全部 Geometry、Measure、Popup、Control（Format 与 Feature factory 已完成首轮矩阵）。
 - [ ] DOM 集成：Map、Layer、Popup、Control、Interaction 生命周期。
 - [ ] Playwright：真实浏览器地图、绘制、修改、选择、弹窗和销毁重建。
 - [ ] UMD/ESM smoke test。
@@ -277,7 +289,7 @@
 - [x] 按 basic → core/Feature → source/layer → interaction → Map 的顺序替换无意义 `any` 和 `Function`（五模块 + `utils/dataType` 首轮安全岛收敛完成；剩余 `any` 均为 OL 透传、properties 泛型或 typed event map 批次的刻意保留项）。
 - [ ] 为 properties、事件和 loader/filter/style 回调建立泛型或精确签名。
 - [ ] 外部未知输入统一使用 `unknown` 与 type guard。
-- [ ] 固定 Coordinate、Extent、Pixel、Size tuple 类型。
+- [x] 固定 Coordinate、Extent、Pixel、Size tuple 类型。
 - [ ] 每次只迁移一个模块的 Prettier 和未使用导入，避免格式修改掩盖行为 diff。
 - [ ] 全仓格式迁移完成后，将 `format:check` 接入 `pnpm check` 和 CI。
 

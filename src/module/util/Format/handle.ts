@@ -6,8 +6,8 @@ import {
     OMapFormatType
 } from './type'
 
-export function isVaildFormatType(type: string) {
-    return Object.values(OMapFormatType).includes(type);
+export function isVaildFormatType(type: unknown): type is OMapFormatTypeEnum {
+    return Object.values(OMapFormatType).includes(type as OMapFormatTypeEnum);
 }
 
 function getGeoJSONDefaultOptions(): OMapFormatGeoJSONOptions {

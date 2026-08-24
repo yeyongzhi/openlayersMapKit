@@ -1,7 +1,7 @@
 import Extent from './index'
 import { isExtentType } from '../../../utils/dataType'
 
-export type OlExtentType = Array<number>
+export type OlExtentType = [number, number, number, number]
 export type OMapExtentType = OlExtentType | Extent
 
 /**

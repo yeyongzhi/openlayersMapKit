@@ -8,18 +8,24 @@ import Feature from 'ol/Feature';
 import Overlay from 'ol/Overlay';
 import * as OlGeometry from 'ol/geom';
 import * as OlStyle from 'ol/style'
-import RenderFeature from 'ol/render/Feature'
-import { toFeature, toGeometry } from 'ol/render/Feature'
+export {
+    default as RenderFeature,
+    toFeature as OlRenderFeaturetoFeature,
+    toGeometry as OlRenderFeaturetoGeometry
+} from 'ol/render/Feature'
 import * as OlCoordinate from 'ol/coordinate';
 import * as OlSphere from 'ol/sphere';
 import type { Coordinate } from 'ol/coordinate'
 import type { Extent as OlExtentType } from 'ol/extent'
-import { createBox, createRegularPolygon } from 'ol/interaction/Draw';
+export {
+    createBox as OlDrawCreateBox,
+    createRegularPolygon as OlDrawCreateRegularPolygon
+} from 'ol/interaction/Draw'
 import * as OlTileGrid from 'ol/tilegrid'
 import * as OlFormat from 'ol/format'
 import * as OlControl from 'ol/control'
 import * as OlEasing from 'ol/easing'
-import Target from 'ol/events/Target';
+export { default as OlTarget } from 'ol/events/Target'
 import { listen, unlistenByKey } from 'ol/events'
 
 const OlEvent = {
@@ -45,21 +51,15 @@ export {
     Overlay as OlOverlay,
     OlGeometry,
     OlStyle,
-    RenderFeature,
-    toFeature as OlRenderFeaturetoFeature,
-    toGeometry as OlRenderFeaturetoGeometry,
     OlCoordinate,
     OlSphere,
     type Coordinate,
     type OlExtentType,
-    createBox as OlDrawCreateBox,
-    createRegularPolygon as OlDrawCreateRegularPolygon,
     OlObservable,
     OlTileGrid,
     OlExtent,
     OlFormat,
     OlControl,
     OlEasing,
-    Target as OlTarget,
     OlEvent
 }

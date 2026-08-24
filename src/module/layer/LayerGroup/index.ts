@@ -4,6 +4,9 @@ import type { LayerGroupIdType } from './type'
 import BaseLayer from '../BaseLayer'
 import Map from '../../core/Map/index'
 import { OlUtil } from '../../../source/index'
+import type { OMapBaseLayerCommonType } from '../BaseLayer/type'
+
+type LayerGroupLayer = BaseLayer<OMapBaseLayerCommonType>
 
 let PACKAGE_NAME = 'LayerGroup';
 let createMessage = getPackageMessage(PACKAGE_NAME);
@@ -24,36 +27,36 @@ export default class LayerGroup {
      * @type {IdType}
      */
     id: LayerGroupIdType | null = null;
-    layers: BaseLayer<any>[] = []
+    layers: LayerGroupLayer[] = []
     map: Map | null = null;
 
-    constructor(layers: BaseLayer<any>[]);
+    constructor(layers: LayerGroupLayer[]);
     /**
      * 图层组构造函数
      * @param {LayerGroupIdType} id 图层组id，最好是填一个
      * @param layers 图层数组
      */
-    constructor(id: LayerGroupIdType | null, layers: BaseLayer<any>[]);
+    constructor(id: LayerGroupIdType | null, layers: LayerGroupLayer[]);
 
-    constructor(idOrLayers: LayerGroupIdType | null | BaseLayer<any>[], layers?: BaseLayer<any>[]) {
+    constructor(idOrLayers: LayerGroupIdType | null | LayerGroupLayer[], layers?: LayerGroupLayer[]) {
         if(!isDefined(idOrLayers)) {
             error_(createMessage('constructor', '参数不能为空'));
             return;
         }
-        let _layers: BaseLayer<any>[] = defaultValue(layers, []);
+        let _layers: LayerGroupLayer[] = defaultValue(layers, []);
         if(isNumber(idOrLayers) || isString(idOrLayers)) {
             this.id = idOrLayers as LayerGroupIdType;
         } else {
-            _layers = idOrLayers as BaseLayer<any>[];
+            _layers = idOrLayers as LayerGroupLayer[];
         }
-        const vaildLayers = _layers.filter((item: BaseLayer<any>) => {
+        const vaildLayers = _layers.filter((item: LayerGroupLayer) => {
             return isDefined(item) && isDefined(item.getLayer()) && (item instanceof BaseLayer)
         })
         if(vaildLayers.length !== _layers.length) {
             warn_(createMessage('constructor', '图层参数错误，必须为BaseLayer实例，已进行过滤'));
         }
         this.layers = vaildLayers;
-        vaildLayers.forEach((item: BaseLayer<any>) => {
+        vaildLayers.forEach((item: LayerGroupLayer) => {
             item.groupId = this.id
         })
     }
@@ -62,7 +65,7 @@ export default class LayerGroup {
      * 添加图层
      * @param {BaseLayer} layer 图层实例
      */
-    add(layer: BaseLayer<any>): void {
+    add(layer: LayerGroupLayer): void {
         if(!isDefined(layer)) {
             warn_(createMessage('add', '参数layer不能为空'));
             return;
@@ -71,7 +74,7 @@ export default class LayerGroup {
             warn_(createMessage('add', '参数layer必须为BaseLayer实例'));
             return;
         }
-        let isExits: boolean = this.layers.some((item: BaseLayer<any>) => {
+        let isExits: boolean = this.layers.some((item: LayerGroupLayer) => {
             return OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer.getLayer());
         })
         if(isExits) {
@@ -85,7 +88,7 @@ export default class LayerGroup {
         }
     }
 
-    remove(layer: BaseLayer<any>): void {
+    remove(layer: LayerGroupLayer): void {
         if(!isDefined(layer)) {
             warn_(createMessage('remove', '参数layer不能为空'));
             return;
@@ -94,7 +97,7 @@ export default class LayerGroup {
             warn_(createMessage('remove', '参数layer必须为BaseLayer实例'));
             return;
         }
-        let index: number = this.layers.findIndex((item: BaseLayer<any>) => {
+        let index: number = this.layers.findIndex((item: LayerGroupLayer) => {
             return OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer.getLayer());
         })
         if(index === -1) {
@@ -113,7 +116,7 @@ export default class LayerGroup {
             warn_(createMessage('removeById', '参数id不能为空'));
             return;
         }
-        let index = this.layers.findIndex((item: BaseLayer<any>) => {
+        let index = this.layers.findIndex((item: LayerGroupLayer) => {
             return isDefined(item.getId()) && (item.getId() === id);
         })
         if(index === -1) {
@@ -138,11 +141,11 @@ export default class LayerGroup {
         this.layers = [];
     }
 
-    getAllLayers(): BaseLayer<any>[] {
+    getAllLayers(): LayerGroupLayer[] {
         return this.layers;
     }
 
-    getAll(): BaseLayer<any>[] {
+    getAll(): LayerGroupLayer[] {
         return this.layers;
     }
 

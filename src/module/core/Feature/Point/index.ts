@@ -19,6 +19,7 @@ import { isValidCoordinate } from "../../../basic/Lnglat/type";
 import Extent from "../../../basic/Extent/index";
 import { handleGetExtentValue } from "../../../basic/Extent/handle";
 import { isValidExtent } from "../../../basic/Extent/type";
+import type { PropertiesType } from '../../../../utils/type'
 
 const PACKAGE_NAME = "Point";
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -36,7 +37,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 export default class Point extends BasicFeature<OMapPointType> {
   constructor(
     args: OMapPointGeometryCoordinatesType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   );
   constructor(args: OlFeatureInstanceType);
 
@@ -44,7 +45,7 @@ export default class Point extends BasicFeature<OMapPointType> {
     coordinatesOrFeature:
       | OMapPointGeometryCoordinatesType
       | OlFeatureInstanceType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(

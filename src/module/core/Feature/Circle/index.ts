@@ -11,6 +11,7 @@ import {
 } from "../../../../utils/message";
 import { OlFeature, OlGeometry } from "../../../../source/index";
 import BasicFeature from "../BasicFeature";
+import type { PropertiesType } from '../../../../utils/type'
 import { type OMapCircleType, type OlCircleGeomInstanceType } from "./type";
 import { OMapPointGeometryCoordinatesType } from "../Point/type";
 import type { OlFeatureInstanceType } from "../BasicFeature/type";
@@ -37,7 +38,7 @@ export default class Circle extends BasicFeature<OMapCircleType> {
   constructor(
     centerOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType,
     radius?: number,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   ) {
     if (!isDefined(centerOrFeature)) {
       error_(

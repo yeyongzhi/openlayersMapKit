@@ -38,7 +38,7 @@ export default class Lnglat {
    * @example [119.26, 28.73]
    * @private
    */
-  _lnglat: OlCoordinateType = [];
+  _lnglat: OlCoordinateType = [0, 0];
 
   constructor(lng: number, lat: number);
   constructor(lnglat: number[]);

@@ -11,6 +11,7 @@ import {
     type OMapTileWMSSourceParamsType,
     type OMapTileWMSSourceType
 } from './type'
+import type { OMapWMSParams } from '../../../../layer/WMSLayer/type'
 
 const PACKAGE_NAME = 'TileWMSSource';
 const createMessage = getPackageMessage(PACKAGE_NAME);
@@ -28,7 +29,7 @@ export default class TileWMSSource extends TileSource<OMapTileWMSSourceType> {
         coordinate: OMapCoordinateType,
         resolution: number,
         projection: Projection,
-        params: Record<string, any>
+        params: OMapWMSParams
     ): string | undefined {
         const olCoordinate = handleGetLnglatValue(coordinate);
         if (!olCoordinate || !isNumber(resolution) || !(projection instanceof Projection)) {
@@ -37,7 +38,7 @@ export default class TileWMSSource extends TileSource<OMapTileWMSSourceType> {
         return this._source.getFeatureInfoUrl(olCoordinate, resolution, projection.getProjection(), params);
     }
 
-    getLegendUrl(resolution?: number, params?: Record<string, any>): string | undefined {
+    getLegendUrl(resolution?: number, params?: OMapWMSParams): string | undefined {
         return this._source.getLegendUrl(resolution, params);
     }
 
@@ -45,11 +46,11 @@ export default class TileWMSSource extends TileSource<OMapTileWMSSourceType> {
         return this._source.getParams();
     }
 
-    setParams(params: Record<string, any>) {
+    setParams(params: OMapWMSParams) {
         this._source.setParams(params);
     }
 
-    updateParams(params: Record<string, any>) {
+    updateParams(params: OMapWMSParams) {
         this._source.updateParams(params);
     }
 

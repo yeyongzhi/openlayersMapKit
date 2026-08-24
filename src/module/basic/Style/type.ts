@@ -6,6 +6,7 @@ import BaseFeature from '../../core/Feature/BasicFeature/index'
 import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
 import { OlGeometry, OlStyle } from '../../../source/index'
 import { isFunction, type ManualOmit } from '../../../utils/index'
+import type { RenderFunction } from 'ol/style/Style'
 
 export type OMapStyleOptionsGeometryType =
   string | ((feature: BaseFeature<OlGeometry.Geometry>) => BaseFeature<OlGeometry.Geometry>)
@@ -52,7 +53,7 @@ export type OMapStyleLike = Style | Array<Style> | OMapStyleFunction | undefined
 export type OlStyleInstanceType = InstanceType<typeof OlStyle.Style>
 
 export type OMapStyleOptionsType = {
-  geometry?: any
+  geometry?: OMapStyleOptionsGeometryType
   fill?: OMapFillStyleOptionsType
   // image: OMapImageStyleOptionsType, // image实际不太使用
   circle?: OMapCircleStyleOptionsType
@@ -61,8 +62,8 @@ export type OMapStyleOptionsType = {
   text?: OMapTextStyleOptionsType
   stroke?: OMapStrokeStyleOptionsType
   zIndex?: number
-  hitDetectionRenderer?: any
-  renderer?: any
+  hitDetectionRenderer?: RenderFunction
+  renderer?: RenderFunction
 }
 
 export type OMapStyleType = 'fill' | 'image' | 'text' | 'stroke'

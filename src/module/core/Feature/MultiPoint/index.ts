@@ -13,6 +13,7 @@ import {
 } from "../../../../utils/message";
 import { OlExtentType, OlFeature, OlGeometry } from "../../../../source/index";
 import BasicFeature from "../BasicFeature";
+import type { PropertiesType } from '../../../../utils/type'
 import type {
   OMapMultiPointGeometryCoordinatesType,
   OlMultiPointGeomInstanceType,
@@ -49,7 +50,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
   constructor(
     args: OMapMultiPointGeometryCoordinatesType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   );
   constructor(args: OlFeatureInstanceType);
 
@@ -57,7 +58,7 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
     coordinatesOrFeature:
       | OMapMultiPointGeometryCoordinatesType
       | OlFeatureInstanceType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(
@@ -203,7 +204,7 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
       );
     }
     let point = this._geometry.getPoint(index);
-    return new Point(point.getCoordinates());
+    return new Point(point.getCoordinates() as OlCoordinateType);
   }
 
   intersectsCoordinate(coordinate: OMapPointGeometryCoordinatesType): boolean {

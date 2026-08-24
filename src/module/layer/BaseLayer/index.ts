@@ -16,6 +16,7 @@ import {
 } from './type'
 
 import { type LayerGroupIdType } from '../LayerGroup/type'
+import type BaseEvent from 'ol/events/Event'
 
 /**
  * OMap 图层基类
@@ -114,23 +115,24 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayer
         // 图层属性变化事件，用于监听图层属性变化
         this._layer.on([
             "propertychange"
-        ], (e: any) => {
+        ], (e: BaseEvent | Event) => {
+            const key = 'key' in e && typeof e.key === 'string' ? e.key : undefined
             // 8个基础属性
-            if (e.key === 'opacity') {
+            if (key === 'opacity') {
                 this.opacity = this.getOpacity() as number
-            } else if (e.key === 'visible') {
+            } else if (key === 'visible') {
                 this.visible = this.getVisible() as boolean
-            } else if (e.key === 'extent') {
+            } else if (key === 'extent') {
                 this.extent = this.getExtent() as Extent
-            } else if (e.key === 'minZoom') {
+            } else if (key === 'minZoom') {
                 this.minZoom = this.getMinZoom() as number
-            } else if (e.key === 'maxZoom') {
+            } else if (key === 'maxZoom') {
                 this.maxZoom = this.getMaxZoom() as number
-            } else if (e.key === 'minResolution') {
+            } else if (key === 'minResolution') {
                 this.minResolution = this.getMinResolution() as number
-            } else if (e.key === 'maxResolution') {
+            } else if (key === 'maxResolution') {
                 this.maxResolution = this.getMaxResolution() as number
-            } else if (e.key === 'zIndex') {
+            } else if (key === 'zIndex') {
                 this.zIndex = this.getZIndex() as number
             }
         })

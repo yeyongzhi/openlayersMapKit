@@ -5,6 +5,9 @@ import { type OMapProjectionType } from '../../core/Projection/type'
 import type { BaseLayerCommonParamsType, BaseLayerOptionsType } from '../BaseLayer/type'
 import { type OMapTileSourceTileGrid } from '../../source/TileSource/type'
 
+type OlTileWMSOptions = NonNullable<ConstructorParameters<typeof OlSource.TileWMS>[0]>
+export type OMapWMSParams = Record<string, unknown>
+
 export type OMapWMSLayerParamsType = BaseLayerOptionsType & {
     preload: number;
     cacheSize: number;
@@ -21,15 +24,15 @@ export type OMapWMSLayerSourceParamsType = {
     attributionsCollapsible: boolean;
     crossOrigin?: string | null;
     interpolate: boolean;
-    params: Record<string, any>;
+    params: OMapWMSParams;
     gutter: number;
     hidpi: boolean;
     projection: OMapProjectionType;
     reprojectionErrorThreshold: number;
-    tileClass?: any; // TODO
+    tileClass?: OlTileWMSOptions['tileClass'];
     tileGrid?: OMapTileSourceTileGrid;
     serverType?: OMapWMSLayerServerTypeEnum;
-    tileLoadFunction?: (imageTile: any, src?: string) => void; // TODO
+    tileLoadFunction?: OlTileWMSOptions['tileLoadFunction'];
     url?: string;
     urls?: string[];
     wrapX: boolean;

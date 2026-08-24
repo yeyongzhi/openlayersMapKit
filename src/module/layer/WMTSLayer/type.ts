@@ -9,6 +9,8 @@ import { type OlSizeType } from '../../basic/Size/type'
 import { type OMapProjectionType } from '../../core/Projection/type'
 import type { BaseLayerCommonParamsType, BaseLayerOptionsType } from '../BaseLayer/type'
 
+type OlWMTSOptions = ConstructorParameters<typeof OlSource.WMTS>[0]
+
 export type OMapWMTSLayerParamsType = BaseLayerOptionsType & {
     preload: number;
     cacheSize: number;
@@ -41,14 +43,14 @@ export type OMapWMTSLayerSourceParamsType = {
     requestEncoding: OMapWMTSLayerRequestEncodingEnum;
     layer: string;
     style: string;
-    tileClass?: any; // TODO
+    tileClass?: OlWMTSOptions['tileClass'];
     tilePixelRatio: number;
     format: string;
     version: string;
     matrixSet: string;
     dimensions?: Record<string, string>;
     url?: string;
-    tileLoadFunction?: (imageTile: any, src?: string) => void; // TODO
+    tileLoadFunction?: OlWMTSOptions['tileLoadFunction'];
     urls?: string[];
     wrapX: boolean;
     transition: number;

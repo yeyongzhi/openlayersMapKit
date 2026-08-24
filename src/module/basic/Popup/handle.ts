@@ -2,6 +2,10 @@ import Popup from './index'
 import Lnglat from '../../basic/Lnglat/index'
 import Pixel from '../../basic/Pixel/index'
 import { type OMapPopupEventType } from './type'
+import type { PropertiesType } from '../../../utils/type'
+import type { OlCoordinateType } from '../Lnglat/type'
+import type { OlPixelType } from '../Pixel/type'
+import type BaseEvent from 'ol/events/Event'
 
 /**
  * 创建默认弹窗内容元素
@@ -20,12 +24,19 @@ interface OMapPopupEventTarget {
     target: Popup;
     type: OMapPopupEventType;
     key?: string;
-    oldValue?: Lnglat | string | HTMLElement | Pixel | Record<string, any>;
-    newValue?: Lnglat | string | HTMLElement | Pixel | Record<string, any>;
+    oldValue?: Lnglat | string | HTMLElement | Pixel | PropertiesType;
+    newValue?: Lnglat | string | HTMLElement | Pixel | PropertiesType;
 }
 
-export function handlePopupEvent(target: Popup, type: OMapPopupEventType, e: any) {
-    const { oldValue, key, newValue } = e
+export type PopupEventChange =
+    | BaseEvent
+    | Event
+    | { key?: string; oldValue?: unknown; newValue?: unknown }
+
+export function handlePopupEvent(target: Popup, type: OMapPopupEventType, e: PopupEventChange) {
+    const key = 'key' in e && typeof e.key === 'string' ? e.key : undefined
+    const oldValue = 'oldValue' in e ? e.oldValue : undefined
+    const newValue = 'newValue' in e ? e.newValue : undefined
     let result: OMapPopupEventTarget = {
         target,
         type,
@@ -33,25 +44,25 @@ export function handlePopupEvent(target: Popup, type: OMapPopupEventType, e: any
     }
     switch (type) {
         case "change:position":
-            result.oldValue = new Lnglat(oldValue[0], oldValue[1])
+            result.oldValue = new Lnglat(oldValue as OlCoordinateType)
             result.newValue = target.getPosition()
             break;
         case "change:positioning":
-            result.oldValue = oldValue
+            result.oldValue = oldValue as string
             result.newValue = target.getPositioning()
             break;
         case "change:element":
-            result.oldValue = oldValue
+            result.oldValue = oldValue as HTMLElement
             result.newValue = target.getElement()
             break;
         case "change:offset":
-            result.oldValue = new Pixel(oldValue[0], oldValue[1])
+            result.oldValue = new Pixel(oldValue as OlPixelType)
             result.newValue = target.getOffset()
             break;
         case "change:properties":
         case "change:content":
-            result.oldValue = oldValue
-            result.newValue = newValue
+            result.oldValue = oldValue as string | PropertiesType
+            result.newValue = newValue as string | PropertiesType
             break;
     }
     return result

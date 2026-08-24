@@ -20,6 +20,7 @@ import {
   isOMapInteractionDragZoomEventType,
 } from "./type";
 import { handleInteractionDragZoomEvent } from "./handle";
+import type { InteractionPropertyChangeEvent } from '../handle'
 import { type EventIdType } from "../../util/Event/type";
 
 const PACKAGE_NAME = "DragZoom";
@@ -64,7 +65,7 @@ export default class DragZoom extends Interaction<OMapDragZoomType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(type, handleInteractionDragZoomEvent(this, type, e));
     });
     const id = this.events.on(type, callback, unlisten);
@@ -91,7 +92,7 @@ export default class DragZoom extends Interaction<OMapDragZoomType> {
         ),
       );
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e: any) => {
+    const unlisten = OlEvent.listen(this._interaction, type, (e: InteractionPropertyChangeEvent) => {
       this.events.emit(type, handleInteractionDragZoomEvent(this, type, e));
     });
     const id = this.events.once(type, callback, unlisten);

@@ -7,6 +7,7 @@ import {
 } from "../../../../utils/message";
 import { OlExtentType, OlFeature, OlGeometry } from "../../../../source/index";
 import BasicFeature from "../BasicFeature";
+import type { PropertiesType } from '../../../../utils/type'
 import type { OlFeatureInstanceType } from "../BasicFeature/type";
 import {
   isValidLinearRingCoordinates,
@@ -35,7 +36,7 @@ export default class LinearRing extends BasicFeature<OMapLinearRingType> {
     coordinatesOrFeature:
       | OMapLinearRingGeometryCoordinatesType
       | OlFeatureInstanceType,
-    properties?: Record<string, any>,
+    properties?: PropertiesType,
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(
