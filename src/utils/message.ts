@@ -1,60 +1,55 @@
 function warn_(message: string): void {
-    console.warn("🐞OMap Warn", message);
+  console.warn('🐞OMap Warn', message)
 }
 
-function error_(message: string): never {
-    throw new Error(`⚠️OMap Error ${message}`);
+function error_(message: string, code: OMapErrorCodeType = OMapErrorCode.InvalidParameter): never {
+  throw new OMapError(`⚠️OMap Error ${message}`, code)
 }
 
 function info_(message: string): void {
-    console.info("❕️OMap Info", message);
+  console.info('❕️OMap Info', message)
 }
 
 function getPackageMessage(packageName: string) {
-    return (methodName: string, message: string) => {
-        return `📦${packageName}【${methodName}】: ${message}`
-    }
+  return (methodName: string, message: string) => {
+    return `📦${packageName}【${methodName}】: ${message}`
+  }
 }
 
 /** 校验提示 */
 
 export function paramsNotDefined(paramsName: string) {
-    return `参数${paramsName}不能为空`
+  return `参数${paramsName}不能为空`
 }
 
 export function paramsListHaveNotDefined(...paramsName: string[]) {
-    return `参数${paramsName.join('、')}均不能为空`
+  return `参数${paramsName.join('、')}均不能为空`
 }
 
 export function paramsInvaildFormat(paramsName: string, format?: string) {
-    return `参数${paramsName}格式错误` + (format ? `，正确格式为${format}` : "")
+  return `参数${paramsName}格式错误` + (format ? `，正确格式为${format}` : '')
 }
 
-export function paramsInvaildEnum(paramsName: string, enums?: string) {
-    return `参数${paramsName}不在合法枚举值内`
+export function paramsInvaildEnum(paramsName: string, _enums?: string) {
+  return `参数${paramsName}不在合法枚举值内`
 }
 
 export function paramsListInvaildFormat(...paramsName: string[]) {
-    return `参数${paramsName.join('、')}格式错误`
+  return `参数${paramsName.join('、')}格式错误`
 }
 
 export function haveInvaildDataItem(paramsName: string) {
-    return `参数${paramsName}中存在无效数据，已过滤`
+  return `参数${paramsName}中存在无效数据，已过滤`
 }
 
 const commonMessage = {
-    paramsNotDefined,
-    paramsListHaveNotDefined,
-    paramsInvaildFormat,
-    paramsInvaildEnum,
-    paramsListInvaildFormat,
-    haveInvaildDataItem
+  paramsNotDefined,
+  paramsListHaveNotDefined,
+  paramsInvaildFormat,
+  paramsInvaildEnum,
+  paramsListInvaildFormat,
+  haveInvaildDataItem
 }
 
-export { 
-    warn_,
-    info_,
-    error_,
-    getPackageMessage,
-    commonMessage
-}
+export { warn_, info_, error_, getPackageMessage, commonMessage }
+import { OMapError, OMapErrorCode, type OMapErrorCodeType } from '../error'

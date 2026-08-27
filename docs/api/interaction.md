@@ -10,4 +10,4 @@
 - MouseWheelZoom、DoubleClickZoom、KeyboardZoom
 - Extent、Link
 
-交互对象从 Map 移除后应解除监听；后续版本将统一公开 `dispose()` 生命周期协议。
+所有交互对象均实现可重复调用的 `remove()`/`dispose()`；从 Map 移除或销毁后会解除公开事件与内部 OpenLayers listener。Draw 与 Measure 的 companion layer 也由 Map 的 Interaction manager 统一管理。

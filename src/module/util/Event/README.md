@@ -1,6 +1,7 @@
 # 事件处理类
 
 ## 1. 初始化
+
 events: Event = new Event(target?: any);
 
 ```javascript
@@ -70,6 +71,7 @@ un(id: EventIdType): void {
 ```
 
 ## 3. 事件触发
+
 ```javascript
 (this.events as Event).emit(type, { ... })
 ```

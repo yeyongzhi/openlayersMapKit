@@ -35,20 +35,21 @@ const cases: Array<{
     type: 'Point',
     Ctor: Point as FeatureCtor,
     geom: () => new OlGeometry.Point([120, 30]),
-    coords: [120, 30],
+    coords: [120, 30]
   },
   {
     name: 'LineString',
     type: 'LineString',
     Ctor: LineString as FeatureCtor,
-    geom: () => new OlGeometry.LineString([
-      [120, 30],
-      [121, 31],
-    ]),
+    geom: () =>
+      new OlGeometry.LineString([
+        [120, 30],
+        [121, 31]
+      ]),
     coords: [
       [120, 30],
-      [121, 31],
-    ],
+      [121, 31]
+    ]
   },
   {
     name: 'Polygon',
@@ -60,17 +61,17 @@ const cases: Array<{
           [120, 30],
           [121, 30],
           [121, 31],
-          [120, 30],
-        ],
+          [120, 30]
+        ]
       ]),
     coords: [
       [
         [120, 30],
         [121, 30],
         [121, 31],
-        [120, 30],
-      ],
-    ],
+        [120, 30]
+      ]
+    ]
   },
   {
     name: 'MultiPoint',
@@ -79,12 +80,12 @@ const cases: Array<{
     geom: () =>
       new OlGeometry.MultiPoint([
         [120, 30],
-        [121, 31],
+        [121, 31]
       ]),
     coords: [
       [120, 30],
-      [121, 31],
-    ],
+      [121, 31]
+    ]
   },
   {
     name: 'MultiLineString',
@@ -94,15 +95,15 @@ const cases: Array<{
       new OlGeometry.MultiLineString([
         [
           [120, 30],
-          [121, 31],
-        ],
+          [121, 31]
+        ]
       ]),
     coords: [
       [
         [120, 30],
-        [121, 31],
-      ],
-    ],
+        [121, 31]
+      ]
+    ]
   },
   {
     name: 'MultiPolygon',
@@ -115,9 +116,9 @@ const cases: Array<{
             [120, 30],
             [121, 30],
             [121, 31],
-            [120, 30],
-          ],
-        ],
+            [120, 30]
+          ]
+        ]
       ]),
     coords: [
       [
@@ -125,10 +126,10 @@ const cases: Array<{
           [120, 30],
           [121, 30],
           [121, 31],
-          [120, 30],
-        ],
-      ],
-    ],
+          [120, 30]
+        ]
+      ]
+    ]
   },
   {
     name: 'LinearRing',
@@ -139,14 +140,14 @@ const cases: Array<{
         [120, 30],
         [121, 30],
         [121, 31],
-        [120, 30],
+        [120, 30]
       ]),
     coords: [
       [120, 30],
       [121, 30],
       [121, 31],
-      [120, 30],
-    ],
+      [120, 30]
+    ]
   },
   {
     name: 'Circle',
@@ -154,22 +155,21 @@ const cases: Array<{
     Ctor: Circle as FeatureCtor,
     geom: () => new OlGeometry.Circle([120, 30], 100),
     coords: [120, 30],
-    radius: 100,
-  },
+    radius: 100
+  }
 ]
 
 describe('Feature factory (批次 B 去重) 参数化矩阵', () => {
   it.each(cases)(
     '$name: 从坐标构造生成 OlFeature 且几何类型正确',
     ({ Ctor, coords, radius, type }) => {
-      const wrapper =
-        radius !== undefined ? new Ctor(coords, radius) : new Ctor(coords)
+      const wrapper = radius !== undefined ? new Ctor(coords, radius) : new Ctor(coords)
       expect(wrapper.getFeature()).toBeInstanceOf(OlFeature)
       expect(wrapper.getGeometry().getType()).toBe(type)
       if (type === 'Circle') {
         expect((wrapper as any).getRadius()).toBe(100)
       }
-    },
+    }
   )
 
   it.each(cases)(
@@ -179,7 +179,7 @@ describe('Feature factory (批次 B 去重) 参数化矩阵', () => {
       const wrapper = new Ctor(nativeFeature)
       expect(wrapper.getFeature()).toBe(nativeFeature)
       expect(wrapper.getGeometry().getType()).toBe(type)
-    },
+    }
   )
 
   it.each(cases)(
@@ -189,8 +189,8 @@ describe('Feature factory (批次 B 去重) 参数化矩阵', () => {
       const wrapper = new Ctor(nativeFeature)
       expect(createBaseFeatureByOlFeature(nativeFeature)).toBe(wrapper)
       expect(createBaseFeatureByOlFeature(nativeFeature)).toBe(
-        createBaseFeatureByOlFeature(nativeFeature),
+        createBaseFeatureByOlFeature(nativeFeature)
       )
-    },
+    }
   )
 })

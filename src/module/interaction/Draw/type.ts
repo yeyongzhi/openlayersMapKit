@@ -1,4 +1,4 @@
-import { OlSource, OlLayer, OlInteraction, OlGeometry, OlFeature } from '../../../source/index'
+import { OlInteraction, OlGeometry, OlFeature } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
 import type { DrawEvent } from 'ol/interaction/Draw'
@@ -6,7 +6,6 @@ import type { ObjectEvent } from 'ol/Object'
 import type BaseEvent from 'ol/events/Event'
 import type BasicFeature from '../../core/Feature/BasicFeature/index'
 import type Draw from './index'
-import Style from '../../basic/Style/index'
 import VectorLayer from '../../layer/VectorLayer/index'
 import type { OMapStyleLike } from '../../basic/Style/type'
 import {

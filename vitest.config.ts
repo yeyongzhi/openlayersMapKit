@@ -7,7 +7,10 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.ts'],
-      exclude: ['src/**/type.ts', 'src/**/index.ts']
+      exclude: ['src/**/type.ts', 'src/**/index.ts'],
+      thresholds: {
+        lines: 70
+      }
     }
   }
 })

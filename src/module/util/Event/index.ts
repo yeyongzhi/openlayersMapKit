@@ -3,6 +3,7 @@ import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { EventItem, EventIdType, OMapEventsKeyType } from './type'
 import { OlEvent } from '../../../source/index'
 import { getConstructorName } from './handle'
+import type { Disposable } from '../Disposable/type'
 
 const PACKAGE_NAME = 'Event'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -15,13 +16,14 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @LastUpdateDate 2026/1/7
  */
 export default class Event<
-  Events extends Record<string, readonly unknown[]> = Record<string, readonly unknown[]>
-> {
+  Events extends { [K in keyof Events]: readonly unknown[] } = Record<string, readonly unknown[]>
+> implements Disposable {
   protected instanceName: string = ''
   private localCounter = 0 // 本实例内的递增序号
-  private events = new Map<string, Array<EventItem<any>>>() // 记录事件类型和事件回调
+  private events = new Map<string, Array<EventItem<readonly unknown[]>>>() // 记录事件类型和事件回调
   private target: unknown = null
   private total: number = 0
+  private disposed = false
 
   constructor(target?: unknown) {
     this.events.clear()
@@ -38,6 +40,7 @@ export default class Event<
     callback: (...args: Events[K]) => void,
     unlisten?: OMapEventsKeyType
   ): EventIdType {
+    this.assertActive('on')
     let _typeVals = this.events.get(type as string) || []
     const id = this.generateId()
     _typeVals.push({
@@ -56,6 +59,7 @@ export default class Event<
     callback: (...args: Events[K]) => void,
     unlisten?: OMapEventsKeyType
   ): EventIdType {
+    this.assertActive('once')
     const list = this.events.get(type as string) || []
     const id = this.generateId()
     list.push({
@@ -138,11 +142,25 @@ export default class Event<
   }
 
   get<K extends keyof Events>(type: K): ReadonlyArray<EventItem<Events[K]>> {
-    return this.events.get(type as string) || []
+    return (this.events.get(type as string) || []) as Array<EventItem<Events[K]>>
   }
 
   listenerCount<K extends keyof Events>(type: K): number {
     return this.events.get(type as string)?.length || 0
+  }
+
+  dispose(): void {
+    if (this.disposed) return
+    this.off()
+    this.disposed = true
+  }
+
+  isDisposed(): boolean {
+    return this.disposed
+  }
+
+  private assertActive(methodName: string): void {
+    if (this.disposed) error_(createMessage(methodName, '事件管理器已释放'))
   }
 
   private disposeUnlisten(unlisten?: OMapEventsKeyType) {

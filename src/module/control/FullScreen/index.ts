@@ -1,18 +1,12 @@
-import { isDefined, isNumber, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import{ OlControl } from '../../../source/index'
+import { isDefined, isNumber, isString } from '../../../utils/index'
+import { OlControl } from '../../../source/index'
 import {
-    type OMapControlFullScreenOptionsType,
-    type OMapControlFullScreenType,
-    DEFAULT_FULLSCREEN_OPTIONS,
+  type OMapControlFullScreenOptionsType,
+  type OMapControlFullScreenType,
+  DEFAULT_FULLSCREEN_OPTIONS
 } from './type'
-import Event from '../../util/Event/index'
-import Map from '../../core/Map/index'
 import Control from '../Control/index'
 import { type OMapControlIdType } from '../Control/type'
-
-const PACKAGE_NAME = 'FullScreen';
-const createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
  * @class FullScreen
@@ -24,18 +18,23 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class FullScreen extends Control<OMapControlFullScreenType> {
+  constructor(options?: OMapControlFullScreenOptionsType)
+  constructor(id: OMapControlIdType, options?: OMapControlFullScreenOptionsType)
 
-    constructor(options?: OMapControlFullScreenOptionsType)
-    constructor(id: OMapControlIdType, options?: OMapControlFullScreenOptionsType)
-
-    constructor(idOrOptions?: OMapControlFullScreenOptionsType | OMapControlIdType, options?: OMapControlFullScreenOptionsType) {
-        super("FullScreen");
-        if(isDefined(idOrOptions) && (isNumber(idOrOptions) || isString(idOrOptions))) {
-            this.id = idOrOptions as OMapControlIdType
-            this._control = new OlControl.FullScreen(Object.assign({}, DEFAULT_FULLSCREEN_OPTIONS, options))
-        } else {
-            this._control = new OlControl.FullScreen(Object.assign({}, DEFAULT_FULLSCREEN_OPTIONS, idOrOptions))
-        }
+  constructor(
+    idOrOptions?: OMapControlFullScreenOptionsType | OMapControlIdType,
+    options?: OMapControlFullScreenOptionsType
+  ) {
+    super('FullScreen')
+    if (isDefined(idOrOptions) && (isNumber(idOrOptions) || isString(idOrOptions))) {
+      this.id = idOrOptions as OMapControlIdType
+      this._control = new OlControl.FullScreen(
+        Object.assign({}, DEFAULT_FULLSCREEN_OPTIONS, options)
+      )
+    } else {
+      this._control = new OlControl.FullScreen(
+        Object.assign({}, DEFAULT_FULLSCREEN_OPTIONS, idOrOptions)
+      )
     }
-
+  }
 }

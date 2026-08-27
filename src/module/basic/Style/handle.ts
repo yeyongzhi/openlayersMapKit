@@ -1,9 +1,6 @@
 import {
-  type OMapStyleType,
   type OMapFillStyleOptionsType,
   type OMapStrokeStyleOptionsType,
-  OlFillStyleInstanceType,
-  OlStrokeStyleInstanceType,
   OMapCircleStyleOptionsType,
   OMapIconStyleOptionsType,
   OMapRegularShapeStyleOptionsType,
@@ -24,7 +21,7 @@ import {
   createBaseFeatureByOlFeature,
   createBaseFeatureByOlRenderFeature
 } from '../../core/Feature/BasicFeature/handle'
-import { isDefined, isFunction, isNumber, isString } from '../../../utils/index'
+import { isDefined, isFunction, isString } from '../../../utils/index'
 import { handleGetColorValue } from '../Color/handle'
 import Size from '../../basic/Size/index'
 
@@ -149,7 +146,7 @@ export function getOlRegularShapeSingleStyle(
  */
 export const DEFAULT_STYLE = (
   feature: BaseFeature<OlGeometry.Geometry>,
-  resolution: number
+  _resolution: number
 ): undefined | Style => {
   if (!isDefined(feature)) return undefined
   if (feature.getType() === 'Point') {

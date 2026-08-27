@@ -8,7 +8,7 @@ interface MapInternals {
     setTarget: ReturnType<typeof vi.fn>
     dispose: ReturnType<typeof vi.fn>
   }
-  events: { off: ReturnType<typeof vi.fn> }
+  eventAdapter: { dispose: ReturnType<typeof vi.fn> }
   layers: unknown[]
   layerGroups: unknown[]
   interactions: unknown[]
@@ -36,7 +36,7 @@ describe('Map lifecycle', () => {
       setTarget: vi.fn(),
       dispose: vi.fn()
     }
-    internals.events = { off: vi.fn() }
+    internals.eventAdapter = { dispose: vi.fn() }
     internals.layers = []
     internals.layerGroups = []
     internals.interactions = []
@@ -48,7 +48,7 @@ describe('Map lifecycle', () => {
     map.dispose()
 
     expect(map.isDisposed()).toBe(true)
-    expect(internals.events.off).toHaveBeenCalledOnce()
+    expect(internals.eventAdapter.dispose).toHaveBeenCalledOnce()
     expect(internals._map.setTarget).toHaveBeenCalledOnce()
     expect(internals._map.setTarget).toHaveBeenCalledWith(undefined)
     expect(internals._map.dispose).toHaveBeenCalledOnce()

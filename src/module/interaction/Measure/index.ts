@@ -17,15 +17,17 @@ import { DEFAULT_STYLE } from '../../basic/Style/handle'
 import {
   DRAW_DEFAULT_PARAMS,
   MeasureEventType,
-  MeasureMode,
   type OMapInteractionMeasureEventType,
   type OMapMeasureMode,
   type OMapMeasureParamsType,
   type OMapMeasureResult,
+  type OMapMeasureEvent,
+  type OMapMeasureEventMap,
   type OMapMeasureType,
   isOMapInteractionMeasureEventType,
   isOMapMeasureMode
 } from './type'
+import Event from '../../util/Event/index'
 import {
   createCloseElement,
   createMarkerElement,
@@ -42,6 +44,7 @@ const PACKAGE_NAME = 'Measure'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 export default class Measure extends Interaction<OMapMeasureType> {
+  declare events: Event<OMapMeasureEventMap>
   mode: OMapMeasureMode
 
   result: OMapMeasureResult
@@ -163,7 +166,8 @@ export default class Measure extends Interaction<OMapMeasureType> {
       }
       this.events.emit(MeasureEventType.measureEnd, {
         target: this,
-        type: MeasureEventType.measureEnd
+        type: MeasureEventType.measureEnd,
+        result: { ...this.result }
       })
     }, 0)
   }
@@ -237,9 +241,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
     this.resultPopup.setElement(
       createResultElement('面积', formatArea(value), '单击继续，双击结束测量')
     )
-    this.resultPopup.setPosition(
-      geometry.getInteriorPoint().getCoordinates() as OlCoordinateType
-    )
+    this.resultPopup.setPosition(geometry.getInteriorPoint().getCoordinates() as OlCoordinateType)
   }
 
   protected renderDistanceMarkers(geometry: OlGeometry.LineString) {
@@ -269,9 +271,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
       element.style.alignItems = 'center'
       element.appendChild(createCloseElement(() => this.clearMeasurement()))
       this.resultPopup.setElement(element)
-      this.resultPopup.setPosition(
-        geometry.getInteriorPoint().getCoordinates() as OlCoordinateType
-      )
+      this.resultPopup.setPosition(geometry.getInteriorPoint().getCoordinates() as OlCoordinateType)
       return
     }
     if (geometry instanceof OlGeometry.LineString) {
@@ -384,12 +384,18 @@ export default class Measure extends Interaction<OMapMeasureType> {
     this.addPopup(this.resultPopup)
   }
 
-  on(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType {
+  on(
+    type: OMapInteractionMeasureEventType,
+    callback: (event: OMapMeasureEvent) => void
+  ): EventIdType {
     this.validateEvent(type, callback, 'on')
     return this.events.on(type, callback)
   }
 
-  once(type: OMapInteractionMeasureEventType, callback: () => void): EventIdType | undefined {
+  once(
+    type: OMapInteractionMeasureEventType,
+    callback: (event: OMapMeasureEvent) => void
+  ): EventIdType | undefined {
     this.validateEvent(type, callback, 'once')
     return this.events.once(type, callback)
   }
@@ -403,7 +409,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
 
   protected validateEvent(
     type: OMapInteractionMeasureEventType,
-    callback: () => void,
+    callback: (event: OMapMeasureEvent) => void,
     methodName: string
   ) {
     if (!isDefined(type) || !isDefined(callback)) {

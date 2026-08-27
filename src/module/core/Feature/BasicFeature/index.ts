@@ -1,16 +1,15 @@
-import { OlFeature, OlGeometry } from '../../../../source/index'
+import { OlFeature } from '../../../../source/index'
 import { isDefined, isNumber, isObject, isString } from '../../../../utils/index'
-import { warn_, error_, getPackageMessage, commonMessage } from '../../../../utils/message'
+import { error_, getPackageMessage, commonMessage } from '../../../../utils/message'
 import type BaseEvent from 'ol/events/Event'
 import type {
   OlFeatureInstanceType,
   OMapBasicFeatureType,
   OlGeometryType,
-  OlGeomInstanceType,
   OMapBasicFeatureCoordinatesType
 } from './type'
 import Extent from '../../../basic/Extent/index'
-import { type OlStyleInstanceType, type OMapStyleLike } from '../../../basic/Style/type'
+import { type OMapStyleLike } from '../../../basic/Style/type'
 import { handleGetStyleValue } from '../../../basic/Style/handle'
 import type { PropertiesType } from '../../../../utils/type'
 import { registerFeature } from './registry'

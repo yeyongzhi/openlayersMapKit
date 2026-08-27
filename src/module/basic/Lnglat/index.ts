@@ -1,22 +1,10 @@
-import {
-  isDefined,
-  isNumber,
-  defaultValue,
-  isCoordinatesType,
-  isArray,
-  isAllNumberArray,
-} from "../../../utils/index";
-import {
-  warn_,
-  error_,
-  getPackageMessage,
-  commonMessage,
-} from "../../../utils/message";
-import { handleGetLnglatValue } from "./handle";
-import { type OlCoordinateType, type OMapCoordinateType } from "./type";
+import { isDefined, isNumber, defaultValue, isAllNumberArray } from '../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import { handleGetLnglatValue } from './handle'
+import { type OlCoordinateType, type OMapCoordinateType } from './type'
 
-const PACKAGE_NAME = "Lnglat";
-const createMessage = getPackageMessage(PACKAGE_NAME);
+const PACKAGE_NAME = 'Lnglat'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * @class Lnglat
@@ -29,7 +17,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 export default class Lnglat {
   static from(value: OMapCoordinateType): Lnglat {
-    return value instanceof Lnglat ? value.clone() : new Lnglat(value);
+    return value instanceof Lnglat ? value.clone() : new Lnglat(value)
   }
 
   /**
@@ -38,48 +26,33 @@ export default class Lnglat {
    * @example [119.26, 28.73]
    * @private
    */
-  _lnglat: OlCoordinateType = [0, 0];
+  _lnglat: OlCoordinateType = [0, 0]
 
-  constructor(lng: number, lat: number);
-  constructor(lnglat: number[]);
+  constructor(lng: number, lat: number)
+  constructor(lnglat: number[])
 
   constructor(...args: [number, number] | [number[]]) {
-    let value: OlCoordinateType = [0, 0];
+    let value: OlCoordinateType = [0, 0]
 
     if (args.length === 2) {
-      const [x, y] = args;
+      const [x, y] = args
       if (isNumber(x) && isNumber(y)) {
-        value = [x, y];
+        value = [x, y]
       } else {
-        error_(
-          createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat("lnglat"),
-          ),
-        );
+        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('lnglat')))
       }
     } else if (args.length === 1) {
-      const [arr] = args;
+      const [arr] = args
       if (Array.isArray(arr) && arr.length >= 2 && isAllNumberArray(arr)) {
         // 只取前两个
-        value = [arr[0], arr[1]];
+        value = [arr[0], arr[1]]
       } else {
-        error_(
-          createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat("lnglat"),
-          ),
-        );
+        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('lnglat')))
       }
     } else {
-      error_(
-        createMessage(
-          "constructor",
-          commonMessage.paramsInvaildFormat("lnglat"),
-        ),
-      );
+      error_(createMessage('constructor', commonMessage.paramsInvaildFormat('lnglat')))
     }
-    this._lnglat = value;
+    this._lnglat = value
   }
 
   /**
@@ -88,12 +61,12 @@ export default class Lnglat {
    */
   setLng(lng: number) {
     if (!isDefined(lng)) {
-      error_(createMessage("setLng", commonMessage.paramsNotDefined("lng")));
+      error_(createMessage('setLng', commonMessage.paramsNotDefined('lng')))
     }
     if (!isNumber(lng)) {
-      error_(createMessage("setLng", commonMessage.paramsInvaildFormat("lng")));
+      error_(createMessage('setLng', commonMessage.paramsInvaildFormat('lng')))
     }
-    this._lnglat[0] = lng;
+    this._lnglat[0] = lng
   }
 
   /**
@@ -102,12 +75,12 @@ export default class Lnglat {
    */
   setLat(lat: number) {
     if (!isDefined(lat)) {
-      error_(createMessage("setLat", commonMessage.paramsNotDefined("lat")));
+      error_(createMessage('setLat', commonMessage.paramsNotDefined('lat')))
     }
     if (!isNumber(lat)) {
-      error_(createMessage("setLat", commonMessage.paramsInvaildFormat("lat")));
+      error_(createMessage('setLat', commonMessage.paramsInvaildFormat('lat')))
     }
-    this._lnglat[1] = lat;
+    this._lnglat[1] = lat
   }
 
   /**
@@ -115,7 +88,7 @@ export default class Lnglat {
    * @returns {number} 经度
    */
   getLng(): number {
-    return this._lnglat[0];
+    return this._lnglat[0]
   }
 
   /**
@@ -123,7 +96,7 @@ export default class Lnglat {
    * @returns {number} 纬度
    */
   getLat(): number {
-    return this._lnglat[1];
+    return this._lnglat[1]
   }
 
   /**
@@ -133,12 +106,10 @@ export default class Lnglat {
    */
   equals(lnglat: OMapCoordinateType): boolean {
     if (!isDefined(lnglat)) {
-      error_(createMessage("equals", commonMessage.paramsNotDefined("lnglat")));
+      error_(createMessage('equals', commonMessage.paramsNotDefined('lnglat')))
     }
-    const otherLnglat = handleGetLnglatValue(lnglat);
-    return (
-      this._lnglat[0] === otherLnglat[0] && this._lnglat[1] === otherLnglat[1]
-    );
+    const otherLnglat = handleGetLnglatValue(lnglat)
+    return this._lnglat[0] === otherLnglat[0] && this._lnglat[1] === otherLnglat[1]
   }
 
   /**
@@ -146,11 +117,11 @@ export default class Lnglat {
    * @returns {OlCoordinateType} 经纬度数组
    */
   toArray(): OlCoordinateType {
-    return [...this._lnglat] as OlCoordinateType;
+    return [...this._lnglat] as OlCoordinateType
   }
 
   clone(): Lnglat {
-    return new Lnglat(this._lnglat);
+    return new Lnglat(this._lnglat)
   }
 
   /**
@@ -159,8 +130,8 @@ export default class Lnglat {
    * @returns {string} 经纬度字符串
    */
   toString(place?: number): string {
-    let _place = defaultValue(place, 3);
-    return `[${this._lnglat[0]?.toFixed(_place)}, ${this._lnglat[1]?.toFixed(_place)}]`;
+    let _place = defaultValue(place, 3)
+    return `[${this._lnglat[0]?.toFixed(_place)}, ${this._lnglat[1]?.toFixed(_place)}]`
   }
 }
 

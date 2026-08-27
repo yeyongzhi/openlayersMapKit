@@ -1,24 +1,24 @@
 Source
 ├── ImageSource
-│   ├── ImageStatic
-│   ├── ImageWMS
-│   ├── ImageArcGISRest
-│   └── ...
+│ ├── ImageStatic
+│ ├── ImageWMS
+│ ├── ImageArcGISRest
+│ └── ...
 ├── VectorSource
 ├── RasterSource
 └── TileSource
-    ├── DataTileSource                 # 数据瓦片
-    │   └── ImageTileSource            # 新图片瓦片方案
-    │       └── TileDebugSource
-    ├── UTFGridSource                  # TileJSON 交互数据
-    ├── VectorTileSource               # 常用矢量瓦片
-    │   └── OGCVectorTileSource
-    ├── XYZSource                      # 常用业务封装，当前底层仍使用 ol/source/XYZ
-    ├── TileWMSSource                  # 常用业务封装，当前底层仍使用 ol/source/TileWMS
-    ├── WMTSSource                     # 常用业务封装，当前底层仍使用 ol/source/WMTS
-    └── legacy
-        ├── UrlTileSource              # Deprecated，仅兼容
-        └── TileImageSource            # Deprecated，仅兼容
+├── DataTileSource # 数据瓦片
+│ └── ImageTileSource # 新图片瓦片方案
+│ └── TileDebugSource
+├── UTFGridSource # TileJSON 交互数据
+├── VectorTileSource # 常用矢量瓦片
+│ └── OGCVectorTileSource
+├── XYZSource # 常用业务封装，当前底层仍使用 ol/source/XYZ
+├── TileWMSSource # 常用业务封装，当前底层仍使用 ol/source/TileWMS
+├── WMTSSource # 常用业务封装，当前底层仍使用 ol/source/WMTS
+└── legacy
+├── UrlTileSource # Deprecated，仅兼容
+└── TileImageSource # Deprecated，仅兼容
 
 设计约定：
 

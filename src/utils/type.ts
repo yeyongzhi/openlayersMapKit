@@ -1,13 +1,12 @@
 import Extent from '../module/basic/Extent/index'
 import Lnglat from '../module/basic/Lnglat/index'
 import Projection from '../module/core/Projection/index'
-import OlPackage, { OlLayer, OlSource } from '../source/index'
-import { OlProjInstanceType } from './olType/projection'
+import OlPackage from '../source/index'
 
 export type IdType = number | string | null
 
 /** 工具类 */
-export type ManualOmit<T, K extends keyof any> = {
+export type ManualOmit<T, K extends PropertyKey> = {
   [P in keyof T as P extends K ? never : P]: T[P]
 }
 
@@ -44,14 +43,14 @@ type OlMapOptionsTypeKeysToOmit =
 export type OlMapOptionsOmitType = ManualOmit<OlMapOptionsType, OlMapOptionsTypeKeysToOmit> // 可行
 
 // 测试使用
-// export type azsx<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+// export type azsx<T, K extends PropertyKey> = Pick<T, Exclude<keyof T, K>>;
 // export type OlMapOptionsOmitType2 = Omit<OlMapOptionsType, OlMapOptionsTypeKeysToOmit>;
 // export type OlMapOptionsOmitType3 = azsx<OlMapOptionsType, 'layers'>;
 
 export type CustomerOlMapOptionsType = {
-  layers: Array<any>
-  controls: Array<any>
-  interactions: Array<any> // 地图的默认交互列表
+  layers: unknown[]
+  controls: unknown[]
+  interactions: unknown[] // 地图的默认交互列表
   overlays: Array<string>
   view: OlViewOptionsFinalType
 }

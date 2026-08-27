@@ -1,4 +1,5 @@
 # Source
+
 https://openlayers.org/en/latest/apidoc/module-ol_source_Source-Source.html
 
 `Source` 是所有 OMap Source 的基类，对应 OpenLayers 的 `ol/source/Source`。
@@ -12,9 +13,9 @@ https://openlayers.org/en/latest/apidoc/module-ol_source_Source-Source.html
 
 ```ts
 export default class ImageSource extends Source<OMapImageSourceType> {
-    constructor(params: OMapImageSourceParamsType = {}) {
-        super(new OlSource.Image(handleGetSourceParams(params)))
-    }
+  constructor(params: OMapImageSourceParamsType = {}) {
+    super(new OlSource.Image(handleGetSourceParams(params)))
+  }
 }
 ```
 

@@ -9,7 +9,7 @@ export type OMapMultiPolygonType = OlGeometry.MultiPolygon
 export type OlMultiPolygonGeomInstanceType = InstanceType<typeof OlGeometry.MultiPolygon>
 
 export function isValidMultiPolygonCoordinates(
-  value: unknown,
+  value: unknown
 ): value is OMapMultiPolygonGeometryCoordinatesType {
-  return isArray(value) && value.every((item) => isValidPolygonCoordinates(item));
+  return isArray(value) && value.every((item) => isValidPolygonCoordinates(item))
 }

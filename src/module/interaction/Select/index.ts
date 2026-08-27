@@ -296,7 +296,10 @@ export default class Select extends Interaction<OMapSelectType> {
   on(type: OMapInteractionSelectEventType, callback: (e: OMapSelectEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'on')
     const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(type, handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType))
+      this.events.emit(
+        type,
+        handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType)
+      )
     })
     const id = this.events.on(type, callback, unlisten)
     return id
@@ -305,7 +308,10 @@ export default class Select extends Interaction<OMapSelectType> {
   once(type: OMapInteractionSelectEventType, callback: (e: OMapSelectEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'once')
     const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(type, handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType))
+      this.events.emit(
+        type,
+        handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType)
+      )
     })
     const id = this.events.once(type, callback, unlisten)
     return id

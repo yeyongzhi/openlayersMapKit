@@ -29,7 +29,7 @@ describe('normalizeCoordinates (批次 B 坐标归一化抽取)', () => {
 
     expect(normalized).toEqual([
       [120, 30],
-      [121, 31],
+      [121, 31]
     ])
     expect(normalized).not.toBe(input)
     // 叶子节点不应是 Lnglat 实例
@@ -37,9 +37,7 @@ describe('normalizeCoordinates (批次 B 坐标归一化抽取)', () => {
   })
 
   it('depth 2：Polygon / MultiLineString 结构（含 Lnglat 与数组混合）', () => {
-    const input = [
-      [new Lnglat(120, 30), [121, 30], [121, 31], new Lnglat(120, 30)],
-    ]
+    const input = [[new Lnglat(120, 30), [121, 30], [121, 31], new Lnglat(120, 30)]]
     const normalized = normalizeCoordinates(input as any)
 
     expect(normalized).toEqual([
@@ -47,23 +45,14 @@ describe('normalizeCoordinates (批次 B 坐标归一化抽取)', () => {
         [120, 30],
         [121, 30],
         [121, 31],
-        [120, 30],
-      ],
+        [120, 30]
+      ]
     ])
     expect(normalized).not.toBe(input)
   })
 
   it('depth 3：MultiPolygon 结构（最深嵌套）', () => {
-    const input = [
-      [
-        [
-          new Lnglat(120, 30),
-          [121, 30],
-          [121, 31],
-          new Lnglat(120, 30),
-        ],
-      ],
-    ]
+    const input = [[[new Lnglat(120, 30), [121, 30], [121, 31], new Lnglat(120, 30)]]]
     const normalized = normalizeCoordinates(input as any)
 
     expect(normalized).toEqual([
@@ -72,24 +61,51 @@ describe('normalizeCoordinates (批次 B 坐标归一化抽取)', () => {
           [120, 30],
           [121, 30],
           [121, 31],
-          [120, 30],
-        ],
-      ],
+          [120, 30]
+        ]
+      ]
     ])
     expect(normalized).not.toBe(input)
   })
 
   it('保留嵌套层级：不会拍平或加深结构', () => {
-    const depth1 = normalizeCoordinates([[1, 2], [3, 4]] as any)
-    const depth2 = normalizeCoordinates([[[1, 2], [3, 4]]] as any)
-    const depth3 = normalizeCoordinates([[[[1, 2], [3, 4]]]] as any)
+    const depth1 = normalizeCoordinates([
+      [1, 2],
+      [3, 4]
+    ] as any)
+    const depth2 = normalizeCoordinates([
+      [
+        [1, 2],
+        [3, 4]
+      ]
+    ] as any)
+    const depth3 = normalizeCoordinates([
+      [
+        [
+          [1, 2],
+          [3, 4]
+        ]
+      ]
+    ] as any)
 
     expect(depth1).toEqual([
       [1, 2],
-      [3, 4],
+      [3, 4]
     ])
-    expect(depth2).toEqual([[[1, 2], [3, 4]]])
-    expect(depth3).toEqual([[[[1, 2], [3, 4]]]])
+    expect(depth2).toEqual([
+      [
+        [1, 2],
+        [3, 4]
+      ]
+    ])
+    expect(depth3).toEqual([
+      [
+        [
+          [1, 2],
+          [3, 4]
+        ]
+      ]
+    ])
   })
 
   it('与各 Geometry _init 行为等价：Lnglat 叶子经 toArray 解包', () => {
@@ -98,13 +114,10 @@ describe('normalizeCoordinates (批次 B 坐标归一化抽取)', () => {
     expect(pointCoords).toEqual([119, 28])
 
     // 模拟 MultiPoint 从混合输入构造
-    const multiPointCoords = normalizeCoordinates([
-      new Lnglat(119, 28),
-      [120, 30],
-    ] as any)
+    const multiPointCoords = normalizeCoordinates([new Lnglat(119, 28), [120, 30]] as any)
     expect(multiPointCoords).toEqual([
       [119, 28],
-      [120, 30],
+      [120, 30]
     ])
   })
 })

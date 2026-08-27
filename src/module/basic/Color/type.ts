@@ -5,12 +5,12 @@ export type OlColorType = string
 export type OMapColorType = string | Color
 
 export interface ColorObjectType {
-    color?: string;
-    opacity?: number;
-    alpha?: number;
-    r?: number;
-    g?: number;
-    b?: number;
+  color?: string
+  opacity?: number
+  alpha?: number
+  r?: number
+  g?: number
+  b?: number
 }
 
-export type ColorType = string | Array<number | string> | ColorObjectType;
+export type ColorType = string | Array<number | string> | ColorObjectType

@@ -13,6 +13,7 @@ import { OlEvent } from '../../../source/index'
 import type { EventsKey } from 'ol/events'
 import type { ObjectEvent } from 'ol/Object'
 import type { PropertiesType } from '../../../utils/type'
+import type { Disposable, Removable } from '../../util/Disposable/type'
 
 const PACKAGE_NAME = 'Interaction'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -27,7 +28,9 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/2/3
  */
 
-export default class Interaction<T extends OMapInteractionCommonType> {
+export default class Interaction<T extends OMapInteractionCommonType>
+  implements Disposable, Removable
+{
   /**
    * 交互实例id
    */

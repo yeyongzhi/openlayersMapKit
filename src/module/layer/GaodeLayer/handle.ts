@@ -8,6 +8,6 @@ import type { GaodeLayerTypeEnum } from './type'
  * @returns 高德地图图层的URL数组
  */
 export function getGaodeLayerUrlsByType(type: GaodeLayerTypeEnum): string[] {
-    if(!isDefined(type)) return []
-    return GaodeLayerTypeUrls[type]
+  if (!isDefined(type)) return []
+  return GaodeLayerTypeUrls[type]
 }

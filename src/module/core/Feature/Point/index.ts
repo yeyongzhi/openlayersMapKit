@@ -1,28 +1,19 @@
-import { isDefined, isObject } from "../../../../utils/index";
-import {
-  warn_,
-  error_,
-  getPackageMessage,
-  commonMessage,
-} from "../../../../utils/message";
-import { OlExtentType, OlFeature, OlGeometry } from "../../../../source/index";
-import BasicFeature from "../BasicFeature";
-import type {
-  OMapPointGeometryCoordinatesType,
-  OlPointGeomInstanceType,
-  OMapPointType,
-} from "./type";
-import type { OlFeatureInstanceType } from "../BasicFeature/type";
-import Lnglat from "../../../basic/Lnglat/index";
-import { handleGetLnglatValue, normalizeCoordinates } from "../../../basic/Lnglat/handle";
-import { isValidCoordinate } from "../../../basic/Lnglat/type";
-import Extent from "../../../basic/Extent/index";
-import { handleGetExtentValue } from "../../../basic/Extent/handle";
-import { isValidExtent } from "../../../basic/Extent/type";
+import { isDefined, isObject } from '../../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../../utils/message'
+import { OlFeature, OlGeometry } from '../../../../source/index'
+import BasicFeature from '../BasicFeature'
+import type { OMapPointGeometryCoordinatesType, OMapPointType } from './type'
+import type { OlFeatureInstanceType } from '../BasicFeature/type'
+import Lnglat from '../../../basic/Lnglat/index'
+import { handleGetLnglatValue, normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import { isValidCoordinate } from '../../../basic/Lnglat/type'
+import Extent from '../../../basic/Extent/index'
+import { handleGetExtentValue } from '../../../basic/Extent/handle'
+import { isValidExtent } from '../../../basic/Extent/type'
 import type { PropertiesType } from '../../../../utils/type'
 
-const PACKAGE_NAME = "Point";
-const createMessage = getPackageMessage(PACKAGE_NAME);
+const PACKAGE_NAME = 'Point'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * Point类
@@ -35,60 +26,46 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Point extends BasicFeature<OMapPointType> {
-  constructor(
-    args: OMapPointGeometryCoordinatesType,
-    properties?: PropertiesType,
-  );
-  constructor(args: OlFeatureInstanceType);
+  constructor(args: OMapPointGeometryCoordinatesType, properties?: PropertiesType)
+  constructor(args: OlFeatureInstanceType)
 
   constructor(
-    coordinatesOrFeature:
-      | OMapPointGeometryCoordinatesType
-      | OlFeatureInstanceType,
-    properties?: PropertiesType,
+    coordinatesOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType,
+    properties?: PropertiesType
   ) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature"),
-        ),
-      );
+      error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
     }
     if (coordinatesOrFeature instanceof OlFeature) {
-      super("Point", coordinatesOrFeature as OlFeatureInstanceType);
+      super('Point', coordinatesOrFeature as OlFeatureInstanceType)
     } else {
       if (!isValidCoordinate(coordinatesOrFeature)) {
         error_(
           createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat(
-              "coordinatesOrFeature",
-              "Lnglat or [x, y]",
-            ),
-          ),
-        );
+            'constructor',
+            commonMessage.paramsInvaildFormat('coordinatesOrFeature', 'Lnglat or [x, y]')
+          )
+        )
       }
-      super("Point", coordinatesOrFeature as OMapPointGeometryCoordinatesType);
+      super('Point', coordinatesOrFeature as OMapPointGeometryCoordinatesType)
       if (isDefined(properties) && isObject(properties)) {
-        this.setProperties(properties);
+        this.setProperties(properties)
       }
     }
   }
 
   protected _init(coordinates: OMapPointGeometryCoordinatesType) {
-    this._geometry = new OlGeometry.Point(normalizeCoordinates(coordinates));
+    this._geometry = new OlGeometry.Point(normalizeCoordinates(coordinates))
     this._feature = this._createFeature(this._geometry)
   }
-
 
   /**
    * 获取点的坐标
    * @returns {Lnglat} 点的坐标
    */
   getCoordinates(): Lnglat {
-    let coordinates = this._geometry.getCoordinates();
-    return new Lnglat(coordinates);
+    let coordinates = this._geometry.getCoordinates()
+    return new Lnglat(coordinates)
   }
 
   /**
@@ -98,23 +75,18 @@ export default class Point extends BasicFeature<OMapPointType> {
    */
   setCoordinates(coordinates: OMapPointGeometryCoordinatesType): void {
     if (!isDefined(coordinates)) {
-      error_(
-        createMessage(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates"),
-        ),
-      );
+      error_(createMessage('setCoordinates', commonMessage.paramsNotDefined('coordinates')))
     }
     if (!isValidCoordinate(coordinates)) {
       error_(
         createMessage(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates", "Lnglat or [x, y]"),
-        ),
-      );
+          'setCoordinates',
+          commonMessage.paramsInvaildFormat('coordinates', 'Lnglat or [x, y]')
+        )
+      )
     }
-    let _coordinates = handleGetLnglatValue(coordinates);
-    this._geometry.setCoordinates(_coordinates);
+    let _coordinates = handleGetLnglatValue(coordinates)
+    this._geometry.setCoordinates(_coordinates)
   }
 
   /**
@@ -122,7 +94,7 @@ export default class Point extends BasicFeature<OMapPointType> {
    * @returns {Lnglat} 点的第一个坐标
    */
   getFirstCoordinate(): Lnglat {
-    return this.getCoordinates();
+    return this.getCoordinates()
   }
 
   /**
@@ -130,7 +102,7 @@ export default class Point extends BasicFeature<OMapPointType> {
    * @returns {Lnglat} 点的最后一个坐标
    */
   getLastCoordinate(): Lnglat {
-    return this.getCoordinates();
+    return this.getCoordinates()
   }
 
   intersectsCoordinate() {}
@@ -142,25 +114,17 @@ export default class Point extends BasicFeature<OMapPointType> {
    */
   intersectsExtent(extent: Extent): boolean {
     if (!isDefined(extent)) {
-      error_(
-        createMessage(
-          "intersectsExtent",
-          commonMessage.paramsNotDefined("extent"),
-        ),
-      );
+      error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
     }
     if (!isValidExtent(extent)) {
       error_(
         createMessage(
-          "intersectsExtent",
-          commonMessage.paramsInvaildFormat(
-            "extent",
-            "Extent or [xmin, ymin, xmax, ymax]",
-          ),
-        ),
-      );
+          'intersectsExtent',
+          commonMessage.paramsInvaildFormat('extent', 'Extent or [xmin, ymin, xmax, ymax]')
+        )
+      )
     }
-    let _extent = handleGetExtentValue(extent);
-    return this._geometry.intersectsExtent(_extent);
+    let _extent = handleGetExtentValue(extent)
+    return this._geometry.intersectsExtent(_extent)
   }
 }

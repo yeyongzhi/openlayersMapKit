@@ -1,27 +1,28 @@
-import { OlSource, OlLayer, OlInteraction } from '../../../source/index'
+import { OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import type { OlAnimationOptions } from '../../../utils/olType/view'
-import { OMapInteractionCommonParamsType, OMapInteractionCommonEventTypes } from '../Interaction/type'
+import {
+  OMapInteractionCommonParamsType,
+  OMapInteractionCommonEventTypes
+} from '../Interaction/type'
 
 export type OlLinkParamsType = ConstructorParameters<typeof OlInteraction.Link>[0]
-type CustOlLinkParamsType = ManualOmit<OlLinkParamsType,
-    'animate'
->
+type CustOlLinkParamsType = ManualOmit<OlLinkParamsType, 'animate'>
 export type OMapLinkParamsType = CustOlLinkParamsType & {
-    animate?: boolean | OlAnimationOptions
+  animate?: boolean | OlAnimationOptions
 } & OMapInteractionCommonParamsType
 
 export type OMapLinkType = OlInteraction.Link
 export type OlInteractionLinkInstanceType = InstanceType<typeof OlInteraction.Link>
 
-export const OMapInteractionLinkEventTypes = [...OMapInteractionCommonEventTypes ] as const
-export type OMapInteractionLinkEventType = typeof OMapInteractionLinkEventTypes[number]
+export const OMapInteractionLinkEventTypes = [...OMapInteractionCommonEventTypes] as const
+export type OMapInteractionLinkEventType = (typeof OMapInteractionLinkEventTypes)[number]
 
 export function isOMapInteractionLinkEventType(
-    value: unknown
+  value: unknown
 ): value is OMapInteractionLinkEventType {
-    return (
-        typeof value === 'string' &&
-        OMapInteractionLinkEventTypes.includes(value as OMapInteractionLinkEventType)
-    );
+  return (
+    typeof value === 'string' &&
+    OMapInteractionLinkEventTypes.includes(value as OMapInteractionLinkEventType)
+  )
 }

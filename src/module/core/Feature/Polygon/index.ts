@@ -1,44 +1,28 @@
-import {
-  isDefined,
-  isCoordinatesType,
-  isArray,
-  isExtentType,
-  isObject,
-} from "../../../../utils/index";
-import {
-  warn_,
-  error_,
-  getPackageMessage,
-  commonMessage,
-} from "../../../../utils/message";
-import { OlFeature, OlGeometry } from "../../../../source/index";
-import BasicFeature from "../BasicFeature";
+import { isDefined, isExtentType, isObject } from '../../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../../utils/message'
+import { OlFeature, OlGeometry } from '../../../../source/index'
+import BasicFeature from '../BasicFeature'
 import type { PropertiesType } from '../../../../utils/type'
 import {
   type OMapPolygonGeometryCoordinatesType,
-  type OlPolygonGeomInstanceType,
   type OMapPolygonType,
-  isValidPolygonCoordinates,
-} from "./type";
-import type { OlFeatureInstanceType } from "../BasicFeature/type";
+  isValidPolygonCoordinates
+} from './type'
+import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import {
-  type OlLinearRingGeomInstanceType,
   type OMapLinearRingGeometryCoordinatesType,
-  isValidLinearRingCoordinates,
-} from "../LinearRing/type";
-import Point from "../Point/index";
-import LinearRing from "../LinearRing/index";
-import Lnglat from "../../../basic/Lnglat/index";
-import {
-  type OMapCoordinateType,
-} from "../../../basic/Lnglat/type";
-import { handleGetLnglatValue, normalizeCoordinates } from "../../../basic/Lnglat/handle";
-import Extent from "../../../basic/Extent/index";
-import type { OlExtentType, OMapExtentType } from "../../../basic/Extent/type";
-import { handleGetExtentValue } from "../../../basic/Extent/handle";
+  isValidLinearRingCoordinates
+} from '../LinearRing/type'
+import Point from '../Point/index'
+import LinearRing from '../LinearRing/index'
+import Lnglat from '../../../basic/Lnglat/index'
+import { type OMapCoordinateType } from '../../../basic/Lnglat/type'
+import { handleGetLnglatValue, normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import Extent from '../../../basic/Extent/index'
+import { handleGetExtentValue } from '../../../basic/Extent/handle'
 
-const PACKAGE_NAME = "Polygon";
-const createMessage = getPackageMessage(PACKAGE_NAME);
+const PACKAGE_NAME = 'Polygon'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * Polygon类
@@ -51,52 +35,35 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Polygon extends BasicFeature<OMapPolygonType> {
-  constructor(
-    args: OMapPolygonGeometryCoordinatesType,
-    properties?: PropertiesType,
-  );
-  constructor(args: OlFeatureInstanceType);
+  constructor(args: OMapPolygonGeometryCoordinatesType, properties?: PropertiesType)
+  constructor(args: OlFeatureInstanceType)
 
   constructor(
-    coordinatesOrFeature:
-      | OMapPolygonGeometryCoordinatesType
-      | OlFeatureInstanceType,
-    properties?: PropertiesType,
+    coordinatesOrFeature: OMapPolygonGeometryCoordinatesType | OlFeatureInstanceType,
+    properties?: PropertiesType
   ) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature"),
-        ),
-      );
+      error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
     }
     if (coordinatesOrFeature instanceof OlFeature) {
-      super("Polygon", coordinatesOrFeature as OlFeatureInstanceType);
+      super('Polygon', coordinatesOrFeature as OlFeatureInstanceType)
     } else {
       if (!isValidPolygonCoordinates(coordinatesOrFeature)) {
         error_(
-          createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat("coordinatesOrFeature"),
-          ),
-        );
+          createMessage('constructor', commonMessage.paramsInvaildFormat('coordinatesOrFeature'))
+        )
       }
-      super("Polygon", coordinatesOrFeature);
+      super('Polygon', coordinatesOrFeature)
       if (isDefined(properties) && isObject(properties)) {
-        this.setProperties(properties);
+        this.setProperties(properties)
       }
     }
   }
 
-  protected _init(
-    coordinates: OMapPolygonGeometryCoordinatesType,
-    radius?: number,
-  ) {
-    this._geometry = new OlGeometry.Polygon(normalizeCoordinates(coordinates));
+  protected _init(coordinates: OMapPolygonGeometryCoordinatesType, _radius?: number) {
+    this._geometry = new OlGeometry.Polygon(normalizeCoordinates(coordinates))
     this._feature = this._createFeature(this._geometry)
   }
-
 
   /**
    * 获取多边形的坐标
@@ -104,13 +71,13 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    * @returns {Array<Array<Lnglat>>} 多边形的坐标
    */
   getCoordinates(rightHanded?: boolean): Array<Array<Lnglat>> {
-    let coordinates = this._geometry.getCoordinates(rightHanded);
+    let coordinates = this._geometry.getCoordinates(rightHanded)
     let _coordinates = coordinates.map((c) => {
       return c.map((c2) => {
-        return new Lnglat(c2);
-      });
-    });
-    return _coordinates;
+        return new Lnglat(c2)
+      })
+    })
+    return _coordinates
   }
 
   /**
@@ -119,62 +86,37 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    */
   setCoordinates(coordinates: OMapPolygonGeometryCoordinatesType): void {
     if (!isDefined(coordinates)) {
-      error_(
-        createMessage(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates"),
-        ),
-      );
+      error_(createMessage('setCoordinates', commonMessage.paramsNotDefined('coordinates')))
     }
     if (!isValidPolygonCoordinates(coordinates)) {
-      error_(
-        createMessage(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates"),
-        ),
-      );
+      error_(createMessage('setCoordinates', commonMessage.paramsInvaildFormat('coordinates')))
     }
-    let _coordinates = normalizeCoordinates(coordinates);
-    this._geometry.setCoordinates(_coordinates);
+    let _coordinates = normalizeCoordinates(coordinates)
+    this._geometry.setCoordinates(_coordinates)
   }
 
   /**
    * 向Polygon中添加LinearRing（内环）
    * @param {LinearRing | OMapLinearRingGeometryCoordinatesType} linearRing 内环
    */
-  appendLinearRing(
-    linearRingParams: LinearRing | OMapLinearRingGeometryCoordinatesType,
-  ) {
+  appendLinearRing(linearRingParams: LinearRing | OMapLinearRingGeometryCoordinatesType) {
     if (!isDefined(linearRingParams)) {
-      error_(
-        createMessage(
-          "appendLinearRing",
-          commonMessage.paramsNotDefined("linearRingParams"),
-        ),
-      );
+      error_(createMessage('appendLinearRing', commonMessage.paramsNotDefined('linearRingParams')))
     }
-    if (
-      !(
-        linearRingParams instanceof LinearRing &&
-        isValidLinearRingCoordinates(linearRingParams)
-      )
-    ) {
+    if (!(
+      linearRingParams instanceof LinearRing && isValidLinearRingCoordinates(linearRingParams)
+    )) {
       error_(
-        createMessage(
-          "appendLinearRing",
-          commonMessage.paramsInvaildFormat("linearRingParams"),
-        ),
-      );
+        createMessage('appendLinearRing', commonMessage.paramsInvaildFormat('linearRingParams'))
+      )
     }
     if (linearRingParams instanceof LinearRing) {
-      this._geometry.appendLinearRing(linearRingParams.getGeometry());
+      this._geometry.appendLinearRing(linearRingParams.getGeometry())
     } else {
       const coordinates = (linearRingParams as OMapLinearRingGeometryCoordinatesType).map((l) => {
-        return handleGetLnglatValue(l);
-      });
-      this._geometry.appendLinearRing(
-        new LinearRing(coordinates).getGeometry(),
-      );
+        return handleGetLnglatValue(l)
+      })
+      this._geometry.appendLinearRing(new LinearRing(coordinates).getGeometry())
     }
   }
 
@@ -183,8 +125,8 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    * @returns {Lnglat} 多边形的第一个坐标
    */
   getFirstCoordinate(): Lnglat {
-    let coordinates = this._geometry.getFirstCoordinate();
-    return new Lnglat(coordinates);
+    let coordinates = this._geometry.getFirstCoordinate()
+    return new Lnglat(coordinates)
   }
 
   /**
@@ -192,8 +134,8 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    * @returns {Lnglat} 多边形的最后一个坐标
    */
   getLastCoordinate(): Lnglat {
-    let coordinates = this._geometry.getLastCoordinate();
-    return new Lnglat(coordinates);
+    let coordinates = this._geometry.getLastCoordinate()
+    return new Lnglat(coordinates)
   }
 
   /**
@@ -201,8 +143,8 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    * @returns {Extent} 多边形的范围
    */
   getExtent(): Extent {
-    let extent = this._geometry.getExtent();
-    return new Extent(extent);
+    let extent = this._geometry.getExtent()
+    return new Extent(extent)
   }
 
   /**
@@ -210,7 +152,7 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    * @returns {number} 投影平面上多边形的面积
    */
   getArea(): number {
-    return this._geometry.getArea();
+    return this._geometry.getArea()
   }
 
   /**
@@ -219,15 +161,12 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    * @param {OMapCoordinateType} closestPoint 最近点
    * @returns {Lnglat} 最近点
    */
-  getClosestPoint(
-    point: OMapCoordinateType,
-    closestPoint?: OMapCoordinateType,
-  ): Lnglat {
-    let coordinates = handleGetLnglatValue(point);
-    let result = this._geometry.getClosestPoint(coordinates);
-    let _result = new Lnglat(result);
-    closestPoint = _result;
-    return _result;
+  getClosestPoint(point: OMapCoordinateType, _closestPoint?: OMapCoordinateType): Lnglat {
+    let coordinates = handleGetLnglatValue(point)
+    let result = this._geometry.getClosestPoint(coordinates)
+    let _result = new Lnglat(result)
+    _closestPoint = _result
+    return _result
   }
 
   /**
@@ -235,8 +174,8 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    * @returns {Point} 多边形的内点
    */
   getInteriorPoint(): Point {
-    let result = this._geometry.getInteriorPoint().getCoordinates();
-    return new Point(result as OMapCoordinateType);
+    let result = this._geometry.getInteriorPoint().getCoordinates()
+    return new Point(result as OMapCoordinateType)
   }
 
   /**
@@ -246,15 +185,10 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    */
   intersectsCoordinate(coordinates: OMapCoordinateType): boolean {
     if (!isDefined(coordinates)) {
-      error_(
-        createMessage(
-          "intersectsCoordinate",
-          commonMessage.paramsNotDefined("coordinates"),
-        ),
-      );
+      error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
     }
-    let _coordinates = handleGetLnglatValue(coordinates);
-    return this._geometry.intersectsCoordinate(_coordinates);
+    let _coordinates = handleGetLnglatValue(coordinates)
+    return this._geometry.intersectsCoordinate(_coordinates)
   }
 
   /**
@@ -264,32 +198,22 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
    */
   intersectsExtent(extent: Extent): boolean {
     if (!isDefined(extent)) {
-      error_(
-        createMessage(
-          "intersectsExtent",
-          commonMessage.paramsNotDefined("extent"),
-        ),
-      );
+      error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
     }
     if (!(extent instanceof Extent) && !isExtentType(extent)) {
-      error_(
-        createMessage(
-          "intersectsExtent",
-          commonMessage.paramsInvaildFormat("extent"),
-        ),
-      );
+      error_(createMessage('intersectsExtent', commonMessage.paramsInvaildFormat('extent')))
     }
-    let _extent = handleGetExtentValue(extent);
-    return this._geometry.intersectsExtent(_extent);
+    let _extent = handleGetExtentValue(extent)
+    return this._geometry.intersectsExtent(_extent)
   }
 
   simplify(tolerance: number = 0) {
-    this._geometry.simplify(tolerance);
+    this._geometry.simplify(tolerance)
   }
 
   transform() {}
 
   translate(deltaX: number = 0, deltaY: number = 0): void {
-    this._geometry.translate(deltaX, deltaY);
+    this._geometry.translate(deltaX, deltaY)
   }
 }

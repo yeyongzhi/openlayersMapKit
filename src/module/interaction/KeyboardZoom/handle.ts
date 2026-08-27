@@ -1,11 +1,11 @@
-import KeyboardZoom from './index';
-import { type OMapInteractionKeyboardZoomEventType } from './type';
+import KeyboardZoom from './index'
+import { type OMapInteractionKeyboardZoomEventType } from './type'
 import { handleInteractionActiveChangeEvent, type InteractionPropertyChangeEvent } from '../handle'
 
 export function handleInteractionKeyboardZoomEvent(
-    target: KeyboardZoom,
-    type: OMapInteractionKeyboardZoomEventType,
-    e: InteractionPropertyChangeEvent
+  target: KeyboardZoom,
+  type: OMapInteractionKeyboardZoomEventType,
+  e: InteractionPropertyChangeEvent
 ) {
-    return handleInteractionActiveChangeEvent(target, type, e)
+  return handleInteractionActiveChangeEvent(target, type, e)
 }

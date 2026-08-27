@@ -8,11 +8,10 @@ import {
   isCoordinatesType,
   isExtentType
 } from '../../../utils/index'
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { warn_, getPackageMessage } from '../../../utils/index'
 import {
   type OMapVectorLayerOptionsFinalType,
   type OMapVectorSourceOptionsFinalType,
-  type OlVectorLayerInstanceType,
   type OlVectorSourceInstanceType,
   type OMapVectorLayerType
 } from './type'

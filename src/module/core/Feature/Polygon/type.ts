@@ -12,7 +12,7 @@ export type OlPolygonGeomInstanceType = InstanceType<typeof OlGeometry.Polygon>
  * 类型谓词：判断是否为有效坐标（支持 [x, y] 或 Lnglat 实例）
  */
 export function isValidPolygonCoordinates(
-  value: unknown,
+  value: unknown
 ): value is OMapPolygonGeometryCoordinatesType {
-  return isArray(value) && value.every((item) => isValidLineStringCoordinates(item));
+  return isArray(value) && value.every((item) => isValidLineStringCoordinates(item))
 }

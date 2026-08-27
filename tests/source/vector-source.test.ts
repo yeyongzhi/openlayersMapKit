@@ -1,6 +1,6 @@
 import Feature from 'ol/Feature'
 import OlPoint from 'ol/geom/Point'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { Point, VectorSource } from '../../src/index'
 
 describe('VectorSource', () => {
@@ -72,5 +72,16 @@ describe('VectorSource', () => {
     expect(source.getFeatures()[0]).toBe(point)
     expect(() => source.addFeatures(null as never)).toThrow(/features必须是Feature数组/)
     expect(() => source.removeFeatures(undefined as never)).toThrow(/features必须是Feature数组/)
+  })
+
+  it('disposes the native source idempotently through the common lifecycle contract', () => {
+    const source = new VectorSource()
+    const disposeNative = vi.spyOn(source.getSource(), 'dispose')
+
+    source.dispose()
+    source.dispose()
+
+    expect(source.isDisposed()).toBe(true)
+    expect(disposeNative).toHaveBeenCalledOnce()
   })
 })

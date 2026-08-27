@@ -2,8 +2,8 @@ import { OlLayer } from '../../source/index'
 import Color from '../../module/basic/Color/index'
 import Extent from '../../module/basic/Extent/index'
 import Map from '../../module/core/Map/index'
-import { ManualOmit } from '../type'
 import type { XYZSourceOptionsFinalType } from './source'
+import type { PropertiesType } from '../type'
 
 export type OlTileLayerInstanceType = InstanceType<typeof OlLayer.Tile>
 export type OlVectorLayerInstanceType = InstanceType<typeof OlLayer.Vector>
@@ -34,7 +34,7 @@ export type BaseLayerOptionsType = {
   minZoom?: number
   maxZoom?: number
   background?: Color | undefined
-  properties?: Record<string, any>
+  properties?: PropertiesType
 }
 
 export type BaseLayerEventType = {

@@ -14,14 +14,14 @@ OMap 是对 OpenLayers (v10.x) 的面向对象封装，将原生 OpenLayers 功�
 
 ### 技术栈
 
-| 项目 | 说明 |
-|------|------|
-| **语言** | TypeScript (ESNext) |
-| **基础依赖** | OpenLayers 10.6.1 |
+| 项目         | 说明                     |
+| ------------ | ------------------------ |
+| **语言**     | TypeScript (ESNext)      |
+| **基础依赖** | OpenLayers 10.6.1        |
 | **构建工具** | Vite 6.3.5 (Rollup 底层) |
-| **输出格式** | UMD + ES Module |
-| **包管理器** | pnpm |
-| **npm 包名** | `omap` |
+| **输出格式** | UMD + ES Module          |
+| **包管理器** | pnpm                     |
+| **npm 包名** | `omap`                   |
 
 ---
 
@@ -77,15 +77,15 @@ module/
 
 ### 模块总览
 
-| 模块 | 路径 | 核心职责 |
-|------|------|----------|
-| **core** | `module/core/` | 核心类：Map、Projection、Feature 系列（Point/LineString/Polygon 等几何要素） |
-| **layer** | `module/layer/` | 图层类：BaseLayer 基类及其派生（Vector/Tile/XYZ/WMTS/WMS/Image/Gaode/Tdt + LayerGroup） |
-| **interaction** | `module/interaction/` | 交互类：Draw、Modify、Measure、Select、DragBox、DragPan、DragZoom、MouseWheelZoom 等 |
-| **control** | `module/control/` | 控件类：Control 基类、Zoom、FullScreen |
-| **source** | `module/source/` | 数据源类：Source、TileSource、XYZ、VectorSource、DataTileSource、ImageTile、TileGrid |
-| **basic** | `module/basic/` | 基础类：Lnglat（坐标）、Extent（范围）、Pixel、Size、Color、Style、Popup |
-| **util** | `module/util/` | 工具类：ProjUtil（投影转换）、Format（GeoJSON/WKT/KML 格式转换）、Event（事件系统）、MapToken（天地图 Token） |
+| 模块            | 路径                  | 核心职责                                                                                                      |
+| --------------- | --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **core**        | `module/core/`        | 核心类：Map、Projection、Feature 系列（Point/LineString/Polygon 等几何要素）                                  |
+| **layer**       | `module/layer/`       | 图层类：BaseLayer 基类及其派生（Vector/Tile/XYZ/WMTS/WMS/Image/Gaode/Tdt + LayerGroup）                       |
+| **interaction** | `module/interaction/` | 交互类：Draw、Modify、Measure、Select、DragBox、DragPan、DragZoom、MouseWheelZoom 等                          |
+| **control**     | `module/control/`     | 控件类：Control 基类、Zoom、FullScreen                                                                        |
+| **source**      | `module/source/`      | 数据源类：Source、TileSource、XYZ、VectorSource、DataTileSource、ImageTile、TileGrid                          |
+| **basic**       | `module/basic/`       | 基础类：Lnglat（坐标）、Extent（范围）、Pixel、Size、Color、Style、Popup                                      |
+| **util**        | `module/util/`        | 工具类：ProjUtil（投影转换）、Format（GeoJSON/WKT/KML 格式转换）、Event（事件系统）、MapToken（天地图 Token） |
 
 ### 依赖层次
 
@@ -181,24 +181,24 @@ Interaction<T> (基类：active、事件、图层绑定)
 
 [src/module/basic/](src/module/basic/) — 几何相关的值对象。
 
-| 类 | 说明 |
-|-----|------|
+| 类       | 说明                                   |
+| -------- | -------------------------------------- |
 | `Lnglat` | 经纬度坐标包装，支持 `[lng, lat]` 格式 |
-| `Extent` | 范围包装，`[minX, minY, maxX, maxY]` |
-| `Pixel` | 像素坐标 `[x, y]` |
-| `Size` | 尺寸 `[width, height]` |
-| `Color` | 颜色工具（预设色板） |
-| `Style` | 样式封装（对应 OL Style） |
-| `Popup` | 弹窗封装（对应 OL Overlay） |
+| `Extent` | 范围包装，`[minX, minY, maxX, maxY]`   |
+| `Pixel`  | 像素坐标 `[x, y]`                      |
+| `Size`   | 尺寸 `[width, height]`                 |
+| `Color`  | 颜色工具（预设色板）                   |
+| `Style`  | 样式封装（对应 OL Style）              |
+| `Popup`  | 弹窗封装（对应 OL Overlay）            |
 
 ### 6. Util（工具体系）
 
-| 类 | 说明 |
-|-----|------|
-| `Format` | 数据格式转换（GeoJSON / WKT / KML ↔ Feature） |
-| `ProjUtil` | 投影坐标转换（fromLonLat / toLonLat） |
-| `Event` | 全局事件系统（on / once / emit / remove） |
-| `MapToken` | 天地图 Token 管理 |
+| 类         | 说明                                          |
+| ---------- | --------------------------------------------- |
+| `Format`   | 数据格式转换（GeoJSON / WKT / KML ↔ Feature） |
+| `ProjUtil` | 投影坐标转换（fromLonLat / toLonLat）         |
+| `Event`    | 全局事件系统（on / once / emit / remove）     |
+| `MapToken` | 天地图 Token 管理                             |
 
 ---
 
@@ -238,7 +238,7 @@ import { Map, GaodeLayer, GaodeLayerType, Draw, DrawMode } from 'omap'
 // 1. 创建地图
 const map = new Map('map-container', {
   view: {
-    center: [116.397428, 39.90923],  // 北京
+    center: [116.397428, 39.90923], // 北京
     zoom: 10
   }
 })
@@ -263,12 +263,13 @@ map.addInteraction(draw)
 
 ```
 dist/
-├── omap.es.js        # ES Module（支持 Tree Shaking）
-├── omap.umd.js       # UMD（浏览器直接引用，全局变量 OMap）
+├── omap.es.mjs       # ES Module
+├── omap.umd.cjs      # CommonJS/UMD
 └── index.d.ts        # TypeScript 类型声明文件
 ```
 
-- OpenLayers (`ol`) 被设为 external，不会打包进产物（UMD 模式下通过 `ol` 全局变量引用）
+- OpenLayers (`ol`) 当前内联进 ESM 与 UMD/CJS 产物，确保两种 Node 消费方式可直接加载
+- `pnpm check:consumers` 会验证 ESM、CommonJS 和 TypeScript 声明入口
 - 支持代码混淆：`OBFUSCATE=true pnpm build` 启用 JS 混淆
 
 ---
@@ -284,11 +285,11 @@ dist/
 
 ### 文件命名规范
 
-| 文件 | 内容 |
-|------|------|
-| `index.ts` | 类定义（export default class） |
-| `type.ts` | 类型/接口/枚举定义 |
-| `handle.ts` | 辅助处理函数、事件回调逻辑 |
+| 文件        | 内容                           |
+| ----------- | ------------------------------ |
+| `index.ts`  | 类定义（export default class） |
+| `type.ts`   | 类型/接口/枚举定义             |
+| `handle.ts` | 辅助处理函数、事件回调逻辑     |
 
 ### 命名约定
 
@@ -303,4 +304,6 @@ dist/
 
 - **Author**: Aurora
 - **License**: MIT
-- **当前版本**: 1.0.0-beta1
+- **当前版本**: 0.1.0-beta.1（内部预发布）
+- **参与贡献**: 见 [CONTRIBUTING.md](./CONTRIBUTING.md)
+- **版本变化**: 见 [CHANGELOG.md](./CHANGELOG.md)

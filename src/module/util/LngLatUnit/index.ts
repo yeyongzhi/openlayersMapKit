@@ -1,10 +1,4 @@
-import { isDefined, isNumber, isCoordinatesType } from '../../../utils/index'
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
-import type { LnglatType } from '../../../utils/index'
 import Lnglat from '../../basic/Lnglat/index'
-
-const PACKAGE_NAME = 'LnglatUtil'
-const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * @class LnglatUtil
@@ -14,7 +8,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @LastUpdateDate 2025/7/8
  */
 export default class LnglatUtil {
-  static isLnglat(lnglat: any): boolean {
+  static isLnglat(lnglat: unknown): lnglat is Lnglat {
     return lnglat instanceof Lnglat
   }
 }

@@ -1,24 +1,19 @@
-import { isDefined, isNumber } from "../../../utils/index";
-import {
-  warn_,
-  error_,
-  getPackageMessage,
-  commonMessage,
-} from "../../../utils/index";
-import { getTdtServiceUrl } from "./layerSource";
-import { MapToken } from "../../util/index";
-import TileLayer from "../TileLayer/index";
-import XYZSource from "../../source/TileSource/subClass/XYZ/index";
-import { DEFAULT_XYZ_SOURCE_PARAMS } from "../../source/TileSource/subClass/XYZ/type";
+import { isDefined } from '../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../utils/index'
+import { getTdtServiceUrl } from './layerSource'
+import { MapToken } from '../../util/index'
+import TileLayer from '../TileLayer/index'
+import XYZSource from '../../source/TileSource/subClass/XYZ/index'
+import { DEFAULT_XYZ_SOURCE_PARAMS } from '../../source/TileSource/subClass/XYZ/type'
 import {
   type TdtLayerTypeEnum,
   type TdtLayerProjTypeEnum,
   type OMapTdtLayerParamsType,
-  isValidTdtLayerType,
-} from "./type";
+  isValidTdtLayerType
+} from './type'
 
-let PACKAGE_NAME = "TdtLayer";
-let createMessage = getPackageMessage(PACKAGE_NAME);
+let PACKAGE_NAME = 'TdtLayer'
+let createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 天地图服务类
@@ -34,36 +29,25 @@ export default class TdtLayer extends TileLayer {
   /**
    * 图层类型
    */
-  tdtType!: TdtLayerTypeEnum;
+  tdtType!: TdtLayerTypeEnum
 
-  constructor(
-    type: TdtLayerTypeEnum,
-    proj: TdtLayerProjTypeEnum,
-    options: OMapTdtLayerParamsType,
-  ) {
+  constructor(type: TdtLayerTypeEnum, proj: TdtLayerProjTypeEnum, options: OMapTdtLayerParamsType) {
     if (!isDefined(MapToken.tdt)) {
-      error_(createMessage("constructor", "缺少天地图key，请提前申明"));
+      error_(createMessage('constructor', '缺少天地图key，请提前申明'))
     }
     if (!isValidTdtLayerType(type)) {
-      error_(
-        createMessage("constructor", commonMessage.paramsInvaildEnum("type")),
-      );
+      error_(createMessage('constructor', commonMessage.paramsInvaildEnum('type')))
     }
-    const url = getTdtServiceUrl(type, proj); // 天地图只需要 单个url 即可
-    const xyzSourceParams = Object.assign(
-      {},
-      DEFAULT_XYZ_SOURCE_PARAMS,
-      options,
-      {
-        url,
-      },
-    );
-    const xyzSource = new XYZSource(xyzSourceParams);
+    const url = getTdtServiceUrl(type, proj) // 天地图只需要 单个url 即可
+    const xyzSourceParams = Object.assign({}, DEFAULT_XYZ_SOURCE_PARAMS, options, {
+      url
+    })
+    const xyzSource = new XYZSource(xyzSourceParams)
     const tdtParams = Object.assign({}, options, {
-      source: xyzSource.getSource(),
-    });
-    super(tdtParams);
-    this.tdtType = type;
-    this._initLayerEvent();
+      source: xyzSource.getSource()
+    })
+    super(tdtParams)
+    this.tdtType = type
+    this._initLayerEvent()
   }
 }

@@ -1,16 +1,11 @@
-import { defaultValue, isDefined, isString } from '../../../utils/index';
-import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
-import OlPackage, { OlLayer, OlSource } from '../../../source/index'
+import { OlLayer } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import {
-    type OMapTileLayerParamsType,
-    DEFAULT_TILE_LAYER_PARAMS,
-    type OMapTileLayerType
+  type OMapTileLayerParamsType,
+  DEFAULT_TILE_LAYER_PARAMS,
+  type OMapTileLayerType
 } from './type'
 import { handleGetBaseLayerParams } from '../BaseLayer/type'
-
-let PACKAGE_NAME = 'TileLayer';
-let createMessage = getPackageMessage(PACKAGE_NAME);
 
 /**
  * 瓦片图层类
@@ -23,11 +18,10 @@ let createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class TileLayer extends BaseLayer<OMapTileLayerType> {
-
-    constructor(options: OMapTileLayerParamsType) {
-        super('Tile', options)
-        let params = Object.assign({}, DEFAULT_TILE_LAYER_PARAMS, handleGetBaseLayerParams(options))
-        this._layer = new OlLayer.Tile(params)
-        this._initLayerEvent()
-    }
+  constructor(options: OMapTileLayerParamsType) {
+    super('Tile', options)
+    let params = Object.assign({}, DEFAULT_TILE_LAYER_PARAMS, handleGetBaseLayerParams(options))
+    this._layer = new OlLayer.Tile(params)
+    this._initLayerEvent()
+  }
 }

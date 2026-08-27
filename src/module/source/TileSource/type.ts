@@ -22,92 +22,104 @@ export type OMapTileSourceEventListener = (event: OMapTileSourceEvent) => void
 export type OMapTileSourceTileGridInstance = OlTileGrid.TileGrid
 
 export type OMapTileSourceTileGrid = Omit<
-    OlTileGridOptions,
-    'extent' | 'origin' | 'origins' | 'sizes' | 'tileSize' | 'tileSizes'
+  OlTileGridOptions,
+  'extent' | 'origin' | 'origins' | 'sizes' | 'tileSize' | 'tileSizes'
 > & {
-    extent?: OMapExtentType;
-    origin?: OMapCoordinateType;
-    origins?: Array<OMapCoordinateType>;
-    sizes?: Array<OMapSizeType>;
-    tileSize?: number | OMapSizeType;
-    tileSizes?: Array<number | OMapSizeType>;
+  extent?: OMapExtentType
+  origin?: OMapCoordinateType
+  origins?: Array<OMapCoordinateType>
+  sizes?: Array<OMapSizeType>
+  tileSize?: number | OMapSizeType
+  tileSizes?: Array<number | OMapSizeType>
 }
 
 export type OlTileSourceTileGridOptions = Omit<
-    OlTileGridOptions,
-    'extent' | 'origin' | 'origins' | 'sizes' | 'tileSize' | 'tileSizes'
+  OlTileGridOptions,
+  'extent' | 'origin' | 'origins' | 'sizes' | 'tileSize' | 'tileSizes'
 > & {
-    extent?: OlExtentType;
-    origin?: OlCoordinateType;
-    origins?: Array<OlCoordinateType>;
-    sizes?: Array<OlSizeType>;
-    tileSize?: number | OlSizeType;
-    tileSizes?: Array<number | OlSizeType>;
+  extent?: OlExtentType
+  origin?: OlCoordinateType
+  origins?: Array<OlCoordinateType>
+  sizes?: Array<OlSizeType>
+  tileSize?: number | OlSizeType
+  tileSizes?: Array<number | OlSizeType>
 }
 
 export type OMapTileSourceParamsType = Omit<OlTileSourceOptions, 'projection' | 'tileGrid'> & {
-    projection?: OMapProjectionType;
-    tileGrid?: OMapTileSourceTileGrid | OMapTileSourceTileGridInstance;
+  projection?: OMapProjectionType
+  tileGrid?: OMapTileSourceTileGrid | OMapTileSourceTileGridInstance
 }
 
 export type OlTileSourceParamsType = Omit<OlTileSourceOptions, 'tileGrid'> & {
-    tileGrid?: OMapTileSourceTileGridInstance;
+  tileGrid?: OMapTileSourceTileGridInstance
 }
 
 export const TILE_SOURCE_EVENT_TYPES = {
-    tileLoadStart: 'tileloadstart',
-    tileLoadEnd: 'tileloadend',
-    tileLoadError: 'tileloaderror'
+  tileLoadStart: 'tileloadstart',
+  tileLoadEnd: 'tileloadend',
+  tileLoadError: 'tileloaderror'
 } as const
 
 export const DEFAULT_TILE_SOURCE_PARAMS: OMapTileSourceParamsType = {
-    attributionsCollapsible: true,
-    interpolate: false,
-    wrapX: false,
-    zDirection: 0
+  attributionsCollapsible: true,
+  interpolate: false,
+  wrapX: false,
+  zDirection: 0
 }
 
-export function handleGetTileGridParams(params: OMapTileSourceTileGrid): OlTileSourceTileGridOptions {
-    return {
-        ...params,
-        extent: params.extent ? handleGetExtentValue(params.extent) : undefined,
-        origin: params.origin ? handleGetLnglatValue(params.origin) : undefined,
-        origins: params.origins?.map(item => handleGetLnglatValue(item)),
-        sizes: params.sizes?.map(item => handleGetSizeValue(item)),
-        tileSize: typeof params.tileSize === 'number'
-            ? params.tileSize
-            : params.tileSize
-                ? handleGetSizeValue(params.tileSize)
-                : undefined,
-        tileSizes: params.tileSizes?.map(item => typeof item === 'number' ? item : handleGetSizeValue(item))
-    }
+export function handleGetTileGridParams(
+  params: OMapTileSourceTileGrid
+): OlTileSourceTileGridOptions {
+  return {
+    ...params,
+    extent: params.extent ? handleGetExtentValue(params.extent) : undefined,
+    origin: params.origin ? handleGetLnglatValue(params.origin) : undefined,
+    origins: params.origins?.map((item) => handleGetLnglatValue(item)),
+    sizes: params.sizes?.map((item) => handleGetSizeValue(item)),
+    tileSize:
+      typeof params.tileSize === 'number'
+        ? params.tileSize
+        : params.tileSize
+          ? handleGetSizeValue(params.tileSize)
+          : undefined,
+    tileSizes: params.tileSizes?.map((item) =>
+      typeof item === 'number' ? item : handleGetSizeValue(item)
+    )
+  }
 }
 
 export function handleGetTileGrid(tileGrid?: OMapTileSourceParamsType['tileGrid']) {
-    if (!tileGrid) {
-        return undefined;
-    }
-    if (tileGrid instanceof OlTileGrid.TileGrid) {
-        return tileGrid;
-    }
-    return new OlTileGrid.TileGrid(handleGetTileGridParams(tileGrid));
+  if (!tileGrid) {
+    return undefined
+  }
+  if (tileGrid instanceof OlTileGrid.TileGrid) {
+    return tileGrid
+  }
+  return new OlTileGrid.TileGrid(handleGetTileGridParams(tileGrid))
 }
 
 export function handleGetTileSourceParams<
-    T extends {
-        projection?: OMapProjectionType;
-        tileGrid?: OMapTileSourceTileGrid | OMapTileSourceTileGridInstance;
-    }
->(params: T): Omit<T, 'projection' | 'tileGrid'> & {
-    projection?: OlProjType | OlProjInstanceType;
-    tileGrid?: OMapTileSourceTileGridInstance;
+  T extends {
+    projection?: OMapProjectionType
+    tileGrid?: OMapTileSourceTileGrid | OMapTileSourceTileGridInstance
+  }
+>(
+  params: T
+): Omit<T, 'projection' | 'tileGrid'> & {
+  projection?: OlProjType | OlProjInstanceType
+  tileGrid?: OMapTileSourceTileGridInstance
 }
 export function handleGetTileSourceParams(params?: undefined): OlTileSourceParamsType
 
-export function handleGetTileSourceParams(params: any = {}) {
-    return {
-        ...params,
-        projection: handleGetProjectionValue(params.projection),
-        tileGrid: handleGetTileGrid(params.tileGrid)
-    }
+export function handleGetTileSourceParams(
+  params: Record<string, unknown> & {
+    projection?: OMapProjectionType
+    tileGrid?: OMapTileSourceTileGrid | OMapTileSourceTileGridInstance
+  } = {}
+) {
+  return {
+    ...params,
+    projection: handleGetProjectionValue(params.projection),
+    tileGrid: handleGetTileGrid(params.tileGrid)
+  }
 }

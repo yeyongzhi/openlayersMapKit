@@ -21,39 +21,41 @@ export type OMapVectorSourceEvent = VectorSourceEvent<OMapVectorSourceOlFeature>
 export type OMapVectorSourceEventListener = (event: OMapVectorSourceEvent) => void
 
 export type OMapVectorSourceParamsType = Omit<
-    OlVectorSourceOptions<OMapVectorSourceOlFeature>,
-    'features'
+  OlVectorSourceOptions<OMapVectorSourceOlFeature>,
+  'features'
 > & {
-    features?: Array<OMapVectorSourceFeature>;
+  features?: Array<OMapVectorSourceFeature>
 }
 
 export type OlVectorSourceParamsType = Omit<
-    OlVectorSourceOptions<OMapVectorSourceOlFeature>,
-    'features'
+  OlVectorSourceOptions<OMapVectorSourceOlFeature>,
+  'features'
 > & {
-    features?: Array<OMapVectorSourceOlFeature> | OMapVectorSourceFeatureCollection;
+  features?: Array<OMapVectorSourceOlFeature> | OMapVectorSourceFeatureCollection
 }
 
 export const VECTOR_SOURCE_EVENT_TYPES = {
-    addFeature: 'addfeature',
-    changeFeature: 'changefeature',
-    clear: 'clear',
-    removeFeature: 'removefeature',
-    featuresLoadStart: 'featuresloadstart',
-    featuresLoadEnd: 'featuresloadend',
-    featuresLoadError: 'featuresloaderror'
+  addFeature: 'addfeature',
+  changeFeature: 'changefeature',
+  clear: 'clear',
+  removeFeature: 'removefeature',
+  featuresLoadStart: 'featuresloadstart',
+  featuresLoadEnd: 'featuresloadend',
+  featuresLoadError: 'featuresloaderror'
 } as const
 
 export const DEFAULT_VECTOR_SOURCE_PARAMS: OMapVectorSourceParamsType = {
-    features: [],
-    overlaps: true,
-    useSpatialIndex: true,
-    wrapX: true
+  features: [],
+  overlaps: true,
+  useSpatialIndex: true,
+  wrapX: true
 }
 
-export function handleGetVectorSourceParams(params: OMapVectorSourceParamsType = {}): OlVectorSourceParamsType {
-    return {
-        ...params,
-        features: params.features?.map(feature => feature.getFeature())
-    }
+export function handleGetVectorSourceParams(
+  params: OMapVectorSourceParamsType = {}
+): OlVectorSourceParamsType {
+  return {
+    ...params,
+    features: params.features?.map((feature) => feature.getFeature())
+  }
 }

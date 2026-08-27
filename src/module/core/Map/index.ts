@@ -1,26 +1,12 @@
-import {
-  isDefined,
-  isNumber,
-  isBoolean,
-  isString,
-  defaultValue,
-  isFunction,
-  isArray,
-  isObject
-} from '../../../utils/index'
-import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import { isDefined, isString, defaultValue, isObject } from '../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import type { PropertiesType } from '../../../utils/type'
-import OlPackage, { OlUtil, OlSphere, OlEvent, OlGeometry, OlLayer } from '../../../source/index'
+import OlPackage, { OlSphere, OlGeometry } from '../../../source/index'
 import Lnglat from '../../basic/Lnglat/index'
-import {
-  type OlCoordinateType,
-  type OMapCoordinateType,
-  isValidCoordinate
-} from '../../basic/Lnglat/type'
+import { type OMapCoordinateType, isValidCoordinate } from '../../basic/Lnglat/type'
 import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
 import Extent from '../../basic/Extent/index'
-import { handleGetExtentValue } from '../../basic/Extent/handle'
-import { type OMapExtentType, isValidExtent } from '../../basic/Extent/type'
+import { type OMapExtentType } from '../../basic/Extent/type'
 import Size from '../../basic/Size/index'
 import { type OlSizeType, type OMapSizeType } from '../../basic/Size/type'
 import { handleGetSizeValue } from '../../basic/Size/handle'
@@ -29,70 +15,42 @@ import { type OMapPixelType, type OlPixelType, isValidPixel } from '../../basic/
 import { handleGetPixelValue } from '../../basic/Pixel/handle'
 import Projection from '../Projection/index'
 import { type OlProjInstanceType } from '../Projection/type'
-import VectorLayer from '../../layer/VectorLayer/index'
-import BaseLayer from '../../layer/BaseLayer/index'
-import {
-  type OlAllLayerInstanceType,
-  type BaseLayerIdType,
-  type OMapBaseLayerCommonType
-} from '../../layer/BaseLayer/type'
+import type BaseLayer from '../../layer/BaseLayer/index'
+import { type BaseLayerIdType, type OMapBaseLayerCommonType } from '../../layer/BaseLayer/type'
 import BaseFeature from '../Feature/BasicFeature/index'
-import {
-  type OlFeatureInstanceType,
-  type OMapSimpleGeometryType,
-  type OlFeatureLike,
-  type OlGeometryType
-} from '../Feature/BasicFeature/type'
-import type { OlMapEventPayload } from './type'
 import Interaction from '../../interaction/Interaction/index'
 import {
   type OMapInteractionIdType,
-  isVaildInteraction,
   type OMapInteractionCommonType
 } from '../../interaction/Interaction/type'
 import Control from '../../control/Control/index'
-import { isVaildControl, type OMapControlIdType } from '../../control/Control/type'
-import Draw from '../../interaction/Draw/index'
-import Measure from '../../interaction/Measure/index'
-import Event from '../../../module/util/Event/index'
+import { type OMapControlIdType } from '../../control/Control/type'
 import type { EventIdType } from '../../../module/util/Event/type'
 import Popup from '../../basic/Popup/index'
-import { isVaildPopup, type OMapPopupIdType, isVaildPopupId } from '../../basic/Popup/type'
+import { type OMapPopupIdType } from '../../basic/Popup/type'
 import LayerGroup from '../../layer/LayerGroup/index'
-import {
-  type LayerGroupIdType,
-  isVaildGroupId,
-  isVaildLayerGroup
-} from '../../layer/LayerGroup/type'
-import type { OlPopupInstanceType } from '../../basic/Popup/type'
+import { type LayerGroupIdType } from '../../layer/LayerGroup/type'
 import {
   type OMapMapType,
   type OMapViewType,
   type OMapOptionsType,
   defaultMapOptions,
-  type OlMapInstanceType,
   type OMapElementType,
   type OMapEventType,
   type OMapEventCallBack,
-  type OlMapOnEventType,
-  type OlViewOnEventType,
   OMapForEachFeatureAtPixelOptionsType,
-  DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS,
   OMapViewAnimateOptionsType,
-  OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS,
-  OMapEasing,
   type OMapViewFitOptionsType,
-  OMAP_VIEW_FIT_DEFAULT_OPTIONS,
-  OMapMapInteractionIgnoreEventTypes,
   createDefaultMapInteractions
 } from './type'
-import {
-  MapEventTypeIsMap,
-  handleMapOnCallBack,
-  isOMapMapEventType,
-  isMapDrawing,
-  isMapMeasuring
-} from './handle'
+import PopupManager from './manager/PopupManager'
+import ControlManager from './manager/ControlManager'
+import InteractionManager from './manager/InteractionManager'
+import LayerManager from './manager/LayerManager'
+import ViewController from './controller/ViewController'
+import FeatureQuery from './query/FeatureQuery'
+import EventAdapter from './adapter/EventAdapter'
+import type { Disposable } from '../../util/Disposable/type'
 
 const PACKAGE_NAME = 'Map'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -107,16 +65,25 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/2/1
  */
 
-export default class Map {
+export default class Map implements Disposable {
   private _map: OMapMapType
   private _view: OMapViewType
   private projection: Projection
-  private layers: Array<BaseLayer<OMapBaseLayerCommonType>> = []
-  private layerGroups: Array<LayerGroup> = []
-  private interactions: Array<Interaction<OMapInteractionCommonType>> = []
-  private controls: Array<Control> = []
-  private events: Event = new Event()
-  private popups: Array<Popup> = []
+  private viewController!: ViewController
+  private featureQuery = new FeatureQuery(
+    () => this._map,
+    () => this.layerManager.getAll()
+  )
+  private layerManager = new LayerManager(this, () => this._map)
+  private interactionManager = new InteractionManager(this, () => this._map)
+  private controlManager = new ControlManager(this, () => this._map)
+  private eventAdapter = new EventAdapter(
+    this,
+    () => this._map,
+    () => this._view,
+    () => this.interactionManager.getAll()
+  )
+  private popupManager = new PopupManager(this, () => this._map)
   private disposed = false
 
   constructor(element: OMapElementType, options?: OMapOptionsType) {
@@ -156,6 +123,7 @@ export default class Map {
     mapParams.target = element as HTMLElement
     const map = new OlPackage.Map(mapParams)
     this._view = view
+    this.viewController = new ViewController(view, this.projection)
     this._map = map
     // 初始化加载Interaction
     if (isDefined(mapInteractions) && mapInteractions.length > 0) {
@@ -175,7 +143,6 @@ export default class Map {
         this.addPopup(popup)
       })
     }
-    this.events = new Event<Record<OMapEventType, unknown[]>>(this)
   }
 
   /**
@@ -185,12 +152,11 @@ export default class Map {
     if (this.disposed) return
     this.disposed = true
 
-    this.events.off()
-    ;[...this.popups].forEach((popup) => this.removePopup(popup))
-    ;[...this.controls].forEach((control) => this.removeControl(control))
-    ;[...this.interactions].forEach((interaction) => interaction.dispose())
-    ;[...this.layerGroups].forEach((group) => this.removeLayerGroup(group))
-    ;[...this.layers].forEach((layer) => this.removeLayer(layer))
+    this.eventAdapter?.dispose()
+    this.popupManager?.disposeAll()
+    this.controlManager?.disposeAll()
+    this.interactionManager?.disposeAll()
+    this.layerManager?.disposeAll()
 
     this._map.setTarget(undefined)
     this._map.dispose()
@@ -205,7 +171,7 @@ export default class Map {
   }
 
   getView(): OMapViewType {
-    return this._view
+    return this.viewController.getView()
   }
 
   getSize(): Size | undefined {
@@ -223,77 +189,47 @@ export default class Map {
 
   // 地图信息相关
   getCenter(): Lnglat | undefined {
-    let center = this._view.getCenter()
-    return isDefined(center) ? new Lnglat(center) : undefined
+    return this.viewController.getCenter()
   }
 
   setCenter(center?: OMapCoordinateType) {
-    if (!isDefined(center)) {
-      error_(createMessage('setCenter', commonMessage.paramsNotDefined('center')))
-    }
-    let _center = handleGetLnglatValue(center as OMapCoordinateType)
-    this._view.setCenter(_center)
+    this.viewController.setCenter(center)
   }
 
   getZoom(): number | undefined {
-    return this._view.getZoom()
+    return this.viewController.getZoom()
   }
 
   setZoom(zoom?: number) {
-    if (!isDefined(zoom)) {
-      error_(createMessage('setZoom', commonMessage.paramsNotDefined('zoom')))
-    }
-    if (!isNumber(zoom)) {
-      error_(createMessage('setZoom', commonMessage.paramsInvaildFormat('zoom')))
-    }
-    this._view.setZoom(zoom as number)
+    this.viewController.setZoom(zoom)
   }
 
   getResolution(): number | undefined {
-    return this._view.getResolution()
+    return this.viewController.getResolution()
   }
 
   setResolution(resolution?: number) {
-    if (!isDefined(resolution)) {
-      error_(createMessage('setResolution', commonMessage.paramsNotDefined('resolution')))
-    }
-    if (!isNumber(resolution)) {
-      error_(createMessage('setResolution', commonMessage.paramsInvaildFormat('resolution')))
-    }
-    this._view.setResolution(resolution as number)
+    this.viewController.setResolution(resolution)
   }
 
   getRotation(): number {
-    return this._view.getRotation()
+    return this.viewController.getRotation()
   }
 
   setRotation(rotation: number) {
-    if (!isDefined(rotation)) {
-      error_(createMessage('setRotation', commonMessage.paramsNotDefined('rotation')))
-    }
-    if (!isNumber(rotation)) {
-      error_(createMessage('setRotation', commonMessage.paramsInvaildFormat('rotation')))
-    }
-    this._view.setRotation(rotation)
+    this.viewController.setRotation(rotation)
   }
 
   getExtent(): Extent {
-    let _extent = this._view.calculateExtent()
-    return new Extent(_extent)
+    return this.viewController.getExtent()
   }
 
   zoomIn(delta: number = 1) {
-    if (isDefined(delta) && !isNumber(delta)) {
-      error_(createMessage('zoomIn', commonMessage.paramsInvaildFormat('delta', 'number')))
-    }
-    this._view.adjustZoom(delta)
+    this.viewController.zoomIn(delta)
   }
 
   zoomOut(delta: number = -1) {
-    if (isDefined(delta) && !isNumber(delta)) {
-      error_(createMessage('zoomOut', commonMessage.paramsInvaildFormat('delta', 'number')))
-    }
-    this._view.adjustZoom(delta)
+    this.viewController.zoomOut(delta)
   }
 
   /** 图层管理相关 */
@@ -303,25 +239,7 @@ export default class Map {
    * @param {BaseLayer} layer 图层对象
    */
   addLayer(layer: BaseLayer<OMapBaseLayerCommonType>) {
-    if (!(layer instanceof BaseLayer)) {
-      error_(createMessage('addLayer', commonMessage.paramsInvaildFormat('layer')))
-    }
-    let isExist: boolean = false
-    const layerId = layer.getId()
-    isExist = isDefined(layerId)
-      ? isDefined(this.getLayerById(layerId))
-      : this.layers.some((item) => {
-          return OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer.getLayer())
-        })
-    if (isExist) {
-      warn_(createMessage('addLayer', '图层已存在'))
-    } else {
-      this.layers.push(layer)
-      if (!isDefined(layer.getTarget())) {
-        layer.setTarget(this)
-      }
-      this._map.addLayer(layer.getLayer())
-    }
+    this.layerManager.add(layer)
   }
 
   /**
@@ -329,19 +247,7 @@ export default class Map {
    * @param {Array<BaseLayer>} layers 图层数组
    */
   addLayers(layers: Array<BaseLayer<OMapBaseLayerCommonType>>) {
-    if (!isDefined(layers)) {
-      error_(createMessage('addLayers', commonMessage.paramsNotDefined('layers')))
-    }
-    if (!isArray(layers)) {
-      error_(createMessage('addLayers', commonMessage.paramsInvaildFormat('layers', '数组类型')))
-    }
-    layers.forEach((item) => {
-      if (item instanceof BaseLayer) {
-        this.addLayer(item)
-      } else {
-        warn_(createMessage('addLayers', commonMessage.haveInvaildDataItem('layers')))
-      }
-    })
+    this.layerManager.addMany(layers)
   }
 
   /**
@@ -350,10 +256,7 @@ export default class Map {
    * @returns {BaseLayer<OMapBaseLayerCommonType> | undefined} 图层对象
    */
   getLayerById(id: BaseLayerIdType): BaseLayer<OMapBaseLayerCommonType> | undefined {
-    let layer = this.layers.find((item) => {
-      return isDefined(item.getId()) && item.getId() === id
-    })
-    return layer
+    return this.layerManager.getById(id)
   }
 
   /**
@@ -361,22 +264,7 @@ export default class Map {
    * @param {BaseLayer<OMapBaseLayerCommonType>} layer 图层对象
    */
   removeLayer(layer: BaseLayer<OMapBaseLayerCommonType>) {
-    if (!isDefined(layer)) {
-      error_(createMessage('removeLayer', commonMessage.paramsNotDefined('layer')))
-    }
-    if (!(layer instanceof BaseLayer)) {
-      error_(
-        createMessage('removeLayer', commonMessage.paramsInvaildFormat('layer', 'BaseLayer实例'))
-      )
-    }
-    let index = this.layers.indexOf(layer)
-    if (index !== -1) {
-      this.layers.splice(index, 1)
-      layer.setTarget(null)
-      this._map.removeLayer(layer.getLayer())
-    } else {
-      warn_(createMessage('removeLayer', '图层不存在'))
-    }
+    this.layerManager.remove(layer)
   }
 
   /**
@@ -384,19 +272,7 @@ export default class Map {
    * @param {Array<BaseLayer>} layers 图层数组
    */
   removeLayers(layers: Array<BaseLayer<OMapBaseLayerCommonType>>) {
-    if (!isDefined(layers)) {
-      error_(createMessage('removeLayers', commonMessage.paramsNotDefined('layers')))
-    }
-    if (!isArray(layers)) {
-      error_(createMessage('removeLayers', commonMessage.paramsInvaildFormat('layers', '数组类型')))
-    }
-    layers.forEach((item) => {
-      if (item instanceof BaseLayer) {
-        this.removeLayer(item)
-      } else {
-        warn_(createMessage('removeLayers', commonMessage.haveInvaildDataItem('layers')))
-      }
-    })
+    this.layerManager.removeMany(layers)
   }
 
   /**
@@ -404,15 +280,7 @@ export default class Map {
    * @param {BaseLayerIdType} id 图层id
    */
   removeLayerById(layerId: BaseLayerIdType) {
-    if (!isDefined(layerId)) {
-      error_(createMessage('removeLayerById', commonMessage.paramsNotDefined('layerId')))
-    }
-    let layer = this.getLayerById(layerId)
-    if (!isDefined(layer)) {
-      warn_(createMessage('removeLayerById', `找不到id为${layerId}的图层`))
-    } else {
-      this.removeLayer(layer)
-    }
+    this.layerManager.removeById(layerId)
   }
 
   /**
@@ -420,7 +288,7 @@ export default class Map {
    * @returns {Array<BaseLayer>} 图层数组
    */
   getAllLayers(): Array<BaseLayer<OMapBaseLayerCommonType>> {
-    return this.layers
+    return this.layerManager.getAll()
   }
 
   /** 图层组管理 */
@@ -430,31 +298,7 @@ export default class Map {
    * @param {LayerGroup} group 图层组实例
    */
   addLayerGroup(group: LayerGroup) {
-    if (!isDefined(group)) {
-      error_(createMessage('addLayerGroup', commonMessage.paramsNotDefined('layerGroup')))
-    }
-    if (!isVaildLayerGroup(group)) {
-      error_(
-        createMessage(
-          'addLayerGroup',
-          commonMessage.paramsInvaildFormat('layerGroup', 'LayerGroup实例')
-        )
-      )
-    }
-    let isExist: boolean = false
-    let groupId = group.getId()
-    isExist = isDefined(groupId)
-      ? this.layerGroups.some((item) => {
-          return isDefined(item.getId()) && item.getId() === group.getId()
-        })
-      : this.layerGroups.some((item) => {
-          return item === group
-        })
-    if (!isExist) {
-      group.setMap(this)
-      this.layerGroups = [...this.layerGroups, group]
-      this.addLayers(group.getAllLayers())
-    }
+    this.layerManager.addGroup(group)
   }
 
   /**
@@ -462,33 +306,7 @@ export default class Map {
    * @param {LayerGroup} group 图层组实例
    */
   removeLayerGroup(group: LayerGroup) {
-    if (!isDefined(group)) {
-      error_(createMessage('removeLayerGroup', commonMessage.paramsNotDefined('layerGroup')))
-    }
-    if (!isVaildLayerGroup(group)) {
-      error_(
-        createMessage(
-          'removeLayerGroup',
-          commonMessage.paramsInvaildFormat('layerGroup', 'LayerGroup实例')
-        )
-      )
-    }
-    let index: number = -1
-    let groupId = group.getId()
-    index = isDefined(groupId)
-      ? this.layerGroups.findIndex((item) => {
-          return isDefined(item.getId()) && item.getId() === group.getId()
-        })
-      : this.layerGroups.findIndex((item) => {
-          return item === group
-        })
-    if (index !== -1) {
-      group.setMap(null)
-      this.removeLayers(group.getAllLayers())
-      this.layerGroups.splice(index, 1)
-    } else {
-      warn_(createMessage('removeLayerGroup', '图层组不存在'))
-    }
+    this.layerManager.removeGroup(group)
   }
 
   /**
@@ -496,27 +314,7 @@ export default class Map {
    * @param {LayerGroupIdType} groupId 图层组id
    */
   removeLayerGroupById(groupId: LayerGroupIdType) {
-    if (!isDefined(groupId)) {
-      error_(createMessage('removeLayerGroupById', commonMessage.paramsNotDefined('groupId')))
-    }
-    if (!isVaildGroupId(groupId)) {
-      error_(
-        createMessage(
-          'removeLayerGroupById',
-          commonMessage.paramsInvaildFormat('groupId', 'number或string类型')
-        )
-      )
-    }
-    let index: number = this.layerGroups.findIndex((item) => {
-      return isDefined(item.getId()) && item.getId() === groupId
-    })
-    if (index !== -1) {
-      this.layerGroups[index].setMap(null)
-      this.removeLayers(this.layerGroups[index].getAllLayers())
-      this.layerGroups.splice(index, 1)
-    } else {
-      warn_(createMessage('removeLayerGroupById', '图层组不存在'))
-    }
+    this.layerManager.removeGroupById(groupId)
   }
 
   /**
@@ -524,7 +322,7 @@ export default class Map {
    * @returns {LayerGroup[]} 所有图层组
    */
   getAllLayerGroups(): LayerGroup[] {
-    return this.layerGroups
+    return this.layerManager.getGroups()
   }
 
   /**
@@ -536,25 +334,7 @@ export default class Map {
   }
 
   getLayerGroupById(groupId: LayerGroupIdType): LayerGroup | null {
-    if (!isDefined(groupId)) {
-      error_(createMessage('removeLayerGroupById', commonMessage.paramsNotDefined('groupId')))
-    }
-    if (!isVaildGroupId(groupId)) {
-      error_(
-        createMessage(
-          'removeLayerGroupById',
-          commonMessage.paramsInvaildFormat('groupId', 'number或string类型')
-        )
-      )
-    }
-    let index: number = this.layerGroups.findIndex((item) => {
-      return isDefined(item.getId()) && item.getId() === groupId
-    })
-    if (index === -1) {
-      warn_(createMessage('getLayerGroupById', '未找到图层组'))
-      return null
-    }
-    return this.layerGroups[index]
+    return this.layerManager.getGroupById(groupId)
   }
 
   /**
@@ -563,71 +343,16 @@ export default class Map {
    * @param callback
    * @returns
    */
-  on(type: OMapEventType, callback: () => void): EventIdType {
-    if (!isDefined(type) || !isDefined(callback)) {
-      error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
-    }
-    if (!isOMapMapEventType(type)) {
-      error_(createMessage('on', commonMessage.paramsInvaildEnum('type')))
-    }
-    if (!isFunction(callback)) {
-      error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
-    }
-    let isMapTarget = MapEventTypeIsMap(type)
-    const target = isMapTarget ? this._map : this._view
-    const unlisten = OlEvent.listen(
-      target,
-      isMapTarget ? type.replace('map:', '') : type.replace('view:', ''),
-      (e: OlMapEventPayload) => {
-        let isInteracting =
-          isMapMeasuring(defaultValue(this.getInteractions(), [])) ||
-          isMapDrawing(defaultValue(this.getInteractions(), []))
-        if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) {
-          return false
-        }
-        this.events.emit(type, handleMapOnCallBack(this, type, e))
-      }
-    )
-    const id = this.events.on(type, callback, unlisten)
-    return id
+  on(type: OMapEventType, callback: OMapEventCallBack): EventIdType {
+    return this.eventAdapter.on(type, callback)
   }
 
-  once(type: OMapEventType, callback: () => void): EventIdType {
-    if (!isDefined(type) || !isDefined(callback)) {
-      error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
-    }
-    if (!isOMapMapEventType(type)) {
-      error_(createMessage('once', commonMessage.paramsInvaildEnum('type')))
-    }
-    if (!isFunction(callback)) {
-      error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
-    }
-    let isMapTarget = MapEventTypeIsMap(type)
-    const target = isMapTarget ? this._map : this._view
-    const unlisten = OlEvent.listen(
-      target,
-      isMapTarget ? type.replace('map:', '') : type.replace('view:', ''),
-      (e: OlMapEventPayload) => {
-        let isInteracting =
-          isMapMeasuring(defaultValue(this.getInteractions(), [])) ||
-          isMapDrawing(defaultValue(this.getInteractions(), []))
-        if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) {
-          return false
-        }
-        this.events.emit(type, handleMapOnCallBack(this, type, e))
-      },
-      target,
-      true
-    )
-    const id = this.events.once(type, callback, unlisten)
-    return id
+  once(type: OMapEventType, callback: OMapEventCallBack): EventIdType {
+    return this.eventAdapter.once(type, callback)
   }
 
   un(id: EventIdType) {
-    if (!isDefined(id)) {
-      error_(createMessage('un', commonMessage.paramsNotDefined('id')))
-    }
-    this.events.remove(id)
+    this.eventAdapter.un(id)
   }
 
   /** 属性管理 */
@@ -667,43 +392,7 @@ export default class Map {
    * @param {Interaction} interaction 交互对象
    */
   addInteraction(interaction: Interaction<OMapInteractionCommonType>) {
-    if (!isDefined(interaction)) {
-      error_(createMessage('addInteraction', commonMessage.paramsNotDefined('interaction')))
-    }
-    if (!isVaildInteraction(interaction)) {
-      error_(
-        createMessage(
-          'addInteraction',
-          commonMessage.paramsInvaildFormat('interaction', 'Interaction类型')
-        )
-      )
-    }
-    let index = this.interactions.findIndex((i) => {
-      if (isDefined(interaction.getId())) {
-        return interaction.getId() === i.getId()
-      }
-      return OlUtil.getUid(i.getInteraction()) === OlUtil.getUid(interaction.getInteraction())
-    })
-    if (index !== -1) {
-      warn_(createMessage('addInteraction', '该交互已添加到地图中'))
-    } else {
-      // 是否需要额外的图层添加
-      if (interaction instanceof Draw || interaction instanceof Measure) {
-        const layer = interaction.getLayer()
-        if (isDefined<VectorLayer>(layer)) {
-          layer.setTarget(interaction)
-          this.addLayer(layer)
-        }
-      }
-      let olInteractionInstance = interaction.getInteraction()
-      this.interactions.push(interaction)
-      this._map.addInteraction(olInteractionInstance)
-      if (interaction.setMap) {
-        interaction.setMap(this)
-      }
-      interaction.setActive(true) // 自动开启
-      olInteractionInstance.dispatchEvent('change:active')
-    }
+    this.interactionManager.add(interaction)
   }
 
   /**
@@ -711,18 +400,11 @@ export default class Map {
    * @returns {Interaction<OMapInteractionCommonType>[]} 交互数组
    */
   getInteractions(): Interaction<OMapInteractionCommonType>[] {
-    return this.interactions
+    return this.interactionManager.getAll()
   }
 
   getInteractionById(id: OMapInteractionIdType): Interaction<OMapInteractionCommonType> | null {
-    if (this.interactions.length === 0) return null
-    let index = this.interactions.findIndex((i) => {
-      return i.getId() === id
-    })
-    if (index === -1) {
-      return null
-    }
-    return this.interactions[index]
+    return this.interactionManager.getById(id)
   }
 
   /**
@@ -730,38 +412,7 @@ export default class Map {
    * @param {Interaction<OMapInteractionCommonType>} interaction 交互对象
    */
   removeInteraction(interaction: Interaction<OMapInteractionCommonType>): void {
-    if (!isDefined(interaction)) {
-      error_(createMessage('addInteraction', commonMessage.paramsNotDefined('interaction')))
-    }
-    if (!isVaildInteraction(interaction)) {
-      error_(
-        createMessage(
-          'addInteraction',
-          commonMessage.paramsInvaildFormat('interaction', 'Interaction类型')
-        )
-      )
-    }
-    let index = this.interactions.findIndex((i) => {
-      if (isDefined(interaction.getId())) {
-        return interaction.getId() === i.getId()
-      }
-      return OlUtil.getUid(i.getInteraction()) === OlUtil.getUid(interaction.getInteraction())
-    })
-    if (index === -1) {
-      warn_(createMessage('removeInteraction', '该交互未添加到地图中'))
-    } else {
-      // 是否需要额外的图层添加
-      if (interaction instanceof Draw || interaction instanceof Measure) {
-        const layer = interaction.getLayer()
-        if (isDefined<VectorLayer>(layer)) {
-          layer.setTarget(null)
-          this.removeLayer(layer)
-        }
-      }
-      this.interactions.splice(index, 1)
-      this._map.removeInteraction(interaction.getInteraction())
-      interaction.setMap(null)
-    }
+    this.interactionManager.remove(interaction)
   }
 
   /**
@@ -773,25 +424,7 @@ export default class Map {
    * @param {Control} control 控件对象
    */
   addControl(control: Control) {
-    if (!isDefined(control)) {
-      error_(createMessage('addControl', commonMessage.paramsNotDefined('control')))
-    }
-    if (!isVaildControl(control)) {
-      error_(
-        createMessage('addControl', commonMessage.paramsInvaildFormat('control', 'Control类型'))
-      )
-    }
-    let index = this.controls.findIndex((i) => {
-      return OlUtil.getUid(i.getControl()) === OlUtil.getUid(control.getControl())
-    })
-    if (index !== -1) {
-      warn_(createMessage('addControl', '该控件已添加到地图中'))
-      return
-    }
-    if (isDefined(control.getControl())) {
-      this.controls.push(control)
-      this._map.addControl(control.getControl())
-    }
+    this.controlManager.add(control)
   }
 
   /**
@@ -799,7 +432,7 @@ export default class Map {
    * @returns {Control[]} 控件数组
    */
   getControls(): Control[] {
-    return this.controls
+    return this.controlManager.getAll()
   }
 
   /**
@@ -808,21 +441,7 @@ export default class Map {
    * @returns {Control | null} 控件对象
    */
   getControlById(id: OMapControlIdType): Control | null {
-    if (!isDefined(id)) {
-      error_(createMessage('getControlById', commonMessage.paramsNotDefined('id')))
-    }
-    if (!isNumber(id) && !isString(id)) {
-      error_(
-        createMessage(
-          'getControlById',
-          commonMessage.paramsInvaildFormat('id', 'OMapControlIdType类型')
-        )
-      )
-    }
-    const target = this.controls.find((item: Control) => {
-      return item.getId() === id
-    })
-    return isDefined(target) ? target : null
+    return this.controlManager.getById(id)
   }
 
   /**
@@ -830,25 +449,7 @@ export default class Map {
    * @param {Control} control 控件对象
    */
   removeControl(control: Control) {
-    if (!isDefined(control)) {
-      error_(createMessage('addControl', commonMessage.paramsNotDefined('control')))
-    }
-    if (!isVaildControl(control)) {
-      error_(
-        createMessage('addControl', commonMessage.paramsInvaildFormat('control', 'Control类型'))
-      )
-    }
-    let index = this.controls.findIndex((i) => {
-      return OlUtil.getUid(i.getControl()) === OlUtil.getUid(control.getControl())
-    })
-    if (index === -1) {
-      warn_(createMessage('removeControl', '该控件未添加到地图中'))
-      return
-    }
-    if (isDefined(control.getControl())) {
-      this.controls.splice(index, 1)
-      this._map.removeControl(control.getControl())
-    }
+    this.controlManager.remove(control)
   }
 
   /**
@@ -860,26 +461,7 @@ export default class Map {
    * @param popup
    */
   addPopup(popup: Popup) {
-    if (!isDefined(popup)) {
-      error_(createMessage('addPopup', commonMessage.paramsNotDefined('popup')))
-    }
-    if (!isVaildPopup(popup)) {
-      error_(createMessage('addPopup', commonMessage.paramsInvaildFormat('popup', 'Popup类型')))
-    }
-    let index = this.popups.findIndex((i) => {
-      return OlUtil.getUid(i.getPopup()) === OlUtil.getUid(popup.getPopup())
-    })
-    if (index !== -1) {
-      warn_(createMessage('addPopup', '该弹窗已添加到地图中'))
-      return
-    }
-    if (isDefined(popup.getPopup())) {
-      this.popups.push(popup)
-      if (popup.setMap) {
-        popup.setMap(this)
-      }
-      this._map.addOverlay(popup.getPopup())
-    }
+    this.popupManager.add(popup)
   }
 
   /**
@@ -888,34 +470,11 @@ export default class Map {
    * @returns {Popup | null} 弹窗对象
    */
   getPopupById(id: OMapPopupIdType): Popup | null {
-    if (!isDefined(id)) {
-      error_(createMessage('getPopupById', commonMessage.paramsNotDefined('id')))
-    }
-    if (!isVaildPopupId(id)) {
-      error_(
-        createMessage(
-          'getPopupById',
-          commonMessage.paramsInvaildFormat('id', 'OMapPopupIdType类型')
-        )
-      )
-    }
-    let popup = this.popups.find((popup: Popup) => {
-      return isDefined(popup.getId()) && popup.getId() === id
-    })
-    return defaultValue(popup, null)
+    return this.popupManager.getById(id)
   }
 
   getPopupByProperties(filter: (properties: PropertiesType) => boolean): Popup[] {
-    if (!isDefined(filter)) {
-      error_(createMessage('getPopupById', commonMessage.paramsNotDefined('filter')))
-    }
-    if (!isFunction(filter)) {
-      error_(createMessage('getPopupById', commonMessage.paramsInvaildFormat('filter', '函数类型')))
-    }
-    const popups = this.popups.filter((p: Popup) => {
-      return filter(p.getProperties())
-    })
-    return popups
+    return this.popupManager.getByProperties(filter)
   }
 
   /**
@@ -923,7 +482,7 @@ export default class Map {
    * @returns {Popup[]} 弹窗数组
    */
   getPopups(): Popup[] {
-    return this.popups
+    return this.popupManager.getAll()
   }
 
   /**
@@ -931,26 +490,7 @@ export default class Map {
    * @param {Popup} popup 弹窗对象
    */
   removePopup(popup: Popup) {
-    if (!isDefined(popup)) {
-      error_(createMessage('addPopup', commonMessage.paramsNotDefined('popup')))
-    }
-    if (!isVaildPopup(popup)) {
-      error_(createMessage('addPopup', commonMessage.paramsInvaildFormat('popup', 'Popup类型')))
-    }
-    let index = this.popups.findIndex((i) => {
-      return OlUtil.getUid(i.getPopup()) === OlUtil.getUid(popup.getPopup())
-    })
-    if (index == -1) {
-      warn_(createMessage('removePopup', '该弹窗未添加到地图中'))
-      return
-    }
-    if (isDefined(popup.getPopup())) {
-      this.popups.splice(index, 1)
-      if (popup.setMap) {
-        popup.setMap(null)
-      }
-      this._map.removeOverlay(popup.getPopup())
-    }
+    this.popupManager.remove(popup)
   }
 
   /** 几何图形计算 */
@@ -990,47 +530,7 @@ export default class Map {
     ) => void,
     options?: OMapForEachFeatureAtPixelOptionsType
   ) {
-    if (!isDefined(pixel)) {
-      error_(createMessage('forEachFeatureAtPixel', commonMessage.paramsNotDefined('pixel')))
-    }
-    let _pixel = handleGetPixelValue(pixel)
-    const params = Object.assign(
-      {},
-      DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS,
-      defaultValue(options, {})
-    )
-    const result = this._map.forEachFeatureAtPixel(
-      _pixel,
-      (feature: OlFeatureLike, layer: OlLayer.Layer) => {
-        let targetFeature: BaseFeature<OlGeometry.Geometry> | null = null
-        let targetLayer: BaseLayer<OMapBaseLayerCommonType> | null = null
-        this.layers.forEach((item) => {
-          if (isDefined(layer) && OlUtil.getUid(item.getLayer()) === OlUtil.getUid(layer)) {
-            targetLayer = item
-          }
-          if (item instanceof VectorLayer) {
-            let layerFeatures = defaultValue(item.getFeatures(), [])
-            layerFeatures.forEach((f: BaseFeature<OlGeometry.Geometry>) => {
-              if (OlUtil.getUid(feature) === OlUtil.getUid(f.getFeature())) {
-                targetFeature = f
-              }
-            })
-          }
-        })
-        return callback(targetFeature, targetLayer)
-      },
-      {
-        ...params,
-        layerFilter: (layer: OlLayer.Layer) => {
-          if (!isDefined(params.layerFilter)) return true
-          const targetLayer = this.layers.find((l) => {
-            return OlUtil.getUid(l) === OlUtil.getUid(layer)
-          })
-          return isDefined(targetLayer) ? params.layerFilter(targetLayer) : false
-        }
-      }
-    )
-    return result
+    return this.featureQuery.forEachAtPixel(pixel, callback, options)
   }
 
   /**
@@ -1093,40 +593,7 @@ export default class Map {
     pixel: OMapPixelType,
     options?: OMapForEachFeatureAtPixelOptionsType
   ): BaseFeature<OlGeometry.Geometry>[] {
-    if (!isDefined(pixel)) {
-      error_(createMessage('getFeaturesAtPixel', commonMessage.paramsNotDefined('pixel')))
-    }
-    const params = Object.assign(
-      {},
-      DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS,
-      defaultValue(options, {})
-    )
-    let features = this._map.getFeaturesAtPixel(handleGetPixelValue(pixel), {
-      ...params,
-      layerFilter: (layer: OlLayer.Layer) => {
-        if (!isDefined(params.layerFilter)) return true
-        const targetLayer = this.layers.find((l) => {
-          return OlUtil.getUid(l) === OlUtil.getUid(layer)
-        })
-        return isDefined(targetLayer) ? params.layerFilter(targetLayer) : false
-      }
-    })
-    let featureIds = features.map((f) => {
-      return OlUtil.getUid(f)
-    })
-    if (!isDefined(features) || features.length === 0) return []
-    const targetFeatures: BaseFeature<OlGeometry.Geometry>[] = []
-    this.layers.forEach((layer) => {
-      if (layer instanceof VectorLayer) {
-        let layerFeatures = defaultValue(layer.getFeatures(), [])
-        layerFeatures.forEach((f: BaseFeature<OlGeometry.Geometry>) => {
-          if (featureIds.includes(OlUtil.getUid(f.getFeature()))) {
-            targetFeatures.push(f)
-          }
-        })
-      }
-    })
-    return targetFeatures
+    return this.featureQuery.getAtPixel(pixel, options)
   }
 
   /**
@@ -1136,8 +603,7 @@ export default class Map {
    * @returns {boolean} 是否有特征
    */
   hasFeatureAtPixel(pixel: OMapPixelType, options?: OMapForEachFeatureAtPixelOptionsType): boolean {
-    const features = this.getFeaturesAtPixel(handleGetPixelValue(pixel), options)
-    return isDefined(features) && features.length > 0
+    return this.featureQuery.hasAtPixel(pixel, options)
   }
 
   render() {
@@ -1157,160 +623,101 @@ export default class Map {
    */
 
   adjustCenter(deltaCoordinates: OMapCoordinateType) {
-    if (!isDefined(deltaCoordinates)) {
-      return
-    }
-    this._view.adjustCenter(handleGetLnglatValue(deltaCoordinates))
+    this.viewController.adjustCenter(deltaCoordinates)
   }
 
   adjustResolution(ratio: number, anchor?: OMapCoordinateType) {
-    this._view.adjustResolution(ratio, anchor ? handleGetLnglatValue(anchor) : undefined)
+    this.viewController.adjustResolution(ratio, anchor)
   }
 
   adjustRotation(delta: number, anchor?: OMapCoordinateType) {
-    this._view.adjustRotation(delta, anchor ? handleGetLnglatValue(anchor) : undefined)
+    this.viewController.adjustRotation(delta, anchor)
   }
 
   adjustZoom(delta: number, anchor?: OMapCoordinateType) {
-    this._view.adjustZoom(delta, anchor ? handleGetLnglatValue(anchor) : undefined)
+    this.viewController.adjustZoom(delta, anchor)
   }
 
   animate(options: OMapViewAnimateOptionsType) {
-    let _options = defaultValue(options, {})
-    let params = Object.assign({}, OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS, {
-      center: handleGetLnglatValue(_options.center),
-      resolution: _options.resolution,
-      rotation: _options.rotation,
-      zoom: _options.zoom,
-      anchor: handleGetLnglatValue(_options.anchor),
-      duration: _options.duration,
-      easing: isDefined(_options.easing)
-        ? defaultValue(OMapEasing[_options.easing as keyof typeof OMapEasing], undefined)
-        : undefined
-    })
-    this._view.animate(params)
+    this.viewController.animate(options)
   }
 
   beginInteraction() {
-    this._view.beginInteraction()
+    this.viewController.beginInteraction()
   }
 
   calculateExtent(size?: OMapSizeType): Extent {
-    let extent = this._view.calculateExtent(isDefined(size) ? handleGetSizeValue(size) : undefined)
-    return new Extent(extent)
+    return this.viewController.calculateExtent(size)
   }
 
   cancelAnimations() {
-    this._view.cancelAnimations()
+    this.viewController.cancelAnimations()
   }
 
   centerOn(coordinate: OMapCoordinateType, size: OMapSizeType, position: OMapPixelType) {
-    if (!isDefined(coordinate) || !isDefined(size) || !isDefined(position)) {
-      warn_(
-        createMessage(
-          'centerOn',
-          commonMessage.paramsListHaveNotDefined('coordinate', 'size', 'position')
-        )
-      )
-    }
-    this._view.centerOn(
-      handleGetLnglatValue(coordinate),
-      handleGetSizeValue(size),
-      handleGetPixelValue(position)
-    )
+    this.viewController.centerOn(coordinate, size, position)
   }
 
   changed() {
-    this._view.changed()
+    this.viewController.changed()
   }
 
   endInteraction(duration?: number, resolutionDirection?: number, anchor?: OMapCoordinateType) {
-    this._view.endInteraction(
-      duration,
-      resolutionDirection,
-      isDefined(anchor) ? handleGetLnglatValue(anchor) : undefined
-    )
+    this.viewController.endInteraction(duration, resolutionDirection, anchor)
   }
 
   fit(
     featureOrExtent: BaseFeature<OlGeometry.Geometry> | OMapExtentType,
     options?: OMapViewFitOptionsType
   ) {
-    if (!isDefined(featureOrExtent)) {
-      error_(createMessage('fit', commonMessage.paramsNotDefined('featureOrExtent')))
-    }
-    if (!(featureOrExtent instanceof BaseFeature) && !isValidExtent(featureOrExtent)) {
-      error_(createMessage('fit', commonMessage.paramsInvaildFormat('featureOrExtent')))
-    }
-    let target =
-      featureOrExtent instanceof BaseFeature
-        ? (featureOrExtent.getGeometry() as OMapSimpleGeometryType)
-        : handleGetExtentValue(featureOrExtent as OMapExtentType)
-    const _options = isDefined(options)
-      ? Object.assign({}, OMAP_VIEW_FIT_DEFAULT_OPTIONS, {
-          ...options,
-          size: isDefined(options.size) ? handleGetSizeValue(options.size) : undefined,
-          easing: isDefined(options.easing) ? OMapEasing[options.easing] : undefined
-        })
-      : {
-          ...OMAP_VIEW_FIT_DEFAULT_OPTIONS,
-          size: undefined,
-          easing: OMapEasing[OMAP_VIEW_FIT_DEFAULT_OPTIONS.easing]
-        }
-    this._view.fit(target, _options)
+    this.viewController.fit(featureOrExtent, options)
   }
 
   getAnimating(): boolean {
-    return this._view.getAnimating()
+    return this.viewController.getAnimating()
   }
 
   getInteracting() {
-    return this._view.getInteracting()
+    return this.viewController.getInteracting()
   }
 
   getMaxResolution(): number {
-    return this._view.getMaxResolution()
+    return this.viewController.getMaxResolution()
   }
 
   getMinResolution(): number {
-    return this._view.getMinResolution()
+    return this.viewController.getMinResolution()
   }
 
   getMaxZoom(): number {
-    return this._view.getMaxZoom()
+    return this.viewController.getMaxZoom()
   }
 
   getMinZoom(): number {
-    return this._view.getMinZoom()
+    return this.viewController.getMinZoom()
   }
 
   getProjection(): Projection {
-    return this.projection
+    return this.viewController.getProjection()
   }
 
   getResolutionForExtent() {}
 
-  getResolutionForZoom(zoom: number) {}
+  getResolutionForZoom(_zoom: number) {}
 
   getZoomForResolution() {}
 
   getResolutions() {}
 
   setConstrainResolution(enabled: boolean): void {
-    if (!isBoolean(enabled)) {
-      warn_(
-        createMessage('setProperties', commonMessage.paramsInvaildFormat('enabled', 'boolean类型'))
-      )
-      return
-    }
-    return this._view.setConstrainResolution(enabled)
+    this.viewController.setConstrainResolution(enabled)
   }
 
   setMaxZoom(maxZoom: number): void {
-    this._view.setMaxZoom(maxZoom)
+    this.viewController.setMaxZoom(maxZoom)
   }
 
   setMinZoom(minZoom: number): void {
-    this._view.setMinZoom(minZoom)
+    this.viewController.setMinZoom(minZoom)
   }
 }

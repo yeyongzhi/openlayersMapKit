@@ -1,18 +1,13 @@
-import { isDefined, isString } from '../../../utils/index';
+import { isDefined, isString } from '../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../utils/message'
-import { OlEvent } from '../../../source/index'
-import type { EventsKey, ListenerFunction } from 'ol/events'
 import type BaseEvent from 'ol/events/Event'
 import Projection from '../../core/Projection/index'
-import {
-    type OMapSourceAttributionLike,
-    type OMapSourceState,
-    type OMapSourceType
-} from './type'
+import { type OMapSourceAttributionLike, type OMapSourceState, type OMapSourceType } from './type'
 import type { PropertiesType } from '../../../utils/type'
+import type { Disposable } from '../../util/Disposable/type'
 
-const PACKAGE_NAME = 'Source';
-const createMessage = getPackageMessage(PACKAGE_NAME);
+const PACKAGE_NAME = 'Source'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * OMap Source 基类
@@ -25,154 +20,164 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  * @updateDate 2025/9/30
  */
 
-export default abstract class Source<T extends OMapSourceType> {
+export default abstract class Source<T extends OMapSourceType> implements Disposable {
+  protected _source: T
+  private disposed = false
 
-    protected _source: T;
-
-    constructor(source: T) {
-        if (!isDefined(source)) {
-            error_(createMessage('constructor', 'source不能为空'));
-        }
-        this._source = source;
+  constructor(source: T) {
+    if (!isDefined(source)) {
+      error_(createMessage('constructor', 'source不能为空'))
     }
+    this._source = source
+  }
 
-    /**
-     * 获取原生 OpenLayers Source 实例
-     */
-    getSource(): T {
-        return this._source;
+  /**
+   * 获取原生 OpenLayers Source 实例
+   */
+  getSource(): T {
+    return this._source
+  }
+
+  /**
+   * 子类初始化具体 Source 时使用
+   */
+  protected setSource(source: T) {
+    if (!isDefined(source)) {
+      error_(createMessage('setSource', 'source不能为空'))
     }
+    this._source = source
+  }
 
-    /**
-     * 子类初始化具体 Source 时使用
-     */
-    protected setSource(source: T) {
-        if (!isDefined(source)) {
-            error_(createMessage('setSource', 'source不能为空'));
-        }
-        this._source = source;
+  changed() {
+    this._source.changed()
+  }
+
+  dispatchEvent(event: BaseEvent | string): boolean | undefined {
+    return this._source.dispatchEvent(event)
+  }
+
+  get<Value = unknown>(key: string): Value | undefined {
+    if (!isString(key)) {
+      warn_(createMessage('get', 'key必须是字符串'))
+      return undefined
     }
+    return this._source.get(key) as Value
+  }
 
-    changed() {
-        this._source.changed();
+  set(key: string, value: unknown, silent?: boolean) {
+    if (!isString(key)) {
+      warn_(createMessage('set', 'key必须是字符串'))
+      return
     }
+    this._source.set(key, value, silent)
+  }
 
-    dispatchEvent(event: BaseEvent | string): boolean | undefined {
-        return this._source.dispatchEvent(event);
+  unset(key: string, silent?: boolean) {
+    if (!isString(key)) {
+      warn_(createMessage('unset', 'key必须是字符串'))
+      return
     }
+    this._source.unset(key, silent)
+  }
 
-    get<Value = unknown>(key: string): Value | undefined {
-        if (!isString(key)) {
-            warn_(createMessage('get', 'key必须是字符串'));
-            return undefined;
-        }
-        return this._source.get(key) as Value;
-    }
+  getAttributions() {
+    return this._source.getAttributions()
+  }
 
-    set(key: string, value: unknown, silent?: boolean) {
-        if (!isString(key)) {
-            warn_(createMessage('set', 'key必须是字符串'));
-            return;
-        }
-        this._source.set(key, value, silent);
-    }
+  getAttributionsCollapsible() {
+    return this._source.getAttributionsCollapsible()
+  }
 
-    unset(key: string, silent?: boolean) {
-        if (!isString(key)) {
-            warn_(createMessage('unset', 'key必须是字符串'));
-            return;
-        }
-        this._source.unset(key, silent);
-    }
+  getKeys() {
+    return this._source.getKeys()
+  }
 
-    getAttributions() {
-        return this._source.getAttributions();
-    }
+  getProjection(): Projection | undefined {
+    const projection = this._source.getProjection()
+    return projection ? new Projection(projection.getCode()) : undefined
+  }
 
-    getAttributionsCollapsible() {
-        return this._source.getAttributionsCollapsible();
-    }
+  getRevision() {
+    return this._source.getRevision()
+  }
 
-    getKeys() {
-        return this._source.getKeys();
-    }
+  getState() {
+    return this._source.getState()
+  }
 
-    getProjection(): Projection | undefined {
-        const projection = this._source.getProjection();
-        return projection ? new Projection(projection.getCode()) : undefined;
-    }
+  getWrapX() {
+    return this._source.getWrapX()
+  }
 
-    getRevision() {
-        return this._source.getRevision();
-    }
+  getInterpolate() {
+    return this._source.getInterpolate()
+  }
 
-    getState() {
-        return this._source.getState();
-    }
+  getResolutions(projection?: Projection) {
+    return this._source.getResolutions(projection?.getProjection())
+  }
 
-    getWrapX() {
-        return this._source.getWrapX();
-    }
+  getView() {
+    return this._source.getView()
+  }
 
-    getInterpolate() {
-        return this._source.getInterpolate();
-    }
+  getProperties(): PropertiesType {
+    return this._source.getProperties()
+  }
 
-    getResolutions(projection?: Projection) {
-        return this._source.getResolutions(projection?.getProjection());
-    }
+  refresh() {
+    this._source.refresh()
+  }
 
-    getView() {
-        return this._source.getView();
-    }
+  setAttributions(attributions: OMapSourceAttributionLike | undefined) {
+    this._source.setAttributions(attributions)
+  }
 
-    getProperties(): PropertiesType {
-        return this._source.getProperties();
-    }
+  setState(state: OMapSourceState) {
+    this._source.setState(state)
+  }
 
-    refresh() {
-        this._source.refresh();
-    }
+  setProperties(properties: PropertiesType, silent?: boolean) {
+    this._source.setProperties(properties, silent)
+  }
 
-    setAttributions(attributions: OMapSourceAttributionLike | undefined) {
-        this._source.setAttributions(attributions);
-    }
+  /** 永久释放 Source 监听与原生资源。重复调用是安全的。 */
+  dispose(): void {
+    if (this.disposed) return
+    this.disposed = true
+    this._source.dispose()
+  }
 
-    setState(state: OMapSourceState) {
-        this._source.setState(state);
-    }
+  isDisposed(): boolean {
+    return this.disposed
+  }
 
-    setProperties(properties: PropertiesType, silent?: boolean) {
-        this._source.setProperties(properties, silent);
-    }
+  // on(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
+  //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+  //         error_(createMessage('on', 'type或listener参数格式有误'));
+  //     }
+  //     return this._source.on(type, listener);
+  // }
 
-    // on(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
-    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
-    //         error_(createMessage('on', 'type或listener参数格式有误'));
-    //     }
-    //     return this._source.on(type, listener);
-    // }
+  // once(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
+  //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+  //         error_(createMessage('once', 'type或listener参数格式有误'));
+  //     }
+  //     return this._source.once(type, listener);
+  // }
 
-    // once(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {
-    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
-    //         error_(createMessage('once', 'type或listener参数格式有误'));
-    //     }
-    //     return this._source.once(type, listener);
-    // }
+  // un(type: string | string[], listener: ListenerFunction) {
+  //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
+  //         error_(createMessage('un', 'type或listener参数格式有误'));
+  //     }
+  //     this._source.un(type, listener);
+  // }
 
-    // un(type: string | string[], listener: ListenerFunction) {
-    //     if ((!isString(type) && !Array.isArray(type)) || !isDefined(listener)) {
-    //         error_(createMessage('un', 'type或listener参数格式有误'));
-    //     }
-    //     this._source.un(type, listener);
-    // }
-
-    // unByKey(key: EventsKey | EventsKey[]) {
-    //     if (Array.isArray(key)) {
-    //         key.forEach(item => OlEvent.unlistenByKey(item))
-    //     } else {
-    //         OlEvent.unlistenByKey(key)
-    //     }
-    // }
-
+  // unByKey(key: EventsKey | EventsKey[]) {
+  //     if (Array.isArray(key)) {
+  //         key.forEach(item => OlEvent.unlistenByKey(item))
+  //     } else {
+  //         OlEvent.unlistenByKey(key)
+  //     }
+  // }
 }

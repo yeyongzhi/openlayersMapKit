@@ -1,20 +1,10 @@
-import {
-  isDefined,
-  isNumber,
-  isArray,
-  isAllNumberArray,
-} from "../../../utils/index";
-import {
-  warn_,
-  error_,
-  getPackageMessage,
-  commonMessage,
-} from "../../../utils/message";
-import { handleGetPixelValue } from "./handle";
-import { OlPixelType, OMapPixelType } from "./type";
+import { isDefined, isNumber, isAllNumberArray } from '../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import { handleGetPixelValue } from './handle'
+import { OlPixelType, OMapPixelType } from './type'
 
-const PACKAGE_NAME = "Pixel";
-const createMessage = getPackageMessage(PACKAGE_NAME);
+const PACKAGE_NAME = 'Pixel'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 像素类
@@ -28,7 +18,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class Pixel {
   static from(value: OMapPixelType): Pixel {
-    return value instanceof Pixel ? value.clone() : new Pixel(value);
+    return value instanceof Pixel ? value.clone() : new Pixel(value)
   }
 
   /**
@@ -36,48 +26,33 @@ export default class Pixel {
    * @example [100, 200]
    * @private
    */
-  _pixel: OlPixelType = [0, 0];
+  _pixel: OlPixelType = [0, 0]
 
-  constructor(x: number, y: number);
-  constructor(pixel: number[]);
+  constructor(x: number, y: number)
+  constructor(pixel: number[])
 
   constructor(...args: [number, number] | [number[]]) {
-    let value: OlPixelType = [0, 0];
+    let value: OlPixelType = [0, 0]
 
     if (args.length === 2) {
-      const [x, y] = args;
+      const [x, y] = args
       if (isNumber(x) && isNumber(y)) {
-        value = [x, y];
+        value = [x, y]
       } else {
-        error_(
-          createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat("pixel"),
-          ),
-        );
+        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('pixel')))
       }
     } else if (args.length === 1) {
-      const [arr] = args;
+      const [arr] = args
       if (Array.isArray(arr) && arr.length >= 2 && isAllNumberArray(arr)) {
         // 只取前两个
-        value = [arr[0], arr[1]];
+        value = [arr[0], arr[1]]
       } else {
-        error_(
-          createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat("pixel"),
-          ),
-        );
+        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('pixel')))
       }
     } else {
-      error_(
-        createMessage(
-          "constructor",
-          commonMessage.paramsInvaildFormat("pixel"),
-        ),
-      );
+      error_(createMessage('constructor', commonMessage.paramsInvaildFormat('pixel')))
     }
-    this._pixel = value;
+    this._pixel = value
   }
 
   /**
@@ -85,7 +60,7 @@ export default class Pixel {
    * @returns {number[] | undefined} 像素坐标
    */
   getPixel(): OlPixelType {
-    return this._pixel;
+    return this._pixel
   }
 
   /**
@@ -93,7 +68,7 @@ export default class Pixel {
    * @param {number[]} pixel 像素坐标
    */
   setPixel(pixel: OlPixelType) {
-    this._pixel = [...pixel];
+    this._pixel = [...pixel]
   }
 
   /**
@@ -101,7 +76,7 @@ export default class Pixel {
    * @returns {number} x 坐标
    */
   getX(): number {
-    return this._pixel[0];
+    return this._pixel[0]
   }
 
   /**
@@ -109,7 +84,7 @@ export default class Pixel {
    * @returns {number} y 坐标
    */
   getY(): number {
-    return this._pixel[1];
+    return this._pixel[1]
   }
 
   /**
@@ -117,7 +92,7 @@ export default class Pixel {
    * @param {number} x x 坐标
    */
   setX(x: number) {
-    this._pixel[0] = x;
+    this._pixel[0] = x
   }
 
   /**
@@ -125,7 +100,7 @@ export default class Pixel {
    * @param {number} y y 坐标
    */
   setY(y: number) {
-    this._pixel[1] = y;
+    this._pixel[1] = y
   }
 
   /**
@@ -135,18 +110,18 @@ export default class Pixel {
    */
   equals(pixel: OMapPixelType): boolean {
     if (!isDefined(pixel)) {
-      error_(createMessage("equals", commonMessage.paramsNotDefined("pixel")));
+      error_(createMessage('equals', commonMessage.paramsNotDefined('pixel')))
     }
-    const otherPixel = handleGetPixelValue(pixel);
-    return this._pixel[0] === otherPixel[0] && this._pixel[1] === otherPixel[1];
+    const otherPixel = handleGetPixelValue(pixel)
+    return this._pixel[0] === otherPixel[0] && this._pixel[1] === otherPixel[1]
   }
 
   toArray(): OlPixelType {
-    return [...this._pixel];
+    return [...this._pixel]
   }
 
   clone(): Pixel {
-    return new Pixel(this._pixel);
+    return new Pixel(this._pixel)
   }
 
   /**
@@ -154,6 +129,6 @@ export default class Pixel {
    * @returns {string} 像素坐标字符串
    */
   toString(): string {
-    return `[${this._pixel[0]}, ${this._pixel[1]}]`;
+    return `[${this._pixel[0]}, ${this._pixel[1]}]`
   }
 }

@@ -1,35 +1,35 @@
 import {
-    type OMapFormatTypeEnum,
-    type OMapFormatGeoJSONOptions,
-    type OMapFormatWKTOptions,
-    type OMapFormatKMLOptions,
-    OMapFormatType
+  type OMapFormatTypeEnum,
+  type OMapFormatGeoJSONOptions,
+  type OMapFormatWKTOptions,
+  type OMapFormatKMLOptions,
+  OMapFormatType
 } from './type'
 
 export function isVaildFormatType(type: unknown): type is OMapFormatTypeEnum {
-    return Object.values(OMapFormatType).includes(type as OMapFormatTypeEnum);
+  return Object.values(OMapFormatType).includes(type as OMapFormatTypeEnum)
 }
 
 function getGeoJSONDefaultOptions(): OMapFormatGeoJSONOptions {
-    return {
-        dataProjection: 'EPSG:4326',
-        extractGeometryName: false
-    }
+  return {
+    dataProjection: 'EPSG:4326',
+    extractGeometryName: false
+  }
 }
 
 function getWKTDefaultOptions(): OMapFormatWKTOptions {
-    return {
-        splitCollection: false
-    }   
+  return {
+    splitCollection: false
+  }
 }
 
 function getKMLOptionsDefaultOptions(): OMapFormatKMLOptions {
-    return {
-        extractStyles: false,
-        showPointNames: false,
-        writeStyles: false,
-        crossOrigin: null
-    }
+  return {
+    extractStyles: false,
+    showPointNames: false,
+    writeStyles: false,
+    crossOrigin: null
+  }
 }
 
 /**
@@ -38,14 +38,14 @@ function getKMLOptionsDefaultOptions(): OMapFormatKMLOptions {
  * @returns 默认参数
  */
 export function getDefaultOptionsByType(type: OMapFormatTypeEnum) {
-    switch (type) {
-        case OMapFormatType.GeoJSON:
-            return getGeoJSONDefaultOptions();
-        case OMapFormatType.WKT:
-            return getWKTDefaultOptions();
-        case OMapFormatType.KML:
-            return getKMLOptionsDefaultOptions();
-        default:
-            return {};
-    }
+  switch (type) {
+    case OMapFormatType.GeoJSON:
+      return getGeoJSONDefaultOptions()
+    case OMapFormatType.WKT:
+      return getWKTDefaultOptions()
+    case OMapFormatType.KML:
+      return getKMLOptionsDefaultOptions()
+    default:
+      return {}
+  }
 }

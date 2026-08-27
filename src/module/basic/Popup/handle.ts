@@ -14,56 +14,59 @@ import type BaseEvent from 'ol/events/Event'
  * @todo 可以考虑加一个小箭头的样式
  */
 export function createDefaultContentElement(content: string): HTMLElement {
-    let div = document.createElement('div');
-    div.className = 'omap-popup-default-element';
-    div.innerHTML = content;
-    return div;
+  let div = document.createElement('div')
+  div.className = 'omap-popup-default-element'
+  div.innerHTML = content
+  return div
 }
 
-interface OMapPopupEventTarget {
-    target: Popup;
-    type: OMapPopupEventType;
-    key?: string;
-    oldValue?: Lnglat | string | HTMLElement | Pixel | PropertiesType;
-    newValue?: Lnglat | string | HTMLElement | Pixel | PropertiesType;
+export interface OMapPopupEventTarget {
+  target: Popup
+  type: OMapPopupEventType
+  key?: string
+  oldValue?: Lnglat | string | HTMLElement | Pixel | PropertiesType
+  newValue?: Lnglat | string | HTMLElement | Pixel | PropertiesType
 }
 
 export type PopupEventChange =
-    | BaseEvent
-    | Event
-    | { key?: string; oldValue?: unknown; newValue?: unknown }
+  BaseEvent | Event | { key?: string; oldValue?: unknown; newValue?: unknown }
 
-export function handlePopupEvent(target: Popup, type: OMapPopupEventType, e: PopupEventChange) {
-    const key = 'key' in e && typeof e.key === 'string' ? e.key : undefined
-    const oldValue = 'oldValue' in e ? e.oldValue : undefined
-    const newValue = 'newValue' in e ? e.newValue : undefined
-    let result: OMapPopupEventTarget = {
-        target,
-        type,
-        key
-    }
-    switch (type) {
-        case "change:position":
-            result.oldValue = new Lnglat(oldValue as OlCoordinateType)
-            result.newValue = target.getPosition()
-            break;
-        case "change:positioning":
-            result.oldValue = oldValue as string
-            result.newValue = target.getPositioning()
-            break;
-        case "change:element":
-            result.oldValue = oldValue as HTMLElement
-            result.newValue = target.getElement()
-            break;
-        case "change:offset":
-            result.oldValue = new Pixel(oldValue as OlPixelType)
-            result.newValue = target.getOffset()
-            break;
-        case "change:properties":
-        case "change:content":
-            result.oldValue = oldValue as string | PropertiesType
-            result.newValue = newValue as string | PropertiesType
-            break;
-    }
-    return result
+export function handlePopupEvent(
+  target: Popup,
+  type: OMapPopupEventType,
+  e: PopupEventChange
+): OMapPopupEventTarget {
+  const key = 'key' in e && typeof e.key === 'string' ? e.key : undefined
+  const oldValue = 'oldValue' in e ? e.oldValue : undefined
+  const newValue = 'newValue' in e ? e.newValue : undefined
+  let result: OMapPopupEventTarget = {
+    target,
+    type,
+    key
+  }
+  switch (type) {
+    case 'change:position':
+      result.oldValue =
+        oldValue === undefined ? undefined : new Lnglat(oldValue as OlCoordinateType)
+      result.newValue = target.getPosition()
+      break
+    case 'change:positioning':
+      result.oldValue = oldValue as string
+      result.newValue = target.getPositioning()
+      break
+    case 'change:element':
+      result.oldValue = oldValue as HTMLElement
+      result.newValue = target.getElement()
+      break
+    case 'change:offset':
+      result.oldValue = oldValue === undefined ? undefined : new Pixel(oldValue as OlPixelType)
+      result.newValue = target.getOffset()
+      break
+    case 'change:properties':
+    case 'change:content':
+      result.oldValue = oldValue as string | PropertiesType
+      result.newValue = newValue as string | PropertiesType
+      break
+  }
+  return result
 }

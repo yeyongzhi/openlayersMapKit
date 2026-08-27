@@ -1,20 +1,10 @@
-import {
-  isDefined,
-  isNumber,
-  isArray,
-  isAllNumberArray,
-} from "../../../utils/index";
-import {
-  warn_,
-  error_,
-  getPackageMessage,
-  commonMessage,
-} from "../../../utils/message";
-import { handleGetSizeValue } from "./handle";
-import { OMapSizeType, type OlSizeType } from "./type";
+import { isNumber, isAllNumberArray } from '../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import { handleGetSizeValue } from './handle'
+import { OMapSizeType, type OlSizeType } from './type'
 
-const PACKAGE_NAME = "Size";
-const createMessage = getPackageMessage(PACKAGE_NAME);
+const PACKAGE_NAME = 'Size'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 尺寸类
@@ -28,7 +18,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class Size {
   static from(value: OMapSizeType): Size {
-    return value instanceof Size ? value.clone() : new Size(value);
+    return value instanceof Size ? value.clone() : new Size(value)
   }
 
   /**
@@ -36,45 +26,33 @@ export default class Size {
    * @example [20, 15]
    * @private
    */
-  _size: OlSizeType = [0, 0];
+  _size: OlSizeType = [0, 0]
 
-  constructor(x: number, y: number);
-  constructor(pixel: number[]);
+  constructor(x: number, y: number)
+  constructor(pixel: number[])
 
   constructor(...args: [number, number] | [number[]]) {
-    let value: OlSizeType = [0, 0];
+    let value: OlSizeType = [0, 0]
 
     if (args.length === 2) {
-      const [x, y] = args;
+      const [x, y] = args
       if (isNumber(x) && isNumber(y)) {
-        value = [x, y];
+        value = [x, y]
       } else {
-        error_(
-          createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat("size"),
-          ),
-        );
+        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('size')))
       }
     } else if (args.length === 1) {
-      const [arr] = args;
+      const [arr] = args
       if (Array.isArray(arr) && arr.length >= 2 && isAllNumberArray(arr)) {
         // 只取前两个
-        value = [arr[0], arr[1]];
+        value = [arr[0], arr[1]]
       } else {
-        error_(
-          createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat("size"),
-          ),
-        );
+        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('size')))
       }
     } else {
-      error_(
-        createMessage("constructor", commonMessage.paramsInvaildFormat("size")),
-      );
+      error_(createMessage('constructor', commonMessage.paramsInvaildFormat('size')))
     }
-    this._size = value;
+    this._size = value
   }
 
   /**
@@ -82,7 +60,7 @@ export default class Size {
    * @returns {OlSizeType} size
    */
   getSize(): OlSizeType {
-    return this._size;
+    return this._size
   }
 
   /**
@@ -90,7 +68,7 @@ export default class Size {
    * @param {OMapSizeType} size
    */
   setSize(size: OMapSizeType) {
-    this._size = handleGetSizeValue(size);
+    this._size = handleGetSizeValue(size)
   }
 
   /**
@@ -98,7 +76,7 @@ export default class Size {
    * @returns {number} width
    */
   getWidth(): number {
-    return this._size[0];
+    return this._size[0]
   }
 
   /**
@@ -106,7 +84,7 @@ export default class Size {
    * @returns {number} height
    */
   getHeight(): number {
-    return this._size[1];
+    return this._size[1]
   }
 
   /**
@@ -114,7 +92,7 @@ export default class Size {
    * @param {number} width
    */
   setWidth(width: number) {
-    this._size[0] = width;
+    this._size[0] = width
   }
 
   /**
@@ -122,7 +100,7 @@ export default class Size {
    * @param {number} height
    */
   setHeight(height: number) {
-    this._size[1] = height;
+    this._size[1] = height
   }
 
   /**
@@ -131,8 +109,8 @@ export default class Size {
    * @returns {boolean} 判断结果
    */
   equals(size: OMapSizeType): boolean {
-    let _size = handleGetSizeValue(size);
-    return this._size[0] === _size[0] && this._size[1] === _size[1];
+    let _size = handleGetSizeValue(size)
+    return this._size[0] === _size[0] && this._size[1] === _size[1]
   }
 
   /**
@@ -140,11 +118,11 @@ export default class Size {
    * @returns {OlSizeType} size
    */
   toArray(): OlSizeType {
-    return [...this._size] as OlSizeType;
+    return [...this._size] as OlSizeType
   }
 
   clone(): Size {
-    return new Size(this._size);
+    return new Size(this._size)
   }
 
   /**
@@ -152,6 +130,6 @@ export default class Size {
    * @returns {string} sizeStr
    */
   toString(): string {
-    return `[${this._size[0]}, ${this._size[1]}]`;
+    return `[${this._size[0]}, ${this._size[1]}]`
   }
 }

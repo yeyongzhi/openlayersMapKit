@@ -1,22 +1,16 @@
-import { isDefined, isNumber, defaultValue } from "../../../utils/index";
-import {
-  warn_,
-  error_,
-  getPackageMessage,
-  commonMessage,
-} from "../../../utils/message";
-import TileLayer from "../TileLayer/index";
-import XYZSource from "../../source/TileSource/subClass/XYZ/index";
-import { DEFAULT_XYZ_SOURCE_PARAMS } from "../../source/TileSource/subClass/XYZ/type";
+import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
+import TileLayer from '../TileLayer/index'
+import XYZSource from '../../source/TileSource/subClass/XYZ/index'
+import { DEFAULT_XYZ_SOURCE_PARAMS } from '../../source/TileSource/subClass/XYZ/type'
 import {
   type GaodeLayerTypeEnum,
   type OMapGaodeLayerParamsType,
-  isValidGaodeLayerType,
-} from "./type";
-import { getGaodeLayerUrlsByType } from "./handle";
+  isValidGaodeLayerType
+} from './type'
+import { getGaodeLayerUrlsByType } from './handle'
 
-let PACKAGE_NAME = "GaodeLayer";
-let createMessage = getPackageMessage(PACKAGE_NAME);
+let PACKAGE_NAME = 'GaodeLayer'
+let createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 高德地图类
@@ -32,29 +26,22 @@ export default class GaodeLayer extends TileLayer {
   /**
    * 图层类型
    */
-  gaodeType!: GaodeLayerTypeEnum;
+  gaodeType!: GaodeLayerTypeEnum
 
   constructor(type: GaodeLayerTypeEnum, options: OMapGaodeLayerParamsType) {
     if (!isValidGaodeLayerType(type)) {
-      error_(
-        createMessage("constructor", commonMessage.paramsInvaildEnum("type")),
-      );
+      error_(createMessage('constructor', commonMessage.paramsInvaildEnum('type')))
     }
-    const urls = getGaodeLayerUrlsByType(type);
-    const xyzSourceParams = Object.assign(
-      {},
-      DEFAULT_XYZ_SOURCE_PARAMS,
-      options,
-      {
-        urls,
-      },
-    );
-    const xyzSource = new XYZSource(xyzSourceParams);
+    const urls = getGaodeLayerUrlsByType(type)
+    const xyzSourceParams = Object.assign({}, DEFAULT_XYZ_SOURCE_PARAMS, options, {
+      urls
+    })
+    const xyzSource = new XYZSource(xyzSourceParams)
     const gaodeParams = Object.assign({}, options, {
-      source: xyzSource.getSource(),
-    });
-    super(gaodeParams);
-    this.gaodeType = type;
+      source: xyzSource.getSource()
+    })
+    super(gaodeParams)
+    this.gaodeType = type
     this._initLayerEvent()
   }
 }

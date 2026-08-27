@@ -1,4 +1,8 @@
-import { type OMapInteractionSelectEventType, type OlSelectEventPayloadType, type OMapSelectEvent } from './type'
+import {
+  type OMapInteractionSelectEventType,
+  type OlSelectEventPayloadType,
+  type OMapSelectEvent
+} from './type'
 import Select from './index'
 
 export function handleInteractionSelectEvent(

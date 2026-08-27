@@ -3,10 +3,7 @@ import type BaseEvent from 'ol/events/Event'
 import type { ObjectEvent } from 'ol/Object'
 
 export type InteractionPropertyChangeEvent =
-  | BaseEvent
-  | ObjectEvent
-  | Event
-  | { key?: string; oldValue?: unknown }
+  BaseEvent | ObjectEvent | Event | { key?: string; oldValue?: unknown }
 
 export type InteractionStateEvent<Target, EventType extends string> = {
   target: Target

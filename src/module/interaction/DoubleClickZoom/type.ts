@@ -1,37 +1,34 @@
-import { isString } from "../../../utils/dataType";
-import { OlInteraction } from "../../../source/index";
-import type { ManualOmit } from "../../../utils/type";
+import { isString } from '../../../utils/dataType'
+import { OlInteraction } from '../../../source/index'
+import type { ManualOmit } from '../../../utils/type'
 import {
   OMapInteractionCommonEventTypes,
-  type OMapInteractionCommonParamsType,
-} from "../Interaction/type";
+  type OMapInteractionCommonParamsType
+} from '../Interaction/type'
 
 export type OlDoubleClickZoomParamsType = ConstructorParameters<
   typeof OlInteraction.DoubleClickZoom
->[0];
-type CustOlDoubleClickZoomParamsType = ManualOmit<
-  OlDoubleClickZoomParamsType,
-  ""
->;
+>[0]
+type CustOlDoubleClickZoomParamsType = ManualOmit<OlDoubleClickZoomParamsType, ''>
 export type OMapDoubleClickZoomParamsType = CustOlDoubleClickZoomParamsType &
-  OMapInteractionCommonParamsType;
+  OMapInteractionCommonParamsType
 
-export type OMapDoubleClickZoomType = OlInteraction.DoubleClickZoom;
+export type OMapDoubleClickZoomType = OlInteraction.DoubleClickZoom
 export type OlInteractionDoubleClickZoomInstanceType = InstanceType<
   typeof OlInteraction.DoubleClickZoom
->;
+>
 
-export const OMapInteractionDoubleClickZoomEventTypes = [
-  ...OMapInteractionCommonEventTypes,
-];
+export const OMapInteractionDoubleClickZoomEventTypes = [...OMapInteractionCommonEventTypes]
 export type OMapInteractionDoubleClickZoomEventType =
-  (typeof OMapInteractionDoubleClickZoomEventTypes)[number];
-
+  (typeof OMapInteractionDoubleClickZoomEventTypes)[number]
 
 export function isOMapInteractionDoubleClickZoomEventType(
-  value: unknown,
+  value: unknown
 ): value is OMapInteractionDoubleClickZoomEventType {
   return (
-    isString(value) && OMapInteractionDoubleClickZoomEventTypes.includes(value as OMapInteractionDoubleClickZoomEventType)
-  );
+    isString(value) &&
+    OMapInteractionDoubleClickZoomEventTypes.includes(
+      value as OMapInteractionDoubleClickZoomEventType
+    )
+  )
 }

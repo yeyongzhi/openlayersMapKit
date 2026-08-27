@@ -4,3 +4,5 @@ node_modules
 _temp_
 __test_
 pnpm-lock.yaml
+.workbuddy
+%SystemDrive%

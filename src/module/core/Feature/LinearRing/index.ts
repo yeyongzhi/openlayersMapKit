@@ -1,25 +1,19 @@
-import { isDefined, isCoordinatesType, isArray } from "../../../../utils/index";
-import {
-  warn_,
-  error_,
-  getPackageMessage,
-  commonMessage,
-} from "../../../../utils/message";
-import { OlExtentType, OlFeature, OlGeometry } from "../../../../source/index";
-import BasicFeature from "../BasicFeature";
+import { isDefined } from '../../../../utils/index'
+import { error_, getPackageMessage, commonMessage } from '../../../../utils/message'
+import { OlFeature, OlGeometry } from '../../../../source/index'
+import BasicFeature from '../BasicFeature'
 import type { PropertiesType } from '../../../../utils/type'
-import type { OlFeatureInstanceType } from "../BasicFeature/type";
+import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import {
   isValidLinearRingCoordinates,
   type OMapLinearRingGeometryCoordinatesType,
-  type OlLinearRingGeomInstanceType,
-  type OMapLinearRingType,
-} from "./type";
-import Lnglat from "../../../basic/Lnglat/index";
-import { normalizeCoordinates } from "../../../basic/Lnglat/handle";
+  type OMapLinearRingType
+} from './type'
+import Lnglat from '../../../basic/Lnglat/index'
+import { normalizeCoordinates } from '../../../basic/Lnglat/handle'
 
-const PACKAGE_NAME = "LinearRing";
-const createMessage = getPackageMessage(PACKAGE_NAME);
+const PACKAGE_NAME = 'LinearRing'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * LinearRing类
@@ -33,53 +27,42 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
 
 export default class LinearRing extends BasicFeature<OMapLinearRingType> {
   constructor(
-    coordinatesOrFeature:
-      | OMapLinearRingGeometryCoordinatesType
-      | OlFeatureInstanceType,
-    properties?: PropertiesType,
+    coordinatesOrFeature: OMapLinearRingGeometryCoordinatesType | OlFeatureInstanceType,
+    properties?: PropertiesType
   ) {
     if (!isDefined(coordinatesOrFeature)) {
-      error_(
-        createMessage(
-          "constructor",
-          commonMessage.paramsNotDefined("coordinatesOrFeature"),
-        ),
-      );
-      return;
+      error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
+      return
     }
     if (coordinatesOrFeature instanceof OlFeature) {
-      super("LinearRing", coordinatesOrFeature as OlFeatureInstanceType);
+      super('LinearRing', coordinatesOrFeature as OlFeatureInstanceType)
     } else {
       if (!isValidLinearRingCoordinates(coordinatesOrFeature)) {
         error_(
-          createMessage(
-            "constructor",
-            commonMessage.paramsInvaildFormat("coordinatesOrFeature"),
-          ),
-        );
+          createMessage('constructor', commonMessage.paramsInvaildFormat('coordinatesOrFeature'))
+        )
       }
-      super("LinearRing", coordinatesOrFeature);
+      super('LinearRing', coordinatesOrFeature)
       if (properties) {
-        this.setProperties(properties);
+        this.setProperties(properties)
       }
     }
   }
 
   protected _init(coordinates: OMapLinearRingGeometryCoordinatesType) {
-    this._geometry = new OlGeometry.LinearRing(normalizeCoordinates(coordinates));
+    this._geometry = new OlGeometry.LinearRing(normalizeCoordinates(coordinates))
     this._feature = this._createFeature(this._geometry)
   }
-
 
   /**
    * 获取LinearRing的坐标
    * @returns {Array<Lnglat>} LinearRing的坐标
    */
   getCoordinates(): Array<Lnglat> {
-    let coordinates = this._geometry.getCoordinates();
+    let coordinates = this._geometry.getCoordinates()
     return coordinates.map((c) => {
-      return new Lnglat(c);
-    });
+      return new Lnglat(c)
+    })
   }
 
   /**
@@ -88,22 +71,12 @@ export default class LinearRing extends BasicFeature<OMapLinearRingType> {
    */
   setCoordinates(coordinates: OMapLinearRingGeometryCoordinatesType): void {
     if (!isDefined(coordinates)) {
-      error_(
-        createMessage(
-          "setCoordinates",
-          commonMessage.paramsNotDefined("coordinates"),
-        ),
-      );
+      error_(createMessage('setCoordinates', commonMessage.paramsNotDefined('coordinates')))
     }
     if (!isValidLinearRingCoordinates(coordinates)) {
-      error_(
-        createMessage(
-          "setCoordinates",
-          commonMessage.paramsInvaildFormat("coordinates"),
-        ),
-      );
+      error_(createMessage('setCoordinates', commonMessage.paramsInvaildFormat('coordinates')))
     }
-    let _coordinates = normalizeCoordinates(coordinates);
-    this._geometry.setCoordinates(_coordinates);
+    let _coordinates = normalizeCoordinates(coordinates)
+    this._geometry.setCoordinates(_coordinates)
   }
 }

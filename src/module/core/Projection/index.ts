@@ -1,10 +1,10 @@
-import { isDefined, isNumber, isString } from '../../../utils/index';
+import { isDefined, isString } from '../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from './type'
-import OlPackage, { OlProj } from '../../../source/index'
+import { OlProj } from '../../../source/index'
 
-const PACKAGE_NAME = 'Map';
-const createMessage = getPackageMessage(PACKAGE_NAME);
+const PACKAGE_NAME = 'Map'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 坐标系类
@@ -17,49 +17,48 @@ const createMessage = getPackageMessage(PACKAGE_NAME);
  */
 
 export default class Projection {
-    _projection: OlProj.Projection;
-    protected code: string = "";
-    protected units: ProjectionUnitsType = 'degrees';
+  _projection: OlProj.Projection
+  protected code: string = ''
+  protected units: ProjectionUnitsType = 'degrees'
 
-    constructor(proj: string | OlProjOptionsType) {
-        let result: string = ""
-        if(isString(proj)) {
-            result = (proj as string).startsWith("EPSG") ? (proj as string) : 'EPSG:' + (proj as string)
-        } else {
-            let _proj = proj as OlProjOptionsType;
-            if(!isDefined(_proj.code)) {
-                error_(createMessage('constructor', '初始化参数有误'));
-            }
-            result = _proj.code
-            result = result.startsWith("EPSG") ? result : 'EPSG:' + result
-        }
-        // 到此为止，result一定是一个完整的坐标系代码，例如EPSG:4326
-        this.code = result;
-        this._projection = OlProj.get(result) as OlProj.Projection;
-        if(!isDefined(this._projection)) {
-            warn_(createMessage('constructor', '坐标系不存在'));
-        }
-        this.units = (this._projection as OlProjInstanceType).getUnits();
+  constructor(proj: string | OlProjOptionsType) {
+    let result: string = ''
+    if (isString(proj)) {
+      result = (proj as string).startsWith('EPSG') ? (proj as string) : 'EPSG:' + (proj as string)
+    } else {
+      let _proj = proj as OlProjOptionsType
+      if (!isDefined(_proj.code)) {
+        error_(createMessage('constructor', '初始化参数有误'))
+      }
+      result = _proj.code
+      result = result.startsWith('EPSG') ? result : 'EPSG:' + result
     }
-
-    getCode() {
-        return this.code;
+    // 到此为止，result一定是一个完整的坐标系代码，例如EPSG:4326
+    this.code = result
+    this._projection = OlProj.get(result) as OlProj.Projection
+    if (!isDefined(this._projection)) {
+      warn_(createMessage('constructor', '坐标系不存在'))
     }
+    this.units = (this._projection as OlProjInstanceType).getUnits()
+  }
 
-    getUnits() {
-        return this.units;
-    }
+  getCode() {
+    return this.code
+  }
 
-    getAxisOrientation() {
-        return this._projection.getAxisOrientation();
-    }
+  getUnits() {
+    return this.units
+  }
 
-    getExtent() {
-        return this._projection.getExtent();
-    }
+  getAxisOrientation() {
+    return this._projection.getAxisOrientation()
+  }
 
-    getProjection(): OlProj.Projection {
-        return this._projection
-    }
+  getExtent() {
+    return this._projection.getExtent()
+  }
 
+  getProjection(): OlProj.Projection {
+    return this._projection
+  }
 }

@@ -9,12 +9,12 @@ export type OMapUTFGridSourceParamsType = OlUTFGridSourceOptions
 export type OMapUTFGridDataCallback = (data: unknown) => void
 
 export const DEFAULT_UTF_GRID_SOURCE_PARAMS: Partial<OMapUTFGridSourceParamsType> = {
-    preemptive: true,
-    jsonp: false,
-    wrapX: true,
-    zDirection: 0
+  preemptive: true,
+  jsonp: false,
+  wrapX: true,
+  zDirection: 0
 }
 
 export function handleGetUTFGridSourceParams(params: OMapUTFGridSourceParamsType) {
-    return params;
+  return params
 }

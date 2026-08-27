@@ -41,4 +41,17 @@ describe('Event', () => {
 
     expect(unlisten).toHaveBeenCalledOnce()
   })
+
+  it('implements an idempotent permanent disposal contract', () => {
+    const events = new Event<TestEvents>()
+    const unlisten = vi.fn()
+    events.on('reset', vi.fn(), unlisten)
+
+    events.dispose()
+    events.dispose()
+
+    expect(events.isDisposed()).toBe(true)
+    expect(unlisten).toHaveBeenCalledOnce()
+    expect(() => events.on('reset', vi.fn())).toThrow(/已释放/)
+  })
 })
