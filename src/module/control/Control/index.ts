@@ -89,7 +89,7 @@ export default class Control<T extends OMapControlCommonType = OMapControlCommon
   dispose(): void {
     if (this.disposed) return
     this.disposed = true
-    this.events.off()
+    this.events.dispose()
     this.remove()
     this._control.dispose()
   }

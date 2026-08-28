@@ -4,37 +4,46 @@
 > 基线版本：`1.0.0-beta1`（历史未发布版本）  
 > 当前开发版本：`0.1.0-beta.1`（内部预发布版本，公开发布前仍需满足下述门禁）  
 > 计划建立：2026-08-20  
-> 最近校准：2026-08-27（本地质量门禁、维护文档、API 文档、Vue 示例与双模块消费验证完成）  
+> 最近校准：2026-08-28（按 [NEXT_STEPS_PLAN.md](./NEXT_STEPS_PLAN.md) 第一阶段校准：合并重复待办、拆分已完成项、将文档从“已完成”降级为“骨架完成、逐类内容待补”，并排除 `.agents` 对全仓格式门禁的影响）  
 > 目标：将旧版 OpenLayers 封装整理成可测试、可维护、可发布的 TypeScript SDK，并通过 GitHub Actions 自动部署 VitePress 文档站。
 
 ## 0. 进度总览
 
-截至 2026-08-27，任务清单完成 **102/122 项（83.6%）**。当前成果已经达到“可持续开发、可构建、可打包、可供本地消费者验证”的内部 Beta 水平，但尚未达到公开发布门禁。
+截至 2026-08-28 校准后，任务清单完成 **103/119 项（86.6%）**。本轮校准合并了 6 项跨批次重复待办、将“全局覆盖率门槛”拆出为已完成项并保留模块 85% 目标、新增 1 项 Trusted Publishing 独立任务。当前成果已经达到“可持续开发、可构建、可打包、可供本地消费者验证”的内部 Beta 水平，但尚未达到公开发布门禁。
 
-| 工作域             | 状态     | 当前结果                                                                                              |
-| ------------------ | -------- | ----------------------------------------------------------------------------------------------------- |
-| 工程规范与质量门禁 | 已完成   | TypeScript、ESLint 零 warning、Prettier、Vitest、覆盖率、构建、文档与包检查统一由 `pnpm check` 验证   |
-| Map 与生命周期重构 | 已完成   | Map 职责下沉至 manager/controller/query/adapter；统一 `remove()`/`dispose()`，DOM 生命周期测试通过    |
-| Feature 状态与工厂 | 已完成   | VectorSource 单一状态源、WeakMap resolver、全部 Geometry factory 参数化矩阵完成                       |
-| 包结构与消费验证   | 基本完成 | ESM、CJS/UMD、TypeScript 消费通过；`publint` 与 Are The Types Wrong 无问题；可选 subpath exports 暂缓 |
-| 类型系统收敛       | 进行中   | 关键模块和公开安全岛已收紧；全量 properties、typed event map、未知输入与错误策略仍待统一              |
-| 测试与覆盖率       | 进行中   | 22 个测试文件、107 个用例；全局行覆盖率 73.96%，70% 门槛已接入 CI，模块 85% 目标未完成                |
-| 文档与 Vue 示例    | 已完成   | 维护/迁移/故障排查/发布文档、七类模块 API 页和 Vue 3 全工具示例均可构建                               |
-| 发布基础设施       | 部分完成 | CI、Pages、Release 工作流已就绪；仓库设置、Trusted Publishing 和真实发布演练需要外部权限              |
+| 工作域             | 状态     | 当前结果                                                                                                       |
+| ------------------ | -------- | -------------------------------------------------------------------------------------------------------------- |
+| 工程规范与质量门禁 | 已完成   | TypeScript、ESLint 零 warning、Prettier、Vitest、覆盖率、构建、文档与包检查统一由 `pnpm check` 验证            |
+| Map 与生命周期重构 | 已完成   | Map 职责下沉至 manager/controller/query/adapter；统一 `remove()`/`dispose()`，DOM 生命周期测试通过             |
+| Feature 状态与工厂 | 已完成   | VectorSource 单一状态源、WeakMap resolver、全部 Geometry factory 参数化矩阵完成                                |
+| 包结构与消费验证   | 基本完成 | ESM、CJS/UMD、TypeScript 消费通过；`publint` 与 Are The Types Wrong 无问题；可选 subpath exports 暂缓          |
+| 类型系统收敛       | 进行中   | 关键模块和公开安全岛已收紧；全量 properties、typed event map、未知输入与错误策略仍待统一                       |
+| 测试与覆盖率       | 进行中   | 22 个测试文件、107 个用例；全局行覆盖率 73.96%，70% 门槛已达成并接入 CI，模块 85% 目标未完成                   |
+| 文档与 Vue 示例    | 骨架完成 | 站点、导航、维护类指南与七类模块 API 页可构建；**逐类完整 API 文档与示例待补**                                 |
+| 发布基础设施       | 部分完成 | CI、Pages、Release 工作流已就绪；本地 `npm publish --dry-run` 已通过；仓库设置与 Trusted Publishing 需外部权限 |
 
 ### 剩余工作分类
 
-本地可继续执行：
+**公开 Beta 必需项**（本地可继续执行，阻塞发布）：
 
-1. 完成公共 properties、事件、loader/filter/style 回调、`unknown` 边界与错误类型收敛。
-2. 增加 Playwright 真实浏览器矩阵，并将 core/basic/util 模块覆盖率提升至 85%。
-3. 评审是否提供 subpath exports，完成禁用真实发布的本地/工作流演练。
+1. 完成公开 API/类验收矩阵，并标记每个公开类的稳定性分级（见 NEXT_STEPS_PLAN 第二阶段）。
+2. 增加 Playwright 真实浏览器矩阵，覆盖渲染、交互与销毁重建。
+3. 补齐公开类的正常、边界与资源清理测试，并将 core/basic/util 模块覆盖率提升至 85%。
+4. 完成公共 properties 泛型、事件、loader/filter/style 回调、`unknown` 边界与错误类型收敛。
+5. 逐类补齐 VitePress API 文档和示例，使使用者可仅凭文档完成接入。
+6. 完成禁用真实发布的工作流演练，并复核最终 tarball。
 
-依赖外部环境或权限：
+**可延期项**（不阻塞公开 Beta，Beta 后持续改进）：
+
+1. 评审是否提供 subpath exports。
+2. `Lnglat` → `LngLat` 历史命名的内部引用迁移与废弃移除。
+3. 收紧直接 `new GeometryWrapper(nativeFeature)` 的绕过 resolver 路径。
+
+**依赖外部环境或权限**：
 
 1. 将 GitHub Pages 发布源切换为 GitHub Actions，并配置分支保护与必需检查。
-2. 在 npm 配置 Trusted Publishing/OIDC。
-3. 使用至少一个真实业务项目试用并记录兼容性反馈。
+2. 在 npm 配置 Trusted Publishing/OIDC 与 GitHub `npm` environment。
+3. 选择并接入至少一个真实业务项目，记录兼容性反馈。
 
 ## 1. 总体原则
 
@@ -64,6 +73,8 @@
 
 ### 当前执行快照
 
+- 2026-08-28：按 `NEXT_STEPS_PLAN.md` 第一阶段校准本计划：将“文档与 Vue 示例已完成”降级为“站点骨架完成、逐类内容待补”并新增 2 项逐类文档/示例待办；拆分阶段 7 覆盖率待办（全局 70% 门槛标记完成，模块 85% 目标保留）；新增独立 Trusted Publishing/OIDC、工作流演练与 tarball 复核任务；合并批次 E 与阶段 7/8/9 的重复待办；将剩余工作重新划分为“公开 Beta 必需项 / 可延期项 / 外部权限项”三类；`.agents` 加入 `.prettierignore`，避免非 SDK 文件阻断全仓 `format:check`。
+- 2026-08-28：完成本地禁用真实发布演练：`npm publish --dry-run` 完整触发 `prepack`，TypeScript、22 个测试文件 / 107 个用例、Vite 双模块构建与声明生成全部通过；生成包共 408 个文件，压缩后约 685.2 kB、解包约 3.8 MB，未向 npm 写入任何版本。复核覆盖率基线仍为 statements 72.76%、lines 73.96%；全局 70% 门槛通过，但 core/basic/util 85% 模块目标和 Playwright 真实浏览器矩阵仍未完成。尝试移除 `defaultValue` 最后两个兼容性 `any` 时确认其覆盖 Map、Format、Layer、Interaction 多组结构差异，必须逐调用点迁移，不能仅替换 helper 签名。
 - 2026-08-27：继续收敛公开类型边界：Event 内部存储、MapToken 全局扩展、旧 Layer properties 与 `ManualOmit` 清除显式 `any`，源码仅保留 `defaultValue` 中 2 个已注释的历史兼容边界；Measure 建立 typed event map，`on/once` 精确返回事件对象，`measure:end` 增加不可变结果快照；新增公开 `OMapError`/`OMapErrorCode` 统一 SDK 异常身份。
 - 2026-08-27：补齐公开 Beta 维护文档：新增 `CHANGELOG.md`、`CONTRIBUTING.md`、迁移指南、故障排查、版本发布策略与历史模块审计归档；补齐 core/layer/source/interaction/control/basic/util 模块 API 页面及 Vue 3 基础地图、Vector、Draw、Modify、Measure、Select、Popup 示例，示例统一采用 `useTemplateRef` + `shallowRef` 并在卸载时 `dispose()`。
 - 2026-08-27：消除双模块声明歧义：ESM exports 使用 `.d.mts` 桥接，CommonJS 使用 `.d.ts`；ESM/CJS/TypeScript 消费者均通过，`publint` 输出 `All good!`，Are The Types Wrong 将 ESM/CJS 分别正确识别且无问题。
@@ -237,35 +248,39 @@
 
 ### 阶段 7：测试矩阵
 
-状态：Vitest、DOM 与包消费矩阵已完成首轮；Playwright 和模块覆盖率待完成
+状态：Vitest、DOM 与包消费矩阵已完成首轮，全局 70% 门槛已达成；Playwright 真实浏览器矩阵和模块 85% 目标待完成
 
 任务：
 
 - [x] Vitest 基线：basic 值对象、Event、VectorSource、Map 生命周期、Draw、Modify、Select。
 - [ ] Vitest 扩展：坐标转换、全部 Geometry、Measure、Popup、Control（Format 与 Feature factory 已完成首轮矩阵）。
 - [x] DOM 集成：Map、Layer、Popup、Control、Interaction 生命周期（happy-dom）。
-- [ ] Playwright：真实浏览器地图、绘制、修改、选择、弹窗和销毁重建。
+- [ ] Playwright：真实浏览器矩阵，覆盖地图渲染、目标容器尺寸、Vector Feature 定位、Draw、Modify、Select、Measure、Popup 与销毁重建，并接入 CI 保留失败截图/trace。
 - [x] ESM、CommonJS/UMD 与 TypeScript 声明消费者 smoke test，并接入本地/CI 门禁。
-- [ ] 全局行覆盖率已达 73.96% 并固定 70% 门槛；core/basic/util 目标 85% 仍待补齐。
+- [x] 全局行覆盖率达 73.96%，并固定 70% 硬门槛，接入 `pnpm check` 与 CI。
+- [ ] core/basic/util 模块覆盖率提升至 85%。
 
 验收：核心路径具备回归保护，浏览器行为和包消费方式均经过验证。
 
 ### 阶段 8：VitePress 文档与示例平台
 
-状态：已完成
+状态：站点骨架完成，逐类内容待补（校准于 2026-08-28）
 
 任务：
 
 - [x] 创建 VitePress 站点、主题和导航。
 - [x] 编写安装、快速开始、核心概念、迁移、贡献、故障排查和发布状态指南。
-- [x] 建立 core/layer/source/interaction/control/basic/util 模块 API 文档；精确成员签名由声明文件提供。
+- [ ] 建立 core/layer/source/interaction/control/basic/util 模块 API 文档；当前为模块级页面，**逐类完整 API 文档待补**（精确成员签名暂由声明文件提供）。
 - [x] 创建基础地图、Vector、Draw、Modify、Measure、Select、Popup 的 Vue 3 示例。
+- [ ] 补齐 XYZ/WMS/WMTS 图层、Control 与地图销毁/路由切换示例。
 - [x] 示例仅在浏览器挂载阶段创建 Map，并在卸载阶段 dispose。
 - [x] OpenLayers/OMap class 实例使用 Vue `shallowRef`，不进行深层代理。
 - [x] GitHub Pages 子路径通过 VitePress `base` 配置。
 - [x] 当前文档不包含生产地图服务密钥。
+- [ ] 为每个公开类标记 `stable-beta`/`experimental`/`compatibility`/`internal` 稳定性状态。
+- [ ] 记录 `remove`、`dispose`、可重新挂载与永久释放的区别。
 
-验收：`pnpm docs:build` 通过，核心 API 可检索，示例可在 Pages 中运行。
+验收：`pnpm docs:build` 通过，且不了解源码的使用者可仅凭文档完成安装、建图、加数据、用核心交互并正确释放资源。
 
 ### 阶段 9：GitHub Actions 与发布
 
@@ -278,6 +293,10 @@
 - [x] `release.yml`：GitHub Release 发布或手动触发，预留 npm Trusted Publishing/OIDC；默认由仓库变量关闭真实发布。
 - [ ] 配置 GitHub Pages 发布源为 GitHub Actions。
 - [ ] 配置分支保护和必需检查。
+- [x] 本地 `npm publish --dry-run` 演练（完整触发 `prepack`，未向 npm 写入任何版本）。
+- [ ] 在 npm 配置 Trusted Publishing/OIDC，并设置 GitHub `npm` environment 与审批策略。
+- [ ] 在 GitHub Actions 中完成一次禁用真实发布的工作流演练。
+- [ ] 构建并核对最终 npm tarball 内容、体积与声明文件。
 - [x] 建立 alpha → beta → rc → stable 发布节奏，并写入版本与发布策略。
 
 验收：main 自动更新文档站；发布任务必须经过完整检查且不依赖长期 npm token。
@@ -358,12 +377,13 @@
 目标：以真实消费者视角完成公开 Beta 前验收。
 
 - [x] 建立 ESM、CJS/UMD 和 TypeScript 独立消费者 smoke test。
-- [ ] 使用 Playwright 覆盖地图、绘制、修改、选择、量测、Popup 和销毁重建。
-- [ ] 达到约定覆盖率阈值并将覆盖率检查接入 CI。
-- [x] 补齐 core/layer/source/interaction/control/basic/util 模块 API 文档。
+- [ ] 使用 Playwright 覆盖地图、绘制、修改、选择、量测、Popup 和销毁重建（与阶段 7 同一任务，不重复计数）。
+- [ ] 达到约定覆盖率阈值并将覆盖率检查接入 CI（全局 70% 门槛已完成；模块 85% 目标见阶段 7）。
+- [ ] 补齐逐类 API 文档与稳定性标记（详见阶段 8）。
 - [x] 补齐 Vue 3 基础地图、Vector、Draw、Modify、Measure、Select、Popup 示例。
+- [ ] 补齐 XYZ/WMS/WMTS 图层、Control 与销毁/路由切换示例（详见阶段 8）。
 - [x] 补齐迁移、贡献、故障排查和发布说明。
-- [ ] 配置 GitHub Pages、分支保护、npm Trusted Publishing，并完成一次禁用真实发布的演练。
+- [ ] 配置 GitHub Pages、分支保护、npm Trusted Publishing，并完成一次禁用真实发布的工作流演练（详见阶段 9）。
 
 完成条件：公开 Beta 门禁全部通过，文档示例可运行，包可被目标模块系统正确消费。
 
@@ -382,9 +402,11 @@
 
 `0.1.0-beta.1` 对外发布前至少满足：
 
-- [ ] 阶段 3～6 的公开 API 和核心状态链路达到各自验收标准。
+- [ ] 阶段 3～6 的公开 API 和核心状态链路达到各自验收标准；**所有根入口公开类已进入验收矩阵并具有稳定性标记**。
 - [ ] DOM 集成、Playwright 和 ESM/CJS/UMD smoke test 通过。
 - [ ] 覆盖率达到约定阈值，CI 无错误且不存在未说明的 warning。
-- [x] API 文档、Vue 示例、迁移指南、贡献指南和 CHANGELOG 可用。
+- [ ] API 文档覆盖全部公开类，示例可独立指导接入（当前为模块级骨架，见阶段 8）。
+- [x] 迁移指南、贡献指南和 CHANGELOG 可用。
 - [ ] GitHub Pages、分支保护、Trusted Publishing 和发布演练完成。
+- [ ] 最终 npm tarball 内容、体积与声明文件已复核。
 - [ ] 至少一个真实消费项目完成试用并记录兼容性反馈。

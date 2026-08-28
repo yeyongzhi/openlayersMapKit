@@ -82,6 +82,9 @@ export default class Interaction<T extends OMapInteractionCommonType>
   }
 
   protected initInteractionEvent() {
+    // OpenLayers 交互默认处于激活状态，且其构造参数不接受 `active` 选项，
+    // 因此这里先同步一次，避免公开的 active 字段与原生状态不一致。
+    this.active = this.getActive()
     const key = this.getInteraction().on('change:active', (e: ObjectEvent) => {
       if (e.type === 'change:active') {
         this.active = this.getActive()
@@ -180,7 +183,7 @@ export default class Interaction<T extends OMapInteractionCommonType>
   dispose(): void {
     if (this.disposed) return
     this.disposed = true
-    this.events.off()
+    this.events.dispose()
     this.lifecycleEventKeys.forEach((key) => OlEvent.unlistenByKey(key))
     this.lifecycleEventKeys = []
     this.remove()

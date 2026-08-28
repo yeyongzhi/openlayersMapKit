@@ -1,0 +1,15 @@
+DoubleClickZoom: type=DoubleClickZoom getActive=true field=false
+DragBox: type=DragBox getActive=true field=false
+DragPan: type=DragPan getActive=true field=false
+DragZoom: type=DragZoom getActive=true field=false
+InteractionExtent: type=InteractionExtent getActive=true field=false
+KeyboardZoom: type=KeyboardZoom getActive=true field=false
+Link: type=Link getActive=true field=false
+MouseWheelZoom: type=MouseWheelZoom getActive=true field=false
+DragPan initial: getActive=true field=false
+after setActive(false): getActive=false field=false
+after setActive(true): getActive=true field=true
+DoubleClickZoom initial: getActive=true field=false
+after setActive(true): getActive=true field=false
+DragPan({id}) => pan-x
+KeyboardZoom({id}) => kbz-x

@@ -279,7 +279,7 @@ export default class Popup implements Disposable, Removable {
   dispose(): void {
     if (this.disposed) return
     this.disposed = true
-    this.events.off()
+    this.events.dispose()
     this.remove()
     this._popup.dispose()
   }

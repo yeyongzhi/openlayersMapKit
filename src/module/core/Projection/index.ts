@@ -1,9 +1,9 @@
 import { isDefined, isString } from '../../../utils/index'
-import { warn_, error_, getPackageMessage } from '../../../utils/index'
+import { error_, getPackageMessage } from '../../../utils/index'
 import type { ProjectionUnitsType, OlProjOptionsType, OlProjInstanceType } from './type'
 import { OlProj } from '../../../source/index'
 
-const PACKAGE_NAME = 'Map'
+const PACKAGE_NAME = 'Projection'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
@@ -35,11 +35,12 @@ export default class Projection {
     }
     // 到此为止，result一定是一个完整的坐标系代码，例如EPSG:4326
     this.code = result
-    this._projection = OlProj.get(result) as OlProj.Projection
-    if (!isDefined(this._projection)) {
-      warn_(createMessage('constructor', '坐标系不存在'))
+    const projection = OlProj.get(result)
+    if (!isDefined(projection)) {
+      error_(createMessage('constructor', `坐标系${result}不存在`))
     }
-    this.units = (this._projection as OlProjInstanceType).getUnits()
+    this._projection = projection
+    this.units = (projection as OlProjInstanceType).getUnits()
   }
 
   getCode() {
