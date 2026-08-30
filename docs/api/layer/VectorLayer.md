@@ -1,0 +1,126 @@
+# VectorLayer
+
+> 稳定性：`stable-beta`
+
+矢量图层，承载点、线、面等要素并提供样式与批量操作能力。
+
+## 引入
+
+```ts
+import { VectorLayer } from 'omap'
+```
+
+源码：`src/module/layer/VectorLayer/index.ts`
+
+## 构造
+
+```ts
+new VectorLayer(options?: OMapVectorLayerOptionsFinalType<P>)
+```
+
+## 属性
+
+| 属性                   | 说明 |
+| ---------------------- | ---- |
+| `style: OMapStyleLike` | —    |
+
+## 方法
+
+| 方法                                                                                                                                                                                           | 说明                     |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `addFeature(feature: BasicFeature<Geometry, PropertiesType>): void`                                                                                                                            | —                        |
+| `addFeatures(features: BasicFeature<Geometry, PropertiesType>[]): void`                                                                                                                        | —                        |
+| `clear(): void`                                                                                                                                                                                | —                        |
+| `forEachFeature(callback: (feature: BasicFeature<Geometry, PropertiesType>, index: number) => void): void`                                                                                     | —                        |
+| `forEachFeatureInExtent(extent: Extent, callback: (feature: BasicFeature<Geometry, PropertiesType>, index: number) => void): void`                                                             | 遍历指定范围的特征       |
+| `forEachFeatureIntersectingExtent(extent: Extent, callback: (feature: BasicFeature<Geometry, PropertiesType>, index: number) => void): void`                                                   | 遍历与指定范围相交的特征 |
+| `getClosestFeatureToCoordinate(coordinates: OMapCoordinateType, filter?: ((feature: BasicFeature<Geometry, PropertiesType>) => boolean)): BasicFeature<Geometry, PropertiesType> \| undefined` | —                        |
+| `getFeatureById(id: string \| number): BasicFeature<Geometry, PropertiesType> \| undefined`                                                                                                    | —                        |
+| `getFeatureByOlFeature(feature: Feature<Geometry>): BasicFeature<Geometry, PropertiesType> \| undefined`                                                                                       | —                        |
+| `getFeatures(): BasicFeature<Geometry, PropertiesType>[]`                                                                                                                                      | —                        |
+| `getFeaturesAtCoordinate(coordinates: OMapCoordinateType): BasicFeature<Geometry, PropertiesType>[]`                                                                                           | —                        |
+| `getFeaturesInExtent(extent: OMapExtentType, projection: Projection): BasicFeature<Geometry, PropertiesType>[]`                                                                                | —                        |
+| `getSourceExtent(): Extent`                                                                                                                                                                    | —                        |
+| `getStyle(): OMapStyleLike`                                                                                                                                                                    | 获取样式                 |
+| `getVectorSource(): VectorSource`                                                                                                                                                              | —                        |
+| `removeFeature(feature: BasicFeature<Geometry, PropertiesType>): void`                                                                                                                         | —                        |
+| `removeFeatures(features: BasicFeature<Geometry, PropertiesType>[]): void`                                                                                                                     | —                        |
+| `setDeclutter(declutter: string \| number \| boolean): void`                                                                                                                                   | 设置去重叠功能           |
+| `setStyle(style: OMapStyleLike): void`                                                                                                                                                         | 设置图层样式             |
+
+## 继承成员
+
+继承链：VectorLayer → BaseLayer
+
+### 继承自 BaseLayer
+
+| 成员                                                            | 说明                                                                                                                                                                                       |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `className: string`                                             | —                                                                                                                                                                                          |
+| `dispose(): void`                                               | 永久释放图层及其原生资源。重复调用是安全的。                                                                                                                                               |
+| `extent: Extent \| undefined`                                   | —                                                                                                                                                                                          |
+| `getClassName(): string`                                        | 获取图层样式类名                                                                                                                                                                           |
+| `getExtent(): Extent \| undefined`                              | 获取图层的范围                                                                                                                                                                             |
+| `getId(): BaseLayerIdType`                                      | 获取图层id                                                                                                                                                                                 |
+| `getLayer(): T`                                                 | 获取图层实例对象                                                                                                                                                                           |
+| `getMaxResolution(): number`                                    | —                                                                                                                                                                                          |
+| `getMaxZoom(): number`                                          | —                                                                                                                                                                                          |
+| `getMinResolution(): number`                                    | —                                                                                                                                                                                          |
+| `getMinZoom(): number`                                          | —                                                                                                                                                                                          |
+| `getName(): string`                                             | 获取图层名称                                                                                                                                                                               |
+| `getOpacity(): number`                                          | 获取图层透明度                                                                                                                                                                             |
+| `getProperties(): P \| undefined`                               | 获取图层属性字典。                                                                                                                                                                         |
+| `getSource(): Source \| null`                                   | 获取图层数据源（原生 OpenLayers 数据源实例）。                                                                                                                                             |
+| `getSourceWrapper(): Source<Source, PropertiesType> \| null`    | 获取图层关联的 OMap 数据源包装实例。 与 {@link getSource} 的区别：后者返回 OpenLayers 原生对象，本方法返回 OMap 封装 （可用 `refresh()`、`getProjection()`、瓦片事件等 OMap 语义的方法）。 |
+| `getTarget(): Map \| OMapLayerTarget \| null`                   | 获取图层当前的对象                                                                                                                                                                         |
+| `getVisible(): boolean`                                         | 获取图层可见性                                                                                                                                                                             |
+| `getZIndex(): number \| undefined`                              | —                                                                                                                                                                                          |
+| `groupId: LayerGroupIdType \| null`                             | 图层所属的图层组id，由 LayerGroup 管理                                                                                                                                                     |
+| `isDisposed(): boolean`                                         | Reports whether permanent release has already happened.                                                                                                                                    |
+| `map: Map \| null`                                              | 图层所属的地图对象                                                                                                                                                                         |
+| `maxResolution: number`                                         | —                                                                                                                                                                                          |
+| `maxZoom: number`                                               | —                                                                                                                                                                                          |
+| `minResolution: number`                                         | —                                                                                                                                                                                          |
+| `minZoom: number`                                               | —                                                                                                                                                                                          |
+| `name: string`                                                  | 图层名称，用于显示在图层控制栏中                                                                                                                                                           |
+| `opacity: number`                                               | —                                                                                                                                                                                          |
+| `properties: P`                                                 | —                                                                                                                                                                                          |
+| `remove(): void`                                                | 从当前地图解除挂载，图层仍可再次添加。                                                                                                                                                     |
+| `setClassName(className: string): void`                         | 设置图层样式类名                                                                                                                                                                           |
+| `setExtent(extent: OMapExtentType): void`                       | 设置图层的范围                                                                                                                                                                             |
+| `setId(id: BaseLayerIdType): void`                              | 设置图层id                                                                                                                                                                                 |
+| `setMaxResolution(maxResolution: number): void`                 | —                                                                                                                                                                                          |
+| `setMaxZoom(maxZoom: number): void`                             | —                                                                                                                                                                                          |
+| `setMinResolution(minResolution: number): void`                 | —                                                                                                                                                                                          |
+| `setMinZoom(minZoom: number): void`                             | —                                                                                                                                                                                          |
+| `setName(name: string): void`                                   | 设置图层名称                                                                                                                                                                               |
+| `setOpacity(opacity: number): void`                             | 设置图层透明度                                                                                                                                                                             |
+| `setProperties(properties: Partial<P>, silent?: boolean): void` | 合并写入图层属性。OpenLayers 的 `setProperties` 为合并语义， 因此入参按 `Partial<P>` 处理，允许只更新部分字段。                                                                            |
+| `setTarget(target: Map \| OMapLayerTarget \| null): void`       | 设置图层当前的对象                                                                                                                                                                         |
+| `setVisible(visible: boolean): void`                            | 设置图层可见性                                                                                                                                                                             |
+| `setZIndex(zIndex: number): void`                               | —                                                                                                                                                                                          |
+| `target: Map \| OMapLayerTarget \| null`                        | 图层所属的对象                                                                                                                                                                             |
+| `visible: boolean`                                              | —                                                                                                                                                                                          |
+| `zIndex: number \| undefined`                                   | —                                                                                                                                                                                          |
+
+## 说明与注意点
+
+- 要素通过 `addFeature()` / `addFeatures()` 添加，`getFeatures()` 可读取全部要素。
+- 图层的 `remove()` 与 `dispose()` 语义不同：前者可重新挂载，后者永久释放。
+
+## 示例
+
+```ts
+const layer = new VectorLayer()
+
+layer.addFeature(new Point([116.397, 39.909]))
+map.addLayer(layer)
+```
+
+## 相关
+
+- 基类：[BaseLayer](./BaseLayer.md)
+- 要素：[Point](../core/Point.md)、[Polygon](../core/Polygon.md)
+- 示例：[矢量与几何](/examples/vector-geometry)
+
+<!-- 本页由 scripts/gen-api-docs.mjs 从源码签名自动生成，请勿手工编辑签名表 -->

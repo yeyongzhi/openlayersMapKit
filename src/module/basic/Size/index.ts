@@ -1,4 +1,4 @@
-import { isNumber, isAllNumberArray } from '../../../utils/index'
+import { isDefined, isNumber, isAllNumberArray } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import { handleGetSizeValue } from './handle'
 import { OMapSizeType, type OlSizeType } from './type'
@@ -109,6 +109,9 @@ export default class Size {
    * @returns {boolean} 判断结果
    */
   equals(size: OMapSizeType): boolean {
+    if (!isDefined(size)) {
+      error_(createMessage('equals', commonMessage.paramsNotDefined('size')))
+    }
     let _size = handleGetSizeValue(size)
     return this._size[0] === _size[0] && this._size[1] === _size[1]
   }

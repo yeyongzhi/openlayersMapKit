@@ -85,6 +85,15 @@ describe('Measure DOM lifecycle', () => {
     expect(document.querySelectorAll('.omap-measure-marker')).toHaveLength(0)
   })
 
+  it('honors the initial active option without mounting', () => {
+    const measure = new Measure(MeasureMode.Distance, { active: false })
+
+    expect(measure.getActive()).toBe(false)
+    expect(measure.active).toBe(false)
+
+    measure.dispose()
+  })
+
   it('provides typed start/end payloads and a stable result snapshot', () => {
     vi.useFakeTimers()
     const map = createMap()

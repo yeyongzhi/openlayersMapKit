@@ -1,4 +1,4 @@
-import { isDefined, defaultValue, isFunction, isString } from '../../../utils/index'
+import { isDefined, isFunction, isString } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
 import Lnglat from '../../basic/Lnglat/index'
@@ -15,7 +15,8 @@ import {
   type OlDragBoxEventPayloadType,
   isOMapInteractionDragBoxEventType
 } from './type'
-import { handleInteractionDragBoxEvent, DragBoxParamsBoxEndHandle } from './handle'
+import { handleInteractionDragBoxEvent, createDragBoxParamsBoxEndHandle } from './handle'
+import type { DragBoxEndEventHandler } from './handle'
 
 const PACKAGE_NAME = 'DragBox'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -34,16 +35,21 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
   /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
   declare events: Event<OMapDragBoxEventMap>
   extent: Extent | null = null
+  /** 本实例私有的 onBoxEnd 回调持有者，避免与其他 DragBox 实例互相覆盖 */
+  protected boxEndHandle: DragBoxEndEventHandler = createDragBoxParamsBoxEndHandle()
 
   constructor(params?: OMapDragBoxParamsType) {
-    super('DragBox', { id: params?.id })
-    if (isDefined(params) && isDefined(params.onBoxEnd) && isFunction(params.onBoxEnd)) {
-      DragBoxParamsBoxEndHandle.initFunction(params.onBoxEnd)
+    // onBoxEnd 是 OMap 自有回调（payload 为 DragBoxEndEvent），
+    // 由 boxEndHandle 在 boxend 时统一触发，不能透传给 OpenLayers，
+    // 否则回调会被调用两次，其中一次收到的是原生 MapBrowserEvent。
+    const { onBoxEnd, id, active, ...nativeParams } = params ?? {}
+    super('DragBox', { id })
+    if (isDefined(onBoxEnd) && isFunction(onBoxEnd)) {
+      this.boxEndHandle.initFunction(onBoxEnd)
     }
-    let _params = Object.assign({}, defaultValue(params, {}))
-    this._interaction = new OlInteraction.DragBox(_params)
+    this._interaction = new OlInteraction.DragBox(nativeParams)
     // 注册事件
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
     this._initDragBoxEvent()
     this.events = new Event<OMapDragBoxEventMap>(this)
   }
@@ -52,7 +58,7 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
     this._interaction.on('boxend', (e) => {
       const extent = this._interaction.getGeometry().getExtent()
       this.extent = isDefined(extent) ? new Extent(extent) : null
-      DragBoxParamsBoxEndHandle.emit({
+      this.boxEndHandle.emit({
         coordinate: new Lnglat(e.coordinate),
         target: this,
         extent: this.extent
@@ -70,14 +76,9 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
     if (!isFunction(callback)) {
       error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(
-        type,
-        handleInteractionDragBoxEvent(this, type, e as OlDragBoxEventPayloadType)
-      )
-    })
-    const id = this.events.on(type, callback, unlisten)
-    return id
+    return this.subscribeEvent(type, callback, (e) =>
+      handleInteractionDragBoxEvent(this, type, e as OlDragBoxEventPayloadType)
+    )
   }
 
   once(
@@ -93,14 +94,12 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
     if (!isFunction(callback)) {
       error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(
-        type,
-        handleInteractionDragBoxEvent(this, type, e as OlDragBoxEventPayloadType)
-      )
-    })
-    const id = this.events.once(type, callback, unlisten)
-    return id
+    return this.subscribeEvent(
+      type,
+      callback,
+      (e) => handleInteractionDragBoxEvent(this, type, e as OlDragBoxEventPayloadType),
+      true
+    )
   }
 
   un(id: EventIdType) {
@@ -114,7 +113,7 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
   }
 
   protected destroy() {
-    DragBoxParamsBoxEndHandle.destroy()
+    this.boxEndHandle.destroy()
     super.destroy()
   }
 }

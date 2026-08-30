@@ -5,6 +5,8 @@ import Lnglat from './index'
 
 export function handleGetLnglatValue(lnglat: OMapCoordinateType): OlCoordinateType
 export function handleGetLnglatValue(lnglat?: undefined): undefined
+/** 入参可能为 undefined 时使用此重载，返回值需自行收窄。 */
+export function handleGetLnglatValue(lnglat?: OMapCoordinateType): OlCoordinateType | undefined
 
 export function handleGetLnglatValue(
   coordinates?: OMapCoordinateType

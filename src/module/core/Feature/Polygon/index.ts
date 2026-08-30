@@ -34,13 +34,16 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/2/1
  */
 
-export default class Polygon extends BasicFeature<OMapPolygonType> {
-  constructor(args: OMapPolygonGeometryCoordinatesType, properties?: PropertiesType)
+export default class Polygon<P extends PropertiesType = PropertiesType> extends BasicFeature<
+  OMapPolygonType,
+  P
+> {
+  constructor(args: OMapPolygonGeometryCoordinatesType, properties?: P)
   constructor(args: OlFeatureInstanceType)
 
   constructor(
     coordinatesOrFeature: OMapPolygonGeometryCoordinatesType | OlFeatureInstanceType,
-    properties?: PropertiesType
+    properties?: P
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
@@ -139,15 +142,6 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
   }
 
   /**
-   * 获取多边形的范围
-   * @returns {Extent} 多边形的范围
-   */
-  getExtent(): Extent {
-    let extent = this._geometry.getExtent()
-    return new Extent(extent)
-  }
-
-  /**
    * 返回投影平面上多边形的面积
    * @returns {number} 投影平面上多边形的面积
    */
@@ -207,11 +201,14 @@ export default class Polygon extends BasicFeature<OMapPolygonType> {
     return this._geometry.intersectsExtent(_extent)
   }
 
-  simplify(tolerance: number = 0) {
-    this._geometry.simplify(tolerance)
+  simplify(tolerance: number = 0): Polygon<P> {
+    const simplified = this._geometry.simplify(tolerance) as OlGeometry.Polygon
+    return new Polygon<P>(simplified.getCoordinates() as OMapPolygonGeometryCoordinatesType)
   }
 
-  transform() {}
+  transform(source: string, destination: string) {
+    this._geometry.transform(source, destination)
+  }
 
   translate(deltaX: number = 0, deltaY: number = 0): void {
     this._geometry.translate(deltaX, deltaY)

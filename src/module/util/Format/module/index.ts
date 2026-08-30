@@ -3,7 +3,8 @@ import {
   type OMapFormatInstanceType,
   type OMapFormatTypeEnum,
   OMapFormatType,
-  OMapFormatWriteFeatureOptionsType
+  OMapFormatWriteFeatureOptionsType,
+  type OMapFormatReadFeatureOptionsType
 } from '../type'
 import GeoJSON from './GeoJSON'
 import WKT from './WKT'
@@ -55,7 +56,7 @@ export function handleReadFeature(
   format: OMapFormatInstanceType,
   type: OMapFormatTypeEnum,
   source: unknown,
-  options?: unknown
+  options?: OMapFormatReadFeatureOptionsType
 ) {
   return handle(format, type, 'readFeature', source, options)
 }
@@ -64,7 +65,7 @@ export function handleReadFeatures(
   format: OMapFormatInstanceType,
   type: OMapFormatTypeEnum,
   source: unknown,
-  options?: unknown
+  options?: OMapFormatReadFeatureOptionsType
 ) {
   return handle(format, type, 'readFeatures', source, options)
 }

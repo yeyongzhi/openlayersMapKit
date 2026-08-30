@@ -51,7 +51,21 @@ export type CustomerOlMapOptionsType = {
   view?: OlViewOptionsFinalType
   target?: HTMLElement | string
 }
-export type OMapOptionsType = OlMapOptionsOmitType & CustomerOlMapOptionsType
+
+/** 集合类配置字段。这些字段在用户侧可省略，由 {@link defaultMapOptions} 兜底。 */
+type OMapOptionsCollectionKeys = 'layers' | 'controls' | 'interactions' | 'popups'
+
+/**
+ * 用户传入的地图配置。
+ * 集合类字段（`layers` / `controls` / `interactions` / `popups`）可省略，省略时使用 {@link defaultMapOptions} 中的默认值。
+ * `view` 为必填语义字段：缺失时构造函数会抛出错误。
+ */
+export type OMapOptionsType = OlMapOptionsOmitType &
+  ManualOmit<CustomerOlMapOptionsType, OMapOptionsCollectionKeys> &
+  Partial<Pick<CustomerOlMapOptionsType, OMapOptionsCollectionKeys>>
+
+/** 与 {@link defaultMapOptions} 合并后的完整地图配置，所有集合字段均存在。 */
+export type OMapResolvedOptionsType = OlMapOptionsOmitType & CustomerOlMapOptionsType
 
 /**
  * 地图的默认交互
@@ -69,7 +83,7 @@ export function createDefaultMapInteractions(): Array<Interaction<OMapInteractio
  */
 const defaultMapPopups: Popup[] = []
 
-export const defaultMapOptions: OMapOptionsType = {
+export const defaultMapOptions: OMapResolvedOptionsType = {
   pixelRatio: getDevicePixelRatio(),
   layers: [],
   controls: [],
@@ -154,7 +168,7 @@ export type OMapViewAnimateOptionsType = {
   zoom?: number
   anchor?: OMapCoordinateType
   duration: number
-  easing: keyof typeof OMapEasing // TODO：这里还有个参数t时间
+  easing: keyof typeof OMapEasing
 }
 export const OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS = {
   duration: 1000,

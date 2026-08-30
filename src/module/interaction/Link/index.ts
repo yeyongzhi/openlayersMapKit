@@ -1,12 +1,16 @@
-import { isBoolean, isDefined, defaultValue, isFunction, isString } from '../../../utils/index'
+import { isBoolean, isDefined, isFunction, isString } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
-import type { OlAnimationOptions } from '../../../utils/olType/view'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlEvent } from '../../../source/index'
+import Event from '../../util/Event/index'
+import { OlInteraction } from '../../../source/index'
 import {
   type OMapLinkParamsType,
   type OMapLinkType,
   type OMapInteractionLinkEventType,
+  type OMapLinkEvent,
+  type OMapLinkEventMap,
+  type OlLinkResolvedParamsType,
+  type OlResolvedAnimationOptions,
   isOMapInteractionLinkEventType
 } from './type'
 import Lnglat from '../../basic/Lnglat/index'
@@ -35,26 +39,30 @@ const defaultLinkOptions: OMapLinkParamsType = {
 }
 
 export default class Link extends Interaction<OMapLinkType> {
+  /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+  declare events: Event<OMapLinkEventMap>
+
   constructor(params?: OMapLinkParamsType) {
-    super('Link', { id: params?.id })
-    let _params = {
-      ...defaultValue(params, {}),
-      animate:
-        isDefined(params?.animate) && !isBoolean(params?.animate)
-          ? {
-              ...(params.animate as OlAnimationOptions),
-              center:
-                (params.animate as OlAnimationOptions).center instanceof Lnglat
-                  ? ((params.animate as OlAnimationOptions).center as Lnglat).toArray()
-                  : (params.animate as OlAnimationOptions).center
-            }
-          : defaultValue(params?.animate, true)
-    }
+    const { id, active, ...rest } = params ?? {}
+    super('Link', { id })
+    // animate 中的 center 与 anchor 都接受 Lnglat，必须转换为 OpenLayers 原生坐标
+    const { animate, ...restParams } = rest
+    const resolvedAnimate: boolean | OlResolvedAnimationOptions =
+      isBoolean(animate) || !isDefined(animate)
+        ? (animate ?? true)
+        : Object.assign({}, animate, {
+            center: animate.center instanceof Lnglat ? animate.center.toArray() : animate.center,
+            anchor: animate.anchor instanceof Lnglat ? animate.anchor.toArray() : animate.anchor
+          })
+    const _params: OlLinkResolvedParamsType = Object.assign({}, restParams, {
+      animate: resolvedAnimate
+    })
     this._interaction = new OlInteraction.Link(Object.assign({}, defaultLinkOptions, _params))
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
+    this.events = new Event<OMapLinkEventMap>(this)
   }
 
-  on(type: OMapInteractionLinkEventType, callback: () => void): EventIdType {
+  on(type: OMapInteractionLinkEventType, callback: (e: OMapLinkEvent) => void): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
@@ -64,18 +72,12 @@ export default class Link extends Interaction<OMapLinkType> {
     if (!isFunction(callback)) {
       error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(
-      this._interaction,
-      type,
-      (e: InteractionPropertyChangeEvent) => {
-        this.events.emit(type, handleInteractionLinkEvent(this, type, e))
-      }
+    return this.subscribeEvent(type, callback, (e: InteractionPropertyChangeEvent) =>
+      handleInteractionLinkEvent(this, type, e)
     )
-    const id = this.events.on(type, callback, unlisten)
-    return id
   }
 
-  once(type: OMapInteractionLinkEventType, callback: () => void): EventIdType {
+  once(type: OMapInteractionLinkEventType, callback: (e: OMapLinkEvent) => void): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
@@ -85,15 +87,12 @@ export default class Link extends Interaction<OMapLinkType> {
     if (!isFunction(callback)) {
       error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(
-      this._interaction,
+    return this.subscribeEvent(
       type,
-      (e: InteractionPropertyChangeEvent) => {
-        this.events.emit(type, handleInteractionLinkEvent(this, type, e))
-      }
+      callback,
+      (e: InteractionPropertyChangeEvent) => handleInteractionLinkEvent(this, type, e),
+      true
     )
-    const id = this.events.once(type, callback, unlisten)
-    return id
   }
 
   un(id: EventIdType) {

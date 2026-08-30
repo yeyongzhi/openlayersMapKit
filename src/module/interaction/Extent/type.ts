@@ -5,14 +5,34 @@ import type { ObjectEvent } from 'ol/Object'
 import type BaseEvent from 'ol/events/Event'
 import type Extent from '../../basic/Extent/index'
 import type InteractionExtent from './index'
+import { type OMapStyleLike, type OlStyleLike } from '../../basic/Style/type'
 import {
   type OMapInteractionCommonParamsType,
   OMapInteractionCommonEventTypes
 } from '../Interaction/type'
 
 export type OlInteractionExtentParamsType = ConstructorParameters<typeof OlInteraction.Extent>[0]
-type CustOlExtentParamsType = ManualOmit<OlInteractionExtentParamsType, ''>
+
+/**
+ * 需要由 OMap 样式转换为 OpenLayers 样式的字段。
+ * 这两个字段在公开入参中使用 OMap `Style` wrapper，构造时统一转换。
+ */
+type OMapExtentStyleKeys = 'boxStyle' | 'pointerStyle'
+
+type CustOlExtentParamsType = ManualOmit<OlInteractionExtentParamsType, OMapExtentStyleKeys> & {
+  boxStyle?: OMapStyleLike
+  pointerStyle?: OMapStyleLike
+}
 export type OMapExtentParamsType = CustOlExtentParamsType & OMapInteractionCommonParamsType
+
+/** 转换后可直接交给 OpenLayers `Extent` 交互的参数。 */
+export type OlExtentResolvedParamsType = ManualOmit<
+  OlInteractionExtentParamsType,
+  OMapExtentStyleKeys
+> & {
+  boxStyle?: OlStyleLike
+  pointerStyle?: OlStyleLike
+}
 
 export const OMAP_EXTENT_DEFAULT_PARAMS: OMapExtentParamsType = {
   condition: undefined,

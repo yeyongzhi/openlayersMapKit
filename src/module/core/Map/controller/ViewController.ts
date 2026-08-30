@@ -1,4 +1,4 @@
-import { defaultValue, isBoolean, isDefined, isNumber } from '../../../../utils/index'
+import { isBoolean, isDefined, isNumber } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage, warn_ } from '../../../../utils/message'
 import Lnglat from '../../../basic/Lnglat/index'
 import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
@@ -97,7 +97,7 @@ export default class ViewController {
   }
 
   animate(options: OMapViewAnimateOptionsType): void {
-    const input = defaultValue(options, {})
+    const input = options ?? {}
     this.view.animate({
       ...OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS,
       center: handleGetLnglatValue(input.center),
@@ -106,9 +106,7 @@ export default class ViewController {
       zoom: input.zoom,
       anchor: handleGetLnglatValue(input.anchor),
       duration: input.duration,
-      easing: isDefined(input.easing)
-        ? OMapEasing[input.easing as keyof typeof OMapEasing]
-        : undefined
+      easing: isDefined(input.easing) ? OMapEasing[input.easing] : undefined
     })
   }
 

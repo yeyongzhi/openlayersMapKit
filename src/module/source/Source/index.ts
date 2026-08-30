@@ -20,7 +20,17 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2025/9/30
  */
 
-export default abstract class Source<T extends OMapSourceType> implements Disposable {
+/**
+ * 数据源基类（抽象类）。
+ *
+ * @typeParam T - 原生 OpenLayers Source 类型。
+ * @typeParam P - 数据源属性字典。默认 {@link PropertiesType}；
+ *   传入更具体的结构后，`getProperties()` 会按该结构推导。
+ */
+export default abstract class Source<
+  T extends OMapSourceType,
+  P extends PropertiesType = PropertiesType
+> implements Disposable {
   protected _source: T
   private disposed = false
 
@@ -121,8 +131,12 @@ export default abstract class Source<T extends OMapSourceType> implements Dispos
     return this._source.getView()
   }
 
-  getProperties(): PropertiesType {
-    return this._source.getProperties()
+  /**
+   * 获取数据源属性字典。
+   * @returns {P} 属性字典，类型由泛型 `P` 决定
+   */
+  getProperties(): P {
+    return this._source.getProperties() as P
   }
 
   refresh() {
@@ -137,8 +151,14 @@ export default abstract class Source<T extends OMapSourceType> implements Dispos
     this._source.setState(state)
   }
 
-  setProperties(properties: PropertiesType, silent?: boolean) {
-    this._source.setProperties(properties, silent)
+  /**
+   * 合并写入数据源属性。OpenLayers 的 `setProperties` 为合并语义，
+   * 因此入参按 `Partial<P>` 处理，允许只更新部分字段。
+   * @param {Partial<P>} properties 待合并的属性
+   * @param {boolean} silent 是否静默更新
+   */
+  setProperties(properties: Partial<P>, silent?: boolean) {
+    this._source.setProperties(properties as PropertiesType, silent)
   }
 
   /** 永久释放 Source 监听与原生资源。重复调用是安全的。 */

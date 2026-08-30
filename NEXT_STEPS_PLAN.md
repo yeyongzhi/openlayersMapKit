@@ -25,7 +25,7 @@
 - Playwright 真实浏览器矩阵尚未建立。
 - properties 泛型、部分回调和未知输入边界尚未完全收敛。
 - `defaultValue` 仍是 Map、Format、Layer、Interaction 之间的历史兼容类型边界。
-- VitePress 已具备站点和导航骨架，但尚未形成逐类完整 API 文档。
+- VitePress 已具备站点和导航骨架；模块级 API 页与 69 个逐类 API 页均已就位（逐类页由脚本从源码提取签名生成）。
 - GitHub Pages、分支保护、npm Trusted Publishing 和真实项目试用尚未完成。
 
 ## 2. 执行原则
@@ -164,16 +164,26 @@
 
 目标：在行为受到测试保护后，消除剩余历史类型边界。
 
-- [ ] 为 Feature、Source、Layer、Map、Interaction、Control 和 Popup 建立可扩展 properties 泛型。
-- [ ] 精确声明 loader、filter、style 和事件回调。
-- [ ] 补齐尚未覆盖的 typed event map。
-- [ ] 外部未知输入统一使用 `unknown`，通过 type guard 收窄。
-- [ ] 逐模块迁移 `defaultValue` 调用点：Map → Format → Layer → Interaction → 其他模块。
-- [ ] 明确直接 `new GeometryWrapper(nativeFeature)` 与 resolver/registry 的规则。
-- [ ] 统一公开错误类型、错误码和无效输入策略。
-- [ ] 使用消费者类型测试验证泛型推导和错误调用。
+- [x] 为 Feature、Source、Layer、Interaction、Control 和 Popup 建立可扩展 properties 泛型（Map 因 `getProperties` 返回 OL 完整属性包，刻意跳过以避免表面类型安全）。
+- [x] 精确声明 loader、filter、style 和事件回调（`OMapStyleFunction`/`OMapStyleLike`、各 Filter 回调、`OMapEventCallBack` 已落地）。
+- [x] 补齐 typed event map（Select/Draw/Modify/Extent/DragBox/Popup 已用具体事件映射）。
+- [x] 外部未知输入统一使用 `unknown`，通过 `isXxx` type guard 收窄（`isBoolean` 等已为类型谓词）。
+- [x] 逐模块迁移 `defaultValue` 调用点：Map → Format → Layer → Interaction → 其他模块（仅注释残留，无实际调用）。
+- [x] 明确直接 `new GeometryWrapper(nativeFeature)` 与 resolver/registry 的规则：FeatureQuery.resolveFeature 与 Select.getTargetFeature 改为统一经 `createBaseFeatureByOlFeature` / `createBaseFeatureByOlRenderFeature`，BasicFeature 构造接收原生 Feature 的分支标注 `@internal`，消除绕过 resolver 的重复直接构造。
+- [x] 统一公开错误类型、错误码和无效输入策略（`extractRGBValues`/`extractRGBAValues` 已改用 `OMapError`+`OMapErrorCode`；`ColorhexToRGB` 静默回退 `[0,0,0]` 属有意的 best-effort 约定，测试已锁定）。
+- [ ] 使用消费者类型测试验证泛型推导和错误调用（依赖测试环境，用户暂缓）。
 
 完成条件：公共声明不暴露无意义的 `any` 或宽泛回调；类型行为与运行时校验一致。
+
+### 7.1 本阶段实测发现（2026-08-29）
+
+- `src` 中 `any` 已基本清零（仅文档注释命中），核心路径 `tsc --noEmit` 与 `eslint`（0 warning）通过。
+- `defaultValue` 已全部迁移为 `a ?? b` 或具体默认值；最后一处定义已从 `src/utils/define.ts` 删除。
+- 错误抛出统一收敛到 `error_`（抛 `OMapError`）或显式 `throw new OMapError(...)`；不再存在裸 `throw new Error`。
+- Popup `events` 显式使用 `OMapPopupEventMap`，事件 payload 类型贯通到 `getEventById`/`get`/`listenerCount`。
+- 阻塞项：Playwright 与 happy-dom 测试环境未安装（`node_modules/vitest/dist` 缺失），`pnpm test` 当前无法启动；用户已决定暂缓测试/发布相关任务。
+
+剩余本地可继续项：第四阶段补测试、第八阶段文档与发布（依赖外部/测试环境）。直接 `new GeometryWrapper` 绕过 resolver 的收紧已完成（见 7.2）。
 
 ## 8. 第六阶段：完善 VitePress 产品文档
 
@@ -181,26 +191,22 @@
 
 ### 8.1 文档结构
 
-- [ ] 安装、快速开始和最小地图。
-- [ ] 核心概念：Map、View、Feature、Layer、Source、Interaction、Control、Popup。
-- [ ] 为公开验收矩阵中的每个主要类建立独立 API 页面。
-- [ ] 记录构造参数、默认值、属性、方法、返回值、事件和错误。
-- [ ] 记录 remove、dispose、可重新挂载和永久释放的区别。
-- [ ] 标记 stable-beta、experimental、compatibility 和 internal 状态。
-- [ ] 补充迁移、故障排查、版本策略和发布状态。
+- [x] 安装、快速开始和最小地图（`guide/getting-started.md`）。
+- [x] 核心概念：Map、View、Feature、Layer、Source、Interaction、Control、Popup（`guide/core-concepts.md`）。
+- [x] 为公开验收矩阵中的每个主要类建立独立 API 页面：69 个逐类页面已生成于 `docs/api/<group>/`（Core 11、Layer 12、Source 15、Interaction 15、Basic 9、Control 3、Util 5，含 `MapToken` 手工页），签名由 `scripts/gen-api-docs.mjs` 从 `src` 自动提取。
+- [x] 记录构造参数、默认值、属性、方法、返回值、事件和错误（6 个 API 页均已包含）。
+- [x] 记录 remove、dispose、可重新挂载和永久释放的区别（`api/index.md` 与 `core.md` 生命周期章节）。
+- [x] 标记 stable-beta、experimental、compatibility 和 internal 状态（各 API 页页首与 `api/index.md` 分级表）。
+- [x] 补充迁移、故障排查、版本策略和发布状态（`guide/` 下各自独立页面）。
 
 ### 8.2 示例结构
 
-- [ ] 基础地图。
-- [ ] Vector 与全部常用 Geometry。
-- [ ] XYZ、WMS 和 WMTS 图层。
-- [ ] Draw。
-- [ ] Modify。
-- [ ] Select。
-- [ ] Measure。
-- [ ] Popup。
-- [ ] Control。
-- [ ] 地图销毁和路由切换。
+- [x] 基础地图（`basic-map.md`）。
+- [x] Vector 与全部常用 Geometry（`vector-geometry.md`，覆盖 Point / LineString / Polygon / Multi* / Circle）。
+- [x] XYZ、WMS 和 WMTS 图层（`tile-layers.md`）。
+- [x] Draw、Modify、Select、Measure、Popup（`vue-map-toolkit.md` 综合示例）。
+- [x] Control（`controls.md`）。
+- [x] 地图销毁和路由切换（`lifecycle.md`）。
 
 Vue 示例继续遵守以下规则：
 
@@ -263,7 +269,7 @@ Vue 示例继续遵守以下规则：
 - [ ] Playwright 核心矩阵通过。
 - [ ] ESM、CJS/UMD 和 TypeScript 消费测试通过。
 - [ ] 类型、Lint、格式、覆盖率、构建、文档和包检查全部通过。
-- [ ] 核心 API 文档和示例可独立指导用户接入。
+- [ ] 核心 API 文档和示例可独立指导用户接入（进展：69 个逐类页 + 6 个模块页 + 6 篇示例已就位；**仍待** `docs:build` 实跑与验收矩阵“文档”列核对）。
 - [ ] 至少一个真实业务项目完成试用。
 - [ ] GitHub Pages、分支保护和 Trusted Publishing 已配置。
 - [ ] CHANGELOG、迁移说明和发布说明已更新。

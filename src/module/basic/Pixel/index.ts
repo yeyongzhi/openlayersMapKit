@@ -57,7 +57,7 @@ export default class Pixel {
 
   /**
    * 获取像素坐标
-   * @returns {number[] | undefined} 像素坐标
+   * @returns {OlPixelType} 像素坐标
    */
   getPixel(): OlPixelType {
     return this._pixel
@@ -106,7 +106,7 @@ export default class Pixel {
   /**
    * 判断两个像素坐标是否相等
    * @param {Pixel} pixel 像素对象
-   * @returns {boolean | undefined} 判断结果
+   * @returns {boolean} 判断结果
    */
   equals(pixel: OMapPixelType): boolean {
     if (!isDefined(pixel)) {

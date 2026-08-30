@@ -1,5 +1,4 @@
 import type { OMapEventType } from '../module/core/Map/type'
-import { defaultValue } from './define'
 
 export function MapEventTypeIsMap(type: OMapEventType): boolean {
   return type.startsWith('map:')
@@ -20,5 +19,5 @@ export function getCurrentDateTime() {
 }
 
 export function getDevicePixelRatio() {
-  return typeof window === 'undefined' ? 1 : defaultValue(window.devicePixelRatio, 1)
+  return typeof window === 'undefined' ? 1 : window.devicePixelRatio
 }

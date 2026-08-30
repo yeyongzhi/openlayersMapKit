@@ -1,12 +1,23 @@
+import { isDefined, isFunction, isString } from '../../../utils/index'
+import { warn_, error_, commonMessage, getPackageMessage } from '../../../utils/message'
+import { OlEvent } from '../../../source/index'
+import type BaseEvent from 'ol/events/Event'
 import {
   type OMapControlTypeType,
   type OMapControlIdType,
-  type OMapControlCommonType
+  type OMapControlCommonType,
+  type OMapControlEventType,
+  type OMapControlEventMap,
+  isOMapControlEventType
 } from './type'
 import Event from '../../../module/util/Event/index'
+import type { EventIdType } from '../../util/Event/type'
 import type { PropertiesType } from '../../../utils/type'
 import type Map from '../../core/Map/index'
 import type { Disposable, Removable } from '../../util/Disposable/type'
+
+const PACKAGE_NAME = 'Control'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * @class Control
@@ -17,29 +28,39 @@ import type { Disposable, Removable } from '../../util/Disposable/type'
  * @updateDate 2025/10/10
  */
 
-export default class Control<T extends OMapControlCommonType = OMapControlCommonType>
+/**
+ * 控件基类。
+ *
+ * @typeParam T - 原生 OpenLayers Control 类型。
+ * @typeParam P - 控件属性字典。默认 {@link PropertiesType}；
+ *   传入更具体的结构后，`getProperties()` 会按该结构推导。
+ */
+export default class Control<
+  T extends OMapControlCommonType = OMapControlCommonType,
+  P extends PropertiesType = PropertiesType
+>
   implements Disposable, Removable
 {
   private map: Map | null = null
   private disposed = false
   id: OMapControlIdType = null
   /**
-   * 交互类型
+   * 控件类型
    * @type {OMapControlTypeType}
    */
   type!: OMapControlTypeType
 
   /**
-   * 交互实例
+   * 控件实例
    * @type {T}
    */
   _control!: T
 
   /**
-   * 交互事件
+   * 控件事件
    * @type {Event}
    */
-  events: Event = new Event()
+  events: Event<OMapControlEventMap> = new Event<OMapControlEventMap>(this)
 
   constructor(type: OMapControlTypeType) {
     this.type = type
@@ -47,8 +68,9 @@ export default class Control<T extends OMapControlCommonType = OMapControlCommon
 
   /**
    * 获取控制实例
+   * @returns {T} 原生 OpenLayers 控件实例，类型由泛型 `T` 决定
    */
-  getControl(): OMapControlCommonType {
+  getControl(): T {
     return this._control
   }
 
@@ -61,19 +83,95 @@ export default class Control<T extends OMapControlCommonType = OMapControlCommon
   }
 
   /**
-   * 获取控制属性
-   * @returns {PropertiesType} 控制属性
+   * 设置控制ID
+   * @param {OMapControlIdType} id 控制ID
    */
-  getProperties(): PropertiesType {
-    return this._control.getProperties()
+  setId(id: OMapControlIdType) {
+    if (!isDefined(id)) {
+      warn_(createMessage('setId', commonMessage.paramsNotDefined('id')))
+      return
+    }
+    this.id = id
   }
 
   /**
-   * 设置控制属性
-   * @param properties 控制属性
+   * 订阅控件原生事件。
+   *
+   * 返回的订阅 id 可用于 {@link un} 精准退订；退订时会自动解绑底层 OpenLayers 监听，
+   * {@link dispose} 时统一释放，不会残留监听器。
+   * @param {OMapControlEventType} type 事件类型，取值 'change' | 'error'
+   * @param {(event: BaseEvent) => void} callback 事件回调
+   * @returns {EventIdType} 订阅 id
    */
-  setProperties(properties: PropertiesType) {
-    this._control.setProperties(properties)
+  on(type: OMapControlEventType, callback: (event: BaseEvent) => void): EventIdType {
+    this.assertEventParams('on', type, callback)
+    const unlisten = OlEvent.listen(this._control, type, (event: unknown) => {
+      this.events.emit(type, event as BaseEvent)
+    })
+    return this.events.on(type, callback, unlisten)
+  }
+
+  /**
+   * 订阅控件原生事件，回调触发一次后自动退订（含底层 OpenLayers 监听）。
+   * @param {OMapControlEventType} type 事件类型，取值 'change' | 'error'
+   * @param {(event: BaseEvent) => void} callback 事件回调
+   * @returns {EventIdType} 订阅 id
+   */
+  once(type: OMapControlEventType, callback: (event: BaseEvent) => void): EventIdType {
+    this.assertEventParams('once', type, callback)
+    const unlisten = OlEvent.listen(this._control, type, (event: unknown) => {
+      this.events.emit(type, event as BaseEvent)
+    })
+    return this.events.once(type, callback, unlisten)
+  }
+
+  /**
+   * 按订阅 id 退订控件事件，并解绑其对应的底层 OpenLayers 监听。
+   * @param {EventIdType} id {@link on} / {@link once} 返回的订阅 id
+   */
+  un(id: EventIdType) {
+    if (!isDefined(id)) {
+      error_(createMessage('un', commonMessage.paramsNotDefined('id')))
+    }
+    if (!isString(id)) {
+      error_(createMessage('un', commonMessage.paramsInvaildFormat(String(id), 'EventIdType')))
+    }
+    this.events.remove(id)
+  }
+
+  /**
+   * 校验事件订阅参数，任一不合法即抛出错误。
+   * @param {string} methodName 调用方方法名，用于错误信息定位
+   * @param {unknown} type 待校验的事件类型
+   * @param {unknown} callback 待校验的回调
+   */
+  private assertEventParams(methodName: string, type: unknown, callback: unknown): void {
+    if (!isDefined(type) || !isDefined(callback)) {
+      error_(createMessage(methodName, commonMessage.paramsNotDefined('type or callback')))
+    }
+    if (!isOMapControlEventType(type)) {
+      error_(createMessage(methodName, commonMessage.paramsInvaildEnum(String(type))))
+    }
+    if (!isFunction(callback)) {
+      error_(createMessage(methodName, commonMessage.paramsInvaildFormat('callback', 'function')))
+    }
+  }
+
+  /**
+   * 获取控件属性字典。
+   * @returns {P} 属性字典，类型由泛型 `P` 决定
+   */
+  getProperties(): P {
+    return this._control.getProperties() as P
+  }
+
+  /**
+   * 合并写入控件属性。OpenLayers 的 `setProperties` 为合并语义，
+   * 因此入参按 `Partial<P>` 处理，允许只更新部分字段。
+   * @param {Partial<P>} properties 待合并的属性
+   */
+  setProperties(properties: Partial<P>) {
+    this._control.setProperties(properties as PropertiesType)
   }
 
   setMap(map: Map | null): void {

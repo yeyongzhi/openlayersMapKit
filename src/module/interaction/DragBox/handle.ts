@@ -28,22 +28,37 @@ export function handleInteractionDragBoxEvent(
   return result
 }
 
-export const DragBoxParamsBoxEndHandle: {
-  function: DragBoxEndEventFunctionType | null
+/** DragBox `onBoxEnd` 回调的持有者。 */
+export type DragBoxEndEventHandler = {
+  /** 注册结束回调 */
   initFunction: (e: DragBoxEndEventFunctionType) => void
+  /** 触发结束回调 */
   emit: (e: DragBoxEndEvent) => void
+  /** 清空结束回调 */
   destroy: () => void
-} = {
-  function: null,
-  initFunction: (e: DragBoxEndEventFunctionType) => {
-    DragBoxParamsBoxEndHandle.function = e
-  },
-  emit: (e: DragBoxEndEvent) => {
-    if (isDefined(DragBoxParamsBoxEndHandle.function)) {
-      DragBoxParamsBoxEndHandle.function(e)
+}
+
+/**
+ * 创建 DragBox `onBoxEnd` 回调的持有者。
+ *
+ * 必须每个 DragBox 实例独立持有一份：若使用模块级单例，
+ * 后创建的实例会覆盖前一个实例的回调，且任意一个实例销毁都会清空全部回调。
+ *
+ * @returns {DragBoxEndEventHandler} 独立的回调持有者
+ */
+export function createDragBoxParamsBoxEndHandle(): DragBoxEndEventHandler {
+  let endFunction: DragBoxEndEventFunctionType | null = null
+  return {
+    initFunction: (e: DragBoxEndEventFunctionType) => {
+      endFunction = e
+    },
+    emit: (e: DragBoxEndEvent) => {
+      if (isDefined(endFunction)) {
+        endFunction(e)
+      }
+    },
+    destroy: () => {
+      endFunction = null
     }
-  },
-  destroy: () => {
-    DragBoxParamsBoxEndHandle.function = null
   }
 }

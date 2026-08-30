@@ -18,13 +18,18 @@ export function isVaildPopup(value: unknown): value is Popup {
   return value instanceof Popup
 }
 
-export type OMapPopupParamsType = CustOlPopupParamsType & {
-  offset?: Pixel
-  position?: Lnglat | OlCoordinateType
-  content?: string
-  properties?: PropertiesType
-  positioning?: PopupPositioningType
-}
+/**
+ * 弹窗构造参数。传入 `P` 可让 `properties` 获得具体结构，
+ * 从而把属性类型一路带到 `Popup<P>` 上；不传时保持原有宽泛形态。
+ */
+export type OMapPopupParamsType<P extends PropertiesType = PropertiesType> =
+  CustOlPopupParamsType & {
+    offset?: Pixel
+    position?: Lnglat | OlCoordinateType
+    content?: string
+    properties?: P
+    positioning?: PopupPositioningType
+  }
 export type OMapPopupType = OlOverlay
 export type OlPopupInstanceType = InstanceType<typeof OlOverlay>
 
@@ -67,7 +72,10 @@ export type OMapPopupEventType = (typeof OMapPupupEventTypes)[number] extends in
     : never
   : never
 
-export type { OMapPopupEventTarget } from './handle'
+export type OMapPopupEventMap = Record<OMapPopupEventType, [OMapPopupEventTarget]>
+
+import type { OMapPopupEventTarget } from './handle'
+export type { OMapPopupEventTarget }
 export type OMapPopupEventCallback = import('./handle').OMapPopupEventTarget extends infer Event
   ? (event: Event) => void
   : never

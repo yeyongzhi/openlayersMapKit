@@ -25,13 +25,16 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/1/30
  */
 
-export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
-  constructor(args: OMapMultiPointGeometryCoordinatesType, properties?: PropertiesType)
+export default class MultiPoint<P extends PropertiesType = PropertiesType> extends BasicFeature<
+  OMapMultiPointType,
+  P
+> {
+  constructor(args: OMapMultiPointGeometryCoordinatesType, properties?: P)
   constructor(args: OlFeatureInstanceType)
 
   constructor(
     coordinatesOrFeature: OMapMultiPointGeometryCoordinatesType | OlFeatureInstanceType,
-    properties?: PropertiesType
+    properties?: P
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
@@ -60,8 +63,8 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
   }
 
   /**
-   * 获取点的坐标
-   * @returns {Lnglat[]} 点的坐标
+   * 获取多个点的坐标
+   * @returns {Lnglat[]} 多个点的坐标
    */
   getCoordinates(): Lnglat[] {
     let coordinates = this._geometry.getCoordinates()
@@ -72,8 +75,8 @@ export default class MultiPoint extends BasicFeature<OMapMultiPointType> {
   }
 
   /**
-   * 设置点的坐标
-   * @param {OMapMultiPointGeometryCoordinatesType} coordinates 点的坐标
+   * 设置多个点的坐标
+   * @param {OMapMultiPointGeometryCoordinatesType} coordinates 多个点的坐标
    */
   setCoordinates(coordinates: OMapMultiPointGeometryCoordinatesType): void {
     if (!isDefined(coordinates)) {

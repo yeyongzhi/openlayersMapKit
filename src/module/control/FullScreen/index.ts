@@ -27,7 +27,7 @@ export default class FullScreen extends Control<OMapControlFullScreenType> {
   ) {
     super('FullScreen')
     if (isDefined(idOrOptions) && (isNumber(idOrOptions) || isString(idOrOptions))) {
-      this.id = idOrOptions as OMapControlIdType
+      this.setId(idOrOptions as OMapControlIdType)
       this._control = new OlControl.FullScreen(
         Object.assign({}, DEFAULT_FULLSCREEN_OPTIONS, options)
       )

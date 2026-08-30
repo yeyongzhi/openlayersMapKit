@@ -9,7 +9,7 @@ import type {
 } from './type'
 import { OlGeometry } from '../../../source/index'
 import Draw from './index'
-import { isDefined, defaultValue } from '../../../utils/define'
+import { isDefined } from '../../../utils/define'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
 
 export function getOlDrawType(mode: OMapDrawModeType): {
@@ -43,7 +43,7 @@ export function handleInteractionDrawEvent(
   const layer = target.getLayer()
   let layerFeatures: BasicFeature<OlGeometry.Geometry>[] = []
   if (isDefined(layer)) {
-    layerFeatures = defaultValue(layer.getFeatures(), [])
+    layerFeatures = layer.getFeatures() ?? []
   }
   // 仅 DrawEvent 携带 feature 字段（change 系列事件没有）
   const feature = 'feature' in e ? e.feature : undefined

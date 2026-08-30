@@ -18,7 +18,7 @@ export type OlInteractionMouseWheelZoomInstanceType = InstanceType<
   typeof OlInteraction.MouseWheelZoom
 >
 
-export const OMapInteractionMouseWheelZoomEventTypes = [...OMapInteractionCommonEventTypes]
+export const OMapInteractionMouseWheelZoomEventTypes = [...OMapInteractionCommonEventTypes] as const
 export type OMapInteractionMouseWheelZoomEventType =
   (typeof OMapInteractionMouseWheelZoomEventTypes)[number]
 
@@ -32,3 +32,18 @@ export function isOMapInteractionMouseWheelZoomEventType(
     )
   )
 }
+
+import type MouseWheelZoom from './index'
+import type { InteractionStateEvent } from '../handle'
+
+/** 用户回调收到的事件 payload */
+export type OMapMouseWheelZoomEvent = InteractionStateEvent<
+  MouseWheelZoom,
+  OMapInteractionMouseWheelZoomEventType
+>
+
+/** 事件名 → 用户回调参数映射 */
+export type OMapMouseWheelZoomEventMap = Record<
+  OMapInteractionMouseWheelZoomEventType,
+  [OMapMouseWheelZoomEvent]
+>

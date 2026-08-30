@@ -1,4 +1,4 @@
-import { isDefined, isNumber, defaultValue, isAllNumberArray } from '../../../utils/index'
+import { isDefined, isNumber, isAllNumberArray } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import { handleGetLnglatValue } from './handle'
 import { type OlCoordinateType, type OMapCoordinateType } from './type'
@@ -130,7 +130,7 @@ export default class Lnglat {
    * @returns {string} 经纬度字符串
    */
   toString(place?: number): string {
-    let _place = defaultValue(place, 3)
+    const _place = place ?? 3
     return `[${this._lnglat[0]?.toFixed(_place)}, ${this._lnglat[1]?.toFixed(_place)}]`
   }
 }

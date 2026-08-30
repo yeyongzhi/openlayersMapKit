@@ -1,7 +1,10 @@
 import { isDefined, isBoolean, isObject, isNumber, isString } from '../../../utils/index'
 import { commonMessage } from '../../../utils/message'
-import { error_, getPackageMessage, isVaildOpacity, defaultValue } from '../../../utils/index'
+import { error_, getPackageMessage, isVaildOpacity } from '../../../utils/index'
 import { type OMapExtentType } from '../../basic/Extent/type'
+import { type OlSource } from '../../../source/index'
+import type Source from '../../source/Source/index'
+import type { OMapSourceType } from '../../source/Source/type'
 import Extent from '../../basic/Extent/index'
 import { isValidExtent } from '../../basic/Extent/type'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
@@ -35,7 +38,17 @@ const DEFAULT_LAYER_MIN_ZOOM: number = 0
 const DEFAULT_LAYER_MAX_ZOOM: number = 22
 const DEFAULT_LAYER_MIN_RESOLUTION: number = 0
 const DEFAULT_LAYER_MAX_RESOLUTION: number = Infinity
-export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayerCommonType>
+/**
+ * 图层基类。
+ *
+ * @typeParam T - 原生 OpenLayers 图层类型。
+ * @typeParam P - 图层属性字典。默认 {@link BaseLayerPropertiesType}；
+ *   传入更具体的结构后，`getProperties()` 与 `setProperties()` 会按该结构推导。
+ */
+export default class BaseLayer<
+  T extends OMapBaseLayerCommonType = OMapBaseLayerCommonType,
+  P extends BaseLayerPropertiesType = BaseLayerPropertiesType
+>
   implements Disposable, Removable
 {
   private disposed = false
@@ -57,6 +70,13 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayer
    */
   protected _layer!: T // 底层图层对象，由子类实现具体的图层类型
   /**
+   * 图层关联的 OMap 数据源包装实例。
+   *
+   * 各图层在构造时都会把创建（或接收）的 OMap Source 包装登记到这里，之后可通过
+   * {@link getSourceWrapper} 取回；若图层是直接用 OpenLayers 原生数据源构造的则为 null。
+   */
+  protected _sourceWrapper: Source<OMapSourceType> | null = null
+  /**
    * 图层id，每个图层的唯一主键，用于区分图层
    */
   protected id: BaseLayerIdType = null
@@ -73,7 +93,8 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayer
   minResolution: number = DEFAULT_LAYER_MIN_RESOLUTION // 最小分辨率，默认0
   maxResolution: number = DEFAULT_LAYER_MAX_RESOLUTION // 最大分辨率，默认Infinity
   zIndex: number | undefined = undefined // 图层层级
-  properties: BaseLayerPropertiesType = {} // 图层属性，用于存储图层相关信息
+  // 运行期默认值为空对象，泛型 P 描述其最终形态，此处是唯一的收敛断言点。
+  properties: P = {} as P // 图层属性，用于存储图层相关信息
   /**
    * 图层所属的图层组id，由 LayerGroup 管理
    */
@@ -88,27 +109,27 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayer
    */
   target: Map | OMapLayerTarget | null = null
 
-  constructor(type: BaseLayerType, options?: BaseLayerOptionsType) {
-    let _options: BaseLayerOptionsType = defaultValue(options, {})
+  constructor(type: BaseLayerType, options?: BaseLayerOptionsType<P>) {
+    const _options: BaseLayerOptionsType = options ?? {}
     this.type = type
     // 动态更新包名
     this._packageName = `${type}Layer`
     this._createMessage = getPackageMessage(this._packageName)
     // 图层ID
-    this.id = defaultValue(_options.id, null)
+    this.id = _options.id ?? null
     // 赋值其他属性
-    this.name = defaultValue(_options.name, '')
-    this.className = defaultValue(_options.className, '')
-    this.opacity = defaultValue(_options.opacity, DEFAULT_LAYER_OPACITY)
-    this.visible = defaultValue(_options.visible, DEFAULT_LAYER_VISIBLE)
-    this.extent = defaultValue(_options.extent, undefined)
-    this.minZoom = defaultValue(_options.minZoom, DEFAULT_LAYER_MIN_ZOOM)
-    this.maxZoom = defaultValue(_options.maxZoom, DEFAULT_LAYER_MAX_ZOOM)
-    this.minResolution = defaultValue(_options.minResolution, DEFAULT_LAYER_MIN_RESOLUTION)
-    this.maxResolution = defaultValue(_options.maxResolution, DEFAULT_LAYER_MAX_RESOLUTION)
-    this.zIndex = defaultValue(_options.zIndex, undefined)
-    this.properties = defaultValue(_options.properties, {})
-    this.map = defaultValue(_options.map, null)
+    this.name = _options.name ?? ''
+    this.className = _options.className ?? ''
+    this.opacity = _options.opacity ?? DEFAULT_LAYER_OPACITY
+    this.visible = _options.visible ?? DEFAULT_LAYER_VISIBLE
+    this.extent = _options.extent
+    this.minZoom = _options.minZoom ?? DEFAULT_LAYER_MIN_ZOOM
+    this.maxZoom = _options.maxZoom ?? DEFAULT_LAYER_MAX_ZOOM
+    this.minResolution = _options.minResolution ?? DEFAULT_LAYER_MIN_RESOLUTION
+    this.maxResolution = _options.maxResolution ?? DEFAULT_LAYER_MAX_RESOLUTION
+    this.zIndex = _options.zIndex
+    this.properties = (_options.properties ?? {}) as P
+    this.map = _options.map ?? null
     // 初始化图层组id
     this.groupId = null
   }
@@ -214,11 +235,23 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayer
   }
 
   /**
-   * 获取图层数据源
-   * @returns 图层数据源实例
+   * 获取图层数据源（原生 OpenLayers 数据源实例）。
+   * @returns {OlSource.Source | null} 数据源实例；图层未挂载数据源时为 null
    */
-  getSource() {
+  getSource(): OlSource.Source | null {
     return this._layer.getSource()
+  }
+
+  /**
+   * 获取图层关联的 OMap 数据源包装实例。
+   *
+   * 与 {@link getSource} 的区别：后者返回 OpenLayers 原生对象，本方法返回 OMap 封装
+   * （可用 `refresh()`、`getProjection()`、瓦片事件等 OMap 语义的方法）。
+   *
+   * @returns {Source | null} OMap 数据源包装；图层以原生数据源构造时为 null
+   */
+  getSourceWrapper(): Source<OMapSourceType> | null {
+    return this._sourceWrapper
   }
 
   /**
@@ -393,7 +426,13 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayer
     return this._layer.getZIndex()
   }
 
-  setProperties(properties: BaseLayerPropertiesType, silent?: boolean) {
+  /**
+   * 合并写入图层属性。OpenLayers 的 `setProperties` 为合并语义，
+   * 因此入参按 `Partial<P>` 处理，允许只更新部分字段。
+   * @param {Partial<P>} properties 待合并的属性
+   * @param {boolean} silent 是否静默更新（不触发 propertychange）
+   */
+  setProperties(properties: Partial<P>, silent?: boolean) {
     if (!isDefined(properties)) {
       error_(this._createMessage('setProperties', commonMessage.paramsNotDefined('properties')))
     }
@@ -405,14 +444,18 @@ export default class BaseLayer<T extends OMapBaseLayerCommonType = OMapBaseLayer
         )
       )
     }
-    let oldProperties = defaultValue(this.properties, {})
-    let newProperties = Object.assign({}, oldProperties, properties)
+    const oldProperties = this.properties ?? {}
+    const newProperties = Object.assign({}, oldProperties, properties) as P
     this._layer.setProperties(newProperties, silent)
     this.properties = newProperties
   }
 
-  getProperties(): BaseLayerPropertiesType | undefined {
-    return this._layer.getProperties()
+  /**
+   * 获取图层属性字典。
+   * @returns {P | undefined} 属性字典，类型由泛型 `P` 决定
+   */
+  getProperties(): P | undefined {
+    return this._layer.getProperties() as P | undefined
   }
 
   /**

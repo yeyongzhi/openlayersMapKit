@@ -40,7 +40,7 @@ export const OMapInteractionDragBoxEventTypes = [
   'boxdrag',
   'boxend',
   'boxstart'
-]
+] as const
 
 export type OMapInteractionDragBoxEventType = (typeof OMapInteractionDragBoxEventTypes)[number]
 

@@ -2,17 +2,18 @@ import { OlSource } from '../../../source/index'
 import Map from '../../core/Map/index'
 import { type OMapSizeType } from '../../basic/Size/type'
 import { type OMapProjectionType } from '../../core/Projection/type'
-import type { BaseLayerOptionsType } from '../BaseLayer/type'
+import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
 import { type OMapTileSourceTileGrid } from '../../source/TileSource/type'
 
 type OlXYZOptions = NonNullable<ConstructorParameters<typeof OlSource.XYZ>[0]>
 
-export type OMapXYZLayerParamsType = BaseLayerOptionsType & {
-  preload: number
-  cacheSize: number
-  source?: OMapXYZLayerSourceParamsType // source参数是必须的
-  map?: Map
-}
+export type OMapXYZLayerParamsType<P extends BaseLayerPropertiesType = BaseLayerPropertiesType> =
+  BaseLayerOptionsType<P> & {
+    preload: number
+    cacheSize: number
+    source?: OMapXYZLayerSourceParamsType // source参数是必须的
+    map?: Map
+  }
 export const DEFAULT_XYZ_LAYER_PARAMS: OMapXYZLayerParamsType = {
   preload: 0,
   cacheSize: 512

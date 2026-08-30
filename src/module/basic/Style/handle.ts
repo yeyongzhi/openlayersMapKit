@@ -7,6 +7,7 @@ import {
   OlStyleLike,
   OMapStyleLike,
   OMapTextStyleOptionsType,
+  OlStyleInstanceType,
   isVaildStyle,
   isVaildArrayStyle,
   isVaildFunctionStyle,
@@ -208,6 +209,22 @@ export function handleGetStyleValue(
       return undefined
     }
   }
+}
+
+/**
+ * 将 OMap Style 数组转换为 OpenLayers Style 数组。
+ * 用于只接受 `Style[]` 的 OpenLayers 选项（例如 KML 格式的 `defaultStyle`），
+ * 避免复用 {@link handleGetStyleValue} 时返回值被放宽为 `OlStyleLike`。
+ * @param {Array<Style>} style OMap 样式数组
+ * @returns {Array<OlStyleInstanceType> | undefined} OpenLayers 样式数组
+ */
+export function handleGetStyleArrayValue(
+  style?: Array<Style>
+): Array<OlStyleInstanceType> | undefined {
+  if (!isDefined(style)) {
+    return undefined
+  }
+  return style.map((item) => item.getStyle())
 }
 
 export function getOlTextSingleStyle(options: OMapTextStyleOptionsType | undefined) {

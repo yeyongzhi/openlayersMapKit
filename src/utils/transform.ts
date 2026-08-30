@@ -1,3 +1,5 @@
+import { OMapError, OMapErrorCode } from '../error'
+
 export function ColorhexToRGB(hex: string) {
   // 检查输入是否以 # 开头
   if (hex.charAt(0) !== '#') {
@@ -35,9 +37,8 @@ export function extractRGBValues(rgbString: string) {
 
   if (match) {
     return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3], 10)]
-  } else {
-    throw new Error('Invalid RGB format')
   }
+  throw new OMapError('Invalid RGB format', OMapErrorCode.InvalidParameter)
 }
 
 export function extractRGBAValues(rgbString: string) {
@@ -46,9 +47,8 @@ export function extractRGBAValues(rgbString: string) {
 
   if (match) {
     return [parseInt(match[1], 10), parseInt(match[2], 10), parseInt(match[3], 10)]
-  } else {
-    throw new Error('Invalid RGB format')
   }
+  throw new OMapError('Invalid RGB format', OMapErrorCode.InvalidParameter)
 }
 
 /**

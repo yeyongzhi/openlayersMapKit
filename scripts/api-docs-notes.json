@@ -1,0 +1,490 @@
+{
+  "Size": {
+    "desc": "尺寸值对象，表示以像素为单位的宽高，常用于视口尺寸、图标尺寸与偏移计算。",
+    "notes": [
+      "构造支持 `(width, height)`、数组 `[width, height]` 与复制既有实例三种重载。",
+      "数值为纯像素语义，不随地图缩放变化；需要地图容器的当前尺寸请用 `Map.getSize()`。"
+    ]
+  },
+  "Pixel": {
+    "desc": "屏幕像素坐标值对象，描述相对地图容器的二维坐标，是坐标拾取与像素级命中测试的入参。",
+    "notes": [
+      "构造重载与 `Size` 类似，支持数值对、数组与复制。",
+      "坐标以地图容器左上角为原点，向右、向下为正方向。",
+      "像素坐标与地理坐标互转请使用 `Map` 提供的换算方法，不要手工按分辨率推导。"
+    ]
+  },
+  "Lnglat": {
+    "stability": "compatibility",
+    "desc": "经纬度值对象，描述 `[经度, 纬度]` 顺序的地理坐标。",
+    "notes": [
+      "`Lnglat` 为历史命名，新代码请改用 [`LngLat`](./LngLat.md)，两者是同一个类、API 完全一致。",
+      "构造顺序为 `(lng, lat)`，先经度后纬度，与 GeoJSON 一致。",
+      "值对象是可变的，需要独立副本时调用 `clone()`。"
+    ]
+  },
+  "LngLat": {
+    "desc": "经纬度值对象，描述 `[经度, 纬度]` 顺序的地理坐标，是全库坐标输入与输出的统一形态。",
+    "notes": [
+      "构造顺序为 `(lng, lat)`，先经度后纬度，与 GeoJSON 一致。",
+      "值对象是可变的，需要独立副本时调用 `clone()`。",
+      "经纬度与地图投影坐标互转请使用 [`ProjUtil`](../util/ProjUtil.md)。"
+    ],
+    "example": "const p = new LngLat(116.397, 39.909)\nconst copy = p.clone()\ncopy.setLng(121.474)\n\n// 转投影坐标（EPSG:3857）\nconst projected = ProjUtil.fromLonLat(p)",
+    "related": ["投影换算：[ProjUtil](../util/ProjUtil.md)"]
+  },
+  "Color": {
+    "desc": "颜色值对象，在 CSS 颜色字符串与其内部表示之间做转换，供样式配置使用。",
+    "notes": [
+      "接受 CSS 颜色字符串（如 `#ff0000`、`rgba(255,0,0,.5)`）与既有 `Color` 实例。",
+      "`withAlpha(alpha)` 会改变当前实例；需要保留原值时请先 `clone()`。",
+      "`toString()` 可拿回可用于样式的颜色字符串。"
+    ]
+  },
+  "Extent": {
+    "desc": "范围值对象，表示 `[minX, minY, maxX, maxY]` 的矩形边界，并提供一组静态几何判定工具。",
+    "notes": [
+      "静态方法（`boundingExtent`、`containsCoordinate`、`containsExtent`、`containsXY` 等）是纯函数，接受数组或 `Extent` 实例，无需先构造对象。",
+      "实例方法偏向取值与转换：`getCenter()`、`getWidth()`、`getHeight()`、`getSize()`、`toArray()`。",
+      "范围值处于地图当前投影坐标系，跨 EPSG:4326 与 EPSG:3857 使用时需先做投影换算。"
+    ],
+    "example": "const box = new Extent(116.0, 39.5, 116.9, 40.1)\n\nExtent.containsCoordinate(box, [116.4, 39.9]) // true\nbox.getCenter() // LngLat",
+    "related": ["坐标换算：[ProjUtil](../util/ProjUtil.md)"]
+  },
+  "Style": {
+    "desc": "样式对象，承载要素或图层的渲染样式配置（填充、描边、图标、文本等）。",
+    "notes": [
+      "通常通过图层或要素的 `setStyle()` 使用，直接 `new Style(...)` 的场景较少。",
+      "`getStyle()` 返回内部 OpenLayers 样式实例，用于与原生 OL 代码互操作。"
+    ]
+  },
+  "Popup": {
+    "desc": "地图弹窗，对 OpenLayers Overlay 的封装，支持 DOM 内容、锚点定位与显隐控制。",
+    "notes": [
+      "弹窗需通过 `Map.addPopup()` 挂载后才能显示。",
+      "定位方式见 [`PopupPositioning`](./PopupPositioning.md) 常量。",
+      "暂时隐藏用 `remove()`（可再次添加），不再使用时应彻底释放。"
+    ],
+    "related": ["挂载与生命周期：[Map](../core/Map.md)"]
+  },
+  "PopupPositioning": {
+    "desc": "弹窗相对锚点的定位常量集合，共九个方位。",
+    "notes": [
+      "取值为 `'bottom-left'` 这类连字符形式，语义与 CSS 方位一致。",
+      "通过弹窗选项的 `positioning` 字段传入。"
+    ]
+  },
+
+  "Control": {
+    "stability": "internal",
+    "desc": "控件基类，封装 id、类型、属性字典、事件订阅与生命周期管理。",
+    "notes": [
+      "不直接从包入口导出，仅作为 [`Zoom`](./Zoom.md)、[`FullScreen`](./FullScreen.md) 的基类存在。",
+      "`remove()` 从当前地图解除挂载，控件仍可再次添加；`dispose()` 为永久释放，释放后不可再用。",
+      "`isDisposed()` 用于判断是否已永久释放，`dispose()` 重复调用是安全的。"
+    ]
+  },
+  "Zoom": {
+    "desc": "缩放控件，在地图上渲染放大与缩小按钮。",
+    "notes": [
+      "两种构造：`new Zoom(options)` 与 `new Zoom(id, options)`，前者由内部自动分配 id。",
+      "未显式指定的选项会与默认配置合并，因此只需传入需要覆盖的字段。",
+      "暂时移除用 `remove()`，彻底释放用 `dispose()`。"
+    ],
+    "example": "const zoom = new Zoom('main-zoom', { zoomInTipLabel: '放大' })\n\nmap.addControl(zoom)\nzoom.remove() // 暂时卸载，仍可再次 addControl\nzoom.dispose() // 永久释放",
+    "related": ["示例：[控件用法](/examples/controls)"]
+  },
+  "FullScreen": {
+    "desc": "全屏控件，提供进入与退出全屏显示的按钮。",
+    "notes": [
+      "两种构造：`new FullScreen(options)` 与 `new FullScreen(id, options)`。",
+      "全屏能力依赖浏览器 Fullscreen API，在不支持或被权限策略禁用的环境下按钮不会生效。",
+      "暂时移除用 `remove()`，彻底释放用 `dispose()`。"
+    ],
+    "related": ["示例：[控件用法](/examples/controls)"]
+  },
+
+  "Map": {
+    "desc": "地图门面类，聚合视图、图层、交互、控件与弹窗，是整个 SDK 的主入口。",
+    "notes": [
+      "构造第一个参数为挂载元素（DOM 元素或选择器），第二个为地图选项；未显式指定的选项会与默认配置合并。",
+      "图层、交互、控件、弹窗统一通过 `add*` / `remove*` 方法管理，不建议直接操作底层 OpenLayers 实例。",
+      "`dispose()` 永久释放地图及其挂载资源，重复调用安全；释放后实例不可再使用，`isDisposed()` 可查询状态。",
+      "`remove()` 只解除挂载，对象仍可再次挂到新的目标上。"
+    ],
+    "example": "const map = new Map('#map', {\n  center: [116.397, 39.909],\n  zoom: 12\n})\n\nmap.addLayer(new XYZLayer({\n  source: new XYZSource({ url: 'https://example.com/{z}/{x}/{y}.png' })\n}))\n\n// 组件卸载时\nmap.dispose()",
+    "related": [
+      "生命周期与路由切换：[示例](/examples/lifecycle)",
+      "图层：[VectorLayer](../layer/VectorLayer.md)、[XYZLayer](../layer/XYZLayer.md)"
+    ]
+  },
+  "Projection": {
+    "desc": "投影描述对象，封装坐标参考系的编码、单位与有效范围信息。",
+    "notes": [
+      "常用实例为 EPSG:4326（经纬度）与 EPSG:3857（Web 墨卡托）。",
+      "经纬度与投影坐标互转请优先使用 [`ProjUtil`](../util/ProjUtil.md)。"
+    ]
+  },
+  "BasicFeature": {
+    "stability": "internal",
+    "desc": "要素基类，封装几何、属性字典与事件，是所有几何要素的共同父类。",
+    "notes": [
+      "不直接从包入口导出，请使用 [`Point`](./Point.md)、[`LineString`](./LineString.md)、[`Polygon`](./Polygon.md) 等具体几何类。",
+      "从原生 OpenLayers Feature 构造 wrapper 时请统一走库内部的 resolver，以保证同一要素始终对应同一个 wrapper 实例。",
+      "属性字典支持泛型：`BasicFeature<T, P>`。`getProperties()` 返回完整属性包，`setProperties()` 为合并语义。"
+    ]
+  },
+  "Point": {
+    "desc": "点要素，由单个经纬度坐标定义。",
+    "notes": [
+      "坐标顺序为 `[经度, 纬度]`。",
+      "支持坐标数组、`LngLat` 与复制既有要素等多种构造重载。"
+    ],
+    "example": "const marker = new Point([116.397, 39.909], { name: '天安门' })\n\nvectorLayer.addFeature(marker)"
+  },
+  "LineString": {
+    "desc": "线要素，由按顺序排列的坐标序列定义。",
+    "notes": [
+      "坐标为坐标数组：`[[lng, lat], [lng, lat], ...]`，顺序即折线的走向。",
+      "长度量算在投影坐标系下进行，EPSG:3857 下结果为投影单位（近似米）。"
+    ]
+  },
+  "Polygon": {
+    "desc": "面要素，由一个或多个环定义，第一个环为外环，其余为内环（洞）。",
+    "notes": [
+      "坐标结构是**环的数组**：`[[[lng, lat], ...], ...]`，比 LineString 多一层嵌套。",
+      "环应闭合（首尾坐标相同），部分几何计算依赖闭合环。",
+      "带洞的 Polygon 在第一个环之后追加内环即可。"
+    ],
+    "example": "const area = new Polygon([\n  [[116.30, 39.85], [116.50, 39.85], [116.50, 40.00], [116.30, 40.00], [116.30, 39.85]]\n])"
+  },
+  "MultiPoint": {
+    "desc": "多点要素，由多个点坐标组成的集合。",
+    "notes": ["坐标为坐标数组的数组：`[[lng, lat], [lng, lat], ...]`。"]
+  },
+  "MultiLineString": {
+    "desc": "多线要素，由多条折线组成的集合。",
+    "notes": ["坐标为三层嵌套数组，每个元素是一条完整的折线。"]
+  },
+  "MultiPolygon": {
+    "desc": "多面要素，由多个多边形组成的集合。",
+    "notes": ["坐标为四层嵌套数组，每个元素是一个完整的多边形（含其内环）。"]
+  },
+  "LinearRing": {
+    "desc": "线性环，首尾相接的闭合折线，通常作为 Polygon 的环使用。",
+    "notes": [
+      "一般不需要直接构造，构造 [`Polygon`](./Polygon.md) 时会自动处理环。",
+      "环必须闭合，且不应自相交。"
+    ]
+  },
+  "Circle": {
+    "desc": "圆要素，由圆心坐标与半径定义。",
+    "notes": [
+      "**半径为投影单位**：在 EPSG:3857 下近似为米，不是经纬度差值，传入 0.01 级的数值会得到极小的圆。",
+      "需要按经纬度语义画圆时，请先换算成投影单位，或改用 [`Polygon`](./Polygon.md) 近似。",
+      "EPSG:3857 下高纬度地区的圆会有明显形变，这是投影本身导致的。"
+    ],
+    "example": "// 半径 1000（投影单位，3857 下近似 1000 米）\nconst circle = new Circle([116.397, 39.909], 1000)"
+  },
+
+  "Draw": {
+    "desc": "绘制交互，在地图上交互式创建点、线、面等要素。",
+    "notes": [
+      "绘制类型见 [`DrawMode`](./DrawMode.md)。",
+      "交互需通过 `Map.addInteraction()` 挂载；不再使用时先 `remove()`，彻底释放用 `dispose()`。",
+      "绘制完成的要素通常通过事件回调获取。"
+    ],
+    "example": "const draw = new Draw({ mode: DrawMode.Polygon })\n\nmap.addInteraction(draw)\ndraw.on('drawend', (feature) => {\n  vectorLayer.addFeature(feature)\n})",
+    "related": ["承载要素：[VectorLayer](../layer/VectorLayer.md)"]
+  },
+  "DrawMode": {
+    "desc": "绘制模式常量，用于指定 [`Draw`](./Draw.md) 创建的几何类型。",
+    "notes": ["取值为与 OpenLayers 几何类型一致的字符串，可直接与 OL 代码互操作。"]
+  },
+  "Measure": {
+    "desc": "量算交互，在地图上测量距离或面积。",
+    "notes": [
+      "量算模式见 [`MeasureMode`](./MeasureMode.md)。",
+      "结果单位取决于地图当前投影：EPSG:3857 下为投影单位（近似米），且随纬度升高形变增大。",
+      "需要地理精确结果时，请改用等距或等面积投影后再量算。"
+    ]
+  },
+  "MeasureMode": {
+    "desc": "量算模式常量，用于指定 [`Measure`](./Measure.md) 的量算类型。",
+    "notes": ["当前支持 `Distance`（距离）与 `Area`（面积）。"]
+  },
+  "Modify": {
+    "desc": "修改交互，对已有要素的几何进行拖拽与顶点编辑。",
+    "notes": [
+      "需要先有承载要素的矢量图层；修改会直接作用于要素的几何。",
+      "修改完成通常通过事件回调获取更新后的要素。"
+    ],
+    "related": ["承载要素：[VectorLayer](../layer/VectorLayer.md)"]
+  },
+  "Select": {
+    "desc": "选择交互，在地图上拾取要素并维护选中集合。",
+    "notes": [
+      "可通过 `layers` 选项限定参与拾取的图层，或通过 `filter` 对要素做进一步过滤。",
+      "拾取到的原生要素会经库内部 resolver 统一转换为 OMap wrapper，保证与从图层取到的 wrapper 身份一致。",
+      "选中集合可读取用于批量操作。"
+    ]
+  },
+  "DragBox": {
+    "desc": "框选交互，按住鼠标拖拽出一个矩形范围。",
+    "notes": ["常与矢量图层的范围查询配合使用，实现框选一批要素的交互。"]
+  },
+  "DragPan": {
+    "desc": "拖拽平移交互，按住鼠标拖动地图。",
+    "notes": ["通常已包含在地图默认交互中，无需手动添加。"]
+  },
+  "DragZoom": {
+    "desc": "拖拽缩放交互，拖拽出一个矩形并缩放到该范围。",
+    "notes": ["多数情况下需要配合修饰键（如 Shift）触发，避免与拖拽平移冲突。"]
+  },
+  "MouseWheelZoom": {
+    "desc": "滚轮缩放交互，通过鼠标滚轮缩放地图。",
+    "notes": ["通常已包含在地图默认交互中；可通过选项调整缩放灵敏度与动画时长。"]
+  },
+  "DoubleClickZoom": {
+    "desc": "双击缩放交互，双击地图时放大一级。",
+    "notes": ["通常已包含在地图默认交互中；与其他双击行为冲突时可将其移除。"]
+  },
+  "KeyboardZoom": {
+    "desc": "键盘缩放交互，通过键盘按键缩放地图。",
+    "notes": ["需要地图容器获得焦点后才会响应键盘事件。"]
+  },
+  "Link": {
+    "desc": "联动交互，将多个地图实例的视图状态保持同步。",
+    "notes": ["适合分屏对比、主副图联动等场景。"]
+  },
+  "InteractionExtent": {
+    "desc": "范围约束交互，将交互的作用范围限制在指定矩形内。",
+    "notes": ["超出范围的绘制或拖拽会被裁剪或忽略。"]
+  },
+  "InteractionType": {
+    "desc": "交互类型标识常量，用于区分不同交互实例的类型。",
+    "notes": ["主要供内部与调试使用；业务代码一般直接判断实例类型即可。"]
+  },
+
+  "BaseLayer": {
+    "stability": "internal",
+    "desc": "图层基类，封装 id、可见性、透明度、层级、属性字典与生命周期管理。",
+    "notes": [
+      "不直接从包入口导出，仅作为各具体图层的基类存在。",
+      "`remove()` 从当前地图解除挂载，图层仍可再次添加；`dispose()` 为永久释放，释放后不可再用。",
+      "`isDisposed()` 可查询是否已永久释放，`dispose()` 重复调用是安全的。"
+    ]
+  },
+  "VectorLayer": {
+    "desc": "矢量图层，承载点、线、面等要素并提供样式与批量操作能力。",
+    "notes": [
+      "要素通过 `addFeature()` / `addFeatures()` 添加，`getFeatures()` 可读取全部要素。",
+      "图层的 `remove()` 与 `dispose()` 语义不同：前者可重新挂载，后者永久释放。"
+    ],
+    "example": "const layer = new VectorLayer()\n\nlayer.addFeature(new Point([116.397, 39.909]))\nmap.addLayer(layer)",
+    "related": [
+      "要素：[Point](../core/Point.md)、[Polygon](../core/Polygon.md)",
+      "示例：[矢量与几何](/examples/vector-geometry)"
+    ]
+  },
+  "TileLayer": {
+    "desc": "瓦片图层的基类形态，用于承载各类瓦片数据源。",
+    "notes": [
+      "实际业务中通常直接使用 [`XYZLayer`](./XYZLayer.md)、[`WMSLayer`](./WMSLayer.md)、[`WMTSLayer`](./WMTSLayer.md) 等具名图层。"
+    ]
+  },
+  "XYZLayer": {
+    "desc": "XYZ 瓦片图层，按 `{z}/{x}/{y}` 模板加载栅格瓦片。",
+    "notes": [
+      "`source` 为必填项，缺失时构造即抛出错误。",
+      "可直接传入参数对象，也可传入 [`XYZSource`](../source/XYZSource.md) 实例。",
+      "URL 模板中的占位符由数据源负责替换，不要在图层侧手工拼接。"
+    ],
+    "related": ["示例：[瓦片图层](/examples/tile-layers)"]
+  },
+  "WMSLayer": {
+    "desc": "WMS 图层，加载 OGC Web Map Service 提供的地图图片。",
+    "notes": [
+      "需要服务地址与图层名等 WMS 参数，具体字段以服务端能力文档为准。",
+      "`source` 为必填项。"
+    ],
+    "related": ["示例：[瓦片图层](/examples/tile-layers)"]
+  },
+  "WMTSLayer": {
+    "desc": "WMTS 图层，加载 OGC Web Map Tile Service 提供的瓦片。",
+    "notes": [
+      "`tileGrid` 使用本库自定义的网格描述（`resolutions`、`matrixIds`、`sizes`），**不是** OpenLayers 的 `WMTSTileGrid` 实例。",
+      "`source` 为必填项。",
+      "矩阵集标识（`matrixSet`）与比例尺层级需与服务端能力文档严格对应，否则会出现空白或错位。"
+    ],
+    "related": ["示例：[瓦片图层](/examples/tile-layers)"]
+  },
+  "ImageLayer": {
+    "desc": "影像图层，承载单张静态影像作为图层内容。",
+    "notes": [
+      "静态影像的配置属于数据源参数，请在 [`ImageSource`](../source/ImageSource.md) 侧设置。"
+    ]
+  },
+  "GaodeLayer": {
+    "desc": "高德底图图层，内置高德地图常用底图类型的瓦片地址。",
+    "notes": [
+      "底图类型见 [`GaodeLayerType`](./GaodeLayerType.md)。",
+      "内置地址为高德公开瓦片服务，商用前请确认其服务条款与配额要求。"
+    ]
+  },
+  "GaodeLayerType": {
+    "desc": "高德底图类型常量，用于 [`GaodeLayer`](./GaodeLayer.md)。",
+    "notes": ["当前支持 `Vec`（矢量）、`Img`（影像）、`Road`（路网）。"]
+  },
+  "TdtLayer": {
+    "desc": "天地图底图图层，内置天地图常用底图类型的瓦片地址。",
+    "notes": [
+      "底图类型见 [`TdtLayerType`](./TdtLayerType.md)。",
+      "天地图服务需要有效的 token，请通过 [`MapToken`](../util/MapToken.md) 配置后再使用。"
+    ]
+  },
+  "TdtLayerType": {
+    "desc": "天地图底图类型常量，用于 [`TdtLayer`](./TdtLayer.md)。",
+    "notes": [
+      "`Vec` / `Img` / `Ter` 为底图，`Cva` / `Cia` / `Cta` 为对应的注记层。",
+      "注记层通常叠加在对应底图之上使用。"
+    ]
+  },
+  "LayerGroup": {
+    "desc": "图层组，将多个图层作为一个整体统一管理显隐、顺序与层级。",
+    "notes": [
+      "构造支持 `(layers)` 与 `(id, layers)` 两种形式。",
+      "组内图层通过 `add()` / `remove()` / `removeById()` 维护，`getAllLayers()` 可展平读取全部图层。",
+      "图层组需通过 `Map.addLayerGroup()` 挂载。"
+    ]
+  },
+
+  "Source": {
+    "desc": "数据源基类，封装数据源的通用属性、事件与生命周期管理。",
+    "notes": [
+      "一般不直接实例化，请使用 [`VectorSource`](./VectorSource.md)、[`TileSource`](./TileSource.md)、[`ImageSource`](./ImageSource.md) 及其子类。",
+      "`dispose()` 为永久释放，释放后不可再用；`isDisposed()` 可查询状态。"
+    ]
+  },
+  "VectorSource": {
+    "desc": "矢量数据源，提供要素的增删查、范围检索、远程加载与事件能力。",
+    "notes": [
+      "要素的增删改都会触发相应的数据源事件，可用于驱动 UI 同步。",
+      "从原生要素解析出的 wrapper 经库内部 resolver 统一创建，保证身份一致。"
+    ]
+  },
+  "TileSource": {
+    "desc": "瓦片数据源基类，提供瓦片网格、瓦片获取、缓存刷新与加载事件能力。",
+    "notes": ["一般不直接使用，请按需选择下方的具体瓦片数据源实现。"]
+  },
+  "ImageSource": {
+    "desc": "静态影像数据源，按范围与分辨率请求单张影像。",
+    "notes": [
+      "提供影像加载生命周期事件：`onImageLoadStart` / `onImageLoadEnd` / `onImageLoadError`。",
+      "适合叠加单张静态图（如雷达图、历史影像），而非瓦片金字塔。"
+    ]
+  },
+  "XYZSource": {
+    "desc": "XYZ 瓦片数据源，按 `{z}/{x}/{y}` 模板请求瓦片。",
+    "notes": [
+      "URL 模板中的 `{z}`、`{x}`、`{y}` 占位符由数据源自动替换。",
+      "需要负载均衡时可传入多域名模板（如 `{a-c}` 形式），具体以服务端约定为准。"
+    ],
+    "related": ["承载图层：[XYZLayer](../layer/XYZLayer.md)"]
+  },
+  "WMTSSource": {
+    "desc": "WMTS 瓦片数据源，按矩阵集请求 OGC WMTS 瓦片。",
+    "notes": [
+      "`createFromWMTSTemplate(template)` 可直接使用能力文档中的 URL 模板，省去手工拼接参数。",
+      "维度参数（如时间维）可用 `updateDimensions()` 动态更新。"
+    ],
+    "related": ["承载图层：[WMTSLayer](../layer/WMTSLayer.md)"]
+  },
+  "TileWMSSource": {
+    "desc": "WMS 瓦片数据源，以瓦片方式请求 OGC WMS 服务。",
+    "notes": [
+      "`getFeatureInfoUrl()` 用于构造 GetFeatureInfo 请求地址，实现点击查询要素属性。",
+      "`getLegendUrl()` 可取回图例地址。",
+      "参数可运行时更新：`setParams()` 为整体替换，`updateParams()` 为合并更新。"
+    ]
+  },
+  "VectorTileSource": {
+    "desc": "矢量瓦片数据源，加载矢量瓦片并提供要素级访问能力。",
+    "notes": [
+      "`getOverlaps()` / `setOverlaps()` 控制是否允许要素重叠，影响渲染与命中表现。",
+      "矢量瓦片中的要素多为渲染要素（RenderFeature），读取属性前请先确认其形态。"
+    ]
+  },
+  "OGCVectorTileSource": {
+    "desc": "OGC 矢量瓦片数据源，按 OGC 矢量瓦片规范请求数据。",
+    "notes": ["适用于遵循 OGC API - Tiles / Vector Tiles 规范的服务。"]
+  },
+  "DataTileSource": {
+    "desc": "数据瓦片数据源，按瓦片加载原始数据（而非图片）以便自定义渲染。",
+    "notes": ["适合地形高程、热力矩阵等需要对原始数值做处理的场景。"]
+  },
+  "ImageTileSource": {
+    "desc": "图片瓦片数据源，以图片方式加载并渲染瓦片。",
+    "notes": ["`setUrl()` 可在运行时切换瓦片地址模板。"]
+  },
+  "TileDebugSource": {
+    "desc": "调试瓦片数据源，在瓦片上绘制编号与边界等调试信息。",
+    "notes": ["仅用于排查瓦片网格与层级问题，请勿用于生产环境。"]
+  },
+  "UTFGridSource": {
+    "desc": "UTFGrid 数据源，加载交互网格数据以实现像素级的要素信息查询。",
+    "notes": [
+      "`forDataAtCoordinateAndResolution()` 在指定坐标与分辨率下查询网格数据。",
+      "UTFGrid 是较早期的交互方案，新项目可优先考虑矢量瓦片。"
+    ]
+  },
+  "UrlTileSource": {
+    "stability": "compatibility",
+    "desc": "基于 URL 的瓦片数据源基类（遗留实现）。",
+    "notes": [
+      "OpenLayers 已标记该类为废弃，新代码请使用 [`ImageTileSource`](./ImageTileSource.md)。",
+      "保留仅为兼容既有实现，不建议在新项目中使用。"
+    ]
+  },
+  "TileImageSource": {
+    "stability": "compatibility",
+    "desc": "图片瓦片数据源（遗留实现）。",
+    "notes": [
+      "OpenLayers 已标记该类为废弃，新代码请使用 [`ImageTileSource`](./ImageTileSource.md)。",
+      "保留仅为兼容既有实现，不建议在新项目中使用。"
+    ]
+  },
+
+  "Event": {
+    "stability": "internal",
+    "desc": "事件基类，提供类型化的 `on` / `once` / `un` 订阅接口。",
+    "notes": [
+      "不直接从包入口导出，作为各具备事件能力类的内部基类存在。",
+      "订阅返回监听标识，可用于精确取消单个监听。"
+    ]
+  },
+  "Format": {
+    "desc": "格式化工具，在要素与 GeoJSON / WKT / KML 等格式之间做读写转换。",
+    "notes": [
+      "构造第一个参数为格式类型，见 [`FormatType`](./FormatType.md)；第二个参数为该格式的读写选项。",
+      "`writeFeature()` 返回字符串，`writeFeatureObject()` 返回对象形态，便于二次处理。",
+      "读取方法接受字符串或对象输入，具体形态取决于目标格式。"
+    ],
+    "example": "const geojson = new Format(FormatType.GeoJSON)\n\nconst text = geojson.writeFeature(point)\nconst restored = geojson.readFeature(text)",
+    "related": ["要素：[Point](../core/Point.md)"]
+  },
+  "FormatType": {
+    "desc": "数据格式常量，用于 [`Format`](./Format.md) 的构造。",
+    "notes": ["当前支持 `GeoJSON`、`WKT`、`KML` 三种格式。"]
+  },
+  "ProjUtil": {
+    "desc": "投影换算工具，提供经纬度与地图投影坐标之间的静态方法。",
+    "notes": [
+      "`fromLonLat` 把经纬度转为投影坐标，`toLonLat` 把投影坐标转回经纬度。",
+      "第二个参数可指定目标投影，默认使用地图的常规投影（EPSG:3857）。",
+      "传入坐标既可以是 `[lng, lat]` 数组，也可以是 [`LngLat`](../basic/LngLat.md) 实例；转换失败时返回 `undefined`，调用方需判空。"
+    ],
+    "example": "const xy = ProjUtil.fromLonLat([116.397, 39.909])\nconst lonlat = ProjUtil.toLonLat(xy)",
+    "related": ["经纬度：[LngLat](../basic/LngLat.md)"]
+  }
+}

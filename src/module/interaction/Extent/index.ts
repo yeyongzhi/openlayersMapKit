@@ -1,11 +1,11 @@
-import { isDefined, defaultValue, isFunction } from '../../../utils/index'
+import { isDefined, isFunction } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
 import Extent from '../../basic/Extent/index'
 import { isValidExtent, type OMapExtentType } from '../../basic/Extent/type'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
 import { handleGetStyleValue } from '../../basic/Style/handle'
-import { OlInteraction, OlEvent } from '../../../source/index'
+import { OlInteraction } from '../../../source/index'
 import {
   type OMapExtentParamsType,
   type OMapInteractionExtentEventType,
@@ -14,6 +14,7 @@ import {
   type OlExtentEventPayloadType,
   isOMapInteractionExtentEventType,
   type OMapInteractionExtentType,
+  type OlExtentResolvedParamsType,
   OMAP_EXTENT_DEFAULT_PARAMS
 } from './type'
 import Event from '../../util/Event/index'
@@ -38,16 +39,22 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
   declare events: Event<OMapExtentEventMap>
 
   constructor(params?: OMapExtentParamsType) {
-    super('InteractionExtent', { id: params?.id })
-    let _params = defaultValue(params, {})
-    if (isDefined(_params.boxStyle)) {
-      _params.boxStyle = handleGetStyleValue(_params.boxStyle)
-    }
-    this._interaction = new OlInteraction.Extent(
-      Object.assign({}, OMAP_EXTENT_DEFAULT_PARAMS, defaultValue(_params, {}))
+    const { id, active, ...restParams } = params ?? {}
+    super('InteractionExtent', { id })
+    // OMap 样式（Style wrapper）必须先转换为 OpenLayers 原生样式，
+    // 否则 OpenLayers 拿不到可渲染的样式实例。
+    const _params: OlExtentResolvedParamsType = Object.assign(
+      {},
+      OMAP_EXTENT_DEFAULT_PARAMS,
+      restParams,
+      {
+        boxStyle: handleGetStyleValue(restParams.boxStyle),
+        pointerStyle: handleGetStyleValue(restParams.pointerStyle)
+      }
     )
+    this._interaction = new OlInteraction.Extent(_params)
     // 注册事件
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
     this.events = new Event<OMapExtentEventMap>(this)
   }
 
@@ -90,14 +97,9 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
     if (!isFunction(callback)) {
       error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(
-        type,
-        handleInteractionExtentEvent(this, type, e as OlExtentEventPayloadType)
-      )
-    })
-    const id = this.events.on(type, callback, unlisten)
-    return id
+    return this.subscribeEvent(type, callback, (e) =>
+      handleInteractionExtentEvent(this, type, e as OlExtentEventPayloadType)
+    )
   }
 
   once(type: OMapInteractionExtentEventType, callback: (e: OMapExtentEvent) => void): EventIdType {
@@ -110,14 +112,12 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
     if (!isFunction(callback)) {
       error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(
-        type,
-        handleInteractionExtentEvent(this, type, e as OlExtentEventPayloadType)
-      )
-    })
-    const id = this.events.once(type, callback, unlisten)
-    return id
+    return this.subscribeEvent(
+      type,
+      callback,
+      (e) => handleInteractionExtentEvent(this, type, e as OlExtentEventPayloadType),
+      true
+    )
   }
 
   un(id: EventIdType) {

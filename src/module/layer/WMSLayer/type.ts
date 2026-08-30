@@ -1,18 +1,19 @@
 import { OlSource } from '../../../source/index'
 import Map from '../../core/Map/index'
 import { type OMapProjectionType } from '../../core/Projection/type'
-import type { BaseLayerOptionsType } from '../BaseLayer/type'
+import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
 import { type OMapTileSourceTileGrid } from '../../source/TileSource/type'
 
 type OlTileWMSOptions = NonNullable<ConstructorParameters<typeof OlSource.TileWMS>[0]>
 export type OMapWMSParams = Record<string, unknown>
 
-export type OMapWMSLayerParamsType = BaseLayerOptionsType & {
-  preload: number
-  cacheSize: number
-  source?: OMapWMSLayerSourceParamsType // source参数是必须的
-  map?: Map
-}
+export type OMapWMSLayerParamsType<P extends BaseLayerPropertiesType = BaseLayerPropertiesType> =
+  BaseLayerOptionsType<P> & {
+    preload: number
+    cacheSize: number
+    source?: OMapWMSLayerSourceParamsType // source参数是必须的
+    map?: Map
+  }
 export const DEFAULT_WMS_LAYER_PARAMS: OMapWMSLayerParamsType = {
   preload: 0,
   cacheSize: 512
@@ -50,4 +51,3 @@ export const DEFAULT_WMS_LAYER_SOURCE_PARAMS: OMapWMSLayerSourceParamsType = {
   transition: 250,
   zDirection: 0
 }
-export type OlwmsSourceInstanceType = InstanceType<typeof OlSource.TileWMS>

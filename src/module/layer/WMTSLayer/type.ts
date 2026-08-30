@@ -7,16 +7,17 @@ import { type OlCoordinateType } from '../../basic/Lnglat/type'
 import Size from '../../basic/Size/index'
 import { type OlSizeType } from '../../basic/Size/type'
 import { type OMapProjectionType } from '../../core/Projection/type'
-import type { BaseLayerOptionsType } from '../BaseLayer/type'
+import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
 
 type OlWMTSOptions = ConstructorParameters<typeof OlSource.WMTS>[0]
 
-export type OMapWMTSLayerParamsType = BaseLayerOptionsType & {
-  preload: number
-  cacheSize: number
-  source?: OMapWMTSLayerSourceParamsType // source参数是必须的
-  map?: Map
-}
+export type OMapWMTSLayerParamsType<P extends BaseLayerPropertiesType = BaseLayerPropertiesType> =
+  BaseLayerOptionsType<P> & {
+    preload: number
+    cacheSize: number
+    source?: OMapWMTSLayerSourceParamsType // source参数是必须的
+    map?: Map
+  }
 export const DEFAULT_WMTS_LAYER_PARAMS: OMapWMTSLayerParamsType = {
   preload: 0,
   cacheSize: 512
@@ -72,4 +73,3 @@ export const DEFAULT_WMTS_LAYER_SOURCE_PARAMS: OMapWMTSLayerSourceParamsType = {
   transition: 250,
   zDirection: 0
 }
-export type OlwmsSourceInstanceType = InstanceType<typeof OlSource.TileWMS>

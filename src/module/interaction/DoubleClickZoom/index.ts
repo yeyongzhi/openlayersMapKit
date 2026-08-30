@@ -1,12 +1,14 @@
-import { isDefined, defaultValue, isFunction, isString } from '../../../utils/index'
+import { isDefined, isFunction, isString } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
-import { OMAP_INTERACTION_DEFAULT_PARAMS } from '../Interaction/type'
-import { OlInteraction, OlEvent } from '../../../source/index'
+import Event from '../../util/Event/index'
+import { OlInteraction } from '../../../source/index'
 import {
   type OMapDoubleClickZoomParamsType,
   type OMapDoubleClickZoomType,
   type OMapInteractionDoubleClickZoomEventType,
+  type OMapDoubleClickZoomEvent,
+  type OMapDoubleClickZoomEventMap,
   isOMapInteractionDoubleClickZoomEventType
 } from './type'
 import { type EventIdType } from '../../util/Event/type'
@@ -32,19 +34,26 @@ const defaultDoubleClickZoomOptions = {
 }
 
 export default class DoubleClickZoom extends Interaction<OMapDoubleClickZoomType> {
+  /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+  declare events: Event<OMapDoubleClickZoomEventMap>
+
   constructor(params?: OMapDoubleClickZoomParamsType) {
-    super('DoubleClickZoom', { id: params?.id })
+    const { id, active, ...nativeParams } = params ?? {}
+    super('DoubleClickZoom', { id })
+    // 注意 defaultDoubleClickZoomOptions 必须作为独立对象合并：
+    // 若把它（或模块级默认参数常量）当作 Object.assign 的第一个参数，
+    // 用户参数会被写回常量本身，污染后续所有实例。
     this._interaction = new OlInteraction.DoubleClickZoom(
-      Object.assign(
-        OMAP_INTERACTION_DEFAULT_PARAMS,
-        defaultDoubleClickZoomOptions,
-        defaultValue(params, {})
-      )
+      Object.assign({}, defaultDoubleClickZoomOptions, nativeParams)
     )
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
+    this.events = new Event<OMapDoubleClickZoomEventMap>(this)
   }
 
-  on(type: OMapInteractionDoubleClickZoomEventType, callback: () => void): EventIdType {
+  on(
+    type: OMapInteractionDoubleClickZoomEventType,
+    callback: (e: OMapDoubleClickZoomEvent) => void
+  ): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
@@ -54,18 +63,15 @@ export default class DoubleClickZoom extends Interaction<OMapDoubleClickZoomType
     if (!isFunction(callback)) {
       error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(
-      this._interaction,
-      type,
-      (e: InteractionPropertyChangeEvent) => {
-        this.events.emit(type, handleInteractionDoubleClickZoomEvent(this, type, e))
-      }
+    return this.subscribeEvent(type, callback, (e: InteractionPropertyChangeEvent) =>
+      handleInteractionDoubleClickZoomEvent(this, type, e)
     )
-    const id = this.events.on(type, callback, unlisten)
-    return id
   }
 
-  once(type: OMapInteractionDoubleClickZoomEventType, callback: () => void): EventIdType {
+  once(
+    type: OMapInteractionDoubleClickZoomEventType,
+    callback: (e: OMapDoubleClickZoomEvent) => void
+  ): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
@@ -75,15 +81,12 @@ export default class DoubleClickZoom extends Interaction<OMapDoubleClickZoomType
     if (!isFunction(callback)) {
       error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(
-      this._interaction,
+    return this.subscribeEvent(
       type,
-      (e: InteractionPropertyChangeEvent) => {
-        this.events.emit(type, handleInteractionDoubleClickZoomEvent(this, type, e))
-      }
+      callback,
+      (e: InteractionPropertyChangeEvent) => handleInteractionDoubleClickZoomEvent(this, type, e),
+      true
     )
-    const id = this.events.once(type, callback, unlisten)
-    return id
   }
 
   un(id: EventIdType) {

@@ -7,6 +7,7 @@ import {
   type OMapGaodeLayerParamsType,
   isValidGaodeLayerType
 } from './type'
+import type { OMapTileLayerParamsType } from '../TileLayer/type'
 import { getGaodeLayerUrlsByType } from './handle'
 
 let PACKAGE_NAME = 'GaodeLayer'
@@ -33,15 +34,17 @@ export default class GaodeLayer extends TileLayer {
       error_(createMessage('constructor', commonMessage.paramsInvaildEnum('type')))
     }
     const urls = getGaodeLayerUrlsByType(type)
-    const xyzSourceParams = Object.assign({}, DEFAULT_XYZ_SOURCE_PARAMS, options, {
+    // options.source 承载用户提供的 XYZ 参数，此前被 Object.assign 整体摊平到顶层而静默失效，
+    // 这里显式合并，顺序为：默认参数 → 图层通用参数 → 用户 source 参数 → 由类型推导出的 urls。
+    const xyzSourceParams = Object.assign({}, DEFAULT_XYZ_SOURCE_PARAMS, options, options.source, {
       urls
     })
     const xyzSource = new XYZSource(xyzSourceParams)
-    const gaodeParams = Object.assign({}, options, {
-      source: xyzSource.getSource()
-    })
+    const gaodeParams: OMapTileLayerParamsType = {
+      ...options,
+      source: xyzSource
+    }
     super(gaodeParams)
     this.gaodeType = type
-    this._initLayerEvent()
   }
 }

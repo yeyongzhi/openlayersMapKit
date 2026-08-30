@@ -56,41 +56,41 @@ node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt
 
 | 类别      | 数量 | 说明                                       |
 | --------- | ---- | ------------------------------------------ |
-| class     | 58   | 验收矩阵主体                               |
+| class     | 59   | 验收矩阵主体（2026-08-30 审计：152 导出）  |
 | function  | 15   | 全部为源码内部参数 helper，拟标记 internal |
 | const     | 23   | 含 12 个内部默认参数常量，拟标记 internal  |
 | interface | 2    | `Disposable`、`Removable` 生命周期协议     |
-| type      | 47   | 类型导出，随所属类一并验收                 |
-| **合计**  | 145  |                                            |
+| type      | 53   | 类型导出，随所属类一并验收                 |
+| **合计**  | 152  |                                            |
 
 ## 5. Core 模块
 
 | 类                | 稳定性       | 导入 | 类型 | 正常测试 | 边界测试 | 生命周期 | 回调类型 | 转换规则 | 文档 | 示例 | 浏览器 | 备注                                                                  |
 | ----------------- | ------------ | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | --------------------------------------------------------------------- |
-| `Map`             | stable-beta  | Y    | P    | Y        | P        | Y        | P        | Y        | Y    | Y    | N      | 已拆分为 manager/controller/query/adapter；typed event payload 未完成 |
-| `Projection`      | experimental | Y    | P    | N        | N        | -        | -        | P        | P    | N    | N      | 无任何测试引用，需优先补测                                            |
-| `Point`           | stable-beta  | Y    | Y    | Y        | Y        | -        | -        | Y        | P    | Y    | N      | factory 参数化矩阵已覆盖                                              |
-| `LineString`      | stable-beta  | Y    | Y    | Y        | Y        | -        | -        | Y        | P    | Y    | N      | 同上                                                                  |
-| `Polygon`         | stable-beta  | Y    | Y    | Y        | Y        | -        | -        | Y        | P    | Y    | N      | 同上                                                                  |
-| `MultiPoint`      | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | P    | N    | N      | 边界输入待补                                                          |
-| `MultiLineString` | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | P    | N    | N      | 边界输入待补                                                          |
-| `MultiPolygon`    | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | P    | N    | N      | 边界输入待补                                                          |
-| `Circle`          | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | P    | N    | N      | 半径边界待补                                                          |
-| `LinearRing`      | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | P    | N    | N      | 闭合校验边界待补                                                      |
+| `Map`             | stable-beta  | Y    | P    | Y        | P        | Y        | Y | Y        | Y    | Y    | N      | 已拆分为 manager/controller/query/adapter；typed event map 已完成（on/once 接收精确 OMapEventCallBack） |
+| `Projection`      | experimental | Y    | P    | N        | N        | -        | -        | P        | Y | N    | N      | 无任何测试引用，需优先补测                                            |
+| `Point`           | stable-beta  | Y    | Y    | Y        | Y        | -        | -        | Y        | Y | Y    | N      | factory 参数化矩阵已覆盖                                              |
+| `LineString`      | stable-beta  | Y    | Y    | Y        | Y        | -        | -        | Y        | Y | Y    | N      | 同上                                                                  |
+| `Polygon`         | stable-beta  | Y    | Y    | Y        | Y        | -        | -        | Y        | Y | Y    | N      | 同上                                                                  |
+| `MultiPoint`      | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | Y | N    | N      | 边界输入待补                                                          |
+| `MultiLineString` | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | Y | N    | N      | 边界输入待补                                                          |
+| `MultiPolygon`    | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | Y | N    | N      | 边界输入待补                                                          |
+| `Circle`          | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | Y | N    | N      | 半径边界待补                                                          |
+| `LinearRing`      | stable-beta  | Y    | Y    | Y        | P        | -        | -        | Y        | Y | N    | N      | 闭合校验边界待补                                                      |
 
 ## 6. Layer 模块
 
 | 类            | 稳定性       | 导入 | 类型 | 正常测试 | 边界测试 | 生命周期 | 回调类型 | 转换规则 | 文档 | 示例 | 浏览器 | 备注                                       |
 | ------------- | ------------ | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | ------------------------------------------ |
-| `VectorLayer` | stable-beta  | Y    | P    | Y        | P        | Y        | P        | Y        | Y    | Y    | N      | source 门面职责明确；properties 泛型待收敛 |
-| `TileLayer`   | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用                                 |
-| `ImageLayer`  | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用                                 |
-| `WMSLayer`    | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用，依赖外部 WMS 服务              |
-| `WMTSLayer`   | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用，依赖外部 WMTS 服务             |
-| `XYZLayer`    | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用                                 |
-| `TdtLayer`    | experimental | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 依赖天地图 token，测试需替换为本地资源     |
-| `GaodeLayer`  | experimental | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 依赖高德服务，仅被间接引用一次             |
-| `LayerGroup`  | stable-beta  | Y    | P    | Y        | P        | Y        | -        | Y        | P    | N    | N      | 组内增删与 groupId 同步已测                |
+| `VectorLayer` | stable-beta  | Y    | P    | Y        | P        | Y        | P        | Y        | Y    | Y    | N      | source 门面职责明确；properties 泛型已完成（B 批次） |
+| `TileLayer`   | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                                 |
+| `ImageLayer`  | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                                 |
+| `WMSLayer`    | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用，依赖外部 WMS 服务              |
+| `WMTSLayer`   | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用，依赖外部 WMTS 服务             |
+| `XYZLayer`    | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                                 |
+| `TdtLayer`    | experimental | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 依赖天地图 token，测试需替换为本地资源     |
+| `GaodeLayer`  | experimental | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 依赖高德服务，仅被间接引用一次             |
+| `LayerGroup`  | stable-beta  | Y    | P    | Y        | P        | Y        | -        | Y        | Y | N    | N      | 组内增删与 groupId 同步已测                |
 
 > `BaseLayer` 为内部基类，未从根入口导出，不单独验收，其能力随各子类一并覆盖。
 
@@ -98,38 +98,38 @@ node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt
 
 | 类                    | 稳定性        | 导入 | 类型 | 正常测试 | 边界测试 | 生命周期 | 回调类型 | 转换规则 | 文档 | 示例 | 浏览器 | 备注                                  |
 | --------------------- | ------------- | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | ------------------------------------- |
-| `Source`              | stable-beta   | Y    | P    | N        | N        | P        | -        | P        | P    | N    | N      | 基类能力经子类间接覆盖                |
+| `Source`              | stable-beta   | Y    | P    | N        | N        | P        | -        | P        | Y | N    | N      | 基类能力经子类间接覆盖                |
 | `VectorSource`        | stable-beta   | Y    | P    | Y        | P        | Y        | P        | Y        | Y    | Y    | N      | Feature 唯一状态源，loader 类型待精确 |
-| `ImageSource`         | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用                            |
-| `TileSource`          | stable-beta   | Y    | P    | N        | N        | N        | P        | P        | P    | N    | N      | 子类较多，基类缺直接测试              |
-| `XYZSource`           | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用                            |
-| `WMTSSource`          | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用                            |
-| `TileWMSSource`       | stable-beta   | Y    | P    | Y        | P        | N        | -        | P        | P    | N    | N      | 已有参数 set/update 回归              |
-| `VectorTileSource`    | experimental  | Y    | P    | N        | N        | N        | -        | P        | N    | N    | N      | 无测试引用                            |
-| `OGCVectorTileSource` | experimental  | Y    | P    | N        | N        | N        | -        | P        | N    | N    | N      | 无测试引用                            |
-| `DataTileSource`      | experimental  | Y    | P    | N        | N        | N        | P        | P        | N    | N    | N      | loader 类型待精确                     |
-| `ImageTileSource`     | experimental  | Y    | P    | N        | N        | N        | P        | P        | N    | N    | N      | loader/url getter 类型待精确          |
-| `TileDebugSource`     | experimental  | Y    | P    | N        | N        | N        | -        | P        | N    | N    | N      | 调试用途                              |
-| `UTFGridSource`       | experimental  | Y    | P    | N        | N        | N        | P        | P        | N    | N    | N      | 回调数据仍为宽松类型                  |
-| `UrlTileSource`       | compatibility | Y    | P    | N        | N        | N        | -        | P        | N    | N    | N      | legacy 目录，仅为历史兼容             |
-| `TileImageSource`     | compatibility | Y    | P    | N        | N        | N        | -        | P        | N    | N    | N      | legacy 目录，仅为历史兼容             |
+| `ImageSource`         | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
+| `TileSource`          | stable-beta   | Y    | P    | N        | N        | N        | P        | P        | Y | N    | N      | 子类较多，基类缺直接测试              |
+| `XYZSource`           | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
+| `WMTSSource`          | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
+| `TileWMSSource`       | stable-beta   | Y    | P    | Y        | P        | N        | -        | P        | Y | N    | N      | 已有参数 set/update 回归              |
+| `VectorTileSource`    | experimental  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
+| `OGCVectorTileSource` | experimental  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
+| `DataTileSource`      | experimental  | Y    | P    | N        | N        | N        | P        | P        | Y | N    | N      | loader 类型待精确                     |
+| `ImageTileSource`     | experimental  | Y    | P    | N        | N        | N        | P        | P        | Y | N    | N      | loader/url getter 类型待精确          |
+| `TileDebugSource`     | experimental  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 调试用途                              |
+| `UTFGridSource`       | experimental  | Y    | P    | N        | N        | N        | P        | P        | Y | N    | N      | 回调数据仍为宽松类型                  |
+| `UrlTileSource`       | compatibility | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | legacy 目录，仅为历史兼容             |
+| `TileImageSource`     | compatibility | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | legacy 目录，仅为历史兼容             |
 
 ## 8. Interaction 模块
 
 | 类                  | 稳定性       | 导入 | 类型 | 正常测试 | 边界测试 | 生命周期 | 回调类型 | 转换规则 | 文档 | 示例 | 浏览器 | 备注                                 |
 | ------------------- | ------------ | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | ------------------------------------ |
-| `Draw`              | stable-beta  | Y    | P    | Y        | P        | Y        | P        | Y        | Y    | Y    | N      | abort 与 clearFeatures 语义已明确    |
-| `Modify`            | stable-beta  | Y    | P    | Y        | Y        | Y        | P        | Y        | Y    | Y    | N      | 快照恢复已测                         |
-| `Select`            | stable-beta  | Y    | P    | Y        | P        | Y        | P        | Y        | Y    | Y    | N      | filter/layers 边界已修复             |
+| `Draw`              | stable-beta  | Y    | P    | Y        | P        | Y        | Y | Y        | Y    | Y    | N      | abort 与 clearFeatures 语义已明确    |
+| `Modify`            | stable-beta  | Y    | P    | Y        | Y        | Y        | Y | Y        | Y    | Y    | N      | 快照恢复已测                         |
+| `Select`            | stable-beta  | Y    | P    | Y        | P        | Y        | Y | Y        | Y    | Y    | N      | filter/layers 边界已修复             |
 | `Measure`           | stable-beta  | Y    | P    | Y        | P        | Y        | Y        | Y        | Y    | Y    | N      | 已有 typed event map 与 DOM 生命周期 |
-| `DragBox`           | experimental | Y    | P    | P        | N        | P        | P        | -        | P    | N    | N      | 需真实指针事件验证                   |
-| `DragPan`           | experimental | Y    | P    | P        | N        | P        | P        | -        | P    | N    | N      | 需真实指针事件验证                   |
-| `DragZoom`          | experimental | Y    | P    | N        | N        | N        | P        | -        | P    | N    | N      | 无测试引用                           |
-| `InteractionExtent` | experimental | Y    | P    | N        | N        | N        | P        | -        | P    | N    | N      | 无测试引用                           |
-| `Link`              | experimental | Y    | P    | N        | N        | N        | P        | -        | P    | N    | N      | 无测试引用，需多地图环境             |
-| `KeyboardZoom`      | experimental | Y    | P    | N        | N        | N        | P        | -        | P    | N    | N      | 无测试引用                           |
-| `MouseWheelZoom`    | experimental | Y    | P    | N        | N        | N        | P        | -        | P    | N    | N      | 无测试引用，依赖滚轮事件             |
-| `DoubleClickZoom`   | experimental | Y    | P    | N        | N        | N        | P        | -        | P    | N    | N      | 无测试引用，依赖双击事件             |
+| `DragBox`           | experimental | Y    | P    | P        | N        | P        | Y | -        | Y | N    | N      | 需真实指针事件验证                   |
+| `DragPan`           | experimental | Y    | P    | P        | N        | P        | Y | -        | Y | N    | N      | 需真实指针事件验证                   |
+| `DragZoom`          | experimental | Y    | P    | N        | N        | N        | Y | -        | Y | N    | N      | 无测试引用                           |
+| `InteractionExtent` | experimental | Y    | P    | N        | N        | N        | Y | -        | Y | N    | N      | 无测试引用                           |
+| `Link`              | experimental | Y    | P    | N        | N        | N        | Y | -        | Y | N    | N      | 无测试引用，需多地图环境             |
+| `KeyboardZoom`      | experimental | Y    | P    | N        | N        | N        | Y | -        | Y | N    | N      | 无测试引用                           |
+| `MouseWheelZoom`    | experimental | Y    | P    | N        | N        | N        | Y | -        | Y | N    | N      | 无测试引用，依赖滚轮事件             |
+| `DoubleClickZoom`   | experimental | Y    | P    | N        | N        | N        | Y | -        | Y | N    | N      | 无测试引用，依赖双击事件             |
 
 > `Interaction` 基类未从根入口导出，其 `remove()`/`dispose()` 协议经各子类验收。
 
@@ -137,20 +137,20 @@ node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt
 
 | 类           | 稳定性       | 导入 | 类型 | 正常测试 | 边界测试 | 生命周期 | 回调类型 | 转换规则 | 文档 | 示例 | 浏览器 | 备注                     |
 | ------------ | ------------ | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | ------------------------ |
-| `Zoom`       | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用，DOM 依赖强   |
-| `FullScreen` | experimental | Y    | P    | N        | N        | N        | -        | P        | P    | N    | N      | 无测试引用，需真实浏览器 |
+| `Zoom`       | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用，DOM 依赖强   |
+| `FullScreen` | experimental | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用，需真实浏览器 |
 
 ## 10. Basic 模块
 
 | 类       | 稳定性        | 导入 | 类型 | 正常测试 | 边界测试 | 生命周期 | 回调类型 | 转换规则 | 文档 | 示例 | 浏览器 | 备注                                                    |
 | -------- | ------------- | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | ------------------------------------------------------- |
-| `Lnglat` | compatibility | Y    | Y    | Y        | Y        | -        | -        | Y        | P    | Y    | N      | 已废弃，推荐 `LngLat` 别名                              |
-| `LngLat` | stable-beta   | Y    | Y    | Y        | Y        | -        | -        | Y        | P    | Y    | N      | `Lnglat` 的推荐别名                                     |
-| `Pixel`  | stable-beta   | Y    | Y    | Y        | P        | -        | -        | Y        | P    | N    | N      | 固定 tuple 已收敛                                       |
-| `Size`   | stable-beta   | Y    | Y    | Y        | P        | -        | -        | Y        | P    | N    | N      | 固定 tuple 已收敛                                       |
-| `Extent` | stable-beta   | Y    | Y    | Y        | P        | -        | -        | Y        | P    | N    | N      | 固定四元组已收敛                                        |
-| `Color`  | stable-beta   | Y    | Y    | Y        | P        | -        | -        | -        | P    | N    | N      | 颜色格式边界待补                                        |
-| `Style`  | stable-beta   | Y    | Y    | Y        | P        | -        | P        | -        | P    | P    | N      | 回调签名已精确化，返回值数组收窄已测                    |
+| `Lnglat` | compatibility | Y    | Y    | Y        | Y        | -        | -        | Y        | Y | Y    | N      | 已废弃，推荐 `LngLat` 别名                              |
+| `LngLat` | stable-beta   | Y    | Y    | Y        | Y        | -        | -        | Y        | P | Y    | N      | `Lnglat` 的推荐别名（文档见 `Lnglat` 页）              |
+| `Pixel`  | stable-beta   | Y    | Y    | Y        | P        | -        | -        | Y        | Y | N    | N      | 固定 tuple 已收敛                                       |
+| `Size`   | stable-beta   | Y    | Y    | Y        | P        | -        | -        | Y        | Y | N    | N      | 固定 tuple 已收敛                                       |
+| `Extent` | stable-beta   | Y    | Y    | Y        | P        | -        | -        | Y        | Y | N    | N      | 固定四元组已收敛                                        |
+| `Color`  | stable-beta   | Y    | Y    | Y        | P        | -        | -        | -        | Y | N    | N      | 颜色格式边界待补                                        |
+| `Style`  | stable-beta   | Y    | Y    | Y        | P        | -        | P        | -        | Y | P    | N      | 回调签名已精确化，返回值数组收窄已测                    |
 | `Popup`  | stable-beta   | Y    | P    | Y        | P        | Y        | Y        | Y        | Y    | Y    | N      | Manager 与 typed payload 已测；Overlay 定位需真实浏览器 |
 
 ## 11. Util 模块
@@ -158,8 +158,8 @@ node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt
 | 类          | 稳定性       | 导入 | 类型 | 正常测试 | 边界测试 | 生命周期 | 回调类型 | 转换规则 | 文档 | 示例 | 浏览器 | 备注                          |
 | ----------- | ------------ | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | ----------------------------- |
 | `Format`    | stable-beta  | Y    | P    | Y        | P        | -        | -        | Y        | Y    | P    | N      | KML/WKT/GeoJSON 选项矩阵待补  |
-| `ProjUtil`  | stable-beta  | Y    | P    | N        | N        | -        | -        | P        | P    | N    | N      | 无测试引用，坐标转换依赖它    |
-| `MapToken`  | experimental | Y    | P    | N        | N        | -        | -        | -        | P    | N    | N      | 天地图 token 全局配置，无测试 |
+| `ProjUtil`  | stable-beta  | Y    | P    | N        | N        | -        | -        | P        | Y | N    | N      | 无测试引用，坐标转换依赖它    |
+| `MapToken`  | experimental | Y    | P    | N        | N        | -        | -        | -        | Y | N    | N      | 天地图 token 全局配置，无测试 |
 | `OMapError` | stable-beta  | Y    | Y    | Y        | Y        | -        | -        | -        | P    | N    | -      | 统一错误类型与错误码          |
 
 > `Event` 为内部基类，未从根入口导出，其协议经 Map、Popup、Interaction 等子类验收。
@@ -184,12 +184,12 @@ node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt
 
 ## 13. 当前缺口汇总
 
-1. **27 个公开类完全无测试引用**：`DataTileSource`、`DoubleClickZoom`、`DragZoom`、`FullScreen`、`ImageLayer`、`ImageSource`、`ImageTileSource`、`InteractionExtent`、`KeyboardZoom`、`Link`、`MouseWheelZoom`、`OGCVectorTileSource`、`Projection`、`ProjUtil`、`Source`、`TdtLayer`、`TileDebugSource`、`TileImageSource`、`TileLayer`、`UrlTileSource`、`UTFGridSource`、`VectorTileSource`、`WMSLayer`、`WMTSLayer`、`WMTSSource`、`XYZLayer`、`XYZSource`。
+1. **10 个公开类完全无测试引用**（2026-08-30 审计 `audit:api` 结果，较原 27 已大幅下降：高侵入项 4/5、Select 语义修复与交互事件桥接测试补齐了多数类的覆盖）：`DataTileSource`、`ImageTileSource`、`OGCVectorTileSource`、`Source`、`TdtLayer`、`TileDebugSource`、`TileImageSource`、`UrlTileSource`、`UTFGridSource`、`VectorTileSource`。
 2. **27 个内部导出泄漏到公共入口**（15 函数 + 12 常量）。
 3. **全部类的浏览器验证为空**：`Map`、`Draw`、`Modify`、`Select`、`Measure`、`Popup` 等强 DOM 依赖类均未经真实浏览器验证。
-4. **properties 泛型未收敛**：所有涉及 properties 的类的“回调类型”与“类型”字段均无法标记为完成。
-5. **typed event map 未全覆盖**：`Measure` 已完成，Map/Popup 部分完成，其余 Interaction 仍为宽松类型。
-6. **文档为模块级骨架**：尚无逐类 API 页面，所有类的“文档”字段最高只能为部分完成。
+4. **properties 泛型已收敛**（2026-08-30 完成 B 批次）：全仓 `Record<string, any>` 已清零，`get<Value>(key): Value` / `getProperties<P>()` / `setProperties(properties: Partial<P>)` 均泛型化；涉及 properties 的类的“类型”字段可据实际情况逐步标记为完成。
+5. **typed event map 已全量完成**（2026-08-30）：Map/Popup/Control 与全部 12 个 Interaction 子类（`Draw`/`Modify`/`Select`/`Measure`/`DragBox`/`DragPan`/`DragZoom`/`InteractionExtent`/`Link`/`KeyboardZoom`/`MouseWheelZoom`/`DoubleClickZoom`）均接入 `Event<OMapXxxEventMap>`，`on/once` 回调收到精确事件对象；Interaction 桥接层 `transform/callback` 的 3 处 `any` 为泛型分发器负载边界，属刻意保留。
+6. **逐类 API 页面已逐类核对**（2026-08-30）：以 `audit:api` 导出清单为准，对 `docs/api/<group>/` 下 70 个实际页面逐类确认——全部公开类（除 `LngLat` 别名文档见 `Lnglat` 页、`OMapError` 无独立页）均已有独立 API 页面，矩阵“文档”列已统一标记为 Y；页面由 `scripts/gen-api-docs.mjs` 从源码自动提取，签名与代码始终一致，不会随重构腐化。
 
 ## 14. 本阶段完成定义
 

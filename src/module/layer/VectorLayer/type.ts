@@ -2,7 +2,7 @@ import { OlSource, OlLayer, OlFeature, OlGeometry } from '../../../source/index'
 import Map from '../../core/Map/index'
 import type { OMapStyleLike } from '../../basic/Style/type'
 import type { OMapVectorSourceParamsType } from '../../source/VectorSource/type'
-import type { BaseLayerOptionsType } from '../BaseLayer/type'
+import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
 
 export type BaseVectorLayerOptionsType = {
   renderOrder?: () => number
@@ -14,13 +14,9 @@ export type BaseVectorLayerOptionsType = {
   updateWhileAnimating?: boolean
   updateWhileInteracting?: boolean
 }
-export const OlBaseVectorLayerDefaultOptions: BaseVectorLayerOptionsType = {
-  renderBuffer: 100,
-  declutter: false,
-  updateWhileAnimating: false,
-  updateWhileInteracting: false
-}
-export type OMapVectorLayerOptionsFinalType = BaseLayerOptionsType & BaseVectorLayerOptionsType
+export type OMapVectorLayerOptionsFinalType<
+  P extends BaseLayerPropertiesType = BaseLayerPropertiesType
+> = BaseLayerOptionsType<P> & BaseVectorLayerOptionsType
 
 export type OMapVectorSourceOptionsFinalType = OMapVectorSourceParamsType
 

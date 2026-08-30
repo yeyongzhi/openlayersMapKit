@@ -65,7 +65,8 @@ export default class Measure extends Interaction<OMapMeasureType> {
     if (!isOMapMeasureMode(mode)) {
       error_(createMessage('constructor', commonMessage.paramsInvaildEnum(mode)))
     }
-    super('Measure', { id: params.id })
+    const { id, active, style, ...drawParams } = params
+    super('Measure', { id })
 
     this.mode = mode
     this.result = {
@@ -74,12 +75,12 @@ export default class Measure extends Interaction<OMapMeasureType> {
     }
 
     this.layer = new VectorLayer({
-      style: params.style || DEFAULT_STYLE
+      style: style || DEFAULT_STYLE
     })
 
     this._interaction = new OlInteraction.Draw({
       ...DRAW_DEFAULT_PARAMS,
-      ...params,
+      ...drawParams,
       ...getOlDrawType(mode),
       source: this.layer.getSource() as OMapVectorSourceType,
       features: undefined,
@@ -91,7 +92,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
       createTooltipElement('单击地图开始测量')
     )
     this.resultPopup = this.createPopup('omap-measure-result', createTooltipElement(''))
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
   }
 
   protected initMeasureEvent() {

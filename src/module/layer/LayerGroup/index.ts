@@ -1,4 +1,4 @@
-import { defaultValue, isDefined, isNumber, isString } from '../../../utils/index'
+import { isDefined, isNumber, isString } from '../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import type { LayerGroupIdType } from './type'
 import BaseLayer from '../BaseLayer'
@@ -42,7 +42,7 @@ export default class LayerGroup {
       error_(createMessage('constructor', '参数不能为空'))
       return
     }
-    let _layers: LayerGroupLayer[] = defaultValue(layers, [])
+    let _layers: LayerGroupLayer[] = layers ?? []
     if (isNumber(idOrLayers) || isString(idOrLayers)) {
       this.id = idOrLayers as LayerGroupIdType
     } else {

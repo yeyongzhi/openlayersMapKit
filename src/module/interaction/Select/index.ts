@@ -4,10 +4,14 @@ import BaseFeature from '../../core/Feature/BasicFeature/index'
 import Style from '../../basic/Style/index'
 import Interaction from '../Interaction/index'
 import { type EventIdType } from '../../util/Event/type'
-import VectorLayer from '../../layer/VectorLayer/index'
+import type VectorLayer from '../../layer/VectorLayer/index'
 import { type OMapVectorLayerType } from '../../layer/VectorLayer/type'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
-import type { OlFeatureInstanceType, OlFeatureLike } from '../../core/Feature/BasicFeature/type'
+import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
+import {
+  createBaseFeatureByOlFeature,
+  createBaseFeatureByOlRenderFeature
+} from '../../core/Feature/BasicFeature/handle'
 import { OlGeometry, OlFeature, OlInteraction, OlUtil, OlEvent } from '../../../source/index'
 import {
   type OMapSelectParamsType,
@@ -50,11 +54,14 @@ export default class Select extends Interaction<OMapSelectType> {
   protected features: BaseFeature<OlGeometry.Geometry>[] = []
 
   /**
-   * 当前选择的要素
+   * 最近一次选择变化中**新增选中**的要素（增量，非当前全量）。
+   * 当前全量选中集合请用 {@link Select.getSelection}
+   * @type {BaseFeature<OlGeometry.Geometry>[]}
    */
   selected: BaseFeature<OlGeometry.Geometry>[] = []
   /**
-   * 当前未选择的要素
+   * 最近一次选择变化中**被取消选中**的要素（增量）。
+   * @type {BaseFeature<OlGeometry.Geometry>[]}
    */
   deselected: BaseFeature<OlGeometry.Geometry>[] = []
 
@@ -70,14 +77,14 @@ export default class Select extends Interaction<OMapSelectType> {
     } = params || {}
     super('Select', { id })
     let layers: OMapVectorLayerType[] = []
-    // layers的优先级低于features
     if (isDefined(inputLayers)) {
       this.layers = inputLayers
       layers = inputLayers.map((l) => l.getLayer())
     }
+    // features 是「候选白名单」，与 layers 正交：
+    // layers 限定可从哪些图层拾取，features 限定可从哪些要素拾取，两者同时生效而非互相覆盖。
     if (isDefined(features)) {
-      this.features = features
-      this.layers = []
+      this.features = this.normalizeFeatures(features, 'constructor')
     }
     this._interaction = new OlInteraction.Select(
       Object.assign({}, defaultSelectOptions, {
@@ -87,11 +94,8 @@ export default class Select extends Interaction<OMapSelectType> {
         filter: this.initFilter(filter)
       })
     )
-    if (isDefined(active)) {
-      this._interaction.setActive(active)
-    }
     // 注册事件
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
     this.events = new Event<OMapSelectEventMap>(this)
     this.initSelectEvent()
   }
@@ -105,12 +109,18 @@ export default class Select extends Interaction<OMapSelectType> {
   ):
     | OlStyleInstanceType
     | Array<OlStyleInstanceType>
-    | ((feature: OlFeatureLike, resolution: number) => OlStyleInstanceType | undefined)
+    | ((
+        feature: OlFeatureLike,
+        resolution: number
+      ) => OlStyleInstanceType | Array<OlStyleInstanceType> | undefined)
     | undefined {
     let _style:
       | OlStyleInstanceType
       | Array<OlStyleInstanceType>
-      | ((feature: OlFeatureLike, resolution: number) => OlStyleInstanceType | undefined)
+      | ((
+          feature: OlFeatureLike,
+          resolution: number
+        ) => OlStyleInstanceType | Array<OlStyleInstanceType> | undefined)
       | undefined = undefined
     if (isDefined(style)) {
       if (style instanceof Style) {
@@ -124,9 +134,11 @@ export default class Select extends Interaction<OMapSelectType> {
             feature: BaseFeature<OlGeometry.Geometry> | null,
             resolution: number
           ) => Style | Array<Style> | undefined
-          const styleFnResult = styleFn(targetFeature, resolution)
-          const single = Array.isArray(styleFnResult) ? styleFnResult[0] : styleFnResult
-          return single ? single.getStyle() : undefined
+          const styleFnResult = styleFn(targetFeature ?? null, resolution)
+          if (!styleFnResult) return undefined
+          return Array.isArray(styleFnResult)
+            ? styleFnResult.map((s) => s.getStyle() as OlStyleInstanceType)
+            : styleFnResult.getStyle()
         }
       } else {
         warn_(createMessage('initStyle', 'style格式有误'))
@@ -140,8 +152,12 @@ export default class Select extends Interaction<OMapSelectType> {
   ): ((feature: OlFeatureLike, layer: OMapVectorLayerType) => boolean) | undefined {
     if (isDefined(filter) || this.features.length) {
       return (feature: OlFeatureLike, layer: OMapVectorLayerType) => {
-        let targetFeature = this.getTargetFeature(feature)
+        const targetFeature = this.getTargetFeature(feature)
         if (!targetFeature) {
+          return false
+        }
+        // 候选白名单优先：不在 features 中的要素一律不可选中
+        if (this.features.length && !this.hasFeature(this.features, targetFeature)) {
           return false
         }
         if (!isDefined(filter)) {
@@ -185,59 +201,125 @@ export default class Select extends Interaction<OMapSelectType> {
   }
 
   protected getTargetFeature(feature: OlFeatureLike): BaseFeature<OlGeometry.Geometry> | null {
-    if (this.layers.length) {
-      for (const layer of this.layers) {
-        const target =
-          feature instanceof OlFeature
-            ? layer.getFeatureByOlFeature(feature as OlFeatureInstanceType)
-            : this.findLayerFeatureByUid(layer, OlUtil.getUid(feature))
-        if (target) {
-          return target
-        }
-      }
-      return null
-    }
-    if (!this.features.length && this.map) {
-      for (const layer of this.map.getAllLayers()) {
-        if (!(layer instanceof VectorLayer)) {
-          continue
-        }
-        const target =
-          feature instanceof OlFeature
-            ? layer.getFeatureByOlFeature(feature as OlFeatureInstanceType)
-            : this.findLayerFeatureByUid(layer, OlUtil.getUid(feature))
-        if (target) {
-          return target
-        }
-      }
-      return null
-    }
-    const id = OlUtil.getUid(feature)
-    return (
-      this.features.find((feature) => {
-        return OlUtil.getUid(feature.getFeature()) === id
-      }) || null
-    )
+    // 统一走 resolver（Feature/Hit-test 场景可能是原生 Feature 或 RenderFeature），
+    // 保证与 VectorSource 共用同一 wrapper 身份，免去逐层 getFeatures() 扫描。
+    const wrapper =
+      feature instanceof OlFeature
+        ? createBaseFeatureByOlFeature(feature)
+        : createBaseFeatureByOlRenderFeature(feature)
+    return (wrapper as BaseFeature<OlGeometry.Geometry>) ?? null
   }
 
-  protected findLayerFeatureByUid(
-    layer: VectorLayer,
-    uid: string
-  ): BaseFeature<OlGeometry.Geometry> | undefined {
-    return layer.getFeatures().find((feature) => {
-      return OlUtil.getUid(feature.getFeature()) === uid
+  /**
+   * 校验并归一化为 Feature 数组
+   * @param {BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]} features 单个要素或要素数组
+   * @param {string} methodName 调用方方法名，用于错误信息定位
+   * @returns {BaseFeature<OlGeometry.Geometry>[]} 归一化后的要素数组
+   */
+  protected normalizeFeatures(
+    features: BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[],
+    methodName: string
+  ): BaseFeature<OlGeometry.Geometry>[] {
+    const targets = isArray(features) ? features : [features]
+    targets.forEach((feature) => {
+      if (!(feature instanceof BaseFeature)) {
+        error_(
+          createMessage(
+            methodName,
+            commonMessage.paramsInvaildFormat('features', 'Feature或Feature数组')
+          )
+        )
+      }
+    })
+    return targets
+  }
+
+  /**
+   * 以原生 Feature 身份判断 wrapper 是否已存在于列表中
+   * @param {BaseFeature<OlGeometry.Geometry>[]} list 待查找列表
+   * @param {BaseFeature<OlGeometry.Geometry>} feature 目标要素
+   * @returns {boolean} 是否命中
+   */
+  protected hasFeature(
+    list: BaseFeature<OlGeometry.Geometry>[],
+    feature: BaseFeature<OlGeometry.Geometry>
+  ): boolean {
+    const native = feature.getFeature()
+    return list.some((item) => item.getFeature() === native)
+  }
+
+  /**
+   * 将要素记入「新增选中」增量，并从「取消选中」增量中移除
+   * @param {BaseFeature<OlGeometry.Geometry>[]} features 本次新增选中的要素
+   */
+  protected appendSelected(features: BaseFeature<OlGeometry.Geometry>[]): void {
+    features.forEach((feature) => {
+      const native = feature.getFeature()
+      if (!this.hasFeature(this.selected, feature)) {
+        this.selected.push(feature)
+      }
+      const index = this.deselected.findIndex((item) => item.getFeature() === native)
+      if (index !== -1) {
+        this.deselected.splice(index, 1)
+      }
     })
   }
 
+  /**
+   * 将要素记入「取消选中」增量，并从「新增选中」增量中移除
+   * @param {BaseFeature<OlGeometry.Geometry>[]} features 本次取消选中的要素
+   */
+  protected appendDeselected(features: BaseFeature<OlGeometry.Geometry>[]): void {
+    features.forEach((feature) => {
+      const native = feature.getFeature()
+      if (!this.hasFeature(this.deselected, feature)) {
+        this.deselected.push(feature)
+      }
+      const index = this.selected.findIndex((item) => item.getFeature() === native)
+      if (index !== -1) {
+        this.selected.splice(index, 1)
+      }
+    })
+  }
+
+  /**
+   * 获取最近一次选择变化中新增选中的要素（增量）
+   * @returns {BaseFeature<OlGeometry.Geometry>[]} 新增选中的要素
+   */
   getSelected(): BaseFeature<OlGeometry.Geometry>[] {
     return this.selected
   }
 
+  /**
+   * 获取最近一次选择变化中被取消选中的要素（增量）
+   * @returns {BaseFeature<OlGeometry.Geometry>[]} 取消选中的要素
+   */
   getDeselected(): BaseFeature<OlGeometry.Geometry>[] {
     return this.deselected
   }
 
-  /** 返回原生 Select collection 当前持有的全部 OMap Feature。 */
+  /**
+   * 获取候选白名单（构造时 `features` 选项指定的可选要素集合）
+   * @returns {BaseFeature<OlGeometry.Geometry>[]} 候选要素数组，未设置时为空数组
+   */
+  getFeatures(): BaseFeature<OlGeometry.Geometry>[] {
+    return this.features
+  }
+
+  /**
+   * 设置候选白名单，替换原有集合
+   * @param {BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]} features 单个要素或要素数组
+   */
+  setFeatures(
+    features: BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]
+  ): void {
+    this.features = this.normalizeFeatures(features, 'setFeatures')
+  }
+
+  /**
+   * 获取当前全部选中的 OMap Feature（以原生 collection 为唯一数据源）
+   * @returns {BaseFeature<OlGeometry.Geometry>[]} 当前选中的要素
+   */
   getSelection(): BaseFeature<OlGeometry.Geometry>[] {
     return this._interaction
       .getFeatures()
@@ -246,75 +328,74 @@ export default class Select extends Interaction<OMapSelectType> {
       .filter(isDefined)
   }
 
-  /** 主动选择一个或多个 Feature，不重复加入原生 collection。 */
+  /**
+   * 主动选择一个或多个 Feature（幂等，不重复加入原生 collection），并同步选中增量
+   * @param {BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]} features 单个要素或要素数组
+   */
   select(features: BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]): void {
-    const targets = isArray(features) ? features : [features]
+    const targets = this.normalizeFeatures(features, 'select')
     const collection = this._interaction.getFeatures()
+    const added: BaseFeature<OlGeometry.Geometry>[] = []
     targets.forEach((feature) => {
-      if (!(feature instanceof BaseFeature)) {
-        error_(
-          createMessage(
-            'select',
-            commonMessage.paramsInvaildFormat('features', 'Feature或Feature数组')
-          )
-        )
-      }
       const nativeFeature = feature.getFeature()
       if (!collection.getArray().includes(nativeFeature)) {
         collection.push(nativeFeature)
+        added.push(feature)
       }
     })
+    this.appendSelected(added)
   }
 
-  /** 主动取消一个或多个 Feature 的选择状态。 */
+  /**
+   * 主动取消一个或多个 Feature 的选择状态，并同步取消增量
+   * @param {BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]} features 单个要素或要素数组
+   */
   deselect(features: BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]): void {
-    const targets = isArray(features) ? features : [features]
+    const targets = this.normalizeFeatures(features, 'deselect')
     const collection = this._interaction.getFeatures()
+    const removed: BaseFeature<OlGeometry.Geometry>[] = []
     targets.forEach((feature) => {
-      if (!(feature instanceof BaseFeature)) {
-        error_(
-          createMessage(
-            'deselect',
-            commonMessage.paramsInvaildFormat('features', 'Feature或Feature数组')
-          )
-        )
+      if (isDefined(collection.remove(feature.getFeature()))) {
+        removed.push(feature)
       }
-      collection.remove(feature.getFeature())
     })
+    this.appendDeselected(removed)
   }
 
-  /** 清空当前选择 collection。 */
+  /**
+   * 清空当前选中集合，并把原选中要素记入取消增量
+   */
   clearSelection(): void {
+    const current = this.getSelection()
     this._interaction.getFeatures().clear()
+    this.selected = []
+    this.deselected = []
+    this.appendDeselected(current)
   }
 
-  /** 访问 OpenLayers Select 使用的原生 Feature collection。 */
-  getFeaturesCollection() {
+  /**
+   * 访问 OpenLayers Select 使用的原生 Feature collection
+   * @returns 原生选中要素集合
+   */
+  getFeaturesCollection(): ReturnType<OMapSelectType['getFeatures']> {
     return this._interaction.getFeatures()
   }
 
   on(type: OMapInteractionSelectEventType, callback: (e: OMapSelectEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'on')
-    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(
-        type,
-        handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType)
-      )
-    })
-    const id = this.events.on(type, callback, unlisten)
-    return id
+    return this.subscribeEvent(type, callback, (e) =>
+      handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType)
+    )
   }
 
   once(type: OMapInteractionSelectEventType, callback: (e: OMapSelectEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'once')
-    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(
-        type,
-        handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType)
-      )
-    })
-    const id = this.events.once(type, callback, unlisten)
-    return id
+    return this.subscribeEvent(
+      type,
+      callback,
+      (e) => handleInteractionSelectEvent(this, type, e as OlSelectEventPayloadType),
+      true
+    )
   }
 
   protected validateEvent(

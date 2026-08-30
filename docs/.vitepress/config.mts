@@ -1,4 +1,6 @@
 import { defineConfig } from 'vitepress'
+// 逐类 API 侧边栏由 scripts/gen-api-docs.mjs 生成，新增公开类后重跑该脚本即可同步
+import apiClassSidebar from './api-sidebar.json'
 
 export default defineConfig({
   lang: 'zh-CN',
@@ -19,6 +21,7 @@ export default defineConfig({
           text: '开发指南',
           items: [
             { text: '快速开始', link: '/guide/getting-started' },
+            { text: '核心概念', link: '/guide/core-concepts' },
             { text: '架构与模块', link: '/guide/architecture' },
             { text: '迁移指南', link: '/guide/migration' },
             { text: '故障排查', link: '/guide/troubleshooting' },
@@ -30,9 +33,9 @@ export default defineConfig({
       ],
       '/api/': [
         {
-          text: 'API 参考',
+          text: '模块总览',
           items: [
-            { text: '模块总览', link: '/api/' },
+            { text: '模块与稳定性', link: '/api/' },
             { text: 'Core', link: '/api/core' },
             { text: 'Layer 与 Source', link: '/api/layer-source' },
             { text: 'Interaction', link: '/api/interaction' },
@@ -40,6 +43,10 @@ export default defineConfig({
             { text: 'Control', link: '/api/control' },
             { text: 'Util', link: '/api/util' }
           ]
+        },
+        {
+          text: '逐类参考',
+          items: apiClassSidebar
         }
       ],
       '/examples/': [
@@ -47,7 +54,11 @@ export default defineConfig({
           text: '示例',
           items: [
             { text: '创建地图', link: '/examples/basic-map' },
-            { text: 'Vue 地图工具', link: '/examples/vue-map-toolkit' }
+            { text: 'Vector 与 Geometry', link: '/examples/vector-geometry' },
+            { text: 'XYZ / WMS / WMTS 图层', link: '/examples/tile-layers' },
+            { text: 'Vue 地图工具', link: '/examples/vue-map-toolkit' },
+            { text: '控件', link: '/examples/controls' },
+            { text: '销毁与路由切换', link: '/examples/lifecycle' }
           ]
         }
       ]

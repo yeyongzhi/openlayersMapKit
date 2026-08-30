@@ -1,4 +1,4 @@
-import { defaultValue, isDefined, isFunction } from '../../../../utils/index'
+import { isDefined, isFunction } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage, warn_ } from '../../../../utils/message'
 import { OlUtil } from '../../../../source/index'
 import Popup from '../../../basic/Popup/index'
@@ -50,10 +50,7 @@ export default class PopupManager {
         )
       )
     }
-    return defaultValue(
-      this.popups.find((popup) => isDefined(popup.getId()) && popup.getId() === id),
-      null
-    )
+    return this.popups.find((popup) => isDefined(popup.getId()) && popup.getId() === id) ?? null
   }
 
   getByProperties(filter: (properties: PropertiesType) => boolean): Popup[] {

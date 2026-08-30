@@ -20,9 +20,17 @@ type CustOlSelectParamsType = ManualOmit<
 >
 export type OMapSelectParamsType = OMapInteractionCommonParamsType &
   CustOlSelectParamsType & {
+    /** 限定可从哪些图层拾取要素；不传则对所有图层生效 */
     layers?: VectorLayer[]
+    /** 选中要素时套用的样式 */
     style?: OMapStyleLike
+    /**
+     * 候选白名单：限定「可从哪些要素中选中」，不在列表内的要素不可选中。
+     * 与 `layers` 正交（两者同时生效），且不同于 OpenLayers 同名选项
+     * （OL 的 `features` 是存放选中结果的 collection）
+     */
     features?: BaseFeature<OlGeometry.Geometry>[]
+    /** 自定义过滤；返回 true 才允许选中。第二个参数为要素所属图层 */
     filter?: (feature: BaseFeature<OlGeometry.Geometry>, layer: VectorLayer) => boolean
   }
 
@@ -34,7 +42,10 @@ export type OlInteractionSelectInstanceType = InstanceType<typeof OlInteraction.
  * 这里的select类型，其实是包含了select和deselect两种动作
  */
 
-export const OMapInteractionSelectEventTypes = [...OMapInteractionCommonEventTypes, 'select']
+export const OMapInteractionSelectEventTypes = [
+  ...OMapInteractionCommonEventTypes,
+  'select'
+] as const
 export type OMapInteractionSelectEventType = (typeof OMapInteractionSelectEventTypes)[number]
 
 /**

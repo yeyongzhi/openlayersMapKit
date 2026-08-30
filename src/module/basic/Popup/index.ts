@@ -11,6 +11,7 @@ import { OlEvent, OlOverlay } from '../../../source/index'
 import {
   type OMapPopupType,
   type OMapPopupParamsType,
+  type OMapPopupEventMap,
   type OlPopupInstanceType,
   type PopupPositioningType,
   isVaildPopupPositioningType,
@@ -18,12 +19,7 @@ import {
   type OMapPopupIdType
 } from './type'
 import { type OMapPopupEventType, type OMapPopupEventCallback, isOMapPopupEventType } from './type'
-import {
-  createDefaultContentElement,
-  handlePopupEvent,
-  type OMapPopupEventTarget,
-  type PopupEventChange
-} from './handle'
+import { createDefaultContentElement, handlePopupEvent, type PopupEventChange } from './handle'
 import { handleGetLnglatValue } from '../Lnglat/handle'
 import type { Disposable, Removable } from '../../util/Disposable/type'
 import { handleGetPixelValue } from '../Pixel/handle'
@@ -42,7 +38,15 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2025/12/30
  */
 
-export default class Popup implements Disposable, Removable {
+/**
+ * 弹窗类。
+ *
+ * @typeParam P - 弹窗属性字典。默认 {@link PropertiesType}；
+ *   传入更具体的结构后，`getProperties()` 与 `setProperties()` 会按该结构推导。
+ */
+export default class Popup<P extends PropertiesType = PropertiesType>
+  implements Disposable, Removable
+{
   private disposed = false
   _popup: OMapPopupType
 
@@ -62,13 +66,14 @@ export default class Popup implements Disposable, Removable {
   /**
    * 弹窗属性
    */
-  properties: PropertiesType = {}
+  // 运行期默认值为空对象，泛型 P 描述其最终形态，此处是唯一的收敛断言点。
+  properties: P = {} as P
   /**
    * 事件对象
    */
-  events: Event<Record<OMapPopupEventType, [OMapPopupEventTarget]>> = new Event()
+  events: Event<OMapPopupEventMap> = new Event<OMapPopupEventMap>(this)
 
-  constructor(params: OMapPopupParamsType) {
+  constructor(params: OMapPopupParamsType<P>) {
     if (isDefined(params.id)) {
       this.id = params.id
     }
@@ -89,12 +94,6 @@ export default class Popup implements Disposable, Removable {
     })
     this.events = new Event(this)
   }
-
-  /**
-   * 初始化弹窗元素事件
-   * @todo 暂不需要
-   */
-  protected _initElementEvent() {}
 
   /**
    * 获取弹窗位置
@@ -129,7 +128,7 @@ export default class Popup implements Disposable, Removable {
    * 获取弹窗属性
    * @returns {PropertiesType} 弹窗属性
    */
-  getProperties(): PropertiesType {
+  getProperties(): P {
     return this.properties
   }
 
@@ -137,7 +136,7 @@ export default class Popup implements Disposable, Removable {
    * 设置弹窗属性
    * @param {PropertiesType} properties 弹窗属性
    */
-  setProperties(properties: PropertiesType) {
+  setProperties(properties: Partial<P>) {
     if (!isDefined(properties)) {
       error_(createMessage('setProperties', '参数不能为空'))
     }
@@ -265,9 +264,6 @@ export default class Popup implements Disposable, Removable {
 
   setMap(map: Map | null) {
     this.map = map
-    if (isDefined(map)) {
-      this._initElementEvent()
-    }
   }
 
   /** 从当前地图解除挂载，Popup 仍可再次添加。 */

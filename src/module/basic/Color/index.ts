@@ -8,6 +8,7 @@ import {
   isVaildColorHex,
   isVaildColorHexWithAlpha,
   isVaildColorRGBString,
+  isVaildColorRGBAString,
   extractRGBValues,
   extractRGBAValues,
   opacityHexToNumber
@@ -166,7 +167,12 @@ export default class Color {
         let opacity = opacityHexToNumber((color as string).slice(6))
         this._color = `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, ${opacity})`
       } else {
-        // 【情况3,4,9】
+        // 【情况3,4,9】rgb/rgba 字符串或预命名颜色
+        const _isNamedColor = isDefined(presetsColor[color as string])
+        if (!isVaildColorRGBString(color) && !isVaildColorRGBAString(color) && !_isNamedColor) {
+          errorHandler()
+          return
+        }
         this._color = color as string
       }
     }

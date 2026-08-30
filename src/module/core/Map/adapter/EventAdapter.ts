@@ -1,4 +1,4 @@
-import { defaultValue, isDefined, isFunction } from '../../../../utils/index'
+import { isDefined, isFunction } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage } from '../../../../utils/message'
 import { OlEvent } from '../../../../source/index'
 import Event from '../../../util/Event/index'
@@ -66,7 +66,7 @@ export default class EventAdapter {
       target,
       nativeType,
       (event: OlMapEventPayload) => {
-        const interactions = defaultValue(this.getInteractions(), [])
+        const interactions = this.getInteractions() ?? []
         const isInteracting = isMapMeasuring(interactions) || isMapDrawing(interactions)
         if (isInteracting && OMapMapInteractionIgnoreEventTypes.includes(type)) return false
         callback.call(this.owner, handleMapOnCallBack(this.owner, type, event))

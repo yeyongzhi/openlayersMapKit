@@ -25,13 +25,16 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/1/30
  */
 
-export default class Point extends BasicFeature<OMapPointType> {
-  constructor(args: OMapPointGeometryCoordinatesType, properties?: PropertiesType)
+export default class Point<P extends PropertiesType = PropertiesType> extends BasicFeature<
+  OMapPointType,
+  P
+> {
+  constructor(args: OMapPointGeometryCoordinatesType, properties?: P)
   constructor(args: OlFeatureInstanceType)
 
   constructor(
     coordinatesOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType,
-    properties?: PropertiesType
+    properties?: P
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
@@ -105,7 +108,17 @@ export default class Point extends BasicFeature<OMapPointType> {
     return this.getCoordinates()
   }
 
-  intersectsCoordinate() {}
+  /**
+   * 点是否与给定坐标相交（即是否落在同一坐标）
+   * @param {OMapPointGeometryCoordinatesType} coordinates 待判断的坐标
+   * @returns {boolean} 是否相交
+   */
+  intersectsCoordinate(coordinates: OMapPointGeometryCoordinatesType): boolean {
+    if (!isDefined(coordinates)) {
+      error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
+    }
+    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+  }
 
   /**
    * 点是否在extent范围内

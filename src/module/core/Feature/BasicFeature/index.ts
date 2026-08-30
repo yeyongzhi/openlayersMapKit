@@ -26,7 +26,18 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2025/10/6
  */
 
-export default abstract class BasicFeature<T extends OlGeometryType> {
+/**
+ * 要素基类（抽象类）。
+ *
+ * @typeParam T - 原生 OpenLayers Geometry 类型。
+ * @typeParam P - 业务属性字典。默认 {@link PropertiesType}；
+ *   使用者可传入更具体的结构以获得 `getProperties()` 的类型推导，
+ *   例如 `Point<{ name: string; score: number }>`。
+ */
+export default abstract class BasicFeature<
+  T extends OlGeometryType,
+  P extends PropertiesType = PropertiesType
+> {
   id: number | string | null = null
   type: OMapBasicFeatureType
   // 非空断言操作符 !（推荐用于抽象类）
@@ -34,6 +45,16 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
   protected _geometry!: T
   protected style: OMapStyleLike | undefined
 
+  /**
+   * 构造要素 wrapper。
+   *
+   * ⚠️ **内部结构，勿直接调用**。`coordinatesOrFeature` 接收原生 OpenLayers Feature
+   * 的分支仅用于 resolver（`createBaseFeatureByOlFeature` / `createBaseFeatureByOlRenderFeature`）
+   * 内部复用，外部代码请统一通过 resolver 获取 wrapper，以保证「同一原生要素 ↔ 同一 wrapper」
+   * 的身份一致性（见 `registry.ts`）。
+   *
+   * @internal
+   */
   constructor(
     type: OMapBasicFeatureType,
     coordinatesOrFeature: OMapBasicFeatureCoordinatesType | OlFeatureInstanceType,
@@ -177,11 +198,21 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
     return new Extent(extent)
   }
 
-  getProperties(): PropertiesType {
-    return this._feature.getProperties()
+  /**
+   * 获取要素属性字典。
+   * @returns {P} 属性字典，类型由泛型 `P` 决定
+   */
+  getProperties(): P {
+    return this._feature.getProperties() as P
   }
 
-  setProperties(properties?: PropertiesType) {
+  /**
+   * 合并写入要素属性。OpenLayers 的 `setProperties` 为合并语义，
+   * 因此入参按 `Partial<P>` 处理，允许只更新部分字段。
+   * @param {Partial<P>} properties 待合并的属性
+   * @returns {false | void} 未传入属性时返回 false
+   */
+  setProperties(properties?: Partial<P>): false | void {
     if (!isDefined(properties)) {
       return false
     }
@@ -190,6 +221,6 @@ export default abstract class BasicFeature<T extends OlGeometryType> {
         createMessage('setProperties', commonMessage.paramsInvaildFormat('properties', 'object'))
       )
     }
-    this._feature.setProperties(properties)
+    this._feature.setProperties(properties as PropertiesType)
   }
 }

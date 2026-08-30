@@ -21,7 +21,7 @@ export const defaultDragZoomOptions: OMapDragZoomParamsType = {
 export type OMapDragZoomType = OlInteraction.DragZoom
 export type OlDragZoomInstanceType = InstanceType<typeof OlInteraction.DragZoom>
 
-export const OMapInteractionDragZoomEventTypes = [...OMapInteractionCommonEventTypes]
+export const OMapInteractionDragZoomEventTypes = [...OMapInteractionCommonEventTypes] as const
 export type OMapInteractionDragZoomEventType = (typeof OMapInteractionDragZoomEventTypes)[number]
 
 export function isOMapInteractionDragZoomEventType(
@@ -32,3 +32,12 @@ export function isOMapInteractionDragZoomEventType(
     OMapInteractionDragZoomEventTypes.includes(value as OMapInteractionDragZoomEventType)
   )
 }
+
+import type DragZoom from './index'
+import type { InteractionStateEvent } from '../handle'
+
+/** 用户回调收到的事件 payload */
+export type OMapDragZoomEvent = InteractionStateEvent<DragZoom, OMapInteractionDragZoomEventType>
+
+/** 事件名 → 用户回调参数映射 */
+export type OMapDragZoomEventMap = Record<OMapInteractionDragZoomEventType, [OMapDragZoomEvent]>

@@ -11,6 +11,11 @@ import {
 } from './type'
 import Lnglat from '../../../basic/Lnglat/index'
 import { normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import { type OMapExtentType, isValidExtent } from '../../../basic/Extent/type'
+import { handleGetExtentValue } from '../../../basic/Extent/handle'
+import { type OMapPointGeometryCoordinatesType } from '../Point/type'
+import { isValidCoordinate } from '../../../basic/Lnglat/type'
+import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 
 const PACKAGE_NAME = 'LinearRing'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -25,10 +30,13 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/2/1
  */
 
-export default class LinearRing extends BasicFeature<OMapLinearRingType> {
+export default class LinearRing<P extends PropertiesType = PropertiesType> extends BasicFeature<
+  OMapLinearRingType,
+  P
+> {
   constructor(
     coordinatesOrFeature: OMapLinearRingGeometryCoordinatesType | OlFeatureInstanceType,
-    properties?: PropertiesType
+    properties?: P
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
@@ -78,5 +86,62 @@ export default class LinearRing extends BasicFeature<OMapLinearRingType> {
     }
     let _coordinates = normalizeCoordinates(coordinates)
     this._geometry.setCoordinates(_coordinates)
+  }
+
+  /**
+   * 获取LinearRing的第一个坐标
+   * @returns {Lnglat} 第一个坐标
+   */
+  getFirstCoordinate(): Lnglat {
+    return new Lnglat(this._geometry.getFirstCoordinate())
+  }
+
+  /**
+   * 获取LinearRing的最后一个坐标
+   * @returns {Lnglat} 最后一个坐标
+   */
+  getLastCoordinate(): Lnglat {
+    return new Lnglat(this._geometry.getLastCoordinate())
+  }
+
+  /**
+   * LinearRing是否包含给定坐标
+   * @param {OMapPointGeometryCoordinatesType} coordinates 待判断的坐标
+   * @returns {boolean} 是否包含
+   */
+  intersectsCoordinate(coordinates: OMapPointGeometryCoordinatesType): boolean {
+    if (!isDefined(coordinates)) {
+      error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
+    }
+    if (!isValidCoordinate(coordinates)) {
+      error_(
+        createMessage('intersectsCoordinate', commonMessage.paramsInvaildFormat('coordinates'))
+      )
+    }
+    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+  }
+
+  /**
+   * LinearRing是否与给定范围相交
+   * @param {OMapExtentType} extent 范围
+   * @returns {boolean} 是否相交
+   */
+  intersectsExtent(extent: OMapExtentType): boolean {
+    if (!isDefined(extent)) {
+      error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
+    }
+    if (!isValidExtent(extent)) {
+      error_(createMessage('intersectsExtent', commonMessage.paramsInvaildFormat('extent')))
+    }
+    return this._geometry.intersectsExtent(handleGetExtentValue(extent))
+  }
+
+  /**
+   * 沿 X/Y 轴平移LinearRing
+   * @param {number} deltaX X 方向偏移
+   * @param {number} deltaY Y 方向偏移
+   */
+  translate(deltaX: number = 0, deltaY: number = 0): void {
+    this._geometry.translate(deltaX, deltaY)
   }
 }

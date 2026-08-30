@@ -1,4 +1,3 @@
-import { defaultValue } from '../../../../utils/index'
 import { RenderFeature, OlFeature } from '../../../../source/index'
 import {
   type OMapFormatReadFeatureOptionsType,
@@ -12,6 +11,7 @@ import {
   type OlGeometryType
 } from '../../../core/Feature/BasicFeature/type'
 import BasicFeature from '../../../core/Feature/BasicFeature/index'
+import { handleGetReadOptions, handleGetWriteOptions } from '../handle'
 
 function readFeature(
   format: OMapGeoJSONFormatInstanceType,
@@ -20,7 +20,7 @@ function readFeature(
 ) {
   const feature = (format as OMapGeoJSONFormatInstanceType).readFeature(
     source,
-    defaultValue(options, {})
+    handleGetReadOptions(options)
   )
   const _feature = createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
   return _feature
@@ -33,7 +33,7 @@ function readFeatures(
 ) {
   const features = (format as OMapGeoJSONFormatInstanceType).readFeatures(
     source,
-    defaultValue(options, {})
+    handleGetReadOptions(options)
   )
   const _features = features.map((feature: OlFeature | RenderFeature) => {
     return createBaseFeatureByOlFeature(feature as OlFeature)
@@ -48,7 +48,7 @@ function writeFeature(
 ): string {
   const source = (format as OMapGeoJSONFormatInstanceType).writeFeature(
     feature.getFeature() as OlFeatureInstanceType,
-    Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {}))
+    handleGetWriteOptions(Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, options))
   )
   return source
 }
@@ -60,7 +60,7 @@ function writeFeatureObject(
 ) {
   const source = (format as OMapGeoJSONFormatInstanceType).writeFeatureObject(
     feature.getFeature() as OlFeatureInstanceType,
-    Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {}))
+    handleGetWriteOptions(Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, options))
   )
   return source
 }
@@ -74,7 +74,7 @@ function writeFeatures(
     features.map(
       (feature: BasicFeature<OlGeometryType>) => feature.getFeature() as OlFeatureInstanceType
     ),
-    Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {}))
+    handleGetWriteOptions(Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, options))
   )
   return source
 }
@@ -88,7 +88,7 @@ function writeFeaturesObject(
     features.map(
       (feature: BasicFeature<OlGeometryType>) => feature.getFeature() as OlFeatureInstanceType
     ),
-    Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, defaultValue(options, {}))
+    handleGetWriteOptions(Object.assign({}, DEFAULT_FORMAT_WRITE_FEATURE_OPTIONS, options))
   )
   return source
 }

@@ -29,13 +29,16 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/1/30
  */
 
-export default class LineString extends BasicFeature<OMapLineStringType> {
-  constructor(args: OMapLineStringGeometryCoordinatesType, properties?: PropertiesType)
+export default class LineString<P extends PropertiesType = PropertiesType> extends BasicFeature<
+  OMapLineStringType,
+  P
+> {
+  constructor(args: OMapLineStringGeometryCoordinatesType, properties?: P)
   constructor(args: OlFeatureInstanceType)
 
   constructor(
     coordinatesOrFeature: OMapLineStringGeometryCoordinatesType | OlFeatureInstanceType,
-    properties?: PropertiesType
+    properties?: P
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
@@ -150,21 +153,36 @@ export default class LineString extends BasicFeature<OMapLineStringType> {
     return new Lnglat(coordinates)
   }
 
-  getCoordinateAtM() {
-    return null
+  getCoordinateAtM(m: number, extrapolate: boolean = false): Lnglat | null {
+    if (!isDefined(m)) {
+      error_(createMessage('getCoordinateAtM', '参数 m 不能为空'))
+    }
+    if (!isNumber(m)) {
+      error_(createMessage('getCoordinateAtM', '参数 m 格式有误'))
+    }
+    let coordinates = this._geometry.getCoordinateAtM(m, extrapolate)
+    return isDefined(coordinates) ? new Lnglat(coordinates) : null
   }
 
   translate(deltaX: number = 0, deltaY: number = 0) {
     this._geometry.translate(deltaX, deltaY)
   }
 
-  transform() {}
-
-  simplify(tolerance: number = 0) {
-    this._geometry.simplify(tolerance)
+  transform(source: string, destination: string) {
+    this._geometry.transform(source, destination)
   }
 
-  intersectsCoordinate() {}
+  simplify(tolerance: number = 0): LineString<P> {
+    const simplified = this._geometry.simplify(tolerance) as OlGeometry.LineString
+    return new LineString<P>(simplified.getCoordinates() as OMapLineStringGeometryCoordinatesType)
+  }
+
+  intersectsCoordinate(coordinates: OMapPointGeometryCoordinatesType): boolean {
+    if (!isDefined(coordinates)) {
+      error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
+    }
+    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+  }
 
   /**
    * 线是否在extent范围内

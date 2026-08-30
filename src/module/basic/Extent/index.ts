@@ -1,5 +1,5 @@
 import Lnglat from '../Lnglat/index'
-import { isArray, isDefined, defaultValue, isNumber, isAllNumberArray } from '../../../utils/index'
+import { isArray, isDefined, isNumber, isAllNumberArray } from '../../../utils/index'
 import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import { type OMapCoordinateType, isValidCoordinate } from '../Lnglat/type'
 import { type OlExtentType, type OMapExtentType } from './type'
@@ -134,7 +134,7 @@ export default class Extent {
    * @return {string} 边界范围（字符串）
    */
   toString(place?: number): string {
-    let _place = defaultValue(place, 3)
+    const _place = place ?? 3
     return `[${this._extent[0].toFixed(_place)}, ${this._extent[1].toFixed(_place)}, ${this._extent[2].toFixed(_place)}, ${this._extent[3].toFixed(_place)}]`
   }
 
@@ -199,10 +199,11 @@ export default class Extent {
     return OlExtent.containsExtent(_extent1, _extent2)
   }
 
-  static containsXY(extent: OMapExtentType, x: number, y: number): boolean | undefined {
-    if (!isDefined(extent) || !isDefined(x) || !isDefined(y)) return
+  static containsXY(extent: OMapExtentType, x: number, y: number): boolean {
+    if (!isDefined(extent) || !isDefined(x) || !isDefined(y)) {
+      error_(createMessage('containsXY', commonMessage.paramsNotDefined('extent, x or y')))
+    }
     let _extent = handleGetExtentValue(extent)
-    if (!isDefined(_extent)) return
     return OlExtent.containsXY(_extent, x, y)
   }
 

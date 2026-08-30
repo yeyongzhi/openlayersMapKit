@@ -1,10 +1,14 @@
-import { defaultValue, isDefined } from '../../../../utils/index'
+import { isDefined } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage } from '../../../../utils/message'
-import { OlGeometry, OlLayer, OlUtil } from '../../../../source/index'
+import { OlFeature, OlGeometry, OlLayer, OlUtil } from '../../../../source/index'
 import { handleGetPixelValue } from '../../../basic/Pixel/handle'
 import type { OMapPixelType } from '../../../basic/Pixel/type'
 import BaseFeature from '../../Feature/BasicFeature/index'
 import type { OlFeatureLike } from '../../Feature/BasicFeature/type'
+import {
+  createBaseFeatureByOlFeature,
+  createBaseFeatureByOlRenderFeature
+} from '../../Feature/BasicFeature/handle'
 import BaseLayer from '../../../layer/BaseLayer/index'
 import type { OMapBaseLayerCommonType } from '../../../layer/BaseLayer/type'
 import VectorLayer from '../../../layer/VectorLayer/index'
@@ -79,15 +83,12 @@ export default class FeatureQuery {
   }
 
   private resolveFeature(nativeFeature: OlFeatureLike): ManagedFeature | null {
-    const uid = OlUtil.getUid(nativeFeature)
-    for (const layer of this.getLayers()) {
-      if (!(layer instanceof VectorLayer)) continue
-      const feature = layer
-        .getFeatures()
-        .find((candidate) => OlUtil.getUid(candidate.getFeature()) === uid)
-      if (feature) return feature
-    }
-    return null
+    // 统一走 resolver，保证与 VectorSource 共用同一 wrapper 身份，避免逐层 getFeatures() 扫描。
+    const feature =
+      nativeFeature instanceof OlFeature
+        ? createBaseFeatureByOlFeature(nativeFeature)
+        : createBaseFeatureByOlRenderFeature(nativeFeature)
+    return (feature as ManagedFeature) ?? null
   }
 
   private createLayerFilter(
@@ -101,11 +102,7 @@ export default class FeatureQuery {
   }
 
   private createOptions(options?: OMapForEachFeatureAtPixelOptionsType) {
-    return Object.assign(
-      {},
-      DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS,
-      defaultValue(options, {})
-    )
+    return Object.assign({}, DEFAULT_OMAP_FOREACHFEATURE_AT_PIXEL_OPTIONS, options ?? {})
   }
 
   private validatePixel(pixel: OMapPixelType, methodName: string): void {

@@ -1,12 +1,15 @@
-import { isDefined, defaultValue, isFunction, isString } from '../../../utils/index'
+import { isDefined, isFunction, isString } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlEvent } from '../../../source/index'
+import Event from '../../util/Event/index'
+import { OlInteraction } from '../../../source/index'
 import {
   type OMapDragZoomParamsType,
   defaultDragZoomOptions,
   type OMapDragZoomType,
   type OMapInteractionDragZoomEventType,
+  type OMapDragZoomEvent,
+  type OMapDragZoomEventMap,
   isOMapInteractionDragZoomEventType
 } from './type'
 import { handleInteractionDragZoomEvent } from './handle'
@@ -27,15 +30,23 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  */
 
 export default class DragZoom extends Interaction<OMapDragZoomType> {
+  /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+  declare events: Event<OMapDragZoomEventMap>
+
   constructor(params?: OMapDragZoomParamsType) {
-    super('DragZoom', { id: params?.id })
+    const { id, active, ...nativeParams } = params ?? {}
+    super('DragZoom', { id })
     this._interaction = new OlInteraction.DragZoom(
-      Object.assign({}, defaultDragZoomOptions, defaultValue(params, {}))
+      Object.assign({}, defaultDragZoomOptions, nativeParams)
     )
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
+    this.events = new Event<OMapDragZoomEventMap>(this)
   }
 
-  on(type: OMapInteractionDragZoomEventType, callback: () => void): EventIdType {
+  on(
+    type: OMapInteractionDragZoomEventType,
+    callback: (e: OMapDragZoomEvent) => void
+  ): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
@@ -45,18 +56,15 @@ export default class DragZoom extends Interaction<OMapDragZoomType> {
     if (!isFunction(callback)) {
       error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(
-      this._interaction,
-      type,
-      (e: InteractionPropertyChangeEvent) => {
-        this.events.emit(type, handleInteractionDragZoomEvent(this, type, e))
-      }
+    return this.subscribeEvent(type, callback, (e: InteractionPropertyChangeEvent) =>
+      handleInteractionDragZoomEvent(this, type, e)
     )
-    const id = this.events.on(type, callback, unlisten)
-    return id
   }
 
-  once(type: OMapInteractionDragZoomEventType, callback: () => void): EventIdType {
+  once(
+    type: OMapInteractionDragZoomEventType,
+    callback: (e: OMapDragZoomEvent) => void
+  ): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
@@ -66,15 +74,12 @@ export default class DragZoom extends Interaction<OMapDragZoomType> {
     if (!isFunction(callback)) {
       error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(
-      this._interaction,
+    return this.subscribeEvent(
       type,
-      (e: InteractionPropertyChangeEvent) => {
-        this.events.emit(type, handleInteractionDragZoomEvent(this, type, e))
-      }
+      callback,
+      (e: InteractionPropertyChangeEvent) => handleInteractionDragZoomEvent(this, type, e),
+      true
     )
-    const id = this.events.once(type, callback, unlisten)
-    return id
   }
 
   un(id: EventIdType) {

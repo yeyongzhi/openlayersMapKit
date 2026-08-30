@@ -1,6 +1,9 @@
 const COLOR_RGB_STRING_REGEX =
   /^rgb\(\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*\)$/
 
+const COLOR_RGBA_STRING_REGEX =
+  /^rgba\(\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)\s*,\s*(0|1|0?\.\d+)\s*\)$/
+
 /** 任意函数签名，用于替代裸 Function 类型 */
 export type AnyFunction = (...args: never[]) => unknown
 
@@ -32,7 +35,7 @@ function isEmptyString(value: string): boolean {
   return value === ''
 }
 
-function isBoolean(value: unknown): boolean {
+function isBoolean(value: unknown): value is boolean {
   return typeof value === 'boolean'
 }
 
@@ -75,6 +78,10 @@ function isVaildColorRGBString(value: unknown) {
   return isString(value) && COLOR_RGB_STRING_REGEX.test(value)
 }
 
+function isVaildColorRGBAString(value: unknown) {
+  return isString(value) && COLOR_RGBA_STRING_REGEX.test(value)
+}
+
 function isVaildOpacity(value: unknown) {
   return isNumber(value) && value >= 0 && value <= 1
 }
@@ -110,6 +117,7 @@ export {
   isArrayLength2,
   isVaildColorRGB,
   isVaildColorRGBString,
+  isVaildColorRGBAString,
   isVaildOpacity,
   isVaildColorHex,
   isVaildColorHexWithAlpha

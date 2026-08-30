@@ -31,31 +31,37 @@ export type OlBaseLayerOptionsKey =
   | 'properties'
 // 此处的BaseLayerOptionsType 继承 ol.layer.Base全部属性
 // 十一个基础属性
-export type BaseLayerCommonParamsType = {
-  /**
-   * 下面十个是ol.layer.Base的基础属性
-   */
-  className?: string
-  opacity?: number
-  visible?: boolean
-  extent?: Extent
-  zIndex?: number
-  minResolution?: number
-  maxResolution?: number
-  minZoom?: number
-  maxZoom?: number
-  background?: Color | undefined
-  /**
-   * properties是ol不具备的初始化属性，但是有对应的方法
-   */
-  properties?: BaseLayerPropertiesType
-}
+export type BaseLayerCommonParamsType<P extends BaseLayerPropertiesType = BaseLayerPropertiesType> =
+  {
+    /**
+     * 下面十个是ol.layer.Base的基础属性
+     */
+    className?: string
+    opacity?: number
+    visible?: boolean
+    extent?: Extent
+    zIndex?: number
+    minResolution?: number
+    maxResolution?: number
+    minZoom?: number
+    maxZoom?: number
+    background?: Color | undefined
+    /**
+     * properties是ol不具备的初始化属性，但是有对应的方法
+     */
+    properties?: P
+  }
 // 增加三个属性
-export type BaseLayerOptionsType = BaseLayerCommonParamsType & {
-  id?: BaseLayerIdType // 图层id
-  name?: string // 图层名称，用于显示在图层控制栏中，默认使用图层id
-  map?: Map
-}
+/**
+ * 图层构造参数。传入 `P` 可让 `properties` 获得具体结构，
+ * 从而把属性类型一路带到 `BaseLayer<P>` 上；不传时保持原有宽泛形态。
+ */
+export type BaseLayerOptionsType<P extends BaseLayerPropertiesType = BaseLayerPropertiesType> =
+  BaseLayerCommonParamsType<P> & {
+    id?: BaseLayerIdType // 图层id
+    name?: string // 图层名称，用于显示在图层控制栏中，默认使用图层id
+    map?: Map
+  }
 
 export function handleGetBaseLayerParams(params: BaseLayerOptionsType) {
   let _params = {

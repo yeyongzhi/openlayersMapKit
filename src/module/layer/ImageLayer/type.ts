@@ -1,46 +1,39 @@
 import { OlSource } from '../../../source/index'
-import Extent from '../../basic/Extent/index'
-import { type OlExtentType, type OMapExtentType } from '../../basic/Extent/type'
-import { type OMapProjectionType } from '../../core/Projection/type'
-import type { BaseLayerOptionsType } from '../BaseLayer/type'
+import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
+import { isDefined } from '../../../utils/index'
+import {
+  DEFAULT_IMAGE_STATIC_SOURCE_PARAMS,
+  type OMapImageStaticSourceParamsType
+} from '../../source/ImageStaticSource/type'
+import type { OMapImageSourceParamsType } from '../../source/ImageSource/type'
 
-export type OMapImageLayerParamsType = BaseLayerOptionsType & {
-  source?: OMapImageSourceParamsType | OMapImageStaticSourceParamsType // source参数是必须的
-}
+export {
+  DEFAULT_IMAGE_STATIC_SOURCE_PARAMS,
+  type OMapImageStaticSourceParamsType
+} from '../../source/ImageStaticSource/type'
+export type { OMapImageSourceParamsType } from '../../source/ImageSource/type'
+
+export type OMapImageLayerParamsType<P extends BaseLayerPropertiesType = BaseLayerPropertiesType> =
+  BaseLayerOptionsType<P> & {
+    source?: OMapImageSourceParamsType | OMapImageStaticSourceParamsType // source参数是必须的
+  }
 export const DEFAULT_IMAGE_LAYER_PARAMS: OMapImageLayerParamsType = {}
 
 export type OMapImageLayerSourceStateType = 'undefined' | 'loading' | 'ready' | 'error'
-/**
- * source类型
- */
-export type OMapImageSourceParamsType = {
-  attributions?: string | string[]
-  interpolate: boolean
-  loader?: (extent: OlExtentType, resolution: number, pixelRatio: number) => void
-  projection?: OMapProjectionType
-  resolutions?: number[]
-  state?: OMapImageLayerSourceStateType
-}
-export const DEFAULT_IMAGE_SOURCE_PARAMS: OMapImageSourceParamsType = {
-  interpolate: true
-}
 export type OlImageSourceInstanceType = InstanceType<typeof OlSource.Image>
+export type OlImageStaticSourceInstanceType = InstanceType<typeof OlSource.ImageStatic>
 
 /**
- * ImageStatic
+ * 判断参数是否为静态图片数据源参数。
+ *
+ * `OMapImageLayerParamsType.source` 在类型上允许两种形态：静态图片（有 url 分支）与
+ * 自定义 `loader` 分支。按 `url` 是否存在判别，避免把 loader 型参数静默降级成
+ * url 为空的无效数据源。
+ * @param source 数据源参数
+ * @returns 是否为静态图片数据源参数
  */
-export type OMapImageStaticSourceParamsType = {
-  attributions?: string | string[]
-  crossOrigin?: string | null
-  imageExtent: OMapExtentType
-  imageLoadFunction?: (extent: OlExtentType, resolution: number, pixelRatio: number) => void
-  interpolate: boolean
-  projection?: OMapProjectionType
-  url: string
+export function isVaildImageStaticSourceParams(
+  source: OMapImageSourceParamsType | OMapImageStaticSourceParamsType
+): source is OMapImageStaticSourceParamsType {
+  return isDefined((source as OMapImageStaticSourceParamsType).url)
 }
-export const DEFAULT_IMAGE_STATIC_SOURCE_PARAMS: OMapImageStaticSourceParamsType = {
-  interpolate: true,
-  imageExtent: new Extent(0, 0, 0, 0),
-  url: ''
-}
-export type OlImageStaticSourceInstanceType = InstanceType<typeof OlSource.ImageStatic>

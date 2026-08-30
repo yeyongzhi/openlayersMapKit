@@ -1,11 +1,14 @@
 import { isDefined, isFunction, isString } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlEvent } from '../../../source/index'
+import Event from '../../util/Event/index'
+import { OlInteraction } from '../../../source/index'
 import {
   type OMapKeyboardZoomParamsType,
   type OMapKeyboardZoomType,
   type OMapInteractionKeyboardZoomEventType,
+  type OMapKeyboardZoomEvent,
+  type OMapKeyboardZoomEventMap,
   isOMapInteractionKeyboardZoomEventType
 } from './type'
 import { type EventIdType } from '../../util/Event/type'
@@ -31,15 +34,23 @@ const defaultKeyboardZoomOptions = {
 }
 
 export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
+  /** 收窄交互事件总线类型（构造器中以具体事件映射实例化） */
+  declare events: Event<OMapKeyboardZoomEventMap>
+
   constructor(params?: OMapKeyboardZoomParamsType) {
-    super('KeyboardZoom', { id: params?.id })
+    const { id, active, ...nativeParams } = params ?? {}
+    super('KeyboardZoom', { id })
     this._interaction = new OlInteraction.KeyboardZoom(
-      Object.assign({}, defaultKeyboardZoomOptions, params || {})
+      Object.assign({}, defaultKeyboardZoomOptions, nativeParams)
     )
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
+    this.events = new Event<OMapKeyboardZoomEventMap>(this)
   }
 
-  on(type: OMapInteractionKeyboardZoomEventType, callback: () => void): EventIdType {
+  on(
+    type: OMapInteractionKeyboardZoomEventType,
+    callback: (e: OMapKeyboardZoomEvent) => void
+  ): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
@@ -49,18 +60,15 @@ export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
     if (!isFunction(callback)) {
       error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(
-      this._interaction,
-      type,
-      (e: InteractionPropertyChangeEvent) => {
-        this.events.emit(type, handleInteractionKeyboardZoomEvent(this, type, e))
-      }
+    return this.subscribeEvent(type, callback, (e: InteractionPropertyChangeEvent) =>
+      handleInteractionKeyboardZoomEvent(this, type, e)
     )
-    const id = this.events.on(type, callback, unlisten)
-    return id
   }
 
-  once(type: OMapInteractionKeyboardZoomEventType, callback: () => void): EventIdType {
+  once(
+    type: OMapInteractionKeyboardZoomEventType,
+    callback: (e: OMapKeyboardZoomEvent) => void
+  ): EventIdType {
     if (!isDefined(type) || !isDefined(callback)) {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
@@ -70,15 +78,12 @@ export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
     if (!isFunction(callback)) {
       error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
     }
-    const unlisten = OlEvent.listen(
-      this._interaction,
+    return this.subscribeEvent(
       type,
-      (e: InteractionPropertyChangeEvent) => {
-        this.events.emit(type, handleInteractionKeyboardZoomEvent(this, type, e))
-      }
+      callback,
+      (e: InteractionPropertyChangeEvent) => handleInteractionKeyboardZoomEvent(this, type, e),
+      true
     )
-    const id = this.events.once(type, callback, unlisten)
-    return id
   }
 
   un(id: EventIdType) {

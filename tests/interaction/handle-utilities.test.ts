@@ -15,7 +15,7 @@ import {
 } from '../../src/module/interaction/Measure/handle'
 import { MeasureMode } from '../../src/module/interaction/Measure/type'
 import {
-  DragBoxParamsBoxEndHandle,
+  createDragBoxParamsBoxEndHandle,
   handleInteractionDragBoxEvent
 } from '../../src/module/interaction/DragBox/handle'
 import { handleInteractionExtentEvent } from '../../src/module/interaction/Extent/handle'
@@ -101,11 +101,12 @@ describe('interaction and layer helper boundaries', () => {
 
   it('manages DragBox callbacks and layer helper factories', () => {
     const callback = vi.fn()
-    DragBoxParamsBoxEndHandle.initFunction(callback)
-    DragBoxParamsBoxEndHandle.emit({ target: {} as never })
+    const handle = createDragBoxParamsBoxEndHandle()
+    handle.initFunction(callback)
+    handle.emit({ target: {} as never })
     expect(callback).toHaveBeenCalledOnce()
-    DragBoxParamsBoxEndHandle.destroy()
-    DragBoxParamsBoxEndHandle.emit({ target: {} as never })
+    handle.destroy()
+    handle.emit({ target: {} as never })
     expect(callback).toHaveBeenCalledOnce()
 
     expect(getGaodeLayerUrlsByType('vec')).toHaveLength(4)

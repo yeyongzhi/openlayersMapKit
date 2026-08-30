@@ -31,7 +31,15 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  */
 
 export default class ImageSource extends Source<OMapImageSourceType> {
-  constructor(params: OMapImageSourceParamsType = {}) {
+  /**
+   * @param params 构造参数；也可直接传入一个原生 `ol/source/Image` 实例，
+   *   供 {@link ImageStaticSource} 等子类复用基类的能力。
+   */
+  constructor(params: OMapImageSourceParamsType | OMapImageSourceType = {}) {
+    if (params instanceof OlSource.Image) {
+      super(params)
+      return
+    }
     const sourceParams = handleGetSourceParams({
       ...DEFAULT_IMAGE_SOURCE_PARAMS,
       ...params

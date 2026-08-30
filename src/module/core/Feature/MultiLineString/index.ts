@@ -11,6 +11,11 @@ import {
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import Lnglat from '../../../basic/Lnglat/index'
 import { normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import { type OMapExtentType, isValidExtent } from '../../../basic/Extent/type'
+import { handleGetExtentValue } from '../../../basic/Extent/handle'
+import { type OMapPointGeometryCoordinatesType } from '../Point/type'
+import { isValidCoordinate } from '../../../basic/Lnglat/type'
+import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
 
 const PACKAGE_NAME = 'MultiLineString'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -24,13 +29,15 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/2/1
  */
 
-export default class MultiLineString extends BasicFeature<OMapMultiLineStringType> {
-  constructor(args: OMapMultiLineStringGeometryCoordinatesType, properties?: PropertiesType)
+export default class MultiLineString<
+  P extends PropertiesType = PropertiesType
+> extends BasicFeature<OMapMultiLineStringType, P> {
+  constructor(args: OMapMultiLineStringGeometryCoordinatesType, properties?: P)
   constructor(args: OlFeatureInstanceType)
 
   constructor(
     coordinatesOrFeature: OMapMultiLineStringGeometryCoordinatesType | OlFeatureInstanceType,
-    properties?: PropertiesType
+    properties?: P
   ) {
     if (!isDefined(coordinatesOrFeature)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('coordinatesOrFeature')))
@@ -57,8 +64,8 @@ export default class MultiLineString extends BasicFeature<OMapMultiLineStringTyp
   }
 
   /**
-   * 获取坐标
-   * @returns {Array<Array<Lnglat>>} 坐标
+   * 获取多个线串的坐标
+   * @returns {Array<Array<Lnglat>>} 多个线串的坐标
    */
   getCoordinates(): Array<Array<Lnglat>> {
     let coordinates = this._geometry.getCoordinates()
@@ -71,8 +78,8 @@ export default class MultiLineString extends BasicFeature<OMapMultiLineStringTyp
   }
 
   /**
-   * 设置坐标
-   * @param {OMapMultiLineStringGeometryCoordinatesType} coordinates 坐标
+   * 设置多个线串的坐标
+   * @param {OMapMultiLineStringGeometryCoordinatesType} coordinates 多个线串的坐标
    */
   setCoordinates(coordinates: OMapMultiLineStringGeometryCoordinatesType) {
     if (!isDefined(coordinates)) {
@@ -83,5 +90,70 @@ export default class MultiLineString extends BasicFeature<OMapMultiLineStringTyp
     }
     let _coordinates = normalizeCoordinates(coordinates)
     this._geometry.setCoordinates(_coordinates)
+  }
+
+  /**
+   * 获取多个线串的第一个坐标
+   * @returns {Lnglat} 第一个坐标
+   */
+  getFirstCoordinate(): Lnglat {
+    return new Lnglat(this._geometry.getFirstCoordinate())
+  }
+
+  /**
+   * 获取多个线串的最后一个坐标
+   * @returns {Lnglat} 最后一个坐标
+   */
+  getLastCoordinate(): Lnglat {
+    return new Lnglat(this._geometry.getLastCoordinate())
+  }
+
+  /**
+   * 返回多个线串的投影平面长度之和
+   * @returns {number} 长度
+   */
+  getLength(): number {
+    return this._geometry.getLength()
+  }
+
+  /**
+   * 多线串是否包含给定坐标
+   * @param {OMapPointGeometryCoordinatesType} coordinates 待判断的坐标
+   * @returns {boolean} 是否包含
+   */
+  intersectsCoordinate(coordinates: OMapPointGeometryCoordinatesType): boolean {
+    if (!isDefined(coordinates)) {
+      error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
+    }
+    if (!isValidCoordinate(coordinates)) {
+      error_(
+        createMessage('intersectsCoordinate', commonMessage.paramsInvaildFormat('coordinates'))
+      )
+    }
+    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+  }
+
+  /**
+   * 多线串是否与给定范围相交
+   * @param {OMapExtentType} extent 范围
+   * @returns {boolean} 是否相交
+   */
+  intersectsExtent(extent: OMapExtentType): boolean {
+    if (!isDefined(extent)) {
+      error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
+    }
+    if (!isValidExtent(extent)) {
+      error_(createMessage('intersectsExtent', commonMessage.paramsInvaildFormat('extent')))
+    }
+    return this._geometry.intersectsExtent(handleGetExtentValue(extent))
+  }
+
+  /**
+   * 沿 X/Y 轴平移多线串
+   * @param {number} deltaX X 方向偏移
+   * @param {number} deltaY Y 方向偏移
+   */
+  translate(deltaX: number = 0, deltaY: number = 0): void {
+    this._geometry.translate(deltaX, deltaY)
   }
 }

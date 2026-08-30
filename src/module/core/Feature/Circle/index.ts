@@ -9,6 +9,8 @@ import type { OlFeatureInstanceType } from '../BasicFeature/type'
 import Lnglat from '../../../basic/Lnglat/index'
 import { type OMapCoordinateType, isValidCoordinate } from '../../../basic/Lnglat/type'
 import { handleGetLnglatValue, normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import { type OMapExtentType, isValidExtent } from '../../../basic/Extent/type'
+import { handleGetExtentValue } from '../../../basic/Extent/handle'
 
 const PACKAGE_NAME = 'Circle'
 const createMessage = getPackageMessage(PACKAGE_NAME)
@@ -22,11 +24,14 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/2/1
  */
 
-export default class Circle extends BasicFeature<OMapCircleType> {
+export default class Circle<P extends PropertiesType = PropertiesType> extends BasicFeature<
+  OMapCircleType,
+  P
+> {
   constructor(
     centerOrFeature: OMapPointGeometryCoordinatesType | OlFeatureInstanceType,
     radius?: number,
-    properties?: PropertiesType
+    properties?: P
   ) {
     if (!isDefined(centerOrFeature)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('centerOrFeature')))
@@ -83,14 +88,16 @@ export default class Circle extends BasicFeature<OMapCircleType> {
   }
 
   /**
-   * 获取坐标
+   * 获取圆的圆心坐标
+   * @returns {Lnglat} 圆心坐标
    */
   getCoordinates(): Lnglat {
     return this.getCenter()
   }
 
   /**
-   * 设置线的坐标
+   * 设置圆的圆心坐标
+   * @param {OMapCoordinateType} center 圆心坐标
    */
   setCoordinates(center: OMapCoordinateType) {
     this.setCenter(center)
@@ -115,5 +122,37 @@ export default class Circle extends BasicFeature<OMapCircleType> {
     }
     let _center = handleGetLnglatValue(center)
     this._geometry.setCenterAndRadius(_center, radius)
+  }
+
+  /**
+   * 圆是否包含给定坐标
+   * @param {OMapPointGeometryCoordinatesType} coordinates 待判断的坐标
+   * @returns {boolean} 是否包含
+   */
+  intersectsCoordinate(coordinates: OMapPointGeometryCoordinatesType): boolean {
+    if (!isDefined(coordinates)) {
+      error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
+    }
+    if (!isValidCoordinate(coordinates)) {
+      error_(
+        createMessage('intersectsCoordinate', commonMessage.paramsInvaildFormat('coordinates'))
+      )
+    }
+    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+  }
+
+  /**
+   * 圆是否与给定范围相交
+   * @param {OMapExtentType} extent 范围
+   * @returns {boolean} 是否相交
+   */
+  intersectsExtent(extent: OMapExtentType): boolean {
+    if (!isDefined(extent)) {
+      error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
+    }
+    if (!isValidExtent(extent)) {
+      error_(createMessage('intersectsExtent', commonMessage.paramsInvaildFormat('extent')))
+    }
+    return this._geometry.intersectsExtent(handleGetExtentValue(extent))
   }
 }

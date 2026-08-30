@@ -53,6 +53,8 @@
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
+    "docs:api": "node scripts/gen-api-docs.mjs && prettier --write \"docs/api/**/*.md\" \"docs/.vitepress/api-sidebar.json\"",
+    "docs:check": "node scripts/check-docs-links.mjs",
     "check:consumers": "node tests/consumer/esm-smoke.mjs && node tests/consumer/cjs-smoke.cjs && tsc -p tsconfig.consumer.json",
     "check:package": "publint && attw --pack . --ignore-rules false-cjs",
     "audit:api": "tsc -p tsconfig.json --declaration --emitDeclarationOnly --noEmit false --outDir .tmp-api-audit && node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt",

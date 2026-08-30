@@ -76,10 +76,7 @@ export default class Modify extends Interaction<OMapModifyType> {
       source: modify_source
     })
     this._interaction = new OlInteraction.Modify(_params)
-    if (isDefined(active)) {
-      this._interaction.setActive(active)
-    }
-    this.initInteractionEvent()
+    this.initInteractionEvent(active)
     this.events = new Event<OMapModifyEventMap>(this)
     // 初始化Modify事件
     this._initModifyEvent()
@@ -200,20 +197,19 @@ export default class Modify extends Interaction<OMapModifyType> {
 
   on(type: OMapInteractionModifyEventType, callback: (e: OMapModifyEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'on')
-    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(type, handleModifyEvent(this, type, e as OlModifyEventPayloadType))
-    })
-    const id = this.events.on(type, callback, unlisten)
-    return id
+    return this.subscribeEvent(type, callback, (e) =>
+      handleModifyEvent(this, type, e as OlModifyEventPayloadType)
+    )
   }
 
   once(type: OMapInteractionModifyEventType, callback: (e: OMapModifyEvent) => void): EventIdType {
     this.validateEvent(type, callback, 'once')
-    const unlisten = OlEvent.listen(this._interaction, type, (e) => {
-      this.events.emit(type, handleModifyEvent(this, type, e as OlModifyEventPayloadType))
-    })
-    const id = this.events.once(type, callback, unlisten)
-    return id
+    return this.subscribeEvent(
+      type,
+      callback,
+      (e) => handleModifyEvent(this, type, e as OlModifyEventPayloadType),
+      true
+    )
   }
 
   protected validateEvent(

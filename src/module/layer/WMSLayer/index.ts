@@ -1,5 +1,5 @@
-import { defaultValue, isDefined } from '../../../utils/index'
-import { warn_, getPackageMessage } from '../../../utils/index'
+import { isDefined } from '../../../utils/index'
+import { error_, getPackageMessage } from '../../../utils/index'
 import { OlLayer } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
@@ -11,6 +11,7 @@ import {
   DEFAULT_WMS_LAYER_SOURCE_PARAMS
 } from './type'
 import type { OMapTileWMSSourceParamsType } from '../../source/TileSource/subClass/TileWMSSource/type'
+import { type BaseLayerPropertiesType, type OMapBaseLayerCommonType } from '../BaseLayer/type'
 
 let PACKAGE_NAME = 'WMSLayer'
 let createMessage = getPackageMessage(PACKAGE_NAME)
@@ -25,22 +26,30 @@ let createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2025/10/2
  */
 
-export default class WMSLayer extends BaseLayer {
-  constructor(options: OMapWMSLayerParamsType) {
-    super('WMS', defaultValue(options, {}))
-    if (!isDefined(options.source)) {
-      warn_(createMessage('constructor', '缺少source参数'))
+export default class WMSLayer<
+  P extends BaseLayerPropertiesType = BaseLayerPropertiesType
+> extends BaseLayer<OMapBaseLayerCommonType, P> {
+  /** 收窄基类的包装类型：WMS 图层的数据源一定是 TileWMS 数据源。 */
+  declare protected _sourceWrapper: TileWMSSource | null
+
+  constructor(options?: OMapWMSLayerParamsType<P>) {
+    const _options: OMapWMSLayerParamsType<P> = Object.assign({}, DEFAULT_WMS_LAYER_PARAMS, options)
+    super('WMS', _options)
+    if (!isDefined(_options.source)) {
+      error_(createMessage('constructor', 'source参数是必须的'))
       return
     }
-    let _layerParams = Object.assign({}, DEFAULT_WMS_LAYER_PARAMS, {
-      ...options,
+    let _layerParams = Object.assign({}, _options, {
       source: undefined,
       map: undefined
     })
     let _sourceParams = Object.assign({}, DEFAULT_WMS_LAYER_SOURCE_PARAMS, {
-      ...defaultValue(options.source, {})
+      ..._options.source
     })
-    let _source = new TileWMSSource(_sourceParams as OMapTileWMSSourceParamsType).getSource()
+    let wmsSource = new TileWMSSource(_sourceParams as OMapTileWMSSourceParamsType)
+    // 登记 OMap 数据源包装，供 getWMSSource() / getSourceWrapper() 取回。
+    this._sourceWrapper = wmsSource
+    let _source = wmsSource.getSource()
     this._layer = new OlLayer.Tile({
       ..._layerParams,
       extent: isDefined(_layerParams.extent)
@@ -52,5 +61,13 @@ export default class WMSLayer extends BaseLayer {
       source: _source
     })
     this._initLayerEvent()
+  }
+
+  /**
+   * 获取图层关联的 OMap TileWMS 数据源包装。
+   * @returns {TileWMSSource | null} OMap TileWMS 数据源包装
+   */
+  getWMSSource(): TileWMSSource | null {
+    return this._sourceWrapper
   }
 }

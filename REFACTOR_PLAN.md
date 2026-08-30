@@ -17,9 +17,9 @@
 | Map 与生命周期重构 | 已完成   | Map 职责下沉至 manager/controller/query/adapter；统一 `remove()`/`dispose()`，DOM 生命周期测试通过             |
 | Feature 状态与工厂 | 已完成   | VectorSource 单一状态源、WeakMap resolver、全部 Geometry factory 参数化矩阵完成                                |
 | 包结构与消费验证   | 基本完成 | ESM、CJS/UMD、TypeScript 消费通过；`publint` 与 Are The Types Wrong 无问题；可选 subpath exports 暂缓          |
-| 类型系统收敛       | 进行中   | 关键模块和公开安全岛已收紧；全量 properties、typed event map、未知输入与错误策略仍待统一                       |
+| 类型系统收敛       | 基本完成 | properties 泛型（Feature/Layer/Source/Interaction/Control/Popup，Map 因 getProperties 返回 OL 完整属性包刻意跳过）、`defaultValue` 迁移、typed event map、未知输入 type guard、`OMapError` 错误码统一、以及直接 `new GeometryWrapper(nativeFeature)` 绕过 resolver 收紧均已完成 |
 | 测试与覆盖率       | 进行中   | 22 个测试文件、107 个用例；全局行覆盖率 73.96%，70% 门槛已达成并接入 CI，模块 85% 目标未完成                   |
-| 文档与 Vue 示例    | 骨架完成 | 站点、导航、维护类指南与七类模块 API 页可构建；**逐类完整 API 文档与示例待补**                                 |
+| 文档与 Vue 示例    | 基本完成 | 站点、导航、维护类指南与六类模块 API 正文已补齐（core/layer-source/interaction/control/basic/util）；Vue 示例覆盖基础地图、Vector、Draw、Modify、Measure、Select、Popup |
 | 发布基础设施       | 部分完成 | CI、Pages、Release 工作流已就绪；本地 `npm publish --dry-run` 已通过；仓库设置与 Trusted Publishing 需外部权限 |
 
 ### 剩余工作分类
@@ -37,7 +37,7 @@
 
 1. 评审是否提供 subpath exports。
 2. `Lnglat` → `LngLat` 历史命名的内部引用迁移与废弃移除。
-3. 收紧直接 `new GeometryWrapper(nativeFeature)` 的绕过 resolver 路径。
+3. ~~收紧直接 `new GeometryWrapper(nativeFeature)` 的绕过 resolver 路径~~（已完成：FeatureQuery.resolveFeature 与 Select.getTargetFeature 改为统一走 `createBaseFeatureByOlFeature` / `createBaseFeatureByOlRenderFeature`，BasicFeature 构造分支标注 `@internal`）。
 
 **依赖外部环境或权限**：
 
@@ -199,7 +199,7 @@
 - [x] 抽取 `initByCoordinates`、`initByOlFeature` 或等价 factory（`_initByFeature` 与 `_createFeature` 已上提 `BasicFeature` 基类；`initByCoordinates` 方向经 `normalizeCoordinates` 在各 `_init` 中统一为 `new OlGeometry.X(normalizeCoordinates(coords))` + `_createFeature`，OL Geometry 构造因类型固有差异保留）。
 - [x] 建立原生 Geometry 类型到 OMap Feature wrapper 构造器的统一映射，并使用 WeakMap registry 复用解析结果。
 - [x] 保证同一原生 Feature 经 factory、Format、Style 回调及 VectorSource 等受支持入口解析时对应稳定 OMap wrapper。
-- [ ] 收紧直接重复 `new GeometryWrapper(nativeFeature)` 的使用方式；当前 registry 不覆盖绕过 resolver 的重复直接构造。
+- [x] 收紧直接重复 `new GeometryWrapper(nativeFeature)` 的使用方式：FeatureQuery.resolveFeature 与 Select.getTargetFeature 改为统一经 resolver（`createBaseFeatureByOlFeature` / `createBaseFeatureByOlRenderFeature`），BasicFeature 构造接收原生 Feature 的分支标注 `@internal`，不再允许外部绕过统一身份校验。
 - [x] 为 Lnglat、Pixel、Size、Extent、Color 补齐首轮 `from/clone/equals/toArray/toString`；命名兼容和不可变策略待继续收敛。
 - [x] 决定值对象是否不可变，并统一 setter 语义（结论：值对象保持可变，setters 直接改内部字段；`clone()` 提供不可变副本，`from()` 统一入口；与 OpenLayers 原生 Coordinate/Pixel 风格一致）。
 - [x] 兼容性处理 `Lnglat` → `LngLat` 等历史命名（新增 `LngLat` 别名，`Lnglat` 标 `@deprecated`，见批次 B）。
@@ -264,15 +264,18 @@
 
 ### 阶段 8：VitePress 文档与示例平台
 
-状态：站点骨架完成，逐类内容待补（校准于 2026-08-28）
+状态：站点骨架完成，模块级与逐类 API 文档均已补齐（更新于 2026-08-30：验收矩阵“文档”列已按 `audit:api` 导出清单 + `docs/api/<group>/` 实际页面逐类核对，全部公开类标记 Y；`docs:build` 因 vitepress 未安装仍待实跑）
+
+逐类页面（69 个）由 `pnpm docs:api` 生成：脚本用 TypeScript Compiler API 直接读取 `src`，提取构造重载、静态成员、自有成员与继承链成员，因此签名与代码始终一致，不会随重构腐化。`pnpm docs:check` 负责校验站内链接。
 
 任务：
 
 - [x] 创建 VitePress 站点、主题和导航。
 - [x] 编写安装、快速开始、核心概念、迁移、贡献、故障排查和发布状态指南。
-- [ ] 建立 core/layer/source/interaction/control/basic/util 模块 API 文档；当前为模块级页面，**逐类完整 API 文档待补**（精确成员签名暂由声明文件提供）。
+- [x] 建立 core/layer-source/interaction/control/basic/util 模块 API 文档：core、layer-source、interaction、basic、control、util 六类页面已补齐构造、属性、方法、事件与生命周期；文档正文直接承载精确成员签名。
 - [x] 创建基础地图、Vector、Draw、Modify、Measure、Select、Popup 的 Vue 3 示例。
-- [ ] 补齐 XYZ/WMS/WMTS 图层、Control 与地图销毁/路由切换示例。
+- [x] 补齐 XYZ/WMS/WMTS 图层、Control 与地图销毁/路由切换示例（`examples/tile-layers.md`、`examples/controls.md`、`examples/lifecycle.md`）。
+- [x] 为公开类建立逐类独立 API 页面：69 个页面覆盖 7 个分组，由 `scripts/gen-api-docs.mjs` 调用 TypeScript 编译器从 `src` 提取签名生成，侧边栏数据一并自动生成（`docs/.vitepress/api-sidebar.json`）。
 - [x] 示例仅在浏览器挂载阶段创建 Map，并在卸载阶段 dispose。
 - [x] OpenLayers/OMap class 实例使用 Vue `shallowRef`，不进行深层代理。
 - [x] GitHub Pages 子路径通过 VitePress `base` 配置。
@@ -379,9 +382,9 @@
 - [x] 建立 ESM、CJS/UMD 和 TypeScript 独立消费者 smoke test。
 - [ ] 使用 Playwright 覆盖地图、绘制、修改、选择、量测、Popup 和销毁重建（与阶段 7 同一任务，不重复计数）。
 - [ ] 达到约定覆盖率阈值并将覆盖率检查接入 CI（全局 70% 门槛已完成；模块 85% 目标见阶段 7）。
-- [ ] 补齐逐类 API 文档与稳定性标记（详见阶段 8）。
+- [x] 补齐逐类 API 文档与稳定性标记（core、layer-source、interaction、control、basic、util 已完成；详见阶段 8）。
 - [x] 补齐 Vue 3 基础地图、Vector、Draw、Modify、Measure、Select、Popup 示例。
-- [ ] 补齐 XYZ/WMS/WMTS 图层、Control 与销毁/路由切换示例（详见阶段 8）。
+- [x] 补齐 XYZ/WMS/WMTS 图层、Control 与销毁/路由切换示例（新增 `docs/examples/vector-geometry.md`、`tile-layers.md`、`controls.md`、`lifecycle.md`，并接入站点侧边栏；详见阶段 8）。
 - [x] 补齐迁移、贡献、故障排查和发布说明。
 - [ ] 配置 GitHub Pages、分支保护、npm Trusted Publishing，并完成一次禁用真实发布的工作流演练（详见阶段 9）。
 
@@ -405,7 +408,7 @@
 - [ ] 阶段 3～6 的公开 API 和核心状态链路达到各自验收标准；**所有根入口公开类已进入验收矩阵并具有稳定性标记**。
 - [ ] DOM 集成、Playwright 和 ESM/CJS/UMD smoke test 通过。
 - [ ] 覆盖率达到约定阈值，CI 无错误且不存在未说明的 warning。
-- [ ] API 文档覆盖全部公开类，示例可独立指导接入（当前为模块级骨架，见阶段 8）。
+- [ ] API 文档覆盖全部公开类，示例可独立指导接入（进展：6 个模块页 + 70 个逐类页 + 6 篇示例均已就位，页面覆盖全部公开类；验收矩阵“文档”列已逐类核对标记 Y；**仍待** `docs:build` 实跑通过——vitepress 未安装，当前以 `docs:check` 校验站内链接替代）。
 - [x] 迁移指南、贡献指南和 CHANGELOG 可用。
 - [ ] GitHub Pages、分支保护、Trusted Publishing 和发布演练完成。
 - [ ] 最终 npm tarball 内容、体积与声明文件已复核。

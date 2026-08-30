@@ -1,4 +1,4 @@
-import { isDefined, defaultValue } from '../../../utils/index'
+import { isDefined } from '../../../utils/index'
 import { error_, getPackageMessage } from '../../../utils/index'
 import { OlFormat } from '../../../source/index'
 import {
@@ -9,13 +9,14 @@ import {
   type OMapFormatOptionsType,
   type OMapFormatInstanceType,
   OMapFormatType,
-  type OMapFormatWriteFeatureOptionsType
+  type OMapFormatWriteFeatureOptionsType,
+  type OMapFormatReadFeatureOptionsType
 } from './type'
 import { getDefaultOptionsByType, isVaildFormatType } from './handle'
 import { handleGetProjectionValue } from '../../core/Projection/handle'
 import BasicFeature from '../../core/Feature/BasicFeature/index'
 import type { OlGeometryType } from '../../core/Feature/BasicFeature/type'
-import { handleGetStyleValue } from '../../basic/Style/handle'
+import { handleGetStyleArrayValue } from '../../basic/Style/handle'
 import {
   handleReadFeature,
   handleReadFeatures,
@@ -57,7 +58,7 @@ export default class Format {
       return
     }
     this.type = type
-    this.options = defaultValue(Object.assign({}, getDefaultOptionsByType(type), options), {})
+    this.options = Object.assign({}, getDefaultOptionsByType(type), options)
     this._initFormat()
   }
 
@@ -85,16 +86,15 @@ export default class Format {
       case OMapFormatType.KML:
         this._format = new OlFormat.KML({
           ...(this.options as OMapFormatKMLOptions),
-          defaultStyle: defaultValue(
-            handleGetStyleValue((this.options as OMapFormatKMLOptions).defaultStyle),
-            undefined
+          defaultStyle: handleGetStyleArrayValue(
+            (this.options as OMapFormatKMLOptions).defaultStyle
           )
         })
         break
     }
   }
 
-  readFeature(source: unknown, options?: unknown) {
+  readFeature(source: unknown, options?: OMapFormatReadFeatureOptionsType) {
     return handleReadFeature(
       this._format as OMapFormatInstanceType,
       this.type as OMapFormatTypeEnum,
@@ -103,7 +103,7 @@ export default class Format {
     )
   }
 
-  readFeatures(source: unknown, options?: unknown) {
+  readFeatures(source: unknown, options?: OMapFormatReadFeatureOptionsType) {
     return handleReadFeatures(
       this._format as OMapFormatInstanceType,
       this.type as OMapFormatTypeEnum,

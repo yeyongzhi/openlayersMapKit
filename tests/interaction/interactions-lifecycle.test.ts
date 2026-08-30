@@ -40,18 +40,31 @@ const interactionFactories: Array<[string, () => Interaction<never>]> = [
   ['MouseWheelZoom', () => new MouseWheelZoom() as unknown as Interaction<never>]
 ]
 
+/** 需要 DOM 渲染节点的交互，逐个以 `active: false` 构造。 */
+const domInteractionFactories: Array<[string, () => Interaction<never>]> = [
+  ['DragBox', () => new DragBox({ active: false }) as unknown as Interaction<never>],
+  ['DragZoom', () => new DragZoom({ active: false }) as unknown as Interaction<never>],
+  [
+    'InteractionExtent',
+    () => new InteractionExtent({ active: false }) as unknown as Interaction<never>
+  ]
+]
+
 afterEach(() => {
   document.body.replaceChildren()
 })
 
 describe('common interactions construction', () => {
-  it.each(interactionFactories)('%s reports its type and starts with a null id', (_name, create) => {
-    const interaction = create()
+  it.each(interactionFactories)(
+    '%s reports its type and starts with a null id',
+    (_name, create) => {
+      const interaction = create()
 
-    expect(interaction.type).toBeTruthy()
-    expect(interaction.getId()).toBeNull()
-    expect(interaction.getInteraction()).toBeDefined()
-  })
+      expect(interaction.type).toBeTruthy()
+      expect(interaction.getId()).toBeNull()
+      expect(interaction.getInteraction()).toBeDefined()
+    }
+  )
 
   it('applies the id supplied through params', () => {
     expect(new DragPan({ id: 'pan-1' }).getId()).toBe('pan-1')
@@ -63,6 +76,13 @@ describe('common interactions construction', () => {
       const interaction = create()
       expect(interaction.active).toBe(interaction.getActive())
     }
+  })
+
+  it.each(domInteractionFactories)('%s applies the active option on construction', (_n, create) => {
+    const interaction = create()
+
+    expect(interaction.getActive()).toBe(false)
+    expect(interaction.active).toBe(false)
   })
 })
 
@@ -232,6 +252,33 @@ describe('common interactions lifecycle', () => {
     expect(pan.isDisposed()).toBe(true)
     expect(zoom.isDisposed()).toBe(true)
     expect(map.getInteractions()).toEqual([])
+  })
+
+  it('keeps onBoxEnd callbacks isolated between DragBox instances', () => {
+    const firstCallback = vi.fn()
+    const secondCallback = vi.fn()
+    const first = new DragBox({ onBoxEnd: firstCallback })
+    const second = new DragBox({ onBoxEnd: secondCallback })
+    // 触发路径与 boxend 一致：由实例私有的回调持有者派发
+    const emitBoxEnd = (box: DragBox) => {
+      ;(
+        box as unknown as { boxEndHandle: { emit: (e: { target: DragBox }) => void } }
+      ).boxEndHandle.emit({
+        target: box
+      })
+    }
+
+    emitBoxEnd(first)
+    expect(firstCallback).toHaveBeenCalledTimes(1)
+    expect(secondCallback).not.toHaveBeenCalled()
+
+    emitBoxEnd(second)
+    expect(secondCallback).toHaveBeenCalledTimes(1)
+
+    // 销毁一个实例不应清空另一个实例的回调
+    first.dispose()
+    emitBoxEnd(second)
+    expect(secondCallback).toHaveBeenCalledTimes(2)
   })
 
   it('rejects invalid interactions when adding to the map', () => {

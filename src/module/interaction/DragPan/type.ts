@@ -12,7 +12,7 @@ export type OMapDragPanParamsType = CustOlDragPanParamsType & OMapInteractionCom
 export type OMapDragPanType = OlInteraction.DragPan
 export type OlDragPanInstanceType = InstanceType<typeof OlInteraction.DragPan>
 
-export const OMapInteractionDragPanEventTypes = [...OMapInteractionCommonEventTypes]
+export const OMapInteractionDragPanEventTypes = [...OMapInteractionCommonEventTypes] as const
 export type OMapInteractionDragPanEventType = (typeof OMapInteractionDragPanEventTypes)[number]
 
 export function isOMapInteractionDragPanEventType(
@@ -23,3 +23,12 @@ export function isOMapInteractionDragPanEventType(
     OMapInteractionDragPanEventTypes.includes(value as OMapInteractionDragPanEventType)
   )
 }
+
+import type DragPan from './index'
+import type { InteractionStateEvent } from '../handle'
+
+/** 用户回调收到的事件 payload */
+export type OMapDragPanEvent = InteractionStateEvent<DragPan, OMapInteractionDragPanEventType>
+
+/** 事件名 → 用户回调参数映射 */
+export type OMapDragPanEventMap = Record<OMapInteractionDragPanEventType, [OMapDragPanEvent]>

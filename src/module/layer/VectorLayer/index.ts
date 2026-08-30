@@ -6,9 +6,10 @@ import {
   isString,
   isNumber,
   isCoordinatesType,
-  isExtentType
+  isExtentType,
+  warn_,
+  getPackageMessage
 } from '../../../utils/index'
-import { warn_, getPackageMessage } from '../../../utils/index'
 import {
   type OMapVectorLayerOptionsFinalType,
   type OMapVectorSourceOptionsFinalType,
@@ -19,6 +20,7 @@ import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
 import { OlLayer, OlFeature, OlGeometry } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
+import type { BaseLayerPropertiesType } from '../BaseLayer/type'
 import BaseFeature from '../../core/Feature/BasicFeature/index'
 import VectorSource from '../../source/VectorSource/index'
 import Draw from '../../interaction/Draw/index'
@@ -45,17 +47,20 @@ let createMessage = getPackageMessage(PACKAGE_NAME)
  * @updateDate 2026/1/29
  */
 
-export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
+export default class VectorLayer<
+  P extends BaseLayerPropertiesType = BaseLayerPropertiesType
+> extends BaseLayer<OMapVectorLayerType, P> {
   protected vectorSource!: VectorSource
 
   style: OMapStyleLike | undefined
 
-  constructor(options: OMapVectorLayerOptionsFinalType = {}) {
+  constructor(options: OMapVectorLayerOptionsFinalType<P> = {}) {
     super('Vector', options)
     let _sourceOptions: OMapVectorSourceOptionsFinalType = isDefined(options.source)
       ? options.source
       : {}
     this.vectorSource = new VectorSource(_sourceOptions)
+    this._sourceWrapper = this.vectorSource
     this._layer = new OlLayer.Vector({
       source: this.vectorSource.getSource()
     })
@@ -103,7 +108,10 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
     let _style:
       | OlStyleInstanceType
       | Array<OlStyleInstanceType>
-      | ((feature: OlFeatureLike, resolution: number) => OlStyleInstanceType | undefined)
+      | ((
+          feature: OlFeatureLike,
+          resolution: number
+        ) => OlStyleInstanceType | Array<OlStyleInstanceType> | undefined)
       | undefined = undefined
     if (isDefined(style)) {
       if (style instanceof Style) {
@@ -121,8 +129,10 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
             resolution: number
           ) => Style | Array<Style> | undefined
           const styleFnResult = styleFn(omapFeature || null, resolution)
-          const single = Array.isArray(styleFnResult) ? styleFnResult[0] : styleFnResult
-          return single ? single.getStyle() : undefined
+          if (!styleFnResult) return undefined
+          return Array.isArray(styleFnResult)
+            ? styleFnResult.map((s) => s.getStyle() as OlStyleInstanceType)
+            : styleFnResult.getStyle()
         }
       } else {
         warn_(createMessage('initStyle', 'style格式有误'))
@@ -140,11 +150,11 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
 
   getFeatureById(id: number | string): BaseFeature<OlGeometry.Geometry> | undefined {
     if (!isDefined(id)) {
-      warn_(createMessage('setId', '参数id不能为空'))
+      warn_(createMessage('getFeatureById', '参数id不能为空'))
       return
     }
     if (!isNumber(id) && !isString(id)) {
-      warn_(createMessage('setId', '参数id格式有误'))
+      warn_(createMessage('getFeatureById', '参数id格式有误'))
       return
     }
     return this.vectorSource.getFeatureById(id) as BaseFeature<OlGeometry.Geometry> | undefined
@@ -163,14 +173,14 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
   getFeaturesInExtent(
     extent: OMapExtentType,
     projection: Projection
-  ): BaseFeature<OlGeometry.Geometry>[] | undefined {
+  ): BaseFeature<OlGeometry.Geometry>[] {
     if (!isDefined(extent)) {
       warn_(createMessage('getFeaturesInExtent', 'extent参数不能为空'))
-      return
+      return []
     }
     if (!(extent instanceof Extent) && !isExtentType(extent)) {
       warn_(createMessage('getFeaturesInExtent', 'extent参数格式有误'))
-      return
+      return []
     }
     return this.vectorSource.getFeaturesInExtent(
       extent,
@@ -178,14 +188,14 @@ export default class VectorLayer extends BaseLayer<OMapVectorLayerType> {
     ) as BaseFeature<OlGeometry.Geometry>[]
   }
 
-  getFeaturesAtCoordinate(coordinates: OMapCoordinateType) {
+  getFeaturesAtCoordinate(coordinates: OMapCoordinateType): BaseFeature<OlGeometry.Geometry>[] {
     if (!isDefined(coordinates)) {
       warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数不能为空'))
-      return
+      return []
     }
     if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
       warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数格式有误'))
-      return
+      return []
     }
     return this.vectorSource.getFeaturesAtCoordinate(
       coordinates

@@ -23,7 +23,7 @@ export default class Zoom extends Control<OlControl.Zoom> {
   ) {
     super('Zoom')
     if (isDefined(idOrOptions) && (isNumber(idOrOptions) || isString(idOrOptions))) {
-      this.id = idOrOptions as OMapControlIdType
+      this.setId(idOrOptions as OMapControlIdType)
       this._control = new OlControl.Zoom(Object.assign({}, DEFAULT_ZOOM_OPTIONS, options))
     } else {
       this._control = new OlControl.Zoom(Object.assign({}, DEFAULT_ZOOM_OPTIONS, idOrOptions))
