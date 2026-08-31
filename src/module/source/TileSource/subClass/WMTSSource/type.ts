@@ -29,6 +29,7 @@ export type OMapWMTSSourceParamsType = Omit<OlWMTSSourceOptions, 'projection' | 
   tileGrid: OMapWMTSSourceTileGrid | OMapWMTSSourceTileGridInstance
 }
 
+/** @internal */
 export const DEFAULT_WMTS_SOURCE_PARAMS: Partial<OMapWMTSSourceParamsType> = {
   attributionsCollapsible: true,
   interpolate: true,
@@ -41,6 +42,7 @@ export const DEFAULT_WMTS_SOURCE_PARAMS: Partial<OMapWMTSSourceParamsType> = {
   zDirection: 0
 }
 
+/** @internal */
 export function handleGetWMTSSourceParams(params: OMapWMTSSourceParamsType) {
   return {
     ...params,
@@ -49,6 +51,7 @@ export function handleGetWMTSSourceParams(params: OMapWMTSSourceParamsType) {
   }
 }
 
+/** @internal */
 export function handleGetWMTSTileGrid(tileGrid: OMapWMTSSourceParamsType['tileGrid']) {
   if (tileGrid instanceof OlTileGrid.WMTS) {
     return tileGrid

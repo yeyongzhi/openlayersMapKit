@@ -8,6 +8,7 @@ export type OMapUTFGridTileJSONConfig = TileJSONConfig
 export type OMapUTFGridSourceParamsType = OlUTFGridSourceOptions
 export type OMapUTFGridDataCallback = (data: unknown) => void
 
+/** @internal */
 export const DEFAULT_UTF_GRID_SOURCE_PARAMS: Partial<OMapUTFGridSourceParamsType> = {
   preemptive: true,
   jsonp: false,
@@ -15,6 +16,7 @@ export const DEFAULT_UTF_GRID_SOURCE_PARAMS: Partial<OMapUTFGridSourceParamsType
   zDirection: 0
 }
 
+/** @internal */
 export function handleGetUTFGridSourceParams(params: OMapUTFGridSourceParamsType) {
   return params
 }

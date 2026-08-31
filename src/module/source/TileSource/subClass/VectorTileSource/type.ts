@@ -26,6 +26,7 @@ export type OMapVectorTileSourceParamsType<FeatureType extends FeatureLike = Fea
   extent?: OMapExtentType
 }
 
+/** @internal */
 export const DEFAULT_VECTOR_TILE_SOURCE_PARAMS: OMapVectorTileSourceParamsType = {
   ...DEFAULT_TILE_SOURCE_PARAMS,
   attributionsCollapsible: true,
@@ -36,6 +37,7 @@ export const DEFAULT_VECTOR_TILE_SOURCE_PARAMS: OMapVectorTileSourceParamsType =
   zDirection: 1
 }
 
+/** @internal */
 export function handleGetVectorTileSourceParams<FeatureType extends FeatureLike = FeatureLike>(
   params: OMapVectorTileSourceParamsType<FeatureType>
 ) {

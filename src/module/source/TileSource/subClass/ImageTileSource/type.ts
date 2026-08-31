@@ -29,6 +29,7 @@ export type OMapImageTileSourceParamsType = Omit<
   tileSize?: number | OMapSizeType
 }
 
+/** @internal */
 export const DEFAULT_IMAGE_TILE_SOURCE_PARAMS: OMapImageTileSourceParamsType = {
   ...DEFAULT_TILE_SOURCE_PARAMS,
   attributionsCollapsible: true,
@@ -42,6 +43,7 @@ export const DEFAULT_IMAGE_TILE_SOURCE_PARAMS: OMapImageTileSourceParamsType = {
   zDirection: 0
 }
 
+/** @internal */
 export function handleGetImageTileSourceParams(params: OMapImageTileSourceParamsType = {}) {
   return {
     ...handleGetTileSourceParams(params),

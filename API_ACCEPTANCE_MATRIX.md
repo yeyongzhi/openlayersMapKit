@@ -84,13 +84,16 @@ node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt
 | ------------- | ------------ | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | ------------------------------------------ |
 | `VectorLayer` | stable-beta  | Y    | P    | Y        | P        | Y        | P        | Y        | Y    | Y    | N      | source 门面职责明确；properties 泛型已完成（B 批次） |
 | `TileLayer`   | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                                 |
-| `ImageLayer`  | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                                 |
+| `ImageLayer`  | stable-beta  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 静态/loader/WMS 三分支已测，新增 WMS 单图分支(getImageWMSSource) |
 | `WMSLayer`    | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用，依赖外部 WMS 服务              |
 | `WMTSLayer`   | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用，依赖外部 WMTS 服务             |
 | `XYZLayer`    | stable-beta  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                                 |
-| `TdtLayer`    | experimental | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 依赖天地图 token，测试需替换为本地资源     |
+| `TdtLayer`    | experimental | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(vec/w)与 tdtType/url-token 测试（测试内注入 window+MapToken.tdt） |
 | `GaodeLayer`  | experimental | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 依赖高德服务，仅被间接引用一次             |
 | `LayerGroup`  | stable-beta  | Y    | P    | Y        | P        | Y        | -        | Y        | Y | N    | N      | 组内增删与 groupId 同步已测                |
+| `VectorTileLayer` | experimental | Y  | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(params/VectorTileSource 实例)与 getVectorTileSource 测试 |
+| `HeatmapLayer`    | experimental | Y  | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(params/VectorSource 实例)+OL Heatmap 层断言；canvas 依赖用 node 内 document/canvas stub 跑通 |
+| `VectorImageLayer` | experimental | Y  | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(params/VectorSource 实例)与 getVectorSource 测试 |
 
 > `BaseLayer` 为内部基类，未从根入口导出，不单独验收，其能力随各子类一并覆盖。
 
@@ -98,21 +101,27 @@ node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt
 
 | 类                    | 稳定性        | 导入 | 类型 | 正常测试 | 边界测试 | 生命周期 | 回调类型 | 转换规则 | 文档 | 示例 | 浏览器 | 备注                                  |
 | --------------------- | ------------- | ---- | ---- | -------- | -------- | -------- | -------- | -------- | ---- | ---- | ------ | ------------------------------------- |
-| `Source`              | stable-beta   | Y    | P    | N        | N        | P        | -        | P        | Y | N    | N      | 基类能力经子类间接覆盖                |
+| `Source`              | stable-beta   | Y    | P    | Y        | N        | Y        | -        | P        | Y | N    | N      | 基类能力已直接测试：构造/属性/get-set/unset/dispose 幂等 |
 | `VectorSource`        | stable-beta   | Y    | P    | Y        | P        | Y        | P        | Y        | Y    | Y    | N      | Feature 唯一状态源，loader 类型待精确 |
 | `ImageSource`         | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
 | `TileSource`          | stable-beta   | Y    | P    | N        | N        | N        | P        | P        | Y | N    | N      | 子类较多，基类缺直接测试              |
 | `XYZSource`           | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
 | `WMTSSource`          | stable-beta   | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
 | `TileWMSSource`       | stable-beta   | Y    | P    | Y        | P        | N        | -        | P        | Y | N    | N      | 已有参数 set/update 回归              |
-| `VectorTileSource`    | experimental  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
-| `OGCVectorTileSource` | experimental  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 无测试引用                            |
-| `DataTileSource`      | experimental  | Y    | P    | N        | N        | N        | P        | P        | Y | N    | N      | loader 类型待精确                     |
-| `ImageTileSource`     | experimental  | Y    | P    | N        | N        | N        | P        | P        | Y | N    | N      | loader/url getter 类型待精确          |
-| `TileDebugSource`     | experimental  | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | 调试用途                              |
-| `UTFGridSource`       | experimental  | Y    | P    | N        | N        | N        | P        | P        | Y | N    | N      | 回调数据仍为宽松类型                  |
-| `UrlTileSource`       | compatibility | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | legacy 目录，仅为历史兼容             |
-| `TileImageSource`     | compatibility | Y    | P    | N        | N        | N        | -        | P        | Y | N    | N      | legacy 目录，仅为历史兼容             |
+| `VectorTileSource`    | experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(url+format)与 overlaps 切换测试          |
+| `OGCVectorTileSource` | experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(url+format)与 overlaps 测试；tileset 元数据异步拉取依赖网络 |
+| `DataTileSource`      | experimental  | Y    | P    | Y        | N        | N        | P        | P        | Y | N    | N      | 新增构造(loader)测试；loader 类型待精确          |
+| `ImageTileSource`     | experimental  | Y    | P    | Y        | P        | N        | P        | P        | Y | N    | N      | 新增构造(url)与 setUrl 守卫测试；url getter 类型待精确 |
+| `TileDebugSource`     | experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(默认参数)测试；调试用途          |
+| `UTFGridSource`       | experimental  | Y    | P    | Y        | P        | N        | P        | P        | Y | N    | N      | 新增构造(url)与 forDataAtCoordinateAndResolution 守卫测试；DOM 依赖用 XHR stub 在 node 跑通 |
+| `UrlTileSource`       | compatibility | Y    | P    | Y        | P        | N        | -        | P        | Y | N    | N      | 新增构造(url)与 setUrls/setUrl 守卫测试；legacy 目录，仅为历史兼容 |
+| `TileImageSource`     | compatibility | Y    | P    | Y        | P        | N        | -        | P        | Y | N    | N      | 新增构造(url)与 setUrl 守卫测试；legacy 目录，仅为历史兼容 |
+| `OSMSource`           | experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(默认/自定义 maxZoom+url)测试 |
+| `BingMapsSource`      | experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(key+imagerySet)测试 |
+| `TileJSONSource`      | experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(url)测试；XHR 依赖用 node 内 XHR stub 跑通 |
+| `TileArcGISRestSource`| experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(url)测试 |
+| `ClusterSource`       | experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(VectorSource 实例/OL 原生实例)与 getClusteredSource 测试 |
+| `ImageWMSSource`      | experimental  | Y    | P    | Y        | N        | N        | -        | P        | Y | N    | N      | 新增构造(url+params)测试；经 ImageLayer WMS 分支接入 |
 
 ## 8. Interaction 模块
 
@@ -184,12 +193,13 @@ node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt
 
 ## 13. 当前缺口汇总
 
-1. **10 个公开类完全无测试引用**（2026-08-30 审计 `audit:api` 结果，较原 27 已大幅下降：高侵入项 4/5、Select 语义修复与交互事件桥接测试补齐了多数类的覆盖）：`DataTileSource`、`ImageTileSource`、`OGCVectorTileSource`、`Source`、`TdtLayer`、`TileDebugSource`、`TileImageSource`、`UrlTileSource`、`UTFGridSource`、`VectorTileSource`。
-2. **27 个内部导出泄漏到公共入口**（15 函数 + 12 常量）。
+1. **10 个公开类的测试引用已全部补齐**（2026-08-30 完成）：`DataTileSource`、`ImageTileSource`、`OGCVectorTileSource`、`Source`（基类，经最小具体子类直接测试）、`TdtLayer`、`TileDebugSource`、`TileImageSource`、`UrlTileSource`、`UTFGridSource`、`VectorTileSource`。新增 6 个测试文件（27 用例）覆盖构造（最小合法参数）、公共 getter、生命周期 `dispose` 与输入守卫；`UTFGridSource` 的 DOM 依赖用 node 内的 XHR stub 跑通，`TdtLayer` 在测试内注入 `window` + `MapToken.tdt`。真实浏览器验证仍为空（见第 3 项）。
+2. **29 个内部 helper 已显式标记 `@internal`**（16 个 `handleGet*Params` 函数 + 13 个 `DEFAULT_*_PARAMS` 常量；较原计划 27 因新增 `ImageStaticSource` 多 2 个）。经审计回溯确认：这些符号原本即经 `export type *` 仅作类型透传，从未进入公共入口（不在 `dist/index.d.ts` 运行时导出、也不在 bundle 的 `export {}` 块中）；审计脚本 `getExportsOfModule` 对 `export type *` 的已知行为曾误报为"泄露"。现已在源码加 `@internal` 并在 `audit-public-api.mjs` 中排除 `@internal` 符号，公共导出计数由 152 降为 122（59 类 / 0 公开函数 / 11 公开常量）。`TILE_SOURCE_EVENT_TYPES` 仍待确认是否为公共契约（暂留公共，供消费者 `import type` 引用瓦片事件类型）。
 3. **全部类的浏览器验证为空**：`Map`、`Draw`、`Modify`、`Select`、`Measure`、`Popup` 等强 DOM 依赖类均未经真实浏览器验证。
 4. **properties 泛型已收敛**（2026-08-30 完成 B 批次）：全仓 `Record<string, any>` 已清零，`get<Value>(key): Value` / `getProperties<P>()` / `setProperties(properties: Partial<P>)` 均泛型化；涉及 properties 的类的“类型”字段可据实际情况逐步标记为完成。
 5. **typed event map 已全量完成**（2026-08-30）：Map/Popup/Control 与全部 12 个 Interaction 子类（`Draw`/`Modify`/`Select`/`Measure`/`DragBox`/`DragPan`/`DragZoom`/`InteractionExtent`/`Link`/`KeyboardZoom`/`MouseWheelZoom`/`DoubleClickZoom`）均接入 `Event<OMapXxxEventMap>`，`on/once` 回调收到精确事件对象；Interaction 桥接层 `transform/callback` 的 3 处 `any` 为泛型分发器负载边界，属刻意保留。
 6. **逐类 API 页面已逐类核对**（2026-08-30）：以 `audit:api` 导出清单为准，对 `docs/api/<group>/` 下 70 个实际页面逐类确认——全部公开类（除 `LngLat` 别名文档见 `Lnglat` 页、`OMapError` 无独立页）均已有独立 API 页面，矩阵“文档”列已统一标记为 Y；页面由 `scripts/gen-api-docs.mjs` 从源码自动提取，签名与代码始终一致，不会随重构腐化。
+7. **新增 9 个公开类补齐 Layer/Source 缺口**（2026-08-30）：经核查 OL 已提供、omap 尚未包装，用户确认新增 P1+P2 共 9 类并全部落地、通过四道门禁——Source 侧 `OSMSource`/`BingMapsSource`/`TileJSONSource`/`TileArcGISRestSource`/`ClusterSource`/`ImageWMSSource`；Layer 侧 `VectorTileLayer`(修复矢量瓦片此前无渲染图层)/`HeatmapLayer`/`VectorImageLayer`；`ImageLayer` 同步新增 WMS 单图分支与 `getImageWMSSource` 收窄 getter。新增 5 个测试文件（19 用例）：`tests/source/osm-bing-arcgis-source.test.ts`、`tests/source/tilejson-source.test.ts`(node 内 XHR stub)、`tests/source/cluster-imagewms-source.test.ts`、`tests/layer/heatmap-layer.test.ts`(node 内 document/canvas stub)、`tests/layer/vector-tile-vector-image-layer.test.ts`；并扩展 `tests/layer/layer-source-wrapper.test.ts` 覆盖 ImageLayer WMS 分支。全量 **32 文件 / 187 用例 passed** + 7 happy-dom 环境 error（基线一致，非回归）；`audit:api` 重跑无 `tests:0` 公开类。
 
 ## 14. 本阶段完成定义
 

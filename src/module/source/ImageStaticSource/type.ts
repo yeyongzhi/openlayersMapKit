@@ -5,7 +5,7 @@ import { handleGetSourceParams, type OMapSourceProjectionType } from '../Source/
 import type { OMapExtentType } from '../../basic/Extent/type'
 import type { Options as OlImageStaticSourceOptions } from 'ol/source/ImageStatic'
 
-/** 原生 OpenLayers 静态图片数据源实例类型。 */
+/** 原生 OpenLayers 静态图片数据源实例类型。 @internal */
 export type OMapImageStaticSourceType = OlSource.ImageStatic
 export type OlImageStaticSourceInstanceType = InstanceType<typeof OlSource.ImageStatic>
 
@@ -28,6 +28,7 @@ export type OMapImageStaticSourceParamsType = Omit<
 /** 转换后的原生构造参数（内部使用）。 */
 export type OlImageStaticSourceParamsType = OlImageStaticSourceOptions
 
+/** @internal */
 export const DEFAULT_IMAGE_STATIC_SOURCE_PARAMS: OMapImageStaticSourceParamsType = {
   interpolate: true,
   imageExtent: new Extent(0, 0, 0, 0),
@@ -38,6 +39,7 @@ export const DEFAULT_IMAGE_STATIC_SOURCE_PARAMS: OMapImageStaticSourceParamsType
  * 把 OMap 风格的静态图片参数转换为 OpenLayers 原生参数。
  * @param params OMap 静态图片数据源参数
  * @returns 原生构造参数
+ * @internal
  */
 export function handleGetImageStaticSourceParams(
   params: OMapImageStaticSourceParamsType

@@ -18,6 +18,7 @@ export type OMapTileWMSSourceParamsType = Omit<
   tileGrid?: OMapTileSourceTileGrid | OMapTileSourceTileGridInstance
 }
 
+/** @internal */
 export const DEFAULT_TILE_WMS_SOURCE_PARAMS: OMapTileWMSSourceParamsType = {
   ...DEFAULT_TILE_SOURCE_PARAMS,
   attributionsCollapsible: true,
@@ -31,6 +32,7 @@ export const DEFAULT_TILE_WMS_SOURCE_PARAMS: OMapTileWMSSourceParamsType = {
   zDirection: 0
 }
 
+/** @internal */
 export function handleGetTileWMSSourceParams(
   params: OMapTileWMSSourceParamsType = DEFAULT_TILE_WMS_SOURCE_PARAMS
 ) {

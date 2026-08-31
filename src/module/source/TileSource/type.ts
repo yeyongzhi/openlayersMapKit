@@ -60,6 +60,7 @@ export const TILE_SOURCE_EVENT_TYPES = {
   tileLoadError: 'tileloaderror'
 } as const
 
+/** @internal */
 export const DEFAULT_TILE_SOURCE_PARAMS: OMapTileSourceParamsType = {
   attributionsCollapsible: true,
   interpolate: false,
@@ -67,6 +68,7 @@ export const DEFAULT_TILE_SOURCE_PARAMS: OMapTileSourceParamsType = {
   zDirection: 0
 }
 
+/** @internal */
 export function handleGetTileGridParams(
   params: OMapTileSourceTileGrid
 ): OlTileSourceTileGridOptions {
@@ -88,6 +90,7 @@ export function handleGetTileGridParams(
   }
 }
 
+/** @internal */
 export function handleGetTileGrid(tileGrid?: OMapTileSourceParamsType['tileGrid']) {
   if (!tileGrid) {
     return undefined
@@ -98,6 +101,7 @@ export function handleGetTileGrid(tileGrid?: OMapTileSourceParamsType['tileGrid'
   return new OlTileGrid.TileGrid(handleGetTileGridParams(tileGrid))
 }
 
+/** @internal */
 export function handleGetTileSourceParams<
   T extends {
     projection?: OMapProjectionType

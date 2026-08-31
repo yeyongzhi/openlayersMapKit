@@ -14,6 +14,7 @@ export type OMapOGCVectorTileSourceParamsType<FeatureType extends FeatureLike = 
   projection?: OMapProjectionType
 }
 
+/** @internal */
 export const DEFAULT_OGC_VECTOR_TILE_SOURCE_PARAMS: Partial<OMapOGCVectorTileSourceParamsType> = {
   attributionsCollapsible: true,
   overlaps: true,
@@ -21,6 +22,7 @@ export const DEFAULT_OGC_VECTOR_TILE_SOURCE_PARAMS: Partial<OMapOGCVectorTileSou
   zDirection: 1
 }
 
+/** @internal */
 export function handleGetOGCVectorTileSourceParams<FeatureType extends FeatureLike = FeatureLike>(
   params: OMapOGCVectorTileSourceParamsType<FeatureType>
 ) {

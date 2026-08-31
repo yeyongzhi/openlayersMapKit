@@ -29,6 +29,7 @@ export type OMapDataTileSourceParamsType = Omit<
   tileSize?: number | OMapSizeType
 }
 
+/** @internal */
 export const DEFAULT_DATA_TILE_SOURCE_PARAMS: OMapDataTileSourceParamsType = {
   ...DEFAULT_TILE_SOURCE_PARAMS,
   maxZoom: 42,
@@ -39,6 +40,7 @@ export const DEFAULT_DATA_TILE_SOURCE_PARAMS: OMapDataTileSourceParamsType = {
   crossOrigin: 'anonymous'
 }
 
+/** @internal */
 export function handleGetDataTileSourceParams(params: OMapDataTileSourceParamsType = {}) {
   return {
     ...handleGetTileSourceParams(params),

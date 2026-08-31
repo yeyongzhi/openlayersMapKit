@@ -7,10 +7,12 @@
   `echo "export default { test: { include: ['tests/**/*.test.ts'] } }" > vitest.tmp.config.mjs`
   `node "$(ls node_modules/.pnpm/vitest@*/node_modules/vitest/vitest.mjs | head -1)" run --config vitest.tmp.config.mjs`
   跑完 `rm -f vitest.tmp.config.mjs`。项目 vitest.config.ts 无 alias/插件，纯对象等价。
-  当前基线：**21 文件 / 141 用例全通过**（含此前标记的 happy-dom 文件——本次 `node` 环境下这些文件也全绿，环境缺口疑已不影响用例，仍以 CI 为准）。
+  当前基线：**32 文件 / 187 用例全通过**（141 原基线 + 2026-08-30 补 10 个 0 测试类 27 例 + 本次新增 9 个 Layer/Source 类 5 文件 19 例）；`audit:api` 全公开导出 `tests:>=1`，**未被测试引用的公开类 = 0**。7 个 happy-dom 文件本地仍起不了 worker，用例本身全绿，以 CI 为准。
   - ⚠️ 环境坑：顶层 `node_modules/vitest` 软链在本沙箱已损坏，`vitest.mjs` 与 `vitest/config` 均解析不到；`pnpm` 被沙箱拦截无法 `pnpm install` 修复。测试需按上面的绕行办法跑。
   - ⚠️ `happy-dom` / `jsdom` 在 `.pnpm` 里**只有依赖目录、没有包体本身**（被误删），且 `npm install` 在 pnpm 项目上直接报错（`Cannot read properties of null (reading 'matches')`）。因此标了 `// @vitest-environment happy-dom` 的 7 个测试文件本地无法运行，只能靠 CI 验证。
   - 写用例前先确认目标类构造是否碰 DOM：**需要 DOM** — `DragBox`、`DragZoom`（继承 DragBox，RenderBox 建 canvas）、`InteractionExtent`、`Measure`（Popup 建元素）；**不需要** — `DragPan`、`KeyboardZoom`、`Link`、`DoubleClickZoom`、`MouseWheelZoom`、`Draw`、`Modify`、`Select`。
+  - **OL 源测试编写坑（可复用，2026-08-30 踩过）**：① `UTFGridSource` 构造即 `new XMLHttpRequest()`，node 环境须在 `beforeAll` 注入无副作用 XHR stub（`open/send/setRequestHeader/addEventListener` 空实现），`forDataAtCoordinateAndResolution` 只在 `request=false` 时不触网；② `OGCVectorTileSource` 构造须同时传 `url` **和** `format`（OL 读 `options.format.supportedMediaTypes`，缺则崩），异步 `getTileSetInfo` 同样靠 XHR stub 静默；③ `ImageTileSource`（非 legacy）原生 `ImageTile` 源**无 `getUrl`/`getUrls` getter**（url 存私有 `url_`），omapp 包装只代理 `setUrl`，只断言构造 + `setUrl` 守卫；④ `TdtLayer` 构造前须 `MapToken.tdt` 有值且 `MapToken` 代理写入 `window.OMapToken`，测试内 `vi.stubGlobal('window', {})` 再赋值。
+  - **新增 DOM-stub 复用（本次 9 类测试踩过）**：⑤ `TileJSONSource` 构造即 `new XMLHttpRequest()` 且调用 `client.addEventListener('load'|'error', ...)`，node 环境 XHR stub 须同时实现 `open/send/addEventListener`（不 fire load，源停在 loading）；⑥ `HeatmapLayer` 构造即 OL `Heatmap` 调 `createGradient` → `document.createElement('canvas').getContext('2d')` + `createLinearGradient/addColorStop/fillRect/getImageData`，node 环境 `beforeAll` 注入 `document = { createElement: () => ({ getContext: () => fakeCtx }) }`，`fakeCtx` 实现上述方法（`getImageData` 返回 `{ data: new Uint8ClampedArray(256*4) }`），即可绕开 canvas 依赖在 node 跑通——比 happy-dom 更轻、可在本沙箱本地验证。
 - build：`node node_modules/vite/bin/vite.js build`
 - `pnpm` 直接调用会被沙箱卡在 genie-trash self-install，勿用。
 

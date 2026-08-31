@@ -8,7 +8,7 @@ import Map from '../../core/Map/index'
 import type { PropertiesType } from '../../../utils/type'
 
 /** BaseLayer */
-type CustomBaseLayerType = 'XYZ' | 'WMS' | 'WMTS'
+type CustomBaseLayerType = 'XYZ' | 'WMS' | 'WMTS' | 'VectorTile' | 'Heatmap' | 'VectorImage'
 export type BaseLayerType = 'Tile' | 'Image' | 'Vector' | 'Gaode' | 'Tdt' | CustomBaseLayerType
 export type BaseLayerIdType = number | string | null
 export type BaseLayerPropertiesType = PropertiesType

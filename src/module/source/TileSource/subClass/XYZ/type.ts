@@ -21,6 +21,7 @@ export type OMapXYZSourceParamsType = Omit<
   tileSize?: number | OMapSizeType
 }
 
+/** @internal */
 export const DEFAULT_XYZ_SOURCE_PARAMS: OMapXYZSourceParamsType = {
   ...DEFAULT_TILE_SOURCE_PARAMS,
   attributionsCollapsible: true,
@@ -37,6 +38,7 @@ export const DEFAULT_XYZ_SOURCE_PARAMS: OMapXYZSourceParamsType = {
   zDirection: 0
 }
 
+/** @internal */
 export function handleGetXYZSourceParams(params: OMapXYZSourceParamsType = {}) {
   return {
     ...handleGetTileSourceParams(params),

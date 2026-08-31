@@ -12,6 +12,7 @@ import {
   WMTSSource,
   ImageStaticSource,
   ImageSource,
+  ImageWMSSource,
   VectorSource
 } from '../../src/index'
 import { OlSource } from '../../src/source/index'
@@ -114,6 +115,18 @@ describe('ImageLayer keeps the OMap source wrapper', () => {
     })
     expect(layer.getImageSource()).toBeInstanceOf(ImageSource)
     expect(layer.getImageStaticSource()).toBeNull()
+  })
+
+  it('WMS single-image branch exposes ImageWMSSource and not static/loader sources', () => {
+    const layer = new ImageLayer({
+      source: { url: 'https://example.com/wms', params: { LAYERS: 'a' } }
+    })
+    expect(layer.getImageWMSSource()).toBeInstanceOf(ImageWMSSource)
+    expect(layer.getImageWMSSource()).not.toBeNull()
+    expect(layer.getImageStaticSource()).toBeNull()
+    // getImageSource() falls through to the wrapped source for non-static branches
+    expect(layer.getImageSource()).toBeInstanceOf(ImageWMSSource)
+    expect(layer.getSourceWrapper()).toBe(layer.getImageWMSSource())
   })
 })
 

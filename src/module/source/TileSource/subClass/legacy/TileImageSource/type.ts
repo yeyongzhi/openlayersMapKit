@@ -21,6 +21,7 @@ export type OMapTileImageSourceParamsType = Omit<
   tileGrid?: OMapTileSourceTileGrid | OMapTileSourceTileGridInstance
 }
 
+/** @internal */
 export const DEFAULT_TILE_IMAGE_SOURCE_PARAMS: Partial<OMapTileImageSourceParamsType> = {
   ...(DEFAULT_URL_TILE_SOURCE_PARAMS as Partial<OMapUrlTileSourceParamsType>),
   interpolate: true,
@@ -28,6 +29,7 @@ export const DEFAULT_TILE_IMAGE_SOURCE_PARAMS: Partial<OMapTileImageSourceParams
   tilePixelRatio: 1
 }
 
+/** @internal */
 export function handleGetTileImageSourceParams(params: OMapTileImageSourceParamsType) {
   return handleGetTileSourceParams(params)
 }

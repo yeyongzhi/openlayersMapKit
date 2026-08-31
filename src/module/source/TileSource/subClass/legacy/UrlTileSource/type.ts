@@ -18,6 +18,7 @@ export type OMapUrlTileSourceParamsType = Omit<
   tileGrid?: OMapTileSourceTileGrid | OMapTileSourceTileGridInstance
 }
 
+/** @internal */
 export const DEFAULT_URL_TILE_SOURCE_PARAMS: Partial<OMapUrlTileSourceParamsType> = {
   ...DEFAULT_TILE_SOURCE_PARAMS,
   attributionsCollapsible: true,
@@ -25,6 +26,7 @@ export const DEFAULT_URL_TILE_SOURCE_PARAMS: Partial<OMapUrlTileSourceParamsType
   zDirection: 0
 }
 
+/** @internal */
 export function handleGetUrlTileSourceParams(params: OMapUrlTileSourceParamsType) {
   return handleGetTileSourceParams(params)
 }

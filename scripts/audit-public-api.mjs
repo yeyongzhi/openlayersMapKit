@@ -109,6 +109,12 @@ for (const symbol of checker.getExportsOfModule(moduleSymbol)) {
 
   const target = resolveSymbol(symbol)
   const declaration = target.declarations?.[0] ?? symbol.declarations?.[0]
+  // 跳过显式标记 @internal 的符号（它们不应计入公开 API 表面）。
+  const jsDocTags = declaration ? ts.getJSDocTags(declaration) : []
+  const isInternal =
+    jsDocTags.some((t) => t.tagName?.escapedText === 'internal' || t.tagName?.text === 'internal') ||
+    (declaration && /@internal\b/.test(declaration.getFullText?.() ?? ''))
+  if (isInternal) continue
   const filePath = declaration
     ? path.relative(ROOT, declaration.getSourceFile().fileName).replace(/\\/g, '/')
     : 'unknown'

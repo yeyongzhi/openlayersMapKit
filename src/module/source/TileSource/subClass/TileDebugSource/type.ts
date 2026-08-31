@@ -20,6 +20,7 @@ export type OMapTileDebugSourceParamsType = Omit<
   source?: TileSource<OMapTileSourceType> | OMapTileSourceType
 }
 
+/** @internal */
 export const DEFAULT_TILE_DEBUG_SOURCE_PARAMS: OMapTileDebugSourceParamsType = {
   wrapX: true,
   zDirection: 0,
@@ -27,6 +28,7 @@ export const DEFAULT_TILE_DEBUG_SOURCE_PARAMS: OMapTileDebugSourceParamsType = {
   color: 'grey'
 }
 
+/** @internal */
 export function handleGetTileDebugSourceParams(params: OMapTileDebugSourceParamsType = {}) {
   const source =
     params.source && 'getSource' in params.source ? params.source.getSource() : params.source

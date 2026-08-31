@@ -106,7 +106,7 @@
 - [x] `compatibility`：仅为历史兼容保留，不推荐新项目使用。
 - [x] `internal`：不应从公共入口导出。
 
-分级结果：58 个公开类全部完成标记；另识别出 27 个应标记为 `internal` 的导出（15 个 `handleGet*Params` helper 函数 + 12 个 `DEFAULT_*_PARAMS` 常量），`TILE_SOURCE_EVENT_TYPES` 待确认是否为公共契约。
+分级结果：58 个公开类全部完成标记；另识别出 29 个内部 helper 导出（16 个 `handleGet*Params` helper 函数 + 13 个 `DEFAULT_*_PARAMS` 常量，因新增 `ImageStaticSource` 较最初 27 多 2 个），均已显式标记 `@internal` 并从公开 API 审计中排除；`TILE_SOURCE_EVENT_TYPES` 待确认是否为公共契约（暂留公共）。这些符号原本即经 `export type *` 仅类型透传，未进入公共入口（审计脚本 `getExportsOfModule` 对 `export type *` 的误报已修正）。
 
 ### 4.4 本阶段实测发现
 
