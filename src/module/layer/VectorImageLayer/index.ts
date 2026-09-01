@@ -38,7 +38,9 @@ export default class VectorImageLayer<
       map: undefined
     })
     const sourceWrapper =
-      _options.source instanceof VectorSource ? _options.source : new VectorSource(_options.source ?? {})
+      _options.source instanceof VectorSource
+        ? _options.source
+        : new VectorSource(_options.source ?? {})
     this._sourceWrapper = sourceWrapper
     this._layer = new OlLayer.VectorImage({
       ..._layerParams,

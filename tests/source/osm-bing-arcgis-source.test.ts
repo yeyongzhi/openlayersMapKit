@@ -28,7 +28,9 @@ describe('BingMapsSource', () => {
 
 describe('TileArcGISRestSource', () => {
   it('constructs with a url and exposes the native TileArcGISRest source', () => {
-    const source = new TileArcGISRestSource({ url: 'https://example.com/arcgis/rest/services/x/MapServer' })
+    const source = new TileArcGISRestSource({
+      url: 'https://example.com/arcgis/rest/services/x/MapServer'
+    })
     expect(source.getSource()).toBeInstanceOf(OlSource.TileArcGISRest)
   })
 })

@@ -5,7 +5,7 @@ import Lnglat from '../../basic/Lnglat/index'
 import Extent from '../../basic/Extent/index'
 import Event from '../../util/Event/index'
 import { type EventIdType } from '../../util/Event/type'
-import { OlInteraction, OlEvent } from '../../../source/index'
+import { OlInteraction } from '../../../source/index'
 import {
   type OMapDragBoxParamsType,
   type OMapInteractionDragBoxEventType,

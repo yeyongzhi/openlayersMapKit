@@ -1,10 +1,7 @@
 import { OlSource } from '../../../source/index'
 import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
 import { isDefined } from '../../../utils/index'
-import {
-  DEFAULT_IMAGE_STATIC_SOURCE_PARAMS,
-  type OMapImageStaticSourceParamsType
-} from '../../source/ImageStaticSource/type'
+import type { OMapImageStaticSourceParamsType } from '../../source/ImageStaticSource/type'
 import type { OMapImageSourceParamsType } from '../../source/ImageSource/type'
 import type { OMapImageWMSSourceParamsType } from '../../source/ImageWMSSource/type'
 
@@ -17,7 +14,8 @@ export type { OMapImageWMSSourceParamsType } from '../../source/ImageWMSSource/t
 
 export type OMapImageLayerParamsType<P extends BaseLayerPropertiesType = BaseLayerPropertiesType> =
   BaseLayerOptionsType<P> & {
-    source?: OMapImageSourceParamsType | OMapImageStaticSourceParamsType | OMapImageWMSSourceParamsType // source参数是必须的
+    source?:
+      OMapImageSourceParamsType | OMapImageStaticSourceParamsType | OMapImageWMSSourceParamsType // source参数是必须的
   }
 export const DEFAULT_IMAGE_LAYER_PARAMS: OMapImageLayerParamsType = {}
 
@@ -50,10 +48,7 @@ export function isVaildImageStaticSourceParams(
  * @returns 是否为 WMS 单图数据源参数
  */
 export function isVaildImageWMSSourceParams(
-  source:
-    | OMapImageSourceParamsType
-    | OMapImageStaticSourceParamsType
-    | OMapImageWMSSourceParamsType
+  source: OMapImageSourceParamsType | OMapImageStaticSourceParamsType | OMapImageWMSSourceParamsType
 ): source is OMapImageWMSSourceParamsType {
   return (
     isDefined((source as OMapImageWMSSourceParamsType).url) &&

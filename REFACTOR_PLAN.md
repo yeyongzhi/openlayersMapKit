@@ -11,16 +11,16 @@
 
 截至 2026-08-28 校准后，任务清单完成 **103/119 项（86.6%）**。本轮校准合并了 6 项跨批次重复待办、将“全局覆盖率门槛”拆出为已完成项并保留模块 85% 目标、新增 1 项 Trusted Publishing 独立任务。当前成果已经达到“可持续开发、可构建、可打包、可供本地消费者验证”的内部 Beta 水平，但尚未达到公开发布门禁。
 
-| 工作域             | 状态     | 当前结果                                                                                                       |
-| ------------------ | -------- | -------------------------------------------------------------------------------------------------------------- |
-| 工程规范与质量门禁 | 已完成   | TypeScript、ESLint 零 warning、Prettier、Vitest、覆盖率、构建、文档与包检查统一由 `pnpm check` 验证            |
-| Map 与生命周期重构 | 已完成   | Map 职责下沉至 manager/controller/query/adapter；统一 `remove()`/`dispose()`，DOM 生命周期测试通过             |
-| Feature 状态与工厂 | 已完成   | VectorSource 单一状态源、WeakMap resolver、全部 Geometry factory 参数化矩阵完成                                |
-| 包结构与消费验证   | 基本完成 | ESM、CJS/UMD、TypeScript 消费通过；`publint` 与 Are The Types Wrong 无问题；可选 subpath exports 暂缓          |
+| 工作域             | 状态     | 当前结果                                                                                                                                                                                                                                                                        |
+| ------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 工程规范与质量门禁 | 已完成   | TypeScript、ESLint 零 warning、Prettier、Vitest、覆盖率、构建、文档与包检查统一由 `pnpm check` 验证                                                                                                                                                                             |
+| Map 与生命周期重构 | 已完成   | Map 职责下沉至 manager/controller/query/adapter；统一 `remove()`/`dispose()`，DOM 生命周期测试通过                                                                                                                                                                              |
+| Feature 状态与工厂 | 已完成   | VectorSource 单一状态源、WeakMap resolver、全部 Geometry factory 参数化矩阵完成                                                                                                                                                                                                 |
+| 包结构与消费验证   | 基本完成 | ESM、CJS/UMD、TypeScript 消费通过；`publint` 与 Are The Types Wrong 无问题；可选 subpath exports 暂缓                                                                                                                                                                           |
 | 类型系统收敛       | 基本完成 | properties 泛型（Feature/Layer/Source/Interaction/Control/Popup，Map 因 getProperties 返回 OL 完整属性包刻意跳过）、`defaultValue` 迁移、typed event map、未知输入 type guard、`OMapError` 错误码统一、以及直接 `new GeometryWrapper(nativeFeature)` 绕过 resolver 收紧均已完成 |
-| 测试与覆盖率       | 进行中   | 22 个测试文件、107 个用例；全局行覆盖率 73.96%，70% 门槛已达成并接入 CI，模块 85% 目标未完成                   |
-| 文档与 Vue 示例    | 基本完成 | 站点、导航、维护类指南与六类模块 API 正文已补齐（core/layer-source/interaction/control/basic/util）；Vue 示例覆盖基础地图、Vector、Draw、Modify、Measure、Select、Popup |
-| 发布基础设施       | 部分完成 | CI、Pages、Release 工作流已就绪；本地 `npm publish --dry-run` 已通过；仓库设置与 Trusted Publishing 需外部权限 |
+| 测试与覆盖率       | 进行中   | 22 个测试文件、107 个用例；全局行覆盖率 73.96%，70% 门槛已达成并接入 CI，模块 85% 目标未完成                                                                                                                                                                                    |
+| 文档与 Vue 示例    | 基本完成 | 站点、导航、维护类指南与六类模块 API 正文已补齐（core/layer-source/interaction/control/basic/util）；Vue 示例覆盖基础地图、Vector、Draw、Modify、Measure、Select、Popup                                                                                                         |
+| 发布基础设施       | 部分完成 | CI、Pages、Release 工作流已就绪；本地 `npm publish --dry-run` 已通过；仓库设置与 Trusted Publishing 需外部权限                                                                                                                                                                  |
 
 ### 剩余工作分类
 

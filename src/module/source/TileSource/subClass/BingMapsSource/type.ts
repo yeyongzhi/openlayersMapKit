@@ -3,13 +3,19 @@ import type { Options as OlBingMapsSourceOptions } from 'ol/source/BingMaps'
 
 export type OMapBingMapsSourceType = InstanceType<typeof OlSource.BingMaps>
 
-export type OMapBingMapsSourceParamsType = Omit<OlBingMapsSourceOptions, 'projection' | 'tileGrid'> & {
+export type OMapBingMapsSourceParamsType = Omit<
+  OlBingMapsSourceOptions,
+  'projection' | 'tileGrid'
+> & {
   projection?: never
   tileGrid?: never
 }
 
 /** @internal */
-export const DEFAULT_BING_MAPS_SOURCE_PARAMS: Omit<OMapBingMapsSourceParamsType, 'key' | 'imagerySet'> = {
+export const DEFAULT_BING_MAPS_SOURCE_PARAMS: Omit<
+  OMapBingMapsSourceParamsType,
+  'key' | 'imagerySet'
+> = {
   culture: 'zh-CN',
   maxZoom: 19,
   wrapX: true,

@@ -54,9 +54,7 @@ onUnmounted(() => {
 
 <template>
   <section>
-    <button type="button" @click="toggleZoom">
-      {{ zoomVisible ? '隐藏' : '显示' }}缩放控件
-    </button>
+    <button type="button" @click="toggleZoom">{{ zoomVisible ? '隐藏' : '显示' }}缩放控件</button>
     <div ref="mapElement" class="map" />
   </section>
 </template>

@@ -5,7 +5,6 @@ import {
   DragPan,
   Draw,
   DrawMode,
-  InteractionExtent,
   KeyboardZoom,
   Link,
   Modify,

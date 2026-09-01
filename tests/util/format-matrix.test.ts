@@ -243,7 +243,13 @@ describe('Format collection reads and object writes', () => {
   it('writes multiple geometry types through GeoJSON', () => {
     const format = new Format(OMapFormatType.GeoJSON, { dataProjection: 'EPSG:4326' })
     const written = JSON.parse(
-      format.writeFeatures([new Point([120, 30]), new LineString([[120, 30], [121, 31]])])
+      format.writeFeatures([
+        new Point([120, 30]),
+        new LineString([
+          [120, 30],
+          [121, 31]
+        ])
+      ])
     )
 
     expect(written.features).toHaveLength(2)

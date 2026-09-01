@@ -1,10 +1,6 @@
 dist
 node_modules
 .pnpm-store
-_temp_
-__test_
 pnpm-lock.yaml
-.workbuddy
-.agents
 .tmp-api-audit
 %SystemDrive%

@@ -29,9 +29,11 @@ OMap 是对 OpenLayers (v10.x) 的面向对象封装，将原生 OpenLayers 功�
 
 ```
 openlayersMapKit/
-├── src/                          # 源代码
+├── .github/workflows/            # CI、文档部署与 npm 发布工作流
+├── docs/                         # VitePress 指南、示例与 API 文档
+├── scripts/                      # 构建、文档生成和公共 API 审计脚本
+├── src/                          # SDK 源代码
 │   ├── index.ts                  # 主入口，导出所有模块
-│   ├── global.d.ts               # 全局类型声明
 │   ├── source/
 │   │   └── index.ts              # OpenLayers 原始依赖的统一导出层
 │   ├── utils/                    # 工具函数层
@@ -52,10 +54,13 @@ openlayersMapKit/
 │       ├── source/               # 📦 数据源模块
 │       ├── basic/                # 🧱 基础类模块
 │       └── util/                 # 🔧 工具模块
+├── tests/                        # Vitest 与 ESM/CJS/类型消费测试
 ├── dist/                         # 构建产物
-│   ├── omap.es.js                # ES Module 格式
-│   ├── omap.umd.js               # UMD 格式（全局名: OMap）
+│   ├── omap.es.mjs               # ES Module 格式
+│   ├── omap.umd.cjs              # CommonJS/UMD 格式（全局名: OMap）
 │   └── index.d.ts                # TypeScript 类型声明
+├── global.d.ts                   # 项目级编译时全局声明
+├── vitest.config.ts              # Vitest 与覆盖率配置
 ├── vite.config.ts                # Vite 构建配置
 ├── tsconfig.json                 # TypeScript 配置
 └── package.json                  # 项目元信息

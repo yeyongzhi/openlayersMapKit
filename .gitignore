@@ -12,6 +12,7 @@ dist
 dist-ssr
 coverage
 .pnpm-store
+.tmp-api-audit
 docs/.vitepress/cache
 docs/.vitepress/dist
 docs/.vitepress/.temp

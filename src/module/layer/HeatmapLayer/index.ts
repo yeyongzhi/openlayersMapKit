@@ -37,7 +37,9 @@ export default class HeatmapLayer<
       map: undefined
     })
     const sourceWrapper =
-      _options.source instanceof VectorSource ? _options.source : new VectorSource(_options.source ?? {})
+      _options.source instanceof VectorSource
+        ? _options.source
+        : new VectorSource(_options.source ?? {})
     this._sourceWrapper = sourceWrapper
     // OL Heatmap（WebGL 系）不支持 background；从构造参数中剔除后再传入。
     const { background: _ignoredBackground, ..._heatmapParams } = _layerParams

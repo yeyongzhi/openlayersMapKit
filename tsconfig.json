@@ -17,6 +17,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "global.d.ts", "vite-env.d.ts"],
+  "include": ["src", "global.d.ts"],
   "exclude": ["node_modules", "dist", "docs", "tests"]
 }

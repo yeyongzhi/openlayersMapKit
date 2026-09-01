@@ -12,7 +12,7 @@ import {
   createBaseFeatureByOlFeature,
   createBaseFeatureByOlRenderFeature
 } from '../../core/Feature/BasicFeature/handle'
-import { OlGeometry, OlFeature, OlInteraction, OlUtil, OlEvent } from '../../../source/index'
+import { OlGeometry, OlFeature, OlInteraction, OlUtil } from '../../../source/index'
 import {
   type OMapSelectParamsType,
   type OMapInteractionSelectEventType,

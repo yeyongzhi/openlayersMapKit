@@ -26,7 +26,7 @@
 
 **Interaction（15）** — [Draw](./interaction/Draw.md) · [Measure](./interaction/Measure.md) · [Modify](./interaction/Modify.md) · [Select](./interaction/Select.md) · [DragBox](./interaction/DragBox.md) · [DragPan](./interaction/DragPan.md) · [DragZoom](./interaction/DragZoom.md) · [MouseWheelZoom](./interaction/MouseWheelZoom.md) · [DoubleClickZoom](./interaction/DoubleClickZoom.md) · [KeyboardZoom](./interaction/KeyboardZoom.md) · [Link](./interaction/Link.md) · [InteractionExtent](./interaction/InteractionExtent.md) · [DrawMode](./interaction/DrawMode.md) · [MeasureMode](./interaction/MeasureMode.md) · [InteractionType](./interaction/InteractionType.md)
 
-**Basic（9）** — [LngLat](./basic/LngLat.md) · [Lnglat](./basic/Lnglat.md) · [Extent](./basic/Extent.md) · [Size](./basic/Size.md) · [Pixel](./basic/Pixel.md) · [Color](./basic/Color.md) · [Style](./basic/Style.md) · [Popup](./basic/Popup.md) · [PopupPositioning](./basic/PopupPositioning.md)
+**Basic（9）** — [LngLat](./basic/Lnglat.md) · [Lnglat](./basic/Lnglat.md) · [Extent](./basic/Extent.md) · [Size](./basic/Size.md) · [Pixel](./basic/Pixel.md) · [Color](./basic/Color.md) · [Style](./basic/Style.md) · [Popup](./basic/Popup.md) · [PopupPositioning](./basic/PopupPositioning.md)
 
 **Control（3）** — [Control](./control/Control.md) · [Zoom](./control/Zoom.md) · [FullScreen](./control/FullScreen.md)
 
