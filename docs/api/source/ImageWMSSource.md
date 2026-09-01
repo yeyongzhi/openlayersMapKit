@@ -1,44 +1,44 @@
-# TileSource
+# ImageWMSSource
 
 > 稳定性：`stable-beta`
 
-瓦片数据源基类，提供瓦片网格、瓦片获取、缓存刷新与加载事件能力。
+WMS 单图数据源
 
 ## 引入
 
 ```ts
-import { TileSource } from 'omap'
+import { ImageWMSSource } from 'omap'
 ```
 
-源码：`src/module/source/TileSource/index.ts`
+源码：`src/module/source/ImageWMSSource/index.ts`
 
 ## 构造
 
 ```ts
-new TileSource(source: T)
+new ImageWMSSource(params?: OMapImageWMSSourceParamsType)
 ```
 
 ## 方法
 
-| 方法                                                                                                 | 说明 |
-| ---------------------------------------------------------------------------------------------------- | ---- |
-| `clear(): void`                                                                                      | —    |
-| `getGutterForProjection(projection: Projection): number`                                             | —    |
-| `getKey(): string`                                                                                   | —    |
-| `getTile(z: number, x: number, y: number, pixelRatio: number, projection: Projection): Tile \| null` | —    |
-| `getTileCoordForTileUrlFunction(tileCoord: TileCoord, projection?: Projection): TileCoord`           | —    |
-| `getTileGrid(): TileGrid \| null`                                                                    | —    |
-| `getTileGridForProjection(projection: Projection): TileGrid`                                         | —    |
-| `getTilePixelRatio(pixelRatio: number): number`                                                      | —    |
-| `getTilePixelSize(z: number, pixelRatio: number, projection: Projection): Size`                      | —    |
-| `onTile(type: TileSourceEventTypes, listener: OMapTileSourceEventListener): EventsKey`               | —    |
-| `onTileLoadEnd(listener: OMapTileSourceEventListener): EventsKey`                                    | —    |
-| `onTileLoadError(listener: OMapTileSourceEventListener): EventsKey`                                  | —    |
-| `onTileLoadStart(listener: OMapTileSourceEventListener): EventsKey`                                  | —    |
+| 方法                    | 说明                                     |
+| ----------------------- | ---------------------------------------- |
+| `getSource(): ImageWMS` | 获取原生 OpenLayers WMS 单图数据源实例。 |
 
 ## 继承成员
 
-继承链：TileSource → Source
+继承链：ImageWMSSource → ImageSource → Source
+
+### 继承自 ImageSource
+
+| 成员                                                                                                             | 说明 |
+| ---------------------------------------------------------------------------------------------------------------- | ---- |
+| `getImage(extent: OMapExtentType, resolution: number, pixelRatio: number, projection: Projection): ImageWrapper` | —    |
+| `getResolutions(): number[] \| null`                                                                             | —    |
+| `onImageLoad(type: ImageSourceEventTypes, listener: OMapImageSourceEventListener): EventsKey`                    | —    |
+| `onImageLoadEnd(listener: OMapImageSourceEventListener): EventsKey`                                              | —    |
+| `onImageLoadError(listener: OMapImageSourceEventListener): EventsKey`                                            | —    |
+| `onImageLoadStart(listener: OMapImageSourceEventListener): EventsKey`                                            | —    |
+| `setResolutions(resolutions: number[] \| null): void`                                                            | —    |
 
 ### 继承自 Source
 
@@ -68,13 +68,8 @@ new TileSource(source: T)
 | `setState(state: State): void`                                      | —                                                                                                                 |
 | `unset(key: string, silent?: boolean): void`                        | —                                                                                                                 |
 
-## 说明与注意点
-
-- 一般不直接使用，请按需选择下方的具体瓦片数据源实现。
-
 ## 相关
 
-- 基类：[Source](./Source.md)
-- 子类：[BingMapsSource](./BingMapsSource.md)、[DataTileSource](./DataTileSource.md)、[ImageTileSource](./ImageTileSource.md)、[OGCVectorTileSource](./OGCVectorTileSource.md)、[OSMSource](./OSMSource.md)、[TileArcGISRestSource](./TileArcGISRestSource.md)、[TileDebugSource](./TileDebugSource.md)、[TileImageSource](./TileImageSource.md)、[TileJSONSource](./TileJSONSource.md)、[TileWMSSource](./TileWMSSource.md)、[UrlTileSource](./UrlTileSource.md)、[UTFGridSource](./UTFGridSource.md)、[VectorTileSource](./VectorTileSource.md)、[WMTSSource](./WMTSSource.md)、[XYZSource](./XYZSource.md)
+- 基类：[ImageSource](./ImageSource.md)
 
 <!-- 本页由 scripts/gen-api-docs.mjs 从源码签名自动生成，请勿手工编辑签名表 -->

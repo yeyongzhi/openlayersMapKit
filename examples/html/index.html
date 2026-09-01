@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="OMap UMD 案例中心" />
+    <title>OMap UMD 案例中心</title>
+    <link rel="stylesheet" href="/vendor/ol.css" />
+    <link rel="stylesheet" href="/vendor/example.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="site-header">
+        <div>
+          <p class="eyebrow">OpenLayers MapKit · UMD</p>
+          <h1>OMap 案例中心</h1>
+          <p class="subtitle">普通 script 标签加载 UMD 产物，OpenLayers 已包含在包内。</p>
+        </div>
+        <span class="build-badge">UMD + bundled ol</span>
+      </header>
+      <div class="workspace">
+        <aside class="sidebar" aria-label="示例列表">
+          <div class="sidebar-title">案例</div>
+          <nav id="case-tabs" class="case-tabs"></nav>
+        </aside>
+        <section class="demo-panel">
+          <header class="demo-header">
+            <div>
+              <p id="case-kicker" class="case-kicker"></p>
+              <h2 id="case-title"></h2>
+              <p id="case-description" class="case-description"></p>
+            </div>
+            <div id="case-actions" class="actions"></div>
+          </header>
+          <div class="map-card">
+            <div id="map" aria-label="OMap 示例地图"></div>
+            <output id="status" class="status">正在创建地图…</output>
+          </div>
+          <details class="code-card">
+            <summary>查看核心代码</summary>
+            <pre><code id="case-code"></code></pre>
+          </details>
+        </section>
+      </div>
+    </main>
+    <script src="/vendor/omap.umd.js"></script>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

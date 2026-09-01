@@ -80,6 +80,6 @@ new BaseLayer(type: BaseLayerType, options?: BaseLayerOptionsType<P>)
 
 ## 相关
 
-- 子类：[ImageLayer](./ImageLayer.md)、[TileLayer](./TileLayer.md)、[VectorLayer](./VectorLayer.md)、[WMSLayer](./WMSLayer.md)、[WMTSLayer](./WMTSLayer.md)、[XYZLayer](./XYZLayer.md)
+- 子类：[HeatmapLayer](./HeatmapLayer.md)、[ImageLayer](./ImageLayer.md)、[TileLayer](./TileLayer.md)、[VectorImageLayer](./VectorImageLayer.md)、[VectorLayer](./VectorLayer.md)、[VectorTileLayer](./VectorTileLayer.md)、[WMSLayer](./WMSLayer.md)、[WMTSLayer](./WMTSLayer.md)、[XYZLayer](./XYZLayer.md)
 
 <!-- 本页由 scripts/gen-api-docs.mjs 从源码签名自动生成，请勿手工编辑签名表 -->

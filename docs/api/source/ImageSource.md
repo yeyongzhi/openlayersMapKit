@@ -70,6 +70,6 @@ new ImageSource(params?: OMapImageSourceParamsType | ImageSource)
 ## 相关
 
 - 基类：[Source](./Source.md)
-- 子类：[ImageStaticSource](./ImageStaticSource.md)
+- 子类：[ImageStaticSource](./ImageStaticSource.md)、[ImageWMSSource](./ImageWMSSource.md)
 
 <!-- 本页由 scripts/gen-api-docs.mjs 从源码签名自动生成，请勿手工编辑签名表 -->

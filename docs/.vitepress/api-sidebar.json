@@ -50,7 +50,7 @@
     ]
   },
   {
-    "text": "Layer（12）",
+    "text": "Layer（15）",
     "collapsed": true,
     "items": [
       {
@@ -98,13 +98,25 @@
         "link": "/api/layer/GaodeLayerType"
       },
       {
+        "text": "HeatmapLayer",
+        "link": "/api/layer/HeatmapLayer"
+      },
+      {
         "text": "TdtLayerType",
         "link": "/api/layer/TdtLayerType"
+      },
+      {
+        "text": "VectorImageLayer",
+        "link": "/api/layer/VectorImageLayer"
+      },
+      {
+        "text": "VectorTileLayer",
+        "link": "/api/layer/VectorTileLayer"
       }
     ]
   },
   {
-    "text": "Source（16）",
+    "text": "Source（22）",
     "collapsed": true,
     "items": [
       {
@@ -152,8 +164,28 @@
         "link": "/api/source/ImageTileSource"
       },
       {
+        "text": "BingMapsSource",
+        "link": "/api/source/BingMapsSource"
+      },
+      {
+        "text": "ClusterSource",
+        "link": "/api/source/ClusterSource"
+      },
+      {
         "text": "ImageStaticSource",
         "link": "/api/source/ImageStaticSource"
+      },
+      {
+        "text": "ImageWMSSource",
+        "link": "/api/source/ImageWMSSource"
+      },
+      {
+        "text": "OSMSource",
+        "link": "/api/source/OSMSource"
+      },
+      {
+        "text": "TileArcGISRestSource",
+        "link": "/api/source/TileArcGISRestSource"
       },
       {
         "text": "TileDebugSource",
@@ -162,6 +194,10 @@
       {
         "text": "TileImageSource",
         "link": "/api/source/TileImageSource"
+      },
+      {
+        "text": "TileJSONSource",
+        "link": "/api/source/TileJSONSource"
       },
       {
         "text": "UrlTileSource",

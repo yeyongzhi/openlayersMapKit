@@ -1,26 +1,30 @@
-# TileSource
+# TileArcGISRestSource
 
 > 稳定性：`stable-beta`
 
-瓦片数据源基类，提供瓦片网格、瓦片获取、缓存刷新与加载事件能力。
+ArcGIS REST 瓦片数据源
 
 ## 引入
 
 ```ts
-import { TileSource } from 'omap'
+import { TileArcGISRestSource } from 'omap'
 ```
 
-源码：`src/module/source/TileSource/index.ts`
+源码：`src/module/source/TileSource/subClass/TileArcGISRestSource/index.ts`
 
 ## 构造
 
 ```ts
-new TileSource(source: T)
+new TileArcGISRestSource(params?: OMapTileArcGISRestSourceParamsType)
 ```
 
-## 方法
+## 继承成员
 
-| 方法                                                                                                 | 说明 |
+继承链：TileArcGISRestSource → TileSource → Source
+
+### 继承自 TileSource
+
+| 成员                                                                                                 | 说明 |
 | ---------------------------------------------------------------------------------------------------- | ---- |
 | `clear(): void`                                                                                      | —    |
 | `getGutterForProjection(projection: Projection): number`                                             | —    |
@@ -35,10 +39,6 @@ new TileSource(source: T)
 | `onTileLoadEnd(listener: OMapTileSourceEventListener): EventsKey`                                    | —    |
 | `onTileLoadError(listener: OMapTileSourceEventListener): EventsKey`                                  | —    |
 | `onTileLoadStart(listener: OMapTileSourceEventListener): EventsKey`                                  | —    |
-
-## 继承成员
-
-继承链：TileSource → Source
 
 ### 继承自 Source
 
@@ -68,13 +68,8 @@ new TileSource(source: T)
 | `setState(state: State): void`                                      | —                                                                                                                 |
 | `unset(key: string, silent?: boolean): void`                        | —                                                                                                                 |
 
-## 说明与注意点
-
-- 一般不直接使用，请按需选择下方的具体瓦片数据源实现。
-
 ## 相关
 
-- 基类：[Source](./Source.md)
-- 子类：[BingMapsSource](./BingMapsSource.md)、[DataTileSource](./DataTileSource.md)、[ImageTileSource](./ImageTileSource.md)、[OGCVectorTileSource](./OGCVectorTileSource.md)、[OSMSource](./OSMSource.md)、[TileArcGISRestSource](./TileArcGISRestSource.md)、[TileDebugSource](./TileDebugSource.md)、[TileImageSource](./TileImageSource.md)、[TileJSONSource](./TileJSONSource.md)、[TileWMSSource](./TileWMSSource.md)、[UrlTileSource](./UrlTileSource.md)、[UTFGridSource](./UTFGridSource.md)、[VectorTileSource](./VectorTileSource.md)、[WMTSSource](./WMTSSource.md)、[XYZSource](./XYZSource.md)
+- 基类：[TileSource](./TileSource.md)
 
 <!-- 本页由 scripts/gen-api-docs.mjs 从源码签名自动生成，请勿手工编辑签名表 -->

@@ -41,8 +41,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/sync-declarations.mjs",
-    "build:obf": "OBFUSCATE=true vite build",
+    "build": "node scripts/build.mjs",
+    "build:obf": "node scripts/build.mjs --obfuscate",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests vite.config.ts vitest.config.ts --max-warnings 0",
     "format": "prettier --write .",
@@ -55,10 +55,16 @@
     "docs:preview": "vitepress preview docs",
     "docs:api": "node scripts/gen-api-docs.mjs && prettier --write \"docs/api/**/*.md\" \"docs/.vitepress/api-sidebar.json\"",
     "docs:check": "node scripts/check-docs-links.mjs",
-    "check:consumers": "node tests/consumer/esm-smoke.mjs && node tests/consumer/cjs-smoke.cjs && tsc -p tsconfig.consumer.json",
+    "example:dev": "pnpm example:vite:dev",
+    "example:vite:dev": "pnpm --dir examples/vite dev",
+    "example:vite:build": "pnpm --dir examples/vite build",
+    "example:html:dev": "pnpm --dir examples/html dev",
+    "example:html:build": "pnpm --dir examples/html build",
+    "example:build": "pnpm example:vite:build && pnpm example:html:build",
+    "check:consumers": "node scripts/check-build-outputs.mjs && node tests/consumer/esm-smoke.mjs && node tests/consumer/cjs-smoke.cjs && tsc -p tsconfig.consumer.json",
     "check:package": "publint && attw --pack . --ignore-rules false-cjs",
     "audit:api": "tsc -p tsconfig.json --declaration --emitDeclarationOnly --noEmit false --outDir .tmp-api-audit && node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt",
-    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:coverage && pnpm build && pnpm check:consumers && pnpm docs:build && pnpm check:package",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:coverage && pnpm build && pnpm example:build && pnpm check:consumers && pnpm docs:build && pnpm check:package",
     "prepack": "pnpm typecheck && pnpm test && pnpm build"
   },
   "keywords": [
@@ -71,7 +77,7 @@
   ],
   "author": "Aurora",
   "license": "MIT",
-  "dependencies": {
+  "peerDependencies": {
     "ol": "^10.6.1"
   },
   "devDependencies": {
@@ -83,6 +89,7 @@
     "eslint": "^10.8.1",
     "happy-dom": "^20.11.6",
     "javascript-obfuscator": "^5.1.0",
+    "ol": "^10.6.1",
     "prettier": "^3.9.6",
     "publint": "^0.3.24",
     "typescript": "^5.9.3",

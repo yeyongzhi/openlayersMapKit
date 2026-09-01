@@ -25,7 +25,7 @@
 
 - 将 `Map` 的 Layer、Interaction、Control、Popup、View、Feature query 和事件适配职责拆分为独立组件。
 - 公共事件、坐标 tuple、回调与部分 properties 类型进一步收紧。
-- ESM 与 UMD/CJS 构建内联 OpenLayers，确保 Node 消费者可直接加载两个入口。
+- OpenLayers 调整为 peer dependency；ESM 构建复用宿主项目的 `ol`，UMD/CJS 构建继续内置 OpenLayers，以兼顾包体积、单实例和 CommonJS 独立加载。
 
 ### Deprecated
 
@@ -33,6 +33,7 @@
 
 ### Fixed
 
+- 修复 `Map` 的视图选项将已有运行时默认值的 `projection` 和可选的 `extent` 错误声明为必填，最小 `{ center, zoom }` 配置现在可通过消费者类型检查。
 - 修复同类原生事件被多次订阅时重复派发、资源移除后监听器残留，以及 Feature wrapper 重复创建问题。
 - 修复 `Select` 构造选项 `features` 完全不生效：原先仅用于触发生成 filter，却未在 filter 内做候选判断，导致白名单外的要素同样可选；现在 `features` 作为候选白名单生效。
 - 修复 `Select` 传入 `features` 时会清空 `layers`：两者本应正交（分别限定图层与要素），此前清空 `layers` 会使 filter 无法解析要素所属图层，在交互尚未挂载到地图时退化为「任何要素都不可选」。

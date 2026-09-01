@@ -111,8 +111,10 @@ export default class Map implements Disposable {
       projection: (proj as Projection)._projection as OlProjInstanceType
     }
     const view = new OlPackage.View(view_params)
-    let mapInteractions = isDefined(_options.interactions)
-      ? _options.interactions
+    // 检查用户的原始配置。合并后的 _options.interactions 总是已定义（默认为空数组），
+    // 会把“未传 interactions”错误地当成用户显式禁用了默认交互。
+    let mapInteractions = isDefined(options?.interactions)
+      ? options.interactions
       : createDefaultMapInteractions()
     let mapLayers = _options.layers
     let mapControls = _options.controls

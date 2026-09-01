@@ -28,6 +28,18 @@ function createMap() {
   })
 }
 
+function createMapWithDefaults() {
+  const target = document.createElement('div')
+  target.style.width = '800px'
+  target.style.height = '600px'
+  document.body.appendChild(target)
+  return new Map(target, {
+    view: { center: [0, 0], zoom: 2 },
+    controls: [],
+    popups: []
+  })
+}
+
 /** 待覆盖的普通交互及其期望类型标识。 */
 const interactionFactories: Array<[string, () => Interaction<never>]> = [
   ['DoubleClickZoom', () => new DoubleClickZoom() as unknown as Interaction<never>],
@@ -194,6 +206,19 @@ describe('common interactions event subscription', () => {
 })
 
 describe('common interactions lifecycle', () => {
+  it('mounts wheel zoom, double click zoom and drag pan by default', () => {
+    const map = createMapWithDefaults()
+
+    expect(map.getInteractions().map((interaction) => interaction.type)).toEqual([
+      'MouseWheelZoom',
+      'DoubleClickZoom',
+      'DragPan'
+    ])
+    expect(map.getInteractions().every((interaction) => interaction.getActive())).toBe(true)
+
+    map.dispose()
+  })
+
   it('mounts, removes and re-mounts without disposing', () => {
     const map = createMap()
     const pan = new DragPan({ id: 'pan-lifecycle' })

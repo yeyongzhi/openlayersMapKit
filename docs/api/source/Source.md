@@ -53,6 +53,6 @@ new Source(source: T)
 
 ## 相关
 
-- 子类：[ImageSource](./ImageSource.md)、[TileSource](./TileSource.md)、[VectorSource](./VectorSource.md)
+- 子类：[ClusterSource](./ClusterSource.md)、[ImageSource](./ImageSource.md)、[TileSource](./TileSource.md)、[VectorSource](./VectorSource.md)
 
 <!-- 本页由 scripts/gen-api-docs.mjs 从源码签名自动生成，请勿手工编辑签名表 -->

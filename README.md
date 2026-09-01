@@ -227,6 +227,12 @@ pnpm build:obf
 
 ### 使用方式
 
+```bash
+pnpm add omap ol
+```
+
+`ol` 是 OMap 的 peer dependency。ESM 项目会复用该实例，避免重复打包 OpenLayers。
+
 ```typescript
 // ES Module
 import { Map, GaodeLayer, GaodeLayerType } from 'omap'
@@ -273,9 +279,10 @@ dist/
 └── index.d.ts        # TypeScript 类型声明文件
 ```
 
-- OpenLayers (`ol`) 当前内联进 ESM 与 UMD/CJS 产物，确保两种 Node 消费方式可直接加载
+- ESM 产物将 OpenLayers (`ol`) 作为 peer dependency，由宿主项目复用，避免重复打包和多实例
+- UMD/CJS 产物内置 OpenLayers，确保 `require('omap')` 与独立脚本加载可以直接运行
 - `pnpm check:consumers` 会验证 ESM、CommonJS 和 TypeScript 声明入口
-- 支持代码混淆：`OBFUSCATE=true pnpm build` 启用 JS 混淆
+- 支持代码混淆：`pnpm build:obf` 同时生成混淆后的 ESM 与 UMD/CJS 产物
 
 ---
 

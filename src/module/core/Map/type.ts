@@ -27,9 +27,9 @@ export type OlViewOptionsType = ConstructorParameters<typeof OlPackage.View>[0]
 type OlViewOptionsTypeKeysToOmit = 'center' | 'extent' | 'projection'
 type OlViewOptionsOmitType = ManualOmit<OlViewOptionsType, OlViewOptionsTypeKeysToOmit>
 type CustomerOlViewOptionsType = {
-  projection: Projection | string
-  center: OMapCoordinateType
-  extent: OMapExtentType
+  projection?: Projection | string
+  center?: OMapCoordinateType
+  extent?: OMapExtentType
 }
 export type OlViewOptionsFinalType = OlViewOptionsOmitType & CustomerOlViewOptionsType
 

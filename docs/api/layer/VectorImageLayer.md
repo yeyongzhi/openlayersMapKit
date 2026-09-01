@@ -1,34 +1,32 @@
-# ImageLayer
+# VectorImageLayer
 
 > 稳定性：`stable-beta`
 
-影像图层，承载单张静态影像作为图层内容。
+矢量图片图层类
 
 ## 引入
 
 ```ts
-import { ImageLayer } from 'omap'
+import { VectorImageLayer } from 'omap'
 ```
 
-源码：`src/module/layer/ImageLayer/index.ts`
+源码：`src/module/layer/VectorImageLayer/index.ts`
 
 ## 构造
 
 ```ts
-new ImageLayer(options?: OMapImageLayerParamsType<P>)
+new VectorImageLayer(options?: OMapVectorImageLayerParamsType<P>)
 ```
 
 ## 方法
 
-| 方法                                                | 说明                                                                                                                                                                          |
-| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `getImageSource(): ImageSource \| null`             | 获取图层关联的 OMap 自定义 loader 数据源包装（仅当数据源为 loader 分支时返回，否则为 null）。 注意 `ImageStaticSource` 继承自 `ImageSource`，因此要先排除静态图片分支再判定。 |
-| `getImageStaticSource(): ImageStaticSource \| null` | 获取图层关联的 OMap 静态图片数据源包装（仅当数据源为静态图片时返回，否则为 null）。                                                                                           |
-| `getImageWMSSource(): ImageWMSSource \| null`       | 获取图层关联的 OMap WMS 单图数据源包装（仅当数据源为 WMS 分支时返回，否则为 null）。                                                                                          |
+| 方法                                      | 说明                                 |
+| ----------------------------------------- | ------------------------------------ |
+| `getVectorSource(): VectorSource \| null` | 获取图层关联的 OMap 矢量数据源包装。 |
 
 ## 继承成员
 
-继承链：ImageLayer → BaseLayer
+继承链：VectorImageLayer → BaseLayer
 
 ### 继承自 BaseLayer
 
@@ -80,10 +78,6 @@ new ImageLayer(options?: OMapImageLayerParamsType<P>)
 | `target: Map \| OMapLayerTarget \| null`                        | 图层所属的对象                                                                                                                                                                             |
 | `visible: boolean`                                              | —                                                                                                                                                                                          |
 | `zIndex: number \| undefined`                                   | —                                                                                                                                                                                          |
-
-## 说明与注意点
-
-- 静态影像的配置属于数据源参数，请在 [`ImageSource`](../source/ImageSource.md) 侧设置。
 
 ## 相关
 

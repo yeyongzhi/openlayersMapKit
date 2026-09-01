@@ -1,0 +1,20 @@
+{
+  "name": "omap-vite-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ol": "^10.6.1",
+    "omap": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "6.3.5"
+  },
+  "packageManager": "pnpm@10.4.1"
+}

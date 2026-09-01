@@ -1,44 +1,32 @@
-# TileSource
+# ClusterSource
 
 > 稳定性：`stable-beta`
 
-瓦片数据源基类，提供瓦片网格、瓦片获取、缓存刷新与加载事件能力。
+聚合数据源
 
 ## 引入
 
 ```ts
-import { TileSource } from 'omap'
+import { ClusterSource } from 'omap'
 ```
 
-源码：`src/module/source/TileSource/index.ts`
+源码：`src/module/source/ClusterSource/index.ts`
 
 ## 构造
 
 ```ts
-new TileSource(source: T)
+new ClusterSource(params: OMapClusterSourceParamsType)
 ```
 
 ## 方法
 
-| 方法                                                                                                 | 说明 |
-| ---------------------------------------------------------------------------------------------------- | ---- |
-| `clear(): void`                                                                                      | —    |
-| `getGutterForProjection(projection: Projection): number`                                             | —    |
-| `getKey(): string`                                                                                   | —    |
-| `getTile(z: number, x: number, y: number, pixelRatio: number, projection: Projection): Tile \| null` | —    |
-| `getTileCoordForTileUrlFunction(tileCoord: TileCoord, projection?: Projection): TileCoord`           | —    |
-| `getTileGrid(): TileGrid \| null`                                                                    | —    |
-| `getTileGridForProjection(projection: Projection): TileGrid`                                         | —    |
-| `getTilePixelRatio(pixelRatio: number): number`                                                      | —    |
-| `getTilePixelSize(z: number, pixelRatio: number, projection: Projection): Size`                      | —    |
-| `onTile(type: TileSourceEventTypes, listener: OMapTileSourceEventListener): EventsKey`               | —    |
-| `onTileLoadEnd(listener: OMapTileSourceEventListener): EventsKey`                                    | —    |
-| `onTileLoadError(listener: OMapTileSourceEventListener): EventsKey`                                  | —    |
-| `onTileLoadStart(listener: OMapTileSourceEventListener): EventsKey`                                  | —    |
+| 方法                                                      | 说明                         |
+| --------------------------------------------------------- | ---------------------------- |
+| `getClusteredSource(): VectorSource<FeatureLike> \| null` | 获取被聚合的内部原生矢量源。 |
 
 ## 继承成员
 
-继承链：TileSource → Source
+继承链：ClusterSource → Source
 
 ### 继承自 Source
 
@@ -68,13 +56,8 @@ new TileSource(source: T)
 | `setState(state: State): void`                                      | —                                                                                                                 |
 | `unset(key: string, silent?: boolean): void`                        | —                                                                                                                 |
 
-## 说明与注意点
-
-- 一般不直接使用，请按需选择下方的具体瓦片数据源实现。
-
 ## 相关
 
 - 基类：[Source](./Source.md)
-- 子类：[BingMapsSource](./BingMapsSource.md)、[DataTileSource](./DataTileSource.md)、[ImageTileSource](./ImageTileSource.md)、[OGCVectorTileSource](./OGCVectorTileSource.md)、[OSMSource](./OSMSource.md)、[TileArcGISRestSource](./TileArcGISRestSource.md)、[TileDebugSource](./TileDebugSource.md)、[TileImageSource](./TileImageSource.md)、[TileJSONSource](./TileJSONSource.md)、[TileWMSSource](./TileWMSSource.md)、[UrlTileSource](./UrlTileSource.md)、[UTFGridSource](./UTFGridSource.md)、[VectorTileSource](./VectorTileSource.md)、[WMTSSource](./WMTSSource.md)、[XYZSource](./XYZSource.md)
 
 <!-- 本页由 scripts/gen-api-docs.mjs 从源码签名自动生成，请勿手工编辑签名表 -->
