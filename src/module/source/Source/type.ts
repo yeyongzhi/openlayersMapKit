@@ -1,4 +1,4 @@
-import { OlSource } from '../../../source/index'
+import { type OlSource } from '../../../source/index'
 import type {
   AttributionLike,
   Options as OlSourceOptions,
@@ -34,10 +34,10 @@ export type OMapSourceParamsCommonKey = keyof OMapSourceParamsType
 
 export function handleGetSourceParams(params: OMapSourceParamsType = {}): OlSourceParamsType {
   const projection = params.projection?.getProjection()
-  const _params = Object.assign({}, params, {
+  const resolvedParams = Object.assign({}, params, {
     projection
   })
-  return _params
+  return resolvedParams
 }
 
 export const DEFAULT_SOURCE_PARAMS: OMapSourceParamsType = {}

@@ -1,10 +1,10 @@
 import { isDefined, isFunction, isString } from '../../../utils/index'
 import { warn_, error_, getPackageMessage, commonMessage } from '../../../utils/index'
-import Lnglat from '../../basic/Lnglat/index'
-import type { OMapCoordinateType } from '../../basic/Lnglat/type'
+import LngLat from '../../basic/LngLat/index'
+import type { OMapCoordinateType } from '../../basic/LngLat/type'
 import Pixel from '../../basic/Pixel/index'
 import { type OMapPixelType } from '../../basic/Pixel/type'
-import Map from '../../core/Map/index'
+import type Map from '../../core/Map/index'
 import Event from '../../util/Event/index'
 import { type EventIdType } from '../../util/Event/type'
 import { OlEvent, OlOverlay } from '../../../source/index'
@@ -14,34 +14,30 @@ import {
   type OMapPopupEventMap,
   type OlPopupInstanceType,
   type PopupPositioningType,
-  isVaildPopupPositioningType,
+  isValidPopupPositioningType,
   DEFAULT_POPUP_PARAMS,
   type OMapPopupIdType
 } from './type'
 import { type OMapPopupEventType, type OMapPopupEventCallback, isOMapPopupEventType } from './type'
 import { createDefaultContentElement, handlePopupEvent, type PopupEventChange } from './handle'
-import { handleGetLnglatValue } from '../Lnglat/handle'
+import { handleGetLngLatValue } from '../LngLat/handle'
 import type { Disposable, Removable } from '../../util/Disposable/type'
 import { handleGetPixelValue } from '../Pixel/handle'
 import type { PropertiesType } from '../../../utils/type'
+import { assertNotDisposed } from '../../util/Disposable/lifecycle'
 
 const PACKAGE_NAME = 'Popup'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 弹窗类
- * @class Popup
- * @classdesc 弹窗类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/5
- * @updateDate 2025/12/30
+ *
  */
 
 /**
  * 弹窗类。
  *
- * @typeParam P - 弹窗属性字典。默认 {@link PropertiesType}；
+ * @template P - 弹窗属性字典。默认 {@link PropertiesType}；
  *   传入更具体的结构后，`getProperties()` 与 `setProperties()` 会按该结构推导。
  */
 export default class Popup<P extends PropertiesType = PropertiesType>
@@ -77,40 +73,51 @@ export default class Popup<P extends PropertiesType = PropertiesType>
     if (isDefined(params.id)) {
       this.id = params.id
     }
-    let _params = Object.assign({}, DEFAULT_POPUP_PARAMS, params)
-    delete _params.id
+    const resolvedParams = Object.assign({}, DEFAULT_POPUP_PARAMS, params)
+    delete resolvedParams.id
     // content存在且element不存在的时候才会创建默认的空DOM来渲染content的内容（支持HTML字符串）
-    if (isDefined(_params.content) && isString(_params.content) && !isDefined(_params.element)) {
-      this.content = _params.content
-      _params.element = createDefaultContentElement(_params.content)
+    if (
+      isDefined(resolvedParams.content) &&
+      isString(resolvedParams.content) &&
+      !isDefined(resolvedParams.element)
+    ) {
+      this.content = resolvedParams.content
+      resolvedParams.element = createDefaultContentElement(resolvedParams.content)
     }
-    if (isDefined(_params.element)) {
-      _params.element.classList.add('omap-popup-selectable')
+    if (isDefined(resolvedParams.element)) {
+      resolvedParams.element.classList.add('omap-popup-selectable')
     }
     this._popup = new OlOverlay({
-      ..._params,
-      offset: isDefined(_params.offset) ? handleGetPixelValue(_params.offset) : undefined,
-      position: isDefined(_params.position) ? handleGetLnglatValue(_params.position) : undefined
+      ...resolvedParams,
+      offset: isDefined(resolvedParams.offset)
+        ? handleGetPixelValue(resolvedParams.offset)
+        : undefined,
+      position: isDefined(resolvedParams.position)
+        ? handleGetLngLatValue(resolvedParams.position)
+        : undefined
     })
     this.events = new Event(this)
   }
 
   /**
    * 获取弹窗位置
-   * @returns {Lnglat | undefined} 弹窗位置
+   *
+   * @returns {LngLat | undefined} 弹窗位置
    */
-  getPosition(): Lnglat | undefined {
-    let coordinates = this._popup.getPosition()
-    return isDefined(coordinates) ? new Lnglat(coordinates) : undefined
+  getPosition(): LngLat | undefined {
+    const coordinates = this._popup.getPosition()
+    return isDefined(coordinates) ? new LngLat(coordinates) : undefined
   }
 
   /**
    * 设置弹窗位置
-   * @param {Lnglat | OlCoordinateType} coordinates 弹窗位置
+   *
+   * @param {LngLat | OlCoordinateType} coordinates 弹窗位置
    */
   setPosition(coordinates: OMapCoordinateType) {
-    let _coordinates = handleGetLnglatValue(coordinates)
-    this._popup.setPosition(_coordinates)
+    this.assertActive('setPosition')
+    const coordinateValues = handleGetLngLatValue(coordinates)
+    this._popup.setPosition(coordinateValues)
   }
 
   getPositioning(): PopupPositioningType | undefined {
@@ -118,7 +125,8 @@ export default class Popup<P extends PropertiesType = PropertiesType>
   }
 
   setPositioning(positioning: PopupPositioningType) {
-    if (!isVaildPopupPositioningType(positioning)) {
+    this.assertActive('setPositioning')
+    if (!isValidPopupPositioningType(positioning)) {
       error_(createMessage('setPositioning', '参数positioning值有误'))
     }
     this._popup.setPositioning(positioning)
@@ -126,17 +134,20 @@ export default class Popup<P extends PropertiesType = PropertiesType>
 
   /**
    * 获取弹窗属性
+   *
    * @returns {PropertiesType} 弹窗属性
    */
   getProperties(): P {
-    return this.properties
+    return { ...this.properties }
   }
 
   /**
    * 设置弹窗属性
+   *
    * @param {PropertiesType} properties 弹窗属性
    */
   setProperties(properties: Partial<P>) {
+    this.assertActive('setProperties')
     if (!isDefined(properties)) {
       error_(createMessage('setProperties', '参数不能为空'))
     }
@@ -156,6 +167,7 @@ export default class Popup<P extends PropertiesType = PropertiesType>
   }
 
   setElement(element: HTMLElement) {
+    this.assertActive('setElement')
     if (!isDefined(element)) {
       error_(createMessage('setElement', '参数不能为空'))
     }
@@ -168,6 +180,7 @@ export default class Popup<P extends PropertiesType = PropertiesType>
   }
 
   setContent(content: string): void {
+    this.assertActive('setContent')
     this.events.emit(
       'change:content',
       handlePopupEvent(this, 'change:content', {
@@ -181,13 +194,14 @@ export default class Popup<P extends PropertiesType = PropertiesType>
   }
 
   getOffset(): Pixel {
-    let offset = this._popup.getOffset()
+    const offset = this._popup.getOffset()
     return new Pixel(offset)
   }
 
   setOffset(offset: OMapPixelType) {
-    let _offset = handleGetPixelValue(offset)
-    this._popup.setOffset(_offset)
+    this.assertActive('setOffset')
+    const offsetValue = handleGetPixelValue(offset)
+    this._popup.setOffset(offsetValue)
   }
 
   getId(): OMapPopupIdType {
@@ -195,25 +209,25 @@ export default class Popup<P extends PropertiesType = PropertiesType>
   }
 
   setId(id: OMapPopupIdType) {
+    this.assertActive('setId')
     this.id = id
   }
 
   getPopup(): OMapPopupType {
+    this.assertActive('getPopup')
     return this._popup
   }
 
-  on(type: OMapPopupEventType, callback: OMapPopupEventCallback): EventIdType | undefined {
+  on(type: OMapPopupEventType, callback: OMapPopupEventCallback): EventIdType {
+    this.assertActive('on')
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage('on', commonMessage.paramsListHaveNotDefined('type or callback')))
-      return
+      error_(createMessage('on', commonMessage.paramsListHaveNotDefined('type', 'callback')))
     }
     if (!isOMapPopupEventType(type)) {
-      warn_(createMessage('on', commonMessage.paramsInvaildEnum('type')))
-      return
+      error_(createMessage('on', commonMessage.paramsInvalidEnum('type')))
     }
     if (!isFunction(callback)) {
-      warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
-      return
+      error_(createMessage('on', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     const unlisten = OlEvent.listen(
       this._popup as OlPopupInstanceType,
@@ -226,18 +240,16 @@ export default class Popup<P extends PropertiesType = PropertiesType>
     return id
   }
 
-  once(type: OMapPopupEventType, callback: OMapPopupEventCallback): EventIdType | undefined {
+  once(type: OMapPopupEventType, callback: OMapPopupEventCallback): EventIdType {
+    this.assertActive('once')
     if (!isDefined(type) || !isDefined(callback)) {
-      warn_(createMessage('on', commonMessage.paramsListHaveNotDefined('type or callback')))
-      return
+      error_(createMessage('once', commonMessage.paramsListHaveNotDefined('type', 'callback')))
     }
     if (!isOMapPopupEventType(type)) {
-      warn_(createMessage('on', commonMessage.paramsInvaildEnum('type')))
-      return
+      error_(createMessage('once', commonMessage.paramsInvalidEnum('type')))
     }
     if (!isFunction(callback)) {
-      warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
-      return
+      error_(createMessage('once', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     let id: EventIdType | undefined
     const unlisten = OlEvent.listen(
@@ -263,24 +275,30 @@ export default class Popup<P extends PropertiesType = PropertiesType>
   }
 
   setMap(map: Map | null) {
+    this.assertActive('setMap')
     this.map = map
   }
 
   /** 从当前地图解除挂载，Popup 仍可再次添加。 */
   remove(): void {
+    this.assertActive('remove')
     this.map?.removePopup(this)
   }
 
   /** 永久释放事件与原生 Overlay。重复调用是安全的。 */
   dispose(): void {
     if (this.disposed) return
-    this.disposed = true
-    this.events.dispose()
     this.remove()
+    this.events.dispose()
     this._popup.dispose()
+    this.disposed = true
   }
 
   isDisposed(): boolean {
     return this.disposed
+  }
+
+  private assertActive(operationName: string): void {
+    assertNotDisposed(this.disposed, PACKAGE_NAME, operationName)
   }
 }

@@ -1,8 +1,8 @@
 import { isFunction, isNumber } from '../../../../../utils/index'
 import { error_, getPackageMessage } from '../../../../../utils/message'
 import { OlSource } from '../../../../../source/index'
-import type { OMapCoordinateType } from '../../../../basic/Lnglat/type'
-import { handleGetLnglatValue } from '../../../../basic/Lnglat/handle'
+import type { OMapCoordinateType } from '../../../../basic/LngLat/type'
+import { handleGetLngLatValue } from '../../../../basic/LngLat/handle'
 import TileSource from '../../index'
 import {
   DEFAULT_UTF_GRID_SOURCE_PARAMS,
@@ -37,7 +37,7 @@ export default class UTFGridSource extends TileSource<OMapUTFGridSourceType> {
     callback: OMapUTFGridDataCallback,
     request?: boolean
   ) {
-    const olCoordinate = handleGetLnglatValue(coordinate)
+    const olCoordinate = handleGetLngLatValue(coordinate)
     if (!olCoordinate || !isNumber(resolution) || !isFunction(callback)) {
       error_(
         createMessage(

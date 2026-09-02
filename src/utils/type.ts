@@ -1,7 +1,7 @@
-import Extent from '../module/basic/Extent/index'
-import Lnglat from '../module/basic/Lnglat/index'
-import Projection from '../module/core/Projection/index'
-import OlPackage from '../source/index'
+import type Extent from '../module/basic/Extent/index'
+import type LngLat from '../module/basic/LngLat/index'
+import type Projection from '../module/core/Projection/index'
+import type OlPackage from '../source/index'
 
 export type IdType = number | string | null
 
@@ -16,7 +16,7 @@ export type ManualOmit<T, K extends PropertyKey> = {
 
 export type EmptyArray = []
 
-export type LnglatType = number[]
+export type LngLatType = number[]
 
 export type PropertiesType = Record<string, unknown>
 
@@ -27,7 +27,7 @@ type OlViewOptionsTypeKeysToOmit = 'center' | 'extent' | 'projection'
 type OlViewOptionsOmitType = ManualOmit<OlViewOptionsType, OlViewOptionsTypeKeysToOmit>
 type CustomerOlViewOptionsType = {
   projection: Projection | string
-  center: Lnglat | Array<number>
+  center: LngLat | Array<number>
   extent: Extent | Array<number>
 }
 export type OlViewOptionsFinalType = OlViewOptionsOmitType & CustomerOlViewOptionsType

@@ -66,7 +66,7 @@ function isArrayLength2(value: unknown): value is Array<unknown> {
   return isArray(value) && value.length === 2
 }
 
-function isVaildColorRGB(value: unknown) {
+function isValidColorRGB(value: unknown) {
   return (
     isArray(value) &&
     value.length === 3 &&
@@ -74,26 +74,30 @@ function isVaildColorRGB(value: unknown) {
   )
 }
 
-function isVaildColorRGBString(value: unknown) {
+function isValidColorRGBString(value: unknown) {
   return isString(value) && COLOR_RGB_STRING_REGEX.test(value)
 }
 
-function isVaildColorRGBAString(value: unknown) {
+function isValidColorRGBAString(value: unknown) {
   return isString(value) && COLOR_RGBA_STRING_REGEX.test(value)
 }
 
-function isVaildOpacity(value: unknown) {
+function isValidOpacity(value: unknown) {
   return isNumber(value) && value >= 0 && value <= 1
 }
 
-function isVaildColorHex(value: unknown) {
-  let _value = (value as string).replace('#', '')
-  return isString(value) && value.startsWith('#') && (_value.length === 6 || _value.length === 3)
+function isValidColorHex(value: unknown) {
+  const normalizedValue = (value as string).replace('#', '')
+  return (
+    isString(value) &&
+    value.startsWith('#') &&
+    (normalizedValue.length === 6 || normalizedValue.length === 3)
+  )
 }
 
-function isVaildColorHexWithAlpha(value: unknown) {
-  let _value = (value as string).replace('#', '')
-  return isString(value) && value.startsWith('#') && _value.length === 8
+function isValidColorHexWithAlpha(value: unknown) {
+  const normalizedValue = (value as string).replace('#', '')
+  return isString(value) && value.startsWith('#') && normalizedValue.length === 8
 }
 
 export function isAllNumberArray(value: unknown[]): boolean {
@@ -115,10 +119,10 @@ export {
   isCoordinatesType,
   isExtentType,
   isArrayLength2,
-  isVaildColorRGB,
-  isVaildColorRGBString,
-  isVaildColorRGBAString,
-  isVaildOpacity,
-  isVaildColorHex,
-  isVaildColorHexWithAlpha
+  isValidColorRGB,
+  isValidColorRGBString,
+  isValidColorRGBAString,
+  isValidOpacity,
+  isValidColorHex,
+  isValidColorHexWithAlpha
 }

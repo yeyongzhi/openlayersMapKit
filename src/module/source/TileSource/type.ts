@@ -1,13 +1,13 @@
-import { OlSource, OlTileGrid } from '../../../source/index'
+import { type OlSource, OlTileGrid } from '../../../source/index'
 import type Tile from 'ol/Tile'
 import type { TileCoord } from 'ol/tilecoord'
 import type { TileSourceEvent, Options as OlTileSourceOptions } from 'ol/source/Tile'
 import type { TileSourceEventTypes } from 'ol/source/TileEventType'
 import type { Options as OlTileGridOptions } from 'ol/tilegrid/TileGrid'
-import type { OMapCoordinateType, OlCoordinateType } from '../../basic/Lnglat/type'
+import type { OMapCoordinateType, OlCoordinateType } from '../../basic/LngLat/type'
 import type { OMapExtentType, OlExtentType } from '../../basic/Extent/type'
 import type { OMapSizeType, OlSizeType } from '../../basic/Size/type'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
+import { handleGetLngLatValue } from '../../basic/LngLat/handle'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
 import { handleGetSizeValue } from '../../basic/Size/handle'
 import { handleGetProjectionValue } from '../../core/Projection/handle'
@@ -75,8 +75,8 @@ export function handleGetTileGridParams(
   return {
     ...params,
     extent: params.extent ? handleGetExtentValue(params.extent) : undefined,
-    origin: params.origin ? handleGetLnglatValue(params.origin) : undefined,
-    origins: params.origins?.map((item) => handleGetLnglatValue(item)),
+    origin: params.origin ? handleGetLngLatValue(params.origin) : undefined,
+    origins: params.origins?.map((item) => handleGetLngLatValue(item)),
     sizes: params.sizes?.map((item) => handleGetSizeValue(item)),
     tileSize:
       typeof params.tileSize === 'number'

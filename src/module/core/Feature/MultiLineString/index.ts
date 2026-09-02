@@ -4,29 +4,23 @@ import { OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { PropertiesType } from '../../../../utils/type'
 import {
-  OMapMultiLineStringGeometryCoordinatesType,
+  type OMapMultiLineStringGeometryCoordinatesType,
   type OMapMultiLineStringType,
   isValidMultiLineStringCoordinates
 } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import Lnglat from '../../../basic/Lnglat/index'
-import { normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import LngLat from '../../../basic/LngLat/index'
+import { normalizeCoordinates } from '../../../basic/LngLat/handle'
 import { type OMapExtentType, isValidExtent } from '../../../basic/Extent/type'
 import { handleGetExtentValue } from '../../../basic/Extent/handle'
 import { type OMapPointGeometryCoordinatesType } from '../Point/type'
-import { isValidCoordinate } from '../../../basic/Lnglat/type'
-import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
+import { isValidCoordinate } from '../../../basic/LngLat/type'
+import { handleGetLngLatValue } from '../../../basic/LngLat/handle'
 
 const PACKAGE_NAME = 'MultiLineString'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
- * @class MultiLineString
- * @classdesc MultiLineString
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/10/8
- * @updateDate 2026/2/1
  */
 
 export default class MultiLineString<
@@ -47,7 +41,7 @@ export default class MultiLineString<
     } else {
       if (!isValidMultiLineStringCoordinates(coordinatesOrFeature)) {
         error_(
-          createMessage('constructor', commonMessage.paramsInvaildFormat('coordinatesOrFeature'))
+          createMessage('constructor', commonMessage.paramsInvalidFormat('coordinatesOrFeature'))
         )
         return
       }
@@ -58,27 +52,29 @@ export default class MultiLineString<
     }
   }
 
-  protected _init(coordinates: OMapMultiLineStringGeometryCoordinatesType) {
+  protected init(coordinates: OMapMultiLineStringGeometryCoordinatesType) {
     this._geometry = new OlGeometry.MultiLineString(normalizeCoordinates(coordinates))
-    this._feature = this._createFeature(this._geometry)
+    this._feature = this.createFeature(this._geometry)
   }
 
   /**
    * 获取多个线串的坐标
-   * @returns {Array<Array<Lnglat>>} 多个线串的坐标
+   *
+   * @returns {Array<Array<LngLat>>} 多个线串的坐标
    */
-  getCoordinates(): Array<Array<Lnglat>> {
-    let coordinates = this._geometry.getCoordinates()
-    let _coordinates = coordinates.map((c) => {
+  getCoordinates(): Array<Array<LngLat>> {
+    const coordinates = this._geometry.getCoordinates()
+    const coordinateValues = coordinates.map((c) => {
       return c.map((c2) => {
-        return new Lnglat(c2)
+        return new LngLat(c2)
       })
     })
-    return _coordinates
+    return coordinateValues
   }
 
   /**
    * 设置多个线串的坐标
+   *
    * @param {OMapMultiLineStringGeometryCoordinatesType} coordinates 多个线串的坐标
    */
   setCoordinates(coordinates: OMapMultiLineStringGeometryCoordinatesType) {
@@ -86,30 +82,33 @@ export default class MultiLineString<
       error_(createMessage('setCoordinates', commonMessage.paramsNotDefined('coordinates')))
     }
     if (!isValidMultiLineStringCoordinates(coordinates)) {
-      error_(createMessage('setCoordinates', commonMessage.paramsInvaildFormat('coordinates')))
+      error_(createMessage('setCoordinates', commonMessage.paramsInvalidFormat('coordinates')))
     }
-    let _coordinates = normalizeCoordinates(coordinates)
-    this._geometry.setCoordinates(_coordinates)
+    const coordinateValues = normalizeCoordinates(coordinates)
+    this._geometry.setCoordinates(coordinateValues)
   }
 
   /**
    * 获取多个线串的第一个坐标
-   * @returns {Lnglat} 第一个坐标
+   *
+   * @returns {LngLat} 第一个坐标
    */
-  getFirstCoordinate(): Lnglat {
-    return new Lnglat(this._geometry.getFirstCoordinate())
+  getFirstCoordinate(): LngLat {
+    return new LngLat(this._geometry.getFirstCoordinate())
   }
 
   /**
    * 获取多个线串的最后一个坐标
-   * @returns {Lnglat} 最后一个坐标
+   *
+   * @returns {LngLat} 最后一个坐标
    */
-  getLastCoordinate(): Lnglat {
-    return new Lnglat(this._geometry.getLastCoordinate())
+  getLastCoordinate(): LngLat {
+    return new LngLat(this._geometry.getLastCoordinate())
   }
 
   /**
    * 返回多个线串的投影平面长度之和
+   *
    * @returns {number} 长度
    */
   getLength(): number {
@@ -118,6 +117,7 @@ export default class MultiLineString<
 
   /**
    * 多线串是否包含给定坐标
+   *
    * @param {OMapPointGeometryCoordinatesType} coordinates 待判断的坐标
    * @returns {boolean} 是否包含
    */
@@ -127,14 +127,15 @@ export default class MultiLineString<
     }
     if (!isValidCoordinate(coordinates)) {
       error_(
-        createMessage('intersectsCoordinate', commonMessage.paramsInvaildFormat('coordinates'))
+        createMessage('intersectsCoordinate', commonMessage.paramsInvalidFormat('coordinates'))
       )
     }
-    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+    return this._geometry.intersectsCoordinate(handleGetLngLatValue(coordinates))
   }
 
   /**
    * 多线串是否与给定范围相交
+   *
    * @param {OMapExtentType} extent 范围
    * @returns {boolean} 是否相交
    */
@@ -143,13 +144,14 @@ export default class MultiLineString<
       error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
     }
     if (!isValidExtent(extent)) {
-      error_(createMessage('intersectsExtent', commonMessage.paramsInvaildFormat('extent')))
+      error_(createMessage('intersectsExtent', commonMessage.paramsInvalidFormat('extent')))
     }
     return this._geometry.intersectsExtent(handleGetExtentValue(extent))
   }
 
   /**
    * 沿 X/Y 轴平移多线串
+   *
    * @param {number} deltaX X 方向偏移
    * @param {number} deltaY Y 方向偏移
    */

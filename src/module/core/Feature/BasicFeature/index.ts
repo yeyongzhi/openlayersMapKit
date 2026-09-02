@@ -18,19 +18,13 @@ const PACKAGE_NAME = 'BasicFeature'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
- * @class BasicFeature
- * @classdesc 要素基类（抽象类）
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/14
- * @updateDate 2025/10/6
  */
 
 /**
  * 要素基类（抽象类）。
  *
- * @typeParam T - 原生 OpenLayers Geometry 类型。
- * @typeParam P - 业务属性字典。默认 {@link PropertiesType}；
+ * @template T - 原生 OpenLayers Geometry 类型。
+ * @template P - 业务属性字典。默认 {@link PropertiesType}；
  *   使用者可传入更具体的结构以获得 `getProperties()` 的类型推导，
  *   例如 `Point<{ name: string; score: number }>`。
  */
@@ -62,9 +56,9 @@ export default abstract class BasicFeature<
   ) {
     this.type = type
     if (coordinatesOrFeature instanceof OlFeature) {
-      this._initByFeature(coordinatesOrFeature as OlFeatureInstanceType)
+      this.initByFeature(coordinatesOrFeature as OlFeatureInstanceType)
     } else {
-      this._init(coordinatesOrFeature as OMapBasicFeatureCoordinatesType, radius)
+      this.init(coordinatesOrFeature as OMapBasicFeatureCoordinatesType, radius)
     }
     const featureId = this._feature.getId()
     if (isDefined(featureId)) {
@@ -73,14 +67,14 @@ export default abstract class BasicFeature<
     registerFeature(this._feature, this)
   }
 
-  protected abstract _init(coordinates: OMapBasicFeatureCoordinatesType, radius?: number): void
+  protected abstract init(coordinates: OMapBasicFeatureCoordinatesType, radius?: number): void
 
   /**
    * 由原生 OpenLayers Feature 初始化 wrapper。
    * 默认实现对所有 Geometry 一致，统一在基类维护，子类无需重复。
    * 配合 registerFeature 的 WeakMap 注册，保证同一原生 Feature 复用同一 wrapper。
    */
-  protected _initByFeature(feature: OlFeatureInstanceType): void {
+  protected initByFeature(feature: OlFeatureInstanceType): void {
     this._feature = feature
     this._geometry = feature.getGeometry() as T
   }
@@ -88,12 +82,13 @@ export default abstract class BasicFeature<
   /**
    * 统一创建原生 OpenLayers Feature，消除各 Geometry 子类重复的 `new OlFeature`。
    */
-  protected _createFeature(geometry: T): OlFeatureInstanceType {
+  protected createFeature(geometry: T): OlFeatureInstanceType {
     return new OlFeature({ geometry })
   }
 
   /**
    * 获取原生的Openlayers Feature对象
+   *
    * @returns {OlFeatureInstanceType} 原生的Openlayers Feature对象
    */
   getFeature(): OlFeatureInstanceType {
@@ -102,12 +97,14 @@ export default abstract class BasicFeature<
 
   /**
    * 获取坐标
+   *
    * @returns {OMapBasicFeatureCoordinatesType} 坐标
    */
   abstract getCoordinates(): OMapBasicFeatureCoordinatesType | void
 
   /**
    * 设置坐标
+   *
    * @param {OMapBasicFeatureCoordinatesType} coordinates 坐标
    */
   abstract setCoordinates(coordinates: OMapBasicFeatureCoordinatesType): void
@@ -158,13 +155,14 @@ export default abstract class BasicFeature<
       error_(createMessage('get', commonMessage.paramsNotDefined('key')))
     }
     if (!isString(key)) {
-      error_(createMessage('get', commonMessage.paramsInvaildFormat('key', 'string')))
+      error_(createMessage('get', commonMessage.paramsInvalidFormat('key', 'string')))
     }
     return this._feature.get(key) as Value
   }
 
   /**
    * 获取原生的Openlayers Geometry对象
+   *
    * @returns {T} 原生的Openlayers Geometry对象
    */
   getGeometry(): T {
@@ -184,22 +182,24 @@ export default abstract class BasicFeature<
   }
 
   setStyle(style?: OMapStyleLike) {
-    let _style = handleGetStyleValue(style)
-    this._feature.setStyle(_style)
+    const resolvedStyle = handleGetStyleValue(style)
+    this._feature.setStyle(resolvedStyle)
     this.style = style
   }
 
   /**
    * 获取要素的范围
+   *
    * @returns {Extent | undefined} 要素的范围
    */
   getExtent(): Extent {
-    let extent = this._geometry.getExtent()
+    const extent = this._geometry.getExtent()
     return new Extent(extent)
   }
 
   /**
    * 获取要素属性字典。
+   *
    * @returns {P} 属性字典，类型由泛型 `P` 决定
    */
   getProperties(): P {
@@ -209,6 +209,7 @@ export default abstract class BasicFeature<
   /**
    * 合并写入要素属性。OpenLayers 的 `setProperties` 为合并语义，
    * 因此入参按 `Partial<P>` 处理，允许只更新部分字段。
+   *
    * @param {Partial<P>} properties 待合并的属性
    * @returns {false | void} 未传入属性时返回 false
    */
@@ -218,7 +219,7 @@ export default abstract class BasicFeature<
     }
     if (!isObject(properties)) {
       error_(
-        createMessage('setProperties', commonMessage.paramsInvaildFormat('properties', 'object'))
+        createMessage('setProperties', commonMessage.paramsInvalidFormat('properties', 'object'))
       )
     }
     this._feature.setProperties(properties as PropertiesType)

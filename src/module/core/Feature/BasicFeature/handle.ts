@@ -1,4 +1,4 @@
-import { OlFeature, OlGeometry, OlRenderFeaturetoFeature } from '../../../../source/index'
+import { type OlFeature, type OlGeometry, OlRenderFeaturetoFeature } from '../../../../source/index'
 import Circle from '../Circle/index'
 import LineString from '../LineString/index'
 import LinearRing from '../LinearRing/index'
@@ -7,7 +7,7 @@ import MultiPoint from '../MultiPoint/index'
 import MultiPolygon from '../MultiPolygon/index'
 import Point from '../Point/index'
 import Polygon from '../Polygon/index'
-import BasicFeature from './index'
+import type BasicFeature from './index'
 import {
   getRegisteredFeature,
   getRegisteredRenderFeature,

@@ -1,4 +1,4 @@
-import { OlInteraction, OlGeometry, OlFeature } from '../../../source/index'
+import { type OlInteraction, type OlGeometry, type OlFeature } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
 import type { DrawEvent } from 'ol/interaction/Draw'
@@ -6,7 +6,7 @@ import type { ObjectEvent } from 'ol/Object'
 import type BaseEvent from 'ol/events/Event'
 import type BasicFeature from '../../core/Feature/BasicFeature/index'
 import type Draw from './index'
-import VectorLayer from '../../layer/VectorLayer/index'
+import type VectorLayer from '../../layer/VectorLayer/index'
 import type { OMapStyleLike } from '../../basic/Style/type'
 import {
   type OMapInteractionCommonParamsType,
@@ -42,7 +42,7 @@ export const DrawMode = {
 
 export type OMapDrawModeType = (typeof DrawMode)[keyof typeof DrawMode]
 
-export function isVaildDrawMode(mode: OMapDrawModeType): mode is OMapDrawModeType {
+export function isValidDrawMode(mode: OMapDrawModeType): mode is OMapDrawModeType {
   return Object.values(DrawMode).includes(mode)
 }
 

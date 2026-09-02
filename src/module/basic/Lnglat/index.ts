@@ -1,32 +1,28 @@
 import { isDefined, isNumber, isAllNumberArray } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
-import { handleGetLnglatValue } from './handle'
+import { handleGetLngLatValue } from './handle'
 import { type OlCoordinateType, type OMapCoordinateType } from './type'
 
-const PACKAGE_NAME = 'Lnglat'
+const PACKAGE_NAME = 'LngLat'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
- * @class Lnglat
- * @classdesc 经纬度
- * @author yyz
- * @CreateDate 2025/06/30
- * @LastUpdateDate 2026/2/3
- * @deprecated 请使用 {@link LngLat} 替代。`LngLat` 与 `Lnglat` 指向同一类、完全等价，
+ * @deprecated 请使用 {@link LngLat} 替代。`LngLat` 与 `LngLat` 指向同一类、完全等价，
  * 新代码统一使用 `LngLat`；内部引用将在后续批次统一迁移。
  */
-export default class Lnglat {
-  static from(value: OMapCoordinateType): Lnglat {
-    return value instanceof Lnglat ? value.clone() : new Lnglat(value)
+class LngLat {
+  static from(value: OMapCoordinateType): LngLat {
+    return value instanceof LngLat ? value.clone() : new LngLat(value)
   }
 
   /**
    * 经纬度数组
+   *
    * @type {OlCoordinateType}
    * @example [119.26, 28.73]
    * @private
    */
-  _lnglat: OlCoordinateType = [0, 0]
+  private _lngLat: OlCoordinateType = [0, 0]
 
   constructor(lng: number, lat: number)
   constructor(lnglat: number[])
@@ -39,7 +35,7 @@ export default class Lnglat {
       if (isNumber(x) && isNumber(y)) {
         value = [x, y]
       } else {
-        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('lnglat')))
+        error_(createMessage('constructor', commonMessage.paramsInvalidFormat('lnglat')))
       }
     } else if (args.length === 1) {
       const [arr] = args
@@ -47,16 +43,17 @@ export default class Lnglat {
         // 只取前两个
         value = [arr[0], arr[1]]
       } else {
-        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('lnglat')))
+        error_(createMessage('constructor', commonMessage.paramsInvalidFormat('lnglat')))
       }
     } else {
-      error_(createMessage('constructor', commonMessage.paramsInvaildFormat('lnglat')))
+      error_(createMessage('constructor', commonMessage.paramsInvalidFormat('lnglat')))
     }
-    this._lnglat = value
+    this._lngLat = value
   }
 
   /**
    * 设置经度
+   *
    * @param {number} lng 经度
    */
   setLng(lng: number) {
@@ -64,13 +61,14 @@ export default class Lnglat {
       error_(createMessage('setLng', commonMessage.paramsNotDefined('lng')))
     }
     if (!isNumber(lng)) {
-      error_(createMessage('setLng', commonMessage.paramsInvaildFormat('lng')))
+      error_(createMessage('setLng', commonMessage.paramsInvalidFormat('lng')))
     }
-    this._lnglat[0] = lng
+    this._lngLat[0] = lng
   }
 
   /**
    * 设置纬度
+   *
    * @param {number} lat 纬度
    */
   setLat(lat: number) {
@@ -78,29 +76,32 @@ export default class Lnglat {
       error_(createMessage('setLat', commonMessage.paramsNotDefined('lat')))
     }
     if (!isNumber(lat)) {
-      error_(createMessage('setLat', commonMessage.paramsInvaildFormat('lat')))
+      error_(createMessage('setLat', commonMessage.paramsInvalidFormat('lat')))
     }
-    this._lnglat[1] = lat
+    this._lngLat[1] = lat
   }
 
   /**
    * 获取经度
+   *
    * @returns {number} 经度
    */
   getLng(): number {
-    return this._lnglat[0]
+    return this._lngLat[0]
   }
 
   /**
    * 获取纬度
+   *
    * @returns {number} 纬度
    */
   getLat(): number {
-    return this._lnglat[1]
+    return this._lngLat[1]
   }
 
   /**
    * 判断两个经纬度是否相等
+   *
    * @param {OMapCoordinateType} lnglat 经纬度对象
    * @returns {boolean} 判断结果
    */
@@ -108,36 +109,45 @@ export default class Lnglat {
     if (!isDefined(lnglat)) {
       error_(createMessage('equals', commonMessage.paramsNotDefined('lnglat')))
     }
-    const otherLnglat = handleGetLnglatValue(lnglat)
-    return this._lnglat[0] === otherLnglat[0] && this._lnglat[1] === otherLnglat[1]
+    const otherLngLat = handleGetLngLatValue(lnglat)
+    return this._lngLat[0] === otherLngLat[0] && this._lngLat[1] === otherLngLat[1]
   }
 
   /**
    * 以数组形式输出经纬度
+   *
    * @returns {OlCoordinateType} 经纬度数组
    */
   toArray(): OlCoordinateType {
-    return [...this._lnglat] as OlCoordinateType
+    return [...this._lngLat] as OlCoordinateType
   }
 
-  clone(): Lnglat {
-    return new Lnglat(this._lnglat)
+  clone(): LngLat {
+    return new LngLat(this._lngLat)
   }
 
   /**
    * 以字符串的形式输出经纬度
-   * @param {number} place? 保留的小数位数
+   *
+   * @param {number} place 保留的小数位数
    * @returns {string} 经纬度字符串
    */
   toString(place?: number): string {
-    const _place = place ?? 3
-    return `[${this._lnglat[0]?.toFixed(_place)}, ${this._lnglat[1]?.toFixed(_place)}]`
+    const precision = place ?? 3
+    return `[${this._lngLat[0]?.toFixed(precision)}, ${this._lngLat[1]?.toFixed(precision)}]`
   }
 }
 
 /**
  * 经纬度（推荐名称）。
- * `LngLat` 与 `Lnglat` 指向同一个类，二者完全等价；
- * 新代码请使用 `LngLat`，`Lnglat` 仅作为兼容别名保留。
+ * `LngLat` 与 `LngLat` 指向同一个类，二者完全等价；
+ * 新代码请使用 `LngLat`，`LngLat` 仅作为兼容别名保留。
  */
-export const LngLat = Lnglat
+export default LngLat
+
+/**
+ * 经纬度的历史兼容名称。
+ *
+ * @deprecated 请使用 {@link LngLat}。
+ */
+export { LngLat as Lnglat }

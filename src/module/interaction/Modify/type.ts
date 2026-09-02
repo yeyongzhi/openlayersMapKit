@@ -1,4 +1,4 @@
-import { OlInteraction, OlGeometry } from '../../../source/index'
+import { type OlInteraction, type OlGeometry } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
 import type { ModifyEvent } from 'ol/interaction/Modify'
@@ -6,8 +6,8 @@ import type { ObjectEvent } from 'ol/Object'
 import type BaseEvent from 'ol/events/Event'
 import type MapBrowserEvent from 'ol/MapBrowserEvent'
 import type Modify from './index'
-import VectorLayer from '../../layer/VectorLayer/index'
-import BasicFeature from '../../core/Feature/BasicFeature/index'
+import type VectorLayer from '../../layer/VectorLayer/index'
+import type BasicFeature from '../../core/Feature/BasicFeature/index'
 import type { OMapBasicFeatureCoordinatesType } from '../../core/Feature/BasicFeature/type'
 import {
   type OMapInteractionCommonParamsType,

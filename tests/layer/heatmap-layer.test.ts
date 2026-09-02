@@ -12,8 +12,12 @@ beforeAll(() => {
     getImageData() {
       return { data: new Uint8ClampedArray(256 * 4) }
     }
-    set fillStyle(_v: unknown) {}
-    set strokeStyle(_v: unknown) {}
+    set fillStyle(value: unknown) {
+      void value
+    }
+    set strokeStyle(value: unknown) {
+      void value
+    }
   }
   const fakeCanvas = { getContext: () => new FakeCtx() }
   vi.stubGlobal('document', { createElement: () => fakeCanvas })

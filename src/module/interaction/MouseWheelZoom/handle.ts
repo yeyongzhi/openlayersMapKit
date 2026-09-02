@@ -1,4 +1,4 @@
-import MouseWheelZoom from './index'
+import type MouseWheelZoom from './index'
 import { type OMapInteractionMouseWheelZoomEventType } from './type'
 import { handleInteractionActiveChangeEvent, type InteractionPropertyChangeEvent } from '../handle'
 

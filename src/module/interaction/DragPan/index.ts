@@ -20,12 +20,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 拖动地图类
- * @class DragPan
- * @classdesc 允许用户通过拖动地图来平移地图
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/2
- * @updateDate 2025/9/2
+ *
  */
 
 const defaultDragPanOptions = {
@@ -52,10 +47,10 @@ export default class DragPan extends Interaction<OMapDragPanType> {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionDragPanEventType(type)) {
-      error_(createMessage('on', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('on', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('on', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(type, callback, (e: InteractionPropertyChangeEvent) =>
       handleInteractionDragPanEvent(this, type, e)
@@ -70,10 +65,10 @@ export default class DragPan extends Interaction<OMapDragPanType> {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionDragPanEventType(type)) {
-      error_(createMessage('once', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('once', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('once', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(
       type,
@@ -88,7 +83,7 @@ export default class DragPan extends Interaction<OMapDragPanType> {
       error_(createMessage('un', commonMessage.paramsNotDefined(id)))
     }
     if (!isString(id)) {
-      error_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'EventIdType')))
+      error_(createMessage('un', commonMessage.paramsInvalidFormat(id, 'EventIdType')))
     }
     this.events.remove(id)
   }

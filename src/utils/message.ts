@@ -26,29 +26,38 @@ export function paramsListHaveNotDefined(...paramsName: string[]) {
   return `参数${paramsName.join('、')}均不能为空`
 }
 
-export function paramsInvaildFormat(paramsName: string, format?: string) {
+export function paramsInvalidFormat(paramsName: string, format?: string) {
   return `参数${paramsName}格式错误` + (format ? `，正确格式为${format}` : '')
 }
 
-export function paramsInvaildEnum(paramsName: string, _enums?: string) {
+export function paramsInvalidEnum(paramsName: string, _enums?: string) {
   return `参数${paramsName}不在合法枚举值内`
 }
 
-export function paramsListInvaildFormat(...paramsName: string[]) {
+export function paramsListInvalidFormat(...paramsName: string[]) {
   return `参数${paramsName.join('、')}格式错误`
 }
 
-export function haveInvaildDataItem(paramsName: string) {
+export function haveInvalidDataItem(paramsName: string) {
   return `参数${paramsName}中存在无效数据，已过滤`
 }
+
+/** @deprecated 请使用 {@link paramsInvalidFormat}。 */
+export const paramsInvaildFormat = paramsInvalidFormat
+/** @deprecated 请使用 {@link paramsInvalidEnum}。 */
+export const paramsInvaildEnum = paramsInvalidEnum
+/** @deprecated 请使用 {@link paramsListInvalidFormat}。 */
+export const paramsListInvaildFormat = paramsListInvalidFormat
+/** @deprecated 请使用 {@link haveInvalidDataItem}。 */
+export const haveInvaildDataItem = haveInvalidDataItem
 
 const commonMessage = {
   paramsNotDefined,
   paramsListHaveNotDefined,
-  paramsInvaildFormat,
-  paramsInvaildEnum,
-  paramsListInvaildFormat,
-  haveInvaildDataItem
+  paramsInvalidFormat,
+  paramsInvalidEnum,
+  paramsListInvalidFormat,
+  haveInvalidDataItem
 }
 
 export { warn_, info_, error_, getPackageMessage, commonMessage }

@@ -1,4 +1,4 @@
-import { OlGeometry, OlSource } from '../../../source/index'
+import { type OlGeometry, type OlSource } from '../../../source/index'
 import type Collection from 'ol/Collection'
 import type FeatureFormat from 'ol/format/Feature'
 import type { FeatureLoader, FeatureUrlFunction } from 'ol/featureloader'

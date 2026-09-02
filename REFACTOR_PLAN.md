@@ -36,7 +36,7 @@
 **可延期项**（不阻塞公开 Beta，Beta 后持续改进）：
 
 1. 评审是否提供 subpath exports。
-2. `Lnglat` → `LngLat` 历史命名的内部引用迁移与废弃移除。
+2. `LngLat` → `LngLat` 历史命名的内部引用迁移与废弃移除。
 3. ~~收紧直接 `new GeometryWrapper(nativeFeature)` 的绕过 resolver 路径~~（已完成：FeatureQuery.resolveFeature 与 Select.getTargetFeature 改为统一走 `createBaseFeatureByOlFeature` / `createBaseFeatureByOlRenderFeature`，BasicFeature 构造分支标注 `@internal`）。
 
 **依赖外部环境或权限**：
@@ -82,7 +82,7 @@
 - 2026-08-27：新增 Style 全家族、颜色/tuple/type guard、Popup payload、Measure DOM helper、DragBox/Extent/Modify payload 与图层 helper 覆盖率测试，测试矩阵增至 21 个文件、104 个用例；全局 statements 由 52.5% 提升至 72.4%、lines 由 52.94% 提升至 73.58%。已设置全局 lines 70% 硬门槛，并将 `test:coverage` 接入 `pnpm check` 与 CI；core/basic/util 85% 模块目标仍保留待补。
 - 2026-08-27：完成全仓历史质量债迁移：按 basic/control → core/Feature → source/layer → interaction/Map/Projection → util/utils 顺序清理全部 185 个 ESLint warning，并将 `lint` 升级为 `--max-warnings 0`；随后完成 192 个历史文件的 Prettier 机械迁移，将 `format:check` 接入 `pnpm check` 与 CI。当前 ESLint 零 warning、Prettier 全仓校验通过。
 - 2026-08-26：启动 typed events 收敛，Map/Popup 公开订阅回调改为精确事件对象签名，通用 Event 支持具体事件映射参数；Popup 原生事件改为逐订阅直达，修复多订阅重复 fan-out，并修复首次 position/offset 变更时 `oldValue` 为空导致值对象构造异常。新增多监听/once/typed payload 回归，当前共 18 个测试文件、95 个用例。
-- 2026-08-26：继续清理外部未知输入边界：TileSource 参数实现、构造函数名称探测与 Lnglat 类型判断改用 `unknown`/type guard，通用函数签名改用 `never[]`/`unknown`，Map 旧选项数组移除裸 `Array<any>`；`defaultValue` 因大量历史调用依赖动态返回推断，暂保留为最后一个明确标注的 legacy any 边界，待按模块迁移调用点后移除。
+- 2026-08-26：继续清理外部未知输入边界：TileSource 参数实现、构造函数名称探测与 LngLat 类型判断改用 `unknown`/type guard，通用函数签名改用 `never[]`/`unknown`，Map 旧选项数组移除裸 `Array<any>`；`defaultValue` 因大量历史调用依赖动态返回推断，暂保留为最后一个明确标注的 legacy any 边界，待按模块迁移调用点后移除。
 - 2026-08-26：按模块启动历史 Lint 清债，完成 basic（含 Style）与 control 的未使用导入/参数清理；全仓 ESLint warning 从 185 降至 151，类型检查保持通过，未混入行为改写。
 - 2026-08-26：建立公开 `Disposable`/`Removable` 生命周期协议并接入 Map、Layer、Source、Interaction、Control、Popup、Event；统一 `remove` 为可重挂载的解除关系、`dispose` 为幂等永久释放，Map dispose 改为经 manager 永久释放所拥有对象。补齐 Layer/Control/Popup remove-remount-dispose、Source 原生释放与 Event 永久释放测试，并消除 BaseLayer 对 Map 的运行时反向依赖。当前共 18 个测试文件、94 个用例。
 - 2026-08-26：完成 Map `EventAdapter` 下沉，`on`/`once`/`un` 门面保持兼容，原生 Map/View listener 的注册、交互态事件抑制、一次性订阅和销毁清理统一由 adapter 管理；补测时发现并修复同类型多个订阅各自触发全局事件总线所造成的重复分发。新增 2 个 DOM 回归用例，当前共 18 个测试文件、92 个用例。
@@ -187,7 +187,7 @@
 
 > 批次 D 继续（core/Map）：6 处收敛——`Map/type.ts` 的 `layers: Array<any>` → `Array<BaseLayer<OMapBaseLayerCommonType>>`、`controls: Array<any>` → `Array<Control>`；`Map/handle.ts` 的 `type as any` → `type as OMapEventType`；`Map/index.ts` 两处 `layerFilter: (layer: any)` → `(layer: OlLayer.Layer)`（第二处为本轮补齐）、`forEach` 注解对齐 `getFeatures(): BaseFeature<OlGeometry.Geometry>[]`、`getEventCoordinate/getEventPixel(event: any)` → `MouseEvent`/`UIEvent`（OL 原生签名）。刻意保留：`type.ts` 的 `target/oldValue/newValue: any`（事件 payload，typed event map 批次）、`index.ts` 的 `(e: any)` OL 事件回调、`Record<string, any>` properties（泛型模型批次）、`handleMapOnCallBack` 的 `e: any`（OL 透传）。
 
-> 批次 D 继续（utils/dataType）：`isFunction<T extends Function>(value: T | any)` → `<T extends AnyFunction>(value: unknown)`（新增导出 `AnyFunction = (...args: any[]) => any` 替代裸 `Function`；`T | any` 本就被 any 吸收、T 恒回退到约束，改 `unknown` 后收窄行为等价）；`isString` 由普通 `boolean` 返回升级为类型谓词 `value is string`（使 `isVaildColorHex*` 等调用点可正常收窄，与 `isNumber` 风格一致）；同文件 `isNumber/isString/isBoolean/isObject/isCoordinatesType/isExtentType/isVaildColor*` 等冗余联合 `any`（`number | any` 等）与 `(value: any)` 守卫参数统一收敛为 `unknown`，`isVaildColorHex*` 内 `(value as string)` 断言保持运行时求值顺序不变。全仓裸 `Function` 至此清零。bundle 字节数与改动前一致，运行时零变化；四门禁通过。
+> 批次 D 继续（utils/dataType）：`isFunction<T extends Function>(value: T | any)` → `<T extends AnyFunction>(value: unknown)`（新增导出 `AnyFunction = (...args: any[]) => any` 替代裸 `Function`；`T | any` 本就被 any 吸收、T 恒回退到约束，改 `unknown` 后收窄行为等价）；`isString` 由普通 `boolean` 返回升级为类型谓词 `value is string`（使 `isValidColorHex*` 等调用点可正常收窄，与 `isNumber` 风格一致）；同文件 `isNumber/isString/isBoolean/isObject/isCoordinatesType/isExtentType/isValidColor*` 等冗余联合 `any`（`number | any` 等）与 `(value: any)` 守卫参数统一收敛为 `unknown`，`isValidColorHex*` 内 `(value as string)` 断言保持运行时求值顺序不变。全仓裸 `Function` 至此清零。bundle 字节数与改动前一致，运行时零变化；四门禁通过。
 
 ### 阶段 4：Feature 与 basic 重构
 
@@ -195,14 +195,14 @@
 
 任务：
 
-- [x] 抽取 `normalizeCoordinates`（递归归一化任意嵌套层级坐标，4 个重载覆盖 depth 0-3；8 个 Geometry 子类 `_init` / `setCoordinates` 复用，消除重复 `.map(c => handleGetLnglatValue(c))` 嵌套；新增 `tests/basic/normalize-coordinates.test.ts` 7 例覆盖各深度与 Lnglat/数组混合输入）。
+- [x] 抽取 `normalizeCoordinates`（递归归一化任意嵌套层级坐标，4 个重载覆盖 depth 0-3；8 个 Geometry 子类 `_init` / `setCoordinates` 复用，消除重复 `.map(c => handleGetLngLatValue(c))` 嵌套；新增 `tests/basic/normalize-coordinates.test.ts` 7 例覆盖各深度与 LngLat/数组混合输入）。
 - [x] 抽取 `initByCoordinates`、`initByOlFeature` 或等价 factory（`_initByFeature` 与 `_createFeature` 已上提 `BasicFeature` 基类；`initByCoordinates` 方向经 `normalizeCoordinates` 在各 `_init` 中统一为 `new OlGeometry.X(normalizeCoordinates(coords))` + `_createFeature`，OL Geometry 构造因类型固有差异保留）。
 - [x] 建立原生 Geometry 类型到 OMap Feature wrapper 构造器的统一映射，并使用 WeakMap registry 复用解析结果。
 - [x] 保证同一原生 Feature 经 factory、Format、Style 回调及 VectorSource 等受支持入口解析时对应稳定 OMap wrapper。
 - [x] 收紧直接重复 `new GeometryWrapper(nativeFeature)` 的使用方式：FeatureQuery.resolveFeature 与 Select.getTargetFeature 改为统一经 resolver（`createBaseFeatureByOlFeature` / `createBaseFeatureByOlRenderFeature`），BasicFeature 构造接收原生 Feature 的分支标注 `@internal`，不再允许外部绕过统一身份校验。
-- [x] 为 Lnglat、Pixel、Size、Extent、Color 补齐首轮 `from/clone/equals/toArray/toString`；命名兼容和不可变策略待继续收敛。
+- [x] 为 LngLat、Pixel、Size、Extent、Color 补齐首轮 `from/clone/equals/toArray/toString`；命名兼容和不可变策略待继续收敛。
 - [x] 决定值对象是否不可变，并统一 setter 语义（结论：值对象保持可变，setters 直接改内部字段；`clone()` 提供不可变副本，`from()` 统一入口；与 OpenLayers 原生 Coordinate/Pixel 风格一致）。
-- [x] 兼容性处理 `Lnglat` → `LngLat` 等历史命名（新增 `LngLat` 别名，`Lnglat` 标 `@deprecated`，见批次 B）。
+- [x] 兼容性处理 `LngLat` → `LngLat` 等历史命名（新增 `LngLat` 别名，`LngLat` 标 `@deprecated`，见批次 B）。
 
 验收：新增 Geometry wrapper 不再复制大量初始化代码；基础值对象 API 一致。
 
@@ -335,10 +335,10 @@
 目标：先消除 Geometry wrapper 重复初始化，再扩大类型收敛范围，避免在重复代码上反复修类型。
 
 - [x] 设计并测试原生 Feature → OMap Feature wrapper WeakMap registry/factory。
-- [x] 抽取原生 Feature 初始化（`_initByFeature` 上提为 `BasicFeature` 默认实现）与 OMap Feature 初始化（`_createFeature` 统一创建 `OlFeature`），消除 8 个 Geometry 子类的重复实现；坐标归一化已抽取为 `normalizeCoordinates`（`Lnglat/handle.ts`，4 个重载覆盖 depth 0-3），各 Geometry 子类 `_init` / `setCoordinates` 统一调用，不再重复嵌套 map 回调。新增 `tests/core/feature-factory.test.ts` 参数化矩阵（24 例）覆盖全部 Geometry 的构造 / 原生绑定 / resolver 复用，`tests/basic/normalize-coordinates.test.ts`（7 例）覆盖归一化各深度。
+- [x] 抽取原生 Feature 初始化（`_initByFeature` 上提为 `BasicFeature` 默认实现）与 OMap Feature 初始化（`_createFeature` 统一创建 `OlFeature`），消除 8 个 Geometry 子类的重复实现；坐标归一化已抽取为 `normalizeCoordinates`（`LngLat/handle.ts`，4 个重载覆盖 depth 0-3），各 Geometry 子类 `_init` / `setCoordinates` 统一调用，不再重复嵌套 map 回调。新增 `tests/core/feature-factory.test.ts` 参数化矩阵（24 例）覆盖全部 Geometry 的构造 / 原生绑定 / resolver 复用，`tests/basic/normalize-coordinates.test.ts`（7 例）覆盖归一化各深度。
 - [x] 为 Point、LineString、Polygon、Multi*、Circle、LinearRing 建立参数化测试矩阵（见 `tests/core/feature-factory.test.ts`，24 例参数化覆盖构造 / 原生绑定 / resolver 复用）。
 - [x] 确定值对象可变性、clone 和 setter 语义（值对象保持可变，setters 直接改内部字段；`clone()` 提供不可变副本；与 OpenLayers 原生 Coordinate/Pixel 风格一致）。
-- [x] 确定 `Lnglat` → `LngLat` 的兼容别名与废弃周期：新增 `LngLat` 作为推荐公开名称（与 `Lnglat` 等价，`export const LngLat = Lnglat`），根入口与 basic 均再导出；`Lnglat` 标 `@deprecated`，内部引用计划在批次 D 统一迁移。
+- [x] 确定 `LngLat` → `LngLat` 的兼容别名与废弃周期：新增 `LngLat` 作为推荐公开名称（与 `LngLat` 等价，`export const LngLat = LngLat`），根入口与 basic 均再导出；`LngLat` 标 `@deprecated`，内部引用计划在批次 D 统一迁移。
 - [ ] 将 factory、Source、Layer 和 Interaction 的公开回调改为 typed event map。
 
 完成条件：阶段 4 的初始化重复明显减少，所有 Geometry 均通过相同 factory 测试，公共声明不因 factory 引入新的 `any`。

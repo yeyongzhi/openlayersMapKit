@@ -1,5 +1,5 @@
 import Control from './index'
-import { OlControl } from '../../../source/index'
+import { type OlControl } from '../../../source/index'
 import { isString } from '../../../utils/index'
 import type BaseEvent from 'ol/events/Event'
 
@@ -24,7 +24,7 @@ export function isOMapControlEventType(value: unknown): value is OMapControlEven
  */
 export type OMapControlEventMap = Record<OMapControlEventType, [BaseEvent]>
 
-export function isVaildControl(value: unknown): value is Control<OlControl.Control> {
+export function isValidControl(value: unknown): value is Control<OlControl.Control> {
   return value instanceof Control
 }
 

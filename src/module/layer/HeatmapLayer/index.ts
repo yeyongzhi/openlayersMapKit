@@ -7,17 +7,12 @@ import VectorSource from '../../source/VectorSource/index'
 import { type OMapHeatmapLayerParamsType } from './type'
 import { type BaseLayerPropertiesType, type OMapBaseLayerCommonType } from '../BaseLayer/type'
 
-let PACKAGE_NAME = 'HeatmapLayer'
-let createMessage = getPackageMessage(PACKAGE_NAME)
+const PACKAGE_NAME = 'HeatmapLayer'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 热力图图层类
- * @class HeatmapLayer
- * @classdesc 基于 OpenLayers `ol/layer/Heatmap` 的矢量热力图图层，将矢量源按权重渲染为热力分布。
- * @author Aurora
- * @version 1.0.0
- * @createDate 2026/8/31
- * @updateDate 2026/8/31
+ *
  */
 export default class HeatmapLayer<
   P extends BaseLayerPropertiesType = BaseLayerPropertiesType
@@ -26,36 +21,36 @@ export default class HeatmapLayer<
   declare protected _sourceWrapper: VectorSource | null
 
   constructor(options?: OMapHeatmapLayerParamsType<P>) {
-    const _options: OMapHeatmapLayerParamsType<P> = options ?? {}
-    super('Heatmap', _options)
-    if (!isDefined(_options.source)) {
+    const resolvedOptions: OMapHeatmapLayerParamsType<P> = options ?? {}
+    super('Heatmap', resolvedOptions)
+    if (!isDefined(resolvedOptions.source)) {
       error_(createMessage('constructor', 'source参数是必须的'))
       return
     }
-    const _layerParams = Object.assign({}, _options, {
+    const layerParams = Object.assign({}, resolvedOptions, {
       source: undefined,
       map: undefined
     })
     const sourceWrapper =
-      _options.source instanceof VectorSource
-        ? _options.source
-        : new VectorSource(_options.source ?? {})
+      resolvedOptions.source instanceof VectorSource
+        ? resolvedOptions.source
+        : new VectorSource(resolvedOptions.source ?? {})
     this._sourceWrapper = sourceWrapper
+    this.ownsSourceWrapper = !(resolvedOptions.source instanceof VectorSource)
     // OL Heatmap（WebGL 系）不支持 background；从构造参数中剔除后再传入。
-    const { background: _ignoredBackground, ..._heatmapParams } = _layerParams
-    void _ignoredBackground
+    const { background: ignoredBackground, ...heatmapParams } = layerParams
+    void ignoredBackground
     this._layer = new OlLayer.Heatmap({
-      ..._heatmapParams,
-      extent: isDefined(_layerParams.extent)
-        ? handleGetExtentValue(_layerParams.extent)
-        : undefined,
+      ...heatmapParams,
+      extent: isDefined(layerParams.extent) ? handleGetExtentValue(layerParams.extent) : undefined,
       source: sourceWrapper.getSource()
     })
-    this._initLayerEvent()
+    this.initLayerEvent()
   }
 
   /**
    * 获取图层关联的 OMap 矢量数据源包装。
+   *
    * @returns {VectorSource | null} OMap 矢量数据源包装
    */
   getVectorSource(): VectorSource | null {

@@ -1,5 +1,5 @@
-import { OlSource } from '../../source/index'
-import Projection from '../../module/core/Projection/index'
+import { type OlSource } from '../../source/index'
+import type Projection from '../../module/core/Projection/index'
 import type { ManualOmit } from '../type'
 
 // 【1】TileSource  12个属性

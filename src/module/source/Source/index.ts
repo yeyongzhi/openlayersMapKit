@@ -5,26 +5,22 @@ import Projection from '../../core/Projection/index'
 import { type OMapSourceAttributionLike, type OMapSourceState, type OMapSourceType } from './type'
 import type { PropertiesType } from '../../../utils/type'
 import type { Disposable } from '../../util/Disposable/type'
+import { assertNotDisposed } from '../../util/Disposable/lifecycle'
 
 const PACKAGE_NAME = 'Source'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * OMap Source 基类
- * @class
- * @classdesc 所有Source的基类，提供了一些通用的方法和属性。
+ *
  * @description 参考：https://openlayers.org/en/latest/apidoc/module-ol_source_Source-Source.html
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/30
- * @updateDate 2025/9/30
  */
 
 /**
  * 数据源基类（抽象类）。
  *
- * @typeParam T - 原生 OpenLayers Source 类型。
- * @typeParam P - 数据源属性字典。默认 {@link PropertiesType}；
+ * @template T - 原生 OpenLayers Source 类型。
+ * @template P - 数据源属性字典。默认 {@link PropertiesType}；
  *   传入更具体的结构后，`getProperties()` 会按该结构推导。
  */
 export default abstract class Source<
@@ -45,6 +41,7 @@ export default abstract class Source<
    * 获取原生 OpenLayers Source 实例
    */
   getSource(): T {
+    this.assertActive('getSource')
     return this._source
   }
 
@@ -52,6 +49,7 @@ export default abstract class Source<
    * 子类初始化具体 Source 时使用
    */
   protected setSource(source: T) {
+    this.assertActive('setSource')
     if (!isDefined(source)) {
       error_(createMessage('setSource', 'source不能为空'))
     }
@@ -59,10 +57,12 @@ export default abstract class Source<
   }
 
   changed() {
+    this.assertActive('changed')
     this._source.changed()
   }
 
   dispatchEvent(event: BaseEvent | string): boolean | undefined {
+    this.assertActive('dispatchEvent')
     return this._source.dispatchEvent(event)
   }
 
@@ -75,6 +75,7 @@ export default abstract class Source<
   }
 
   set(key: string, value: unknown, silent?: boolean) {
+    this.assertActive('set')
     if (!isString(key)) {
       warn_(createMessage('set', 'key必须是字符串'))
       return
@@ -83,6 +84,7 @@ export default abstract class Source<
   }
 
   unset(key: string, silent?: boolean) {
+    this.assertActive('unset')
     if (!isString(key)) {
       warn_(createMessage('unset', 'key必须是字符串'))
       return
@@ -133,31 +135,37 @@ export default abstract class Source<
 
   /**
    * 获取数据源属性字典。
+   *
    * @returns {P} 属性字典，类型由泛型 `P` 决定
    */
   getProperties(): P {
-    return this._source.getProperties() as P
+    return { ...(this._source.getProperties() as P) }
   }
 
   refresh() {
+    this.assertActive('refresh')
     this._source.refresh()
   }
 
   setAttributions(attributions: OMapSourceAttributionLike | undefined) {
+    this.assertActive('setAttributions')
     this._source.setAttributions(attributions)
   }
 
   setState(state: OMapSourceState) {
+    this.assertActive('setState')
     this._source.setState(state)
   }
 
   /**
    * 合并写入数据源属性。OpenLayers 的 `setProperties` 为合并语义，
    * 因此入参按 `Partial<P>` 处理，允许只更新部分字段。
+   *
    * @param {Partial<P>} properties 待合并的属性
    * @param {boolean} silent 是否静默更新
    */
   setProperties(properties: Partial<P>, silent?: boolean) {
+    this.assertActive('setProperties')
     this._source.setProperties(properties as PropertiesType, silent)
   }
 
@@ -170,6 +178,10 @@ export default abstract class Source<
 
   isDisposed(): boolean {
     return this.disposed
+  }
+
+  protected assertActive(operationName: string): void {
+    assertNotDisposed(this.disposed, this.constructor.name || PACKAGE_NAME, operationName)
   }
 
   // on(type: string | string[], listener: ListenerFunction): EventsKey | EventsKey[] {

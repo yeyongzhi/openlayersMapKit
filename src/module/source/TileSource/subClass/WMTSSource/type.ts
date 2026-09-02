@@ -1,12 +1,12 @@
-import { OlSource, OlTileGrid } from '../../../../../source/index'
+import { type OlSource, OlTileGrid } from '../../../../../source/index'
 import type { Options as OlWMTSSourceOptions, RequestEncoding } from 'ol/source/WMTS'
 import { handleGetProjectionValue } from '../../../../core/Projection/handle'
 import type { OMapProjectionType } from '../../../../core/Projection/type'
-import type { OMapCoordinateType } from '../../../../basic/Lnglat/type'
+import type { OMapCoordinateType } from '../../../../basic/LngLat/type'
 import type { OMapExtentType } from '../../../../basic/Extent/type'
 import type { OMapSizeType } from '../../../../basic/Size/type'
 import { handleGetExtentValue } from '../../../../basic/Extent/handle'
-import { handleGetLnglatValue } from '../../../../basic/Lnglat/handle'
+import { handleGetLngLatValue } from '../../../../basic/LngLat/handle'
 import { handleGetSizeValue } from '../../../../basic/Size/handle'
 
 export type OMapWMTSSourceType = InstanceType<typeof OlSource.WMTS>
@@ -59,8 +59,8 @@ export function handleGetWMTSTileGrid(tileGrid: OMapWMTSSourceParamsType['tileGr
   return new OlTileGrid.WMTS({
     ...tileGrid,
     extent: tileGrid.extent ? handleGetExtentValue(tileGrid.extent) : undefined,
-    origin: tileGrid.origin ? handleGetLnglatValue(tileGrid.origin) : undefined,
-    origins: tileGrid.origins?.map((item) => handleGetLnglatValue(item)),
+    origin: tileGrid.origin ? handleGetLngLatValue(tileGrid.origin) : undefined,
+    origins: tileGrid.origins?.map((item) => handleGetLngLatValue(item)),
     sizes: tileGrid.sizes?.map((item) => handleGetSizeValue(item)),
     tileSize:
       typeof tileGrid.tileSize === 'number'

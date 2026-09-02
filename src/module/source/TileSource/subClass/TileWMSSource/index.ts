@@ -2,8 +2,8 @@ import { isNumber } from '../../../../../utils/index'
 import { error_, getPackageMessage } from '../../../../../utils/message'
 import { OlSource } from '../../../../../source/index'
 import Projection from '../../../../core/Projection/index'
-import type { OMapCoordinateType } from '../../../../basic/Lnglat/type'
-import { handleGetLnglatValue } from '../../../../basic/Lnglat/handle'
+import type { OMapCoordinateType } from '../../../../basic/LngLat/type'
+import { handleGetLngLatValue } from '../../../../basic/LngLat/handle'
 import TileSource from '../../index'
 import {
   DEFAULT_TILE_WMS_SOURCE_PARAMS,
@@ -34,7 +34,7 @@ export default class TileWMSSource extends TileSource<OMapTileWMSSourceType> {
     projection: Projection,
     params: OMapWMSParams
   ): string | undefined {
-    const olCoordinate = handleGetLnglatValue(coordinate)
+    const olCoordinate = handleGetLngLatValue(coordinate)
     if (!olCoordinate || !isNumber(resolution) || !(projection instanceof Projection)) {
       error_(createMessage('getFeatureInfoUrl', 'coordinate、resolution或projection参数格式有误'))
     }

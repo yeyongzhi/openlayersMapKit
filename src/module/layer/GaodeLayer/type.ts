@@ -1,6 +1,6 @@
-import { ManualOmit } from '../../../utils/type'
-import { OMapTileLayerParamsType } from '../TileLayer/type'
-import { OMapXYZSourceParamsType } from '../../source/TileSource/subClass/XYZ/type'
+import { type ManualOmit } from '../../../utils/type'
+import { type OMapTileLayerParamsType } from '../TileLayer/type'
+import { type OMapXYZSourceParamsType } from '../../source/TileSource/subClass/XYZ/type'
 
 export const GaodeLayerType = {
   Vec: 'vec',

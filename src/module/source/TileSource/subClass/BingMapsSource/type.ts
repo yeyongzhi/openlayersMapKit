@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../source/index'
+import { type OlSource } from '../../../../../source/index'
 import type { Options as OlBingMapsSourceOptions } from 'ol/source/BingMaps'
 
 export type OMapBingMapsSourceType = InstanceType<typeof OlSource.BingMaps>

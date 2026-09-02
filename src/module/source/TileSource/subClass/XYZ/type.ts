@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../source/index'
+import { type OlSource } from '../../../../../source/index'
 import type { Options as OlXYZSourceOptions } from 'ol/source/XYZ'
 import { handleGetSizeValue } from '../../../../basic/Size/handle'
 import type { OMapSizeType } from '../../../../basic/Size/type'

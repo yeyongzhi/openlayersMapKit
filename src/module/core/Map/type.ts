@@ -1,24 +1,25 @@
-import OlPackage, { OlEasing, OlLayer } from '../../../source/index'
+import type OlPackage from '../../../source/index'
+import { OlEasing } from '../../../source/index'
 import { type ManualOmit } from '../../../utils/type'
 import { getDevicePixelRatio } from '../../../utils/handle'
-import Projection from '../../core/Projection/index'
-import Interaction from '../../interaction/Interaction/index'
+import type Projection from '../../core/Projection/index'
+import type Interaction from '../../interaction/Interaction/index'
 import { type OMapInteractionCommonType } from '../../interaction/Interaction/type'
 import MouseWheelZoom from '../../interaction/MouseWheelZoom/index'
 import DoubleClickZoom from '../../interaction/DoubleClickZoom/index'
 import DragPan from '../../interaction/DragPan/index'
-import Popup from '../../basic/Popup/index'
-import Pixel from '../../basic/Pixel/index'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OMapCoordinateType } from '../../basic/Lnglat/type'
+import type Popup from '../../basic/Popup/index'
+import type Pixel from '../../basic/Pixel/index'
+import type LngLat from '../../basic/LngLat/index'
+import { type OMapCoordinateType } from '../../basic/LngLat/type'
 import { type OMapExtentType } from '../../basic/Extent/type'
 import { type OMapSizeType } from '../../basic/Size/type'
-import BaseLayer from '../../layer/BaseLayer/index'
+import type BaseLayer from '../../layer/BaseLayer/index'
 import type { OMapBaseLayerCommonType } from '../../layer/BaseLayer/type'
-import Control from '../../control/Control/index'
+import type Control from '../../control/Control/index'
 import type BaseEvent from 'ol/events/Event'
 import type Map from './index'
-import type { Coordinate } from '../../../source/index'
+import type { Coordinate, OlLayer } from '../../../source/index'
 
 /** View */
 export type OMapViewType = OlPackage.View
@@ -123,7 +124,7 @@ export type OMapEventTarget = {
   oldValue?: unknown
   newValue?: unknown
   pixel?: Pixel
-  coordinate?: Lnglat
+  coordinate?: LngLat
   key?: string
 }
 

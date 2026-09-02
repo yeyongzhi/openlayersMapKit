@@ -3,7 +3,7 @@ import type {
   OlModifyEventPayloadType,
   OMapModifyEvent
 } from './type'
-import Modify from './index'
+import type Modify from './index'
 
 export function handleModifyEvent(
   target: Modify,
@@ -12,7 +12,7 @@ export function handleModifyEvent(
 ): OMapModifyEvent {
   // 仅 ModifyEvent 携带 mapBrowserEvent 字段（change 系列事件没有）
   const mapBrowserEvent = 'mapBrowserEvent' in e ? e.mapBrowserEvent : undefined
-  let result: OMapModifyEvent = {
+  const result: OMapModifyEvent = {
     target,
     type,
     mapBrowserEvent

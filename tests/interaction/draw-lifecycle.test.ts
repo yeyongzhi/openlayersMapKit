@@ -27,9 +27,10 @@ describe('Draw lifecycle', () => {
   it('removes once listeners from the native interaction after the first event', () => {
     const draw = new Draw(DrawMode.Point)
     const listener = vi.fn()
+    const nativeInteraction = draw.getInteraction()
 
     draw.once('drawabort', listener)
-    draw.getInteraction().dispatchEvent({ type: 'drawabort' })
+    nativeInteraction.dispatchEvent({ type: 'drawabort' })
     draw.getInteraction().dispatchEvent({ type: 'drawabort' })
 
     expect(listener).toHaveBeenCalledOnce()
@@ -38,11 +39,12 @@ describe('Draw lifecycle', () => {
   it('disposes interaction listeners idempotently', () => {
     const draw = new Draw(DrawMode.Point)
     const listener = vi.fn()
+    const nativeInteraction = draw.getInteraction()
 
     draw.on('drawabort', listener)
     draw.dispose()
     draw.dispose()
-    draw.getInteraction().dispatchEvent({ type: 'drawabort' })
+    nativeInteraction.dispatchEvent({ type: 'drawabort' })
 
     expect(draw.isDisposed()).toBe(true)
     expect(listener).not.toHaveBeenCalled()

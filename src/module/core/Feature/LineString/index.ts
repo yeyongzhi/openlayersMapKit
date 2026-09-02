@@ -9,9 +9,9 @@ import {
   isValidLineStringCoordinates
 } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import Lnglat from '../../../basic/Lnglat/index'
-import { type OlCoordinateType } from '../../../basic/Lnglat/type'
-import { handleGetLnglatValue, normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import LngLat from '../../../basic/LngLat/index'
+import { type OlCoordinateType } from '../../../basic/LngLat/type'
+import { handleGetLngLatValue, normalizeCoordinates } from '../../../basic/LngLat/handle'
 import { type OMapExtentType, isValidExtent } from '../../../basic/Extent/type'
 import { type OMapPointGeometryCoordinatesType } from '../Point/type'
 import { handleGetExtentValue } from '../../../basic/Extent/handle'
@@ -21,12 +21,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * LineString类
- * @class
- * @classdesc LineString
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/14
- * @updateDate 2026/1/30
+ *
  */
 
 export default class LineString<P extends PropertiesType = PropertiesType> extends BasicFeature<
@@ -48,7 +43,7 @@ export default class LineString<P extends PropertiesType = PropertiesType> exten
     } else {
       if (!isValidLineStringCoordinates(coordinatesOrFeature)) {
         error_(
-          createMessage('constructor', commonMessage.paramsInvaildFormat('coordinatesOrFeature'))
+          createMessage('constructor', commonMessage.paramsInvalidFormat('coordinatesOrFeature'))
         )
       }
       super('LineString', coordinatesOrFeature)
@@ -58,24 +53,26 @@ export default class LineString<P extends PropertiesType = PropertiesType> exten
     }
   }
 
-  protected _init(coordinates: OMapLineStringGeometryCoordinatesType) {
+  protected init(coordinates: OMapLineStringGeometryCoordinatesType) {
     this._geometry = new OlGeometry.LineString(normalizeCoordinates(coordinates))
-    this._feature = this._createFeature(this._geometry)
+    this._feature = this.createFeature(this._geometry)
   }
 
   /**
    * 获取线的坐标
-   * @returns {Array<Lnglat>} 线的坐标
+   *
+   * @returns {Array<LngLat>} 线的坐标
    */
-  getCoordinates(): Lnglat[] {
-    let coordinates = this._geometry.getCoordinates()
+  getCoordinates(): LngLat[] {
+    const coordinates = this._geometry.getCoordinates()
     return coordinates.map((c) => {
-      return new Lnglat(c)
+      return new LngLat(c)
     })
   }
 
   /**
    * 设置线的坐标
+   *
    * @param {OMapLineStringGeometryCoordinatesType} coordinates 线的坐标
    */
   setCoordinates(coordinates: OMapLineStringGeometryCoordinatesType) {
@@ -83,43 +80,46 @@ export default class LineString<P extends PropertiesType = PropertiesType> exten
       error_(createMessage('setCoordinates', commonMessage.paramsNotDefined('coordinates')))
     }
     if (!isValidLineStringCoordinates(coordinates)) {
-      error_(createMessage('setCoordinates', commonMessage.paramsInvaildFormat('coordinates')))
+      error_(createMessage('setCoordinates', commonMessage.paramsInvalidFormat('coordinates')))
     }
-    let _coordinates = normalizeCoordinates(coordinates)
-    this._geometry.setCoordinates(_coordinates)
+    const coordinateValues = normalizeCoordinates(coordinates)
+    this._geometry.setCoordinates(coordinateValues)
   }
 
   /**
    * 追加坐标
+   *
    * @param {OMapPointGeometryCoordinatesType} coordinates 坐标
    */
   appendCoordinate(coordinates: OMapPointGeometryCoordinatesType) {
     if (!isDefined(coordinates)) {
       error_(createMessage('appendCoordinate', commonMessage.paramsNotDefined('coordinates')))
     }
-    if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
-      error_(createMessage('appendCoordinate', commonMessage.paramsInvaildFormat('coordinates')))
+    if (!(coordinates instanceof LngLat) && !isCoordinatesType(coordinates)) {
+      error_(createMessage('appendCoordinate', commonMessage.paramsInvalidFormat('coordinates')))
     }
-    let _coordinates = handleGetLnglatValue(coordinates)
-    this._geometry.appendCoordinate(_coordinates)
+    const coordinateValues = handleGetLngLatValue(coordinates)
+    this._geometry.appendCoordinate(coordinateValues)
   }
 
   /**
    * 获取线的第一个坐标
-   * @returns {Lnglat} 线的第一个坐标
+   *
+   * @returns {LngLat} 线的第一个坐标
    */
-  getFirstCoordinate(): Lnglat {
-    let coordinates = this._geometry.getFirstCoordinate()
-    return new Lnglat(coordinates)
+  getFirstCoordinate(): LngLat {
+    const coordinates = this._geometry.getFirstCoordinate()
+    return new LngLat(coordinates)
   }
 
   /**
    * 获取线的最后一个坐标
-   * @returns {Lnglat} 线的最后一个坐标
+   *
+   * @returns {LngLat} 线的最后一个坐标
    */
-  getLastCoordinate(): Lnglat {
-    let coordinates = this._geometry.getLastCoordinate()
-    return new Lnglat(coordinates)
+  getLastCoordinate(): LngLat {
+    const coordinates = this._geometry.getLastCoordinate()
+    return new LngLat(coordinates)
   }
 
   getLength(): number {
@@ -128,21 +128,22 @@ export default class LineString<P extends PropertiesType = PropertiesType> exten
 
   /**
    * 获取线段指定位置的坐标点
+   *
    * @param {number} fraction 比例
    * @param dest 目标坐标点
-   * @returns {Lnglat} 线的坐标点
+   * @returns {LngLat} 线的坐标点
    */
-  getCoordinateAt(fraction: number, dest: OlCoordinateType | Lnglat): Lnglat {
+  getCoordinateAt(fraction: number, dest: OlCoordinateType | LngLat): LngLat {
     if (!isDefined(fraction)) {
       error_(createMessage('getCoordinateAt', '参数不能为空'))
     }
     if (!(isNumber(fraction) && fraction >= 0 && fraction <= 1)) {
       error_(createMessage('getCoordinateAt', '参数格式有误'))
     }
-    let result: number[] = []
-    let coordinates = this._geometry.getCoordinateAt(fraction, result)
+    const result: number[] = []
+    const coordinates = this._geometry.getCoordinateAt(fraction, result)
     if (isDefined(dest)) {
-      if (dest instanceof Lnglat) {
+      if (dest instanceof LngLat) {
         dest.setLng(result[0])
         dest.setLat(result[1])
       } else {
@@ -150,18 +151,18 @@ export default class LineString<P extends PropertiesType = PropertiesType> exten
         dest[1] = result[1]
       }
     }
-    return new Lnglat(coordinates)
+    return new LngLat(coordinates)
   }
 
-  getCoordinateAtM(m: number, extrapolate: boolean = false): Lnglat | null {
+  getCoordinateAtM(m: number, extrapolate: boolean = false): LngLat | null {
     if (!isDefined(m)) {
       error_(createMessage('getCoordinateAtM', '参数 m 不能为空'))
     }
     if (!isNumber(m)) {
       error_(createMessage('getCoordinateAtM', '参数 m 格式有误'))
     }
-    let coordinates = this._geometry.getCoordinateAtM(m, extrapolate)
-    return isDefined(coordinates) ? new Lnglat(coordinates) : null
+    const coordinates = this._geometry.getCoordinateAtM(m, extrapolate)
+    return isDefined(coordinates) ? new LngLat(coordinates) : null
   }
 
   translate(deltaX: number = 0, deltaY: number = 0) {
@@ -181,11 +182,12 @@ export default class LineString<P extends PropertiesType = PropertiesType> exten
     if (!isDefined(coordinates)) {
       error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
     }
-    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+    return this._geometry.intersectsCoordinate(handleGetLngLatValue(coordinates))
   }
 
   /**
    * 线是否在extent范围内
+   *
    * @param {OMapExtentType} extent
    * @returns {boolean}
    */
@@ -196,7 +198,7 @@ export default class LineString<P extends PropertiesType = PropertiesType> exten
     if (!isValidExtent(extent)) {
       error_(createMessage('intersectsExtent', '坐标格式有误'))
     }
-    let _extent = handleGetExtentValue(extent)
-    return this._geometry.intersectsExtent(_extent)
+    const extentValue = handleGetExtentValue(extent)
+    return this._geometry.intersectsExtent(extentValue)
   }
 }

@@ -1,5 +1,5 @@
-import { OlSource, OlLayer, OlFeature, OlGeometry } from '../../../source/index'
-import Map from '../../core/Map/index'
+import { type OlSource, type OlLayer, type OlFeature, type OlGeometry } from '../../../source/index'
+import type Map from '../../core/Map/index'
 import type { OMapStyleLike } from '../../basic/Style/type'
 import type { OMapVectorSourceParamsType } from '../../source/VectorSource/type'
 import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'

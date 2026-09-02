@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../../source/index'
+import { type OlSource } from '../../../../../../source/index'
 import type { Options as OlTileImageSourceOptions } from 'ol/source/TileImage'
 import {
   DEFAULT_URL_TILE_SOURCE_PARAMS,

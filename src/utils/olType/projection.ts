@@ -1,4 +1,4 @@
-import { OlProj } from '../../source/index'
+import { type OlProj } from '../../source/index'
 
 export type ProjectionUnitsType =
   'radians' | 'degrees' | 'ft' | 'm' | 'pixels' | 'tile-pixels' | 'us-ft'

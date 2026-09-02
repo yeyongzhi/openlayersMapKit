@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../source/index'
+import { type OlSource } from '../../../../../source/index'
 import type { Options as OlOSMSourceOptions } from 'ol/source/OSM'
 
 export type OMapOSMSourceType = InstanceType<typeof OlSource.OSM>

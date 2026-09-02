@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   TileLayer,
   XYZLayer,
@@ -134,5 +134,44 @@ describe('VectorLayer keeps the OMap source wrapper', () => {
   it('exposes the internal VectorSource wrapper', () => {
     const layer = new VectorLayer()
     expect(layer.getSourceWrapper()).toBeInstanceOf(VectorSource)
+  })
+})
+
+describe('layer source ownership', () => {
+  it('does not dispose a caller-owned source wrapper', () => {
+    const source = new XYZSource({ url: 'https://example.com/{z}/{x}/{y}.png' })
+    const nativeDispose = vi.spyOn(source.getSource(), 'dispose')
+    const layer = new TileLayer(tileParams(source))
+
+    layer.dispose()
+
+    expect(nativeDispose).not.toHaveBeenCalled()
+    expect(source.isDisposed()).toBe(false)
+  })
+
+  it('disposes an internally-created source exactly once', () => {
+    const layer = new VectorLayer()
+    const source = layer.getVectorSource()
+    const nativeDispose = vi.spyOn(source.getSource(), 'dispose')
+
+    layer.dispose()
+    layer.dispose()
+
+    expect(source.isDisposed()).toBe(true)
+    expect(nativeDispose).toHaveBeenCalledOnce()
+  })
+
+  it('disposes an old owned source when it is replaced but borrows the replacement', () => {
+    const oldSource = new XYZSource({ url: 'https://a.example/{z}/{x}/{y}.png' })
+    const layer = new TileLayer(tileParams(oldSource))
+    ;(layer as unknown as { ownsSourceWrapper: boolean }).ownsSourceWrapper = true
+    const replacement = new XYZSource({ url: 'https://b.example/{z}/{x}/{y}.png' })
+
+    layer.setSource(replacement)
+
+    expect(oldSource.isDisposed()).toBe(true)
+    expect(replacement.isDisposed()).toBe(false)
+    layer.dispose()
+    expect(replacement.isDisposed()).toBe(false)
   })
 })

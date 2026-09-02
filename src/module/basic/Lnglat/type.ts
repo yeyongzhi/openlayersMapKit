@@ -1,14 +1,14 @@
-import Lnglat from './index'
+import LngLat from './index'
 import { isCoordinatesType } from '../../../utils/dataType'
 
 export type OlCoordinateType = [number, number]
-export type OMapCoordinateType = OlCoordinateType | Lnglat
+export type OMapCoordinateType = OlCoordinateType | LngLat
 
 /**
- * 类型谓词：判断是否为有效坐标（支持 [x, y] 或 Lnglat 实例）
+ * 类型谓词：判断是否为有效坐标（支持 [x, y] 或 LngLat 实例）
  */
-export function isValidCoordinate(value: unknown): value is OlCoordinateType | Lnglat {
-  if (value instanceof Lnglat) {
+export function isValidCoordinate(value: unknown): value is OlCoordinateType | LngLat {
+  if (value instanceof LngLat) {
     return true
   }
   return isCoordinatesType(value)

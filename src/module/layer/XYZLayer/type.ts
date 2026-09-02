@@ -1,5 +1,5 @@
-import { OlSource } from '../../../source/index'
-import Map from '../../core/Map/index'
+import { type OlSource } from '../../../source/index'
+import type Map from '../../core/Map/index'
 import { type OMapSizeType } from '../../basic/Size/type'
 import { type OMapProjectionType } from '../../core/Projection/type'
 import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'

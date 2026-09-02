@@ -12,7 +12,7 @@ import {
   createBaseFeatureByOlFeature,
   createBaseFeatureByOlRenderFeature
 } from '../../core/Feature/BasicFeature/handle'
-import { OlGeometry, OlFeature, OlInteraction, OlUtil } from '../../../source/index'
+import { type OlGeometry, OlFeature, OlInteraction, OlUtil } from '../../../source/index'
 import {
   type OMapSelectParamsType,
   type OMapInteractionSelectEventType,
@@ -30,12 +30,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 地图选择类
- * @class Select
- * @classdesc 允许用户通过选择地图上的元素
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/17
- * @updateDate 2025/12/29
+ *
  */
 
 const defaultSelectOptions = {
@@ -56,11 +51,13 @@ export default class Select extends Interaction<OMapSelectType> {
   /**
    * 最近一次选择变化中**新增选中**的要素（增量，非当前全量）。
    * 当前全量选中集合请用 {@link Select.getSelection}
+   *
    * @type {BaseFeature<OlGeometry.Geometry>[]}
    */
   selected: BaseFeature<OlGeometry.Geometry>[] = []
   /**
    * 最近一次选择变化中**被取消选中**的要素（增量）。
+   *
    * @type {BaseFeature<OlGeometry.Geometry>[]}
    */
   deselected: BaseFeature<OlGeometry.Geometry>[] = []
@@ -102,6 +99,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 初始化样式
+   *
    * @param {OMapStyleLike | undefined} style 样式
    */
   protected initStyle(
@@ -114,7 +112,7 @@ export default class Select extends Interaction<OMapSelectType> {
         resolution: number
       ) => OlStyleInstanceType | Array<OlStyleInstanceType> | undefined)
     | undefined {
-    let _style:
+    let resolvedStyle:
       | OlStyleInstanceType
       | Array<OlStyleInstanceType>
       | ((
@@ -124,11 +122,11 @@ export default class Select extends Interaction<OMapSelectType> {
       | undefined = undefined
     if (isDefined(style)) {
       if (style instanceof Style) {
-        _style = style.getStyle()
+        resolvedStyle = style.getStyle()
       } else if (isArray(style) && (style as Style[]).every((s) => s instanceof Style)) {
-        _style = (style as Style[]).map((s) => s.getStyle() as OlStyleInstanceType)
+        resolvedStyle = (style as Style[]).map((s) => s.getStyle() as OlStyleInstanceType)
       } else if (isFunction(style)) {
-        _style = (feature: OlFeatureLike, resolution: number) => {
+        resolvedStyle = (feature: OlFeatureLike, resolution: number) => {
           const targetFeature = this.getTargetFeature(feature)
           const styleFn = style as (
             feature: BaseFeature<OlGeometry.Geometry> | null,
@@ -144,7 +142,7 @@ export default class Select extends Interaction<OMapSelectType> {
         warn_(createMessage('initStyle', 'style格式有误'))
       }
     }
-    return _style
+    return resolvedStyle
   }
 
   protected initFilter(
@@ -212,6 +210,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 校验并归一化为 Feature 数组
+   *
    * @param {BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]} features 单个要素或要素数组
    * @param {string} methodName 调用方方法名，用于错误信息定位
    * @returns {BaseFeature<OlGeometry.Geometry>[]} 归一化后的要素数组
@@ -226,7 +225,7 @@ export default class Select extends Interaction<OMapSelectType> {
         error_(
           createMessage(
             methodName,
-            commonMessage.paramsInvaildFormat('features', 'Feature或Feature数组')
+            commonMessage.paramsInvalidFormat('features', 'Feature或Feature数组')
           )
         )
       }
@@ -236,6 +235,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 以原生 Feature 身份判断 wrapper 是否已存在于列表中
+   *
    * @param {BaseFeature<OlGeometry.Geometry>[]} list 待查找列表
    * @param {BaseFeature<OlGeometry.Geometry>} feature 目标要素
    * @returns {boolean} 是否命中
@@ -250,6 +250,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 将要素记入「新增选中」增量，并从「取消选中」增量中移除
+   *
    * @param {BaseFeature<OlGeometry.Geometry>[]} features 本次新增选中的要素
    */
   protected appendSelected(features: BaseFeature<OlGeometry.Geometry>[]): void {
@@ -267,6 +268,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 将要素记入「取消选中」增量，并从「新增选中」增量中移除
+   *
    * @param {BaseFeature<OlGeometry.Geometry>[]} features 本次取消选中的要素
    */
   protected appendDeselected(features: BaseFeature<OlGeometry.Geometry>[]): void {
@@ -284,6 +286,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 获取最近一次选择变化中新增选中的要素（增量）
+   *
    * @returns {BaseFeature<OlGeometry.Geometry>[]} 新增选中的要素
    */
   getSelected(): BaseFeature<OlGeometry.Geometry>[] {
@@ -292,6 +295,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 获取最近一次选择变化中被取消选中的要素（增量）
+   *
    * @returns {BaseFeature<OlGeometry.Geometry>[]} 取消选中的要素
    */
   getDeselected(): BaseFeature<OlGeometry.Geometry>[] {
@@ -300,6 +304,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 获取候选白名单（构造时 `features` 选项指定的可选要素集合）
+   *
    * @returns {BaseFeature<OlGeometry.Geometry>[]} 候选要素数组，未设置时为空数组
    */
   getFeatures(): BaseFeature<OlGeometry.Geometry>[] {
@@ -308,6 +313,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 设置候选白名单，替换原有集合
+   *
    * @param {BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]} features 单个要素或要素数组
    */
   setFeatures(
@@ -318,6 +324,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 获取当前全部选中的 OMap Feature（以原生 collection 为唯一数据源）
+   *
    * @returns {BaseFeature<OlGeometry.Geometry>[]} 当前选中的要素
    */
   getSelection(): BaseFeature<OlGeometry.Geometry>[] {
@@ -330,6 +337,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 主动选择一个或多个 Feature（幂等，不重复加入原生 collection），并同步选中增量
+   *
    * @param {BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]} features 单个要素或要素数组
    */
   select(features: BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]): void {
@@ -348,6 +356,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 主动取消一个或多个 Feature 的选择状态，并同步取消增量
+   *
    * @param {BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]} features 单个要素或要素数组
    */
   deselect(features: BaseFeature<OlGeometry.Geometry> | BaseFeature<OlGeometry.Geometry>[]): void {
@@ -375,6 +384,7 @@ export default class Select extends Interaction<OMapSelectType> {
 
   /**
    * 访问 OpenLayers Select 使用的原生 Feature collection
+   *
    * @returns 原生选中要素集合
    */
   getFeaturesCollection(): ReturnType<OMapSelectType['getFeatures']> {
@@ -407,10 +417,10 @@ export default class Select extends Interaction<OMapSelectType> {
       error_(createMessage(methodName, commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionSelectEventType(type)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage(methodName, commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage(methodName, commonMessage.paramsInvalidFormat('callback', 'function')))
     }
   }
 
@@ -419,7 +429,7 @@ export default class Select extends Interaction<OMapSelectType> {
       error_(createMessage('un', commonMessage.paramsNotDefined(id)))
     }
     if (!isString(id)) {
-      error_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'EventIdType')))
+      error_(createMessage('un', commonMessage.paramsInvalidFormat(id, 'EventIdType')))
     }
     this.events.remove(id)
   }

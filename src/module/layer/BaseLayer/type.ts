@@ -1,10 +1,10 @@
 import { isDefined } from '../../../utils/index'
-import { OlLayer, type OlSource } from '../../../source/index'
+import { type OlLayer, type OlSource } from '../../../source/index'
 import type Extent from '../../basic/Extent/index'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
 import type Color from '../../basic/Color/index'
 import { handleGetColorValue } from '../../basic/Color/handle'
-import Map from '../../core/Map/index'
+import type Map from '../../core/Map/index'
 import type { PropertiesType } from '../../../utils/type'
 
 /** BaseLayer */
@@ -64,15 +64,15 @@ export type BaseLayerOptionsType<P extends BaseLayerPropertiesType = BaseLayerPr
   }
 
 export function handleGetBaseLayerParams(params: BaseLayerOptionsType) {
-  let _params = {
+  const resolvedParams = {
     ...params,
     extent: isDefined(params.extent) ? handleGetExtentValue(params.extent) : undefined,
     background: isDefined(params.background) ? handleGetColorValue(params.background) : undefined,
     map: isDefined(params.map) ? params.map.getMap() : undefined
   }
-  delete _params.id
-  delete _params.name
-  return _params
+  delete resolvedParams.id
+  delete resolvedParams.name
+  return resolvedParams
 }
 
 export type OMapBaseLayerCommonType = OlLayer.Layer

@@ -1,10 +1,10 @@
-import { OlSource } from '../../../source/index'
-import Map from '../../core/Map/index'
-import Extent from '../../basic/Extent/index'
+import { type OlSource } from '../../../source/index'
+import type Map from '../../core/Map/index'
+import type Extent from '../../basic/Extent/index'
 import { type OlExtentType } from '../../basic/Extent/type'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OlCoordinateType } from '../../basic/Lnglat/type'
-import Size from '../../basic/Size/index'
+import type LngLat from '../../basic/LngLat/index'
+import { type OlCoordinateType } from '../../basic/LngLat/type'
+import type Size from '../../basic/Size/index'
 import { type OlSizeType } from '../../basic/Size/type'
 import { type OMapProjectionType } from '../../core/Projection/type'
 import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
@@ -25,8 +25,8 @@ export const DEFAULT_WMTS_LAYER_PARAMS: OMapWMTSLayerParamsType = {
 type OMapWMTSLayerRequestEncodingEnum = 'KVP' | 'REST'
 export type OMapWMTSTileGridParamsType = {
   extent?: Extent | OlExtentType
-  origin?: Lnglat | OlCoordinateType
-  origins?: Array<Lnglat | OlCoordinateType>
+  origin?: LngLat | OlCoordinateType
+  origins?: Array<LngLat | OlCoordinateType>
   resolutions: number[]
   matrixIds: string[]
   sizes: Array<Size | OlSizeType>

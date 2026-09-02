@@ -1,20 +1,20 @@
 import { isString, isNumber } from '../../../utils/dataType'
-import { OlOverlay } from '../../../source/index'
+import { type OlOverlay } from '../../../source/index'
 import type { ManualOmit, PropertiesType } from '../../../utils/type'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OlCoordinateType } from '../../basic/Lnglat/type'
+import type LngLat from '../../basic/LngLat/index'
+import { type OlCoordinateType } from '../../basic/LngLat/type'
 import Pixel from '../../basic/Pixel/index'
 import Popup from './index'
 
 export type OMapPopupIdType = string | number | null
-export function isVaildPopupId(value: unknown): value is OMapPopupIdType {
+export function isValidPopupId(value: unknown): value is OMapPopupIdType {
   return isString(value) || isNumber(value)
 }
 
 export type OlPopupParamsType = ConstructorParameters<typeof OlOverlay>[0]
 type CustOlPopupParamsType = ManualOmit<OlPopupParamsType, 'offset' | 'position' | 'positioning'>
 
-export function isVaildPopup(value: unknown): value is Popup {
+export function isValidPopup(value: unknown): value is Popup {
   return value instanceof Popup
 }
 
@@ -25,7 +25,7 @@ export function isVaildPopup(value: unknown): value is Popup {
 export type OMapPopupParamsType<P extends PropertiesType = PropertiesType> =
   CustOlPopupParamsType & {
     offset?: Pixel
-    position?: Lnglat | OlCoordinateType
+    position?: LngLat | OlCoordinateType
     content?: string
     properties?: P
     positioning?: PopupPositioningType
@@ -44,7 +44,7 @@ export const PopupPositioning = {
   topCenter: 'top-center',
   topRight: 'top-right'
 } as const
-export function isVaildPopupPositioningType(type: string): type is PopupPositioningType {
+export function isValidPopupPositioningType(type: string): type is PopupPositioningType {
   return Object.values(PopupPositioning).includes(type as PopupPositioningType)
 }
 export type PopupPositioningType = (typeof PopupPositioning)[keyof typeof PopupPositioning]

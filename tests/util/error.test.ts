@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { OMapError, OMapErrorCode } from '../../src/error'
-import { error_ } from '../../src/utils/message'
+import {
+  error_,
+  haveInvalidDataItem,
+  haveInvaildDataItem,
+  paramsInvalidFormat,
+  paramsInvaildFormat
+} from '../../src/utils/message'
 
 describe('OMapError', () => {
   it('provides a stable public error identity and code', () => {
@@ -19,5 +25,10 @@ describe('OMapError', () => {
     } catch (error) {
       expect(error).toMatchObject({ code: OMapErrorCode.InvalidParameter })
     }
+  })
+
+  it('keeps misspelled message helpers as compatible aliases', () => {
+    expect(paramsInvaildFormat).toBe(paramsInvalidFormat)
+    expect(haveInvaildDataItem).toBe(haveInvalidDataItem)
   })
 })

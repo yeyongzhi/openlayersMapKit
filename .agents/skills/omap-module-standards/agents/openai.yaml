@@ -1,0 +1,7 @@
+interface:
+  display_name: "OMap 模块规范"
+  short_description: "统一 OMap 模块的命名、错误契约、继承与文档风格"
+  default_prompt: "Use $omap-module-standards to implement or review this OMap module change according to the project standards."
+
+policy:
+  allow_implicit_invocation: true

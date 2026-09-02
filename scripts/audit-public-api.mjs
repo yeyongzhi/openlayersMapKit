@@ -16,6 +16,7 @@ const OUT_FILE =
   outArgIndex >= 0 && process.argv[outArgIndex + 1]
     ? path.resolve(ROOT, process.argv[outArgIndex + 1])
     : null
+const BASELINE_FILE = path.resolve(ROOT, 'scripts/public-api-baseline.json')
 
 const program = ts.createProgram([ENTRY], {
   target: ts.ScriptTarget.ESNext,
@@ -178,4 +179,23 @@ if (OUT_FILE) {
     'utf8'
   )
   console.log(`\n已写入：${path.relative(ROOT, OUT_FILE)}`)
+}
+
+if (fs.existsSync(BASELINE_FILE)) {
+  const baseline = JSON.parse(fs.readFileSync(BASELINE_FILE, 'utf8'))
+  // 兼容别名可能改变导出声明的种类；根入口名称才是本阶段冻结的契约。
+  const toKey = (item) => item.name
+  const expected = new Set(baseline.map(toKey))
+  const actual = new Set(results.map(toKey))
+  const removed = [...expected].filter((key) => !actual.has(key))
+  const added = [...actual].filter((key) => !expected.has(key))
+
+  if (removed.length || added.length) {
+    console.error('\n公开 API 与基线不一致。')
+    if (removed.length) console.error(`删除或变更：${removed.join(', ')}`)
+    if (added.length) console.error(`新增或变更：${added.join(', ')}`)
+    process.exitCode = 1
+  } else {
+    console.log('\n公开 API 与基线一致。')
+  }
 }

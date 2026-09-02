@@ -14,12 +14,7 @@ import type { OMapTileSourceType } from '../../source/TileSource/type'
 
 /**
  * 瓦片图层类
- * @class
- * @classdesc 基础的瓦片地图服务
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/9
- * @updateDate 2026/8/30
+ *
  */
 
 export default class TileLayer<
@@ -34,11 +29,11 @@ export default class TileLayer<
     // 解析出的 OMap 包装登记到基类，之后可通过 getTileSource() 取回。
     const { source, wrapper } = handleGetTileLayerSource(options.source)
     this._sourceWrapper = wrapper
-    let params = Object.assign({}, DEFAULT_TILE_LAYER_PARAMS, handleGetBaseLayerParams(options), {
+    const params = Object.assign({}, DEFAULT_TILE_LAYER_PARAMS, handleGetBaseLayerParams(options), {
       source
     })
     this._layer = new OlLayer.Tile(params)
-    this._initLayerEvent()
+    this.initLayerEvent()
   }
 
   /**
@@ -55,9 +50,10 @@ export default class TileLayer<
 
   /**
    * 获取原生 OpenLayers 瓦片数据源实例。
+   *
    * @returns {OMapTileSourceType | null} 原生数据源
    */
-  getSource(): OMapTileSourceType | null {
+  override getSource(): OMapTileSourceType | null {
     return this._layer.getSource() as OMapTileSourceType | null
   }
 
@@ -67,8 +63,13 @@ export default class TileLayer<
    * @param source 新的数据源（OMap 包装或 OpenLayers 原生实例）
    */
   setSource(source: OMapTileLayerSourceLike) {
+    this.assertActive('setSource')
+    const previousWrapper = this._sourceWrapper
+    const ownedPreviousWrapper = this.ownsSourceWrapper
     const { source: nativeSource, wrapper } = handleGetTileLayerSource(source)
     this._sourceWrapper = wrapper
+    this.ownsSourceWrapper = false
     this._layer.setSource(nativeSource)
+    if (ownedPreviousWrapper && previousWrapper !== wrapper) previousWrapper?.dispose()
   }
 }

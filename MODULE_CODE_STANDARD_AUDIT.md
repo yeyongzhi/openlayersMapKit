@@ -21,8 +21,8 @@
 需要收口的主要问题：
 
 1. `_` 前缀同时用于原生实例字段、普通字段、局部变量和内部方法，语义不唯一。
-2. `isVaild*`、`paramsInvaild*`、`vaildList` 等历史拼写仍大量存在。
-3. `Lnglat` 与 `LngLat` 并存；虽然已有兼容别名和废弃说明，内部迁移尚未完成。
+2. `isValid*`、`paramsInvalid*`、`validList` 等历史拼写仍大量存在。
+3. `LngLat` 与 `LngLat` 并存；虽然已有兼容别名和废弃说明，内部迁移尚未完成。
 4. `error_()` 与 `warn_() + return` 的使用边界不统一，同类 API 的失败行为可能不同。
 5. ESLint 尚未配置命名、成员可见性、显式返回类型等规则，很多规范只能依靠人工保持。
 6. 旧代码仍较多使用 `let`、临时变量 `_params`、`_coordinates`，与重构代码的可读性不一致。
@@ -77,7 +77,7 @@ private _projection: OlProjection
 当前需要整改的典型位置：
 
 - `basic/Color/index.ts`：`_color` 不是 OL 原生实例，不应使用下划线。
-- `basic/Extent`、`Lnglat`、`Pixel`、`Size`：底层数组字段是否保留下划线需要统一；若规则仅用于 OL 实例，应改为普通私有字段。
+- `basic/Extent`、`LngLat`、`Pixel`、`Size`：底层数组字段是否保留下划线需要统一；若规则仅用于 OL 实例，应改为普通私有字段。
 - `core/Feature/BasicFeature/index.ts`：`_init()`、`_initByFeature()`、`_createFeature()` 是方法名例外。
 - `interaction/DragBox`、`Modify`：`_initDragBoxEvent()`、`_initModifyEvent()`。
 - `layer/BaseLayer/index.ts`：`_packageName`、`_createMessage` 并非原生实例。
@@ -87,7 +87,7 @@ private _projection: OlProjection
 
 当 OMap 方法只是代理 OL 方法时，名称应保持一致：
 
-- OL 是 `getCoordinates()` / `setCoordinates()`，OMap 不应改成 `getLnglat()` / `setLnglat()`。
+- OL 是 `getCoordinates()` / `setCoordinates()`，OMap 不应改成 `getLngLat()` / `setLngLat()`。
 - OL 是 `addFeature()` / `addFeatures()`，OMap 应保持相同名称和单复数语义。
 - OL 是 `getSource()`、`setVisible()`、`getExtent()`，包装层保持同名。
 - 包装层特有能力可以增加新名称，例如 `getSourceWrapper()`、`getLayerById()`，但名称必须说明额外语义。
@@ -140,7 +140,7 @@ if (!isDefined(coordinates)) {
   error_(createMessage('setCoordinates', commonMessage.paramsNotDefined('coordinates')))
 }
 if (!isValidCoordinate(coordinates)) {
-  error_(createMessage('setCoordinates', commonMessage.paramsInvaildFormat('coordinates')))
+  error_(createMessage('setCoordinates', commonMessage.paramsInvalidFormat('coordinates')))
 }
 ```
 
@@ -156,7 +156,7 @@ if (!isValidCoordinate(coordinates)) {
 - `warn_()` 调用约 **63** 处。
 - `createMessage()` 调用约 **407** 处。
 - `paramsNotDefined()` 调用约 **134** 处。
-- `paramsInvaildFormat()` 调用约 **119** 处。
+- `paramsInvalidFormat()` 调用约 **119** 处。
 - `src/module` 内没有直接 `throw new Error()`，集中式错误机制执行良好。
 
 建议固定为以下语义：
@@ -175,7 +175,7 @@ if (!isValidCoordinate(coordinates)) {
 - `Popup.on()` / `once()` 对非法事件或回调使用 `warn_()` 并返回 `undefined`，而 Control、Interaction 的同类方法会抛出错误。
 - `ProjUtil.fromLonLat()` / `toLonLat()` 对缺失坐标使用警告并返回 `undefined`；其他大多数必填参数 API 会抛错。
 - 部分 Source 方法把多个参数合并成一次通用格式错误，无法准确指出具体参数。
-- 错误辅助函数自身存在 `Invaild` 拼写，导致新代码持续复制错误名称。
+- 错误辅助函数自身存在 `Invalid` 拼写，导致新代码持续复制错误名称。
 
 建议先统一事件订阅 API 和 Util API 的失败策略，再更名错误辅助函数：
 
@@ -207,12 +207,12 @@ haveInvalidDataItem()
 
 ### P1：应优先处理
 
-- `Vaild` 应为 `Valid`：`isVaildColorRGB`、`isVaildPopup`、`isVaildControl`、`isVaildInteraction`、`isVaildFormatType` 等。
-- `Invaild` 应为 `Invalid`：所有 `paramsInvaild*`、`haveInvaildDataItem`。
-- `vaildList` 应为 `validList`。
-- `Lnglat` 应逐步迁移为 `LngLat`；项目已经提供兼容别名，应继续完成内部引用迁移。
+- `Valid` 应为 `Valid`：`isValidColorRGB`、`isValidPopup`、`isValidControl`、`isValidInteraction`、`isValidFormatType` 等。
+- `Invalid` 应为 `Invalid`：所有 `paramsInvalid*`、`haveInvalidDataItem`。
+- `validList` 应为 `validList`。
+- `LngLat` 应逐步迁移为 `LngLat`；项目已经提供兼容别名，应继续完成内部引用迁移。
 - `pointOrpointCoordinates` 应为 `pointOrCoordinates` 或 `pointOrPointCoordinates`。
-- `isVaildInteraction` 除拼写外，建议更名为 `isValidInteraction`。
+- `isValidInteraction` 除拼写外，建议更名为 `isValidInteraction`。
 
 ### P2：文档和元数据
 
@@ -225,8 +225,8 @@ haveInvalidDataItem()
 
 | 模块          | TS 文件 | 导出类 | 现状                                                                  | 建议优先级 |
 | ------------- | ------: | -----: | --------------------------------------------------------------------- | ---------- |
-| `basic`       |      23 |      7 | 值对象结构清晰；历史 `_` 局部变量、`Lnglat`、`isVaild*` 较集中        | P1         |
-| `control`     |       7 |      3 | 继承简单、命名统一；需要统一事件错误语义和 `isVaildControl`           | P2         |
+| `basic`       |      23 |      7 | 值对象结构清晰；历史 `_` 局部变量、`LngLat`、`isValid*` 较集中        | P1         |
+| `control`     |       7 |      3 | 继承简单、命名统一；需要统一事件错误语义和 `isValidControl`           | P2         |
 | `core`        |      40 |     17 | Geometry 方法最接近 OL；内部钩子 `_init*`、旧拼写和个别参数设计需收口 | P1         |
 | `interaction` |      41 |     13 | 重构程度较高、父子结构一致；内部初始化方法和错误策略仍有旧风格        | P1         |
 | `layer`       |      32 |     13 | `_layer` / `_sourceWrapper` 规则较明确；局部变量和警告比例偏高        | P2         |

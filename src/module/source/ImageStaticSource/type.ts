@@ -1,4 +1,4 @@
-import { OlSource } from '../../../source/index'
+import { type OlSource } from '../../../source/index'
 import Extent from '../../basic/Extent/index'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
 import { handleGetSourceParams, type OMapSourceProjectionType } from '../Source/type'
@@ -37,6 +37,7 @@ export const DEFAULT_IMAGE_STATIC_SOURCE_PARAMS: OMapImageStaticSourceParamsType
 
 /**
  * 把 OMap 风格的静态图片参数转换为 OpenLayers 原生参数。
+ *
  * @param params OMap 静态图片数据源参数
  * @returns 原生构造参数
  * @internal

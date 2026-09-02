@@ -17,13 +17,8 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * OMap TileSource 类
- * @class
- * @classdesc 瓦片数据源基类，提供瓦片网格、瓦片获取、缓存刷新与加载事件能力。
+ *
  * @description 参考：https://openlayers.org/en/latest/apidoc/module-ol_source_Tile-TileSource.html
- * @author Aurora
- * @version 1.0.0
- * @createDate 2026/7/8
- * @updateDate 2026/7/8
  */
 
 export default abstract class TileSource<

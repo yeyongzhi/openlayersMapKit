@@ -17,12 +17,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 样式类
- * @class
- * @classdesc 用于矢量元素设置样式
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/15
- * @updateDate 2025/7/22
+ *
  */
 
 export default class Style {
@@ -33,22 +28,22 @@ export default class Style {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('options')))
     }
     const { geometry, fill, stroke, text, circle, icon, regularShape } = options
-    let _image
+    let imageStyle
     if (circle) {
-      _image = getOlCircleSingleStyle(circle)
+      imageStyle = getOlCircleSingleStyle(circle)
     } else if (icon) {
-      _image = getOlIconSingleStyle(icon)
+      imageStyle = getOlIconSingleStyle(icon)
     } else if (regularShape) {
-      _image = getOlRegularShapeSingleStyle(regularShape)
+      imageStyle = getOlRegularShapeSingleStyle(regularShape)
     }
-    let _params = Object.assign({}, options, {
+    const resolvedParams = Object.assign({}, options, {
       geometry: isDefined(geometry) ? getOlGeometryStyle(geometry) : undefined,
       fill: getOlFillSingleStyle(fill),
       stroke: getOlStrokeSingleStyle(stroke),
-      image: _image,
+      image: imageStyle,
       text: getOlTextSingleStyle(text)
     })
-    this._style = new OlStyle.Style(_params)
+    this._style = new OlStyle.Style(resolvedParams)
   }
 
   getStyle(): OlStyleInstanceType {

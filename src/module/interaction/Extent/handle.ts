@@ -1,4 +1,4 @@
-import InteractionExtent from './index'
+import type InteractionExtent from './index'
 import type {
   OMapInteractionExtentEventType,
   OlExtentEventPayloadType,

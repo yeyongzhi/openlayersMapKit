@@ -1,4 +1,4 @@
-import Link from './index'
+import type Link from './index'
 import { type OMapInteractionLinkEventType } from './type'
 import { handleInteractionActiveChangeEvent, type InteractionPropertyChangeEvent } from '../handle'
 

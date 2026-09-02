@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../source/index'
+import { type OlSource } from '../../../../../source/index'
 import type { Options as OlTileJSONSourceOptions } from 'ol/source/TileJSON'
 import {
   handleGetTileSourceParams,

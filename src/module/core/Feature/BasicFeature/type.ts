@@ -1,4 +1,4 @@
-import { OlFeature, OlGeometry, RenderFeature } from '../../../../source/index'
+import { type OlFeature, type OlGeometry, type RenderFeature } from '../../../../source/index'
 import type { OMapPointGeometryCoordinatesType, OlPointGeomInstanceType } from '../Point/type'
 import type {
   OMapMultiPointGeometryCoordinatesType,

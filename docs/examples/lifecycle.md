@@ -64,6 +64,9 @@ onUnmounted(destroyMap)
 
 - **只在挂载阶段创建、卸载阶段销毁**。不要把地图实例放进 `ref()`，OL/OMap class 实例必须用 `shallowRef()` 保存，避免 Vue 深度代理破坏内部状态。
 - `dispose()` 可重复调用；`isDisposed()` 用于判断实例是否已释放。已释放的实例不可再挂载任何对象。
+- `remove()` 只解除当前 Map 挂载，包装对象仍可重新添加；`dispose()` 是永久释放。`destroy()` 仅作为 Interaction 子类内部清理钩子，不是调用者的卸载 API。
+- 已释放对象若继续修改状态、订阅事件、重新挂载或访问原生 OL 实例，会抛出 `OMapError`，其 `code` 为 `OMapErrorCode.Disposed`（`OMAP_DISPOSED`）。
+- Map 会释放其挂载的包装对象。Layer 会释放自己内部创建的 Source，但不会释放调用者传入的 Source 包装；后者仍由调用者负责。
 - `dispose()` 之后**同一容器可再次 `new OMap(...)`**——这是路由切换、Tab 切换等场景的基础保障。
 - 组件被 `<KeepAlive>` 缓存时，**不要**在 `onDeactivated` 中 `dispose()`，否则重新激活后地图已释放；应在 `onActivated` 调用 `updateSize()`，并只在 `onUnmounted` 释放。
 - 容器尺寸由 CSS 或布局变化导致改变时调用 `updateSize()`，否则会出现瓦片错位或空白。

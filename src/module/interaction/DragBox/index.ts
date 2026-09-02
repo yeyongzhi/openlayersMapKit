@@ -1,7 +1,7 @@
 import { isDefined, isFunction, isString } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import Interaction from '../Interaction/index'
-import Lnglat from '../../basic/Lnglat/index'
+import LngLat from '../../basic/LngLat/index'
 import Extent from '../../basic/Extent/index'
 import Event from '../../util/Event/index'
 import { type EventIdType } from '../../util/Event/type'
@@ -23,12 +23,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 拖动选框类
- * @class DragBox
- * @classdesc 拖动选框类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/2
- * @updateDate 2026/1/3
+ *
  */
 
 export default class DragBox extends Interaction<OMapDragBoxType> {
@@ -50,16 +45,16 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
     this._interaction = new OlInteraction.DragBox(nativeParams)
     // 注册事件
     this.initInteractionEvent(active)
-    this._initDragBoxEvent()
+    this.initDragBoxEvent()
     this.events = new Event<OMapDragBoxEventMap>(this)
   }
 
-  private _initDragBoxEvent() {
+  private initDragBoxEvent() {
     this._interaction.on('boxend', (e) => {
       const extent = this._interaction.getGeometry().getExtent()
       this.extent = isDefined(extent) ? new Extent(extent) : null
       this.boxEndHandle.emit({
-        coordinate: new Lnglat(e.coordinate),
+        coordinate: new LngLat(e.coordinate),
         target: this,
         extent: this.extent
       })
@@ -71,10 +66,10 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionDragBoxEventType(type)) {
-      error_(createMessage('on', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('on', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('on', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(type, callback, (e) =>
       handleInteractionDragBoxEvent(this, type, e as OlDragBoxEventPayloadType)
@@ -89,10 +84,10 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionDragBoxEventType(type)) {
-      error_(createMessage('once', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('once', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('once', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(
       type,
@@ -107,12 +102,12 @@ export default class DragBox extends Interaction<OMapDragBoxType> {
       error_(createMessage('un', commonMessage.paramsNotDefined(id)))
     }
     if (!isString(id)) {
-      error_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'EventIdType')))
+      error_(createMessage('un', commonMessage.paramsInvalidFormat(id, 'EventIdType')))
     }
     this.events.remove(id)
   }
 
-  protected destroy() {
+  protected override destroy() {
     this.boxEndHandle.destroy()
     super.destroy()
   }

@@ -1,4 +1,4 @@
-import { RenderFeature, OlFeature } from '../../../../source/index'
+import { type RenderFeature, type OlFeature } from '../../../../source/index'
 import {
   type OMapFormatReadFeatureOptionsType,
   type OMapGeoJSONFormatInstanceType,
@@ -10,7 +10,7 @@ import {
   type OlFeatureInstanceType,
   type OlGeometryType
 } from '../../../core/Feature/BasicFeature/type'
-import BasicFeature from '../../../core/Feature/BasicFeature/index'
+import type BasicFeature from '../../../core/Feature/BasicFeature/index'
 import { handleGetReadOptions, handleGetWriteOptions } from '../handle'
 
 function readFeature(
@@ -22,8 +22,8 @@ function readFeature(
     source,
     handleGetReadOptions(options)
   )
-  const _feature = createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
-  return _feature
+  const featureValue = createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
+  return featureValue
 }
 
 function readFeatures(
@@ -35,10 +35,10 @@ function readFeatures(
     source,
     handleGetReadOptions(options)
   )
-  const _features = features.map((feature: OlFeature | RenderFeature) => {
+  const featureValues = features.map((feature: OlFeature | RenderFeature) => {
     return createBaseFeatureByOlFeature(feature as OlFeature)
   })
-  return _features
+  return featureValues
 }
 
 function writeFeature(

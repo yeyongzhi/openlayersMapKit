@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { DragPan, LayerGroup, Map, Popup, VectorLayer, Zoom } from '../../src/index'
+import { DragPan, LayerGroup, Map, OMapError, Popup, VectorLayer, Zoom } from '../../src/index'
 
 function createMap() {
   const target = document.createElement('div')
@@ -21,6 +21,15 @@ afterEach(() => {
 })
 
 describe('Map Popup manager', () => {
+  it('throws OMapError for invalid event subscription arguments', () => {
+    const popup = new Popup({ element: document.createElement('div') })
+
+    expect(() => popup.on(undefined as never, () => undefined)).toThrow(OMapError)
+    expect(() => popup.on('invalid' as never, () => undefined)).toThrow(OMapError)
+    expect(() => popup.once('change:position', undefined as never)).toThrow(OMapError)
+
+    popup.dispose()
+  })
   it('owns popup mounting, queries and removal behind the Map facade', () => {
     const map = createMap()
     const popup = new Popup({ id: 'station-popup', element: document.createElement('div') })

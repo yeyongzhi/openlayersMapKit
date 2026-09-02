@@ -1,19 +1,14 @@
 import { isDefined, isNumber, isAllNumberArray } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import { handleGetSizeValue } from './handle'
-import { OMapSizeType, type OlSizeType } from './type'
+import { type OMapSizeType, type OlSizeType } from './type'
 
 const PACKAGE_NAME = 'Size'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 尺寸类
- * @class
- * @classdesc 用于存储、使用尺寸信息
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/06/30
- * @updateDate 2025/08/05
+ *
  */
 
 export default class Size {
@@ -26,7 +21,7 @@ export default class Size {
    * @example [20, 15]
    * @private
    */
-  _size: OlSizeType = [0, 0]
+  private _size: OlSizeType = [0, 0]
 
   constructor(x: number, y: number)
   constructor(pixel: number[])
@@ -39,7 +34,7 @@ export default class Size {
       if (isNumber(x) && isNumber(y)) {
         value = [x, y]
       } else {
-        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('size')))
+        error_(createMessage('constructor', commonMessage.paramsInvalidFormat('size')))
       }
     } else if (args.length === 1) {
       const [arr] = args
@@ -47,24 +42,26 @@ export default class Size {
         // 只取前两个
         value = [arr[0], arr[1]]
       } else {
-        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('size')))
+        error_(createMessage('constructor', commonMessage.paramsInvalidFormat('size')))
       }
     } else {
-      error_(createMessage('constructor', commonMessage.paramsInvaildFormat('size')))
+      error_(createMessage('constructor', commonMessage.paramsInvalidFormat('size')))
     }
     this._size = value
   }
 
   /**
    * 获取size
+   *
    * @returns {OlSizeType} size
    */
   getSize(): OlSizeType {
-    return this._size
+    return [...this._size] as OlSizeType
   }
 
   /**
    * 设置size
+   *
    * @param {OMapSizeType} size
    */
   setSize(size: OMapSizeType) {
@@ -73,6 +70,7 @@ export default class Size {
 
   /**
    * 获取Size的width
+   *
    * @returns {number} width
    */
   getWidth(): number {
@@ -81,6 +79,7 @@ export default class Size {
 
   /**
    * 获取Size的height
+   *
    * @returns {number} height
    */
   getHeight(): number {
@@ -89,6 +88,7 @@ export default class Size {
 
   /**
    * 设置Size的width
+   *
    * @param {number} width
    */
   setWidth(width: number) {
@@ -97,6 +97,7 @@ export default class Size {
 
   /**
    * 设置Size的height
+   *
    * @param {number} height
    */
   setHeight(height: number) {
@@ -105,6 +106,7 @@ export default class Size {
 
   /**
    * 判断两个尺寸是否相等
+   *
    * @param {OMapSizeType} size
    * @returns {boolean} 判断结果
    */
@@ -112,12 +114,13 @@ export default class Size {
     if (!isDefined(size)) {
       error_(createMessage('equals', commonMessage.paramsNotDefined('size')))
     }
-    let _size = handleGetSizeValue(size)
-    return this._size[0] === _size[0] && this._size[1] === _size[1]
+    const sizeValue = handleGetSizeValue(size)
+    return this._size[0] === sizeValue[0] && this._size[1] === sizeValue[1]
   }
 
   /**
    * 转换为数组
+   *
    * @returns {OlSizeType} size
    */
   toArray(): OlSizeType {
@@ -130,6 +133,7 @@ export default class Size {
 
   /**
    * 以字符串的形式输出尺寸
+   *
    * @returns {string} sizeStr
    */
   toString(): string {

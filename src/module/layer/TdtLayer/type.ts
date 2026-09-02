@@ -1,10 +1,11 @@
-import { ManualOmit } from '../../../utils/index'
-import { OMapTileLayerParamsType } from '../TileLayer/type'
-import { OMapXYZSourceParamsType } from '../../source/TileSource/subClass/XYZ/type'
+import { type ManualOmit } from '../../../utils/index'
+import { type OMapTileLayerParamsType } from '../TileLayer/type'
+import { type OMapXYZSourceParamsType } from '../../source/TileSource/subClass/XYZ/type'
 
 /**
  * 天地图图层类型
- * @link http://lbs.tianditu.gov.cn/server/MapService.html
+ *
+ * @see http://lbs.tianditu.gov.cn/server/MapService.html
  */
 export const TdtLayerType = {
   Vec: 'vec', // 矢量底图

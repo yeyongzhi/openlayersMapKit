@@ -1,7 +1,7 @@
 import { OlSource } from '../../../../../../source/index'
 import { isFunction, isString } from '../../../../../../utils/index'
 import { error_, getPackageMessage } from '../../../../../../utils/message'
-import Projection from '../../../../../core/Projection/index'
+import type Projection from '../../../../../core/Projection/index'
 import type { OMapTileSourceTileGridInstance } from '../../../type'
 import TileSource from '../../../index'
 import {

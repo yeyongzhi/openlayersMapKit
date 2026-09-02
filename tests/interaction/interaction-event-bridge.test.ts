@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   DoubleClickZoom,
-  DragBox,
+  type DragBox,
   DragPan,
   Draw,
   DrawMode,
@@ -84,12 +84,13 @@ describe('interaction event bridge', () => {
   it('releases the bridge when the interaction is disposed', () => {
     const pan = new DragPan()
     const handler = vi.fn()
+    const nativeInteraction = pan.getInteraction()
 
     pan.on('change:active', handler)
     pan.dispose()
     handler.mockClear()
 
-    pan.getInteraction().dispatchEvent({ type: 'change:active' })
+    nativeInteraction.dispatchEvent({ type: 'change:active' })
 
     expect(handler).not.toHaveBeenCalled()
   })

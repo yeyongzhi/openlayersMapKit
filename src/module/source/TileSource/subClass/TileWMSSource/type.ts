@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../source/index'
+import { type OlSource } from '../../../../../source/index'
 import type { Options as OlTileWMSSourceOptions } from 'ol/source/TileWMS'
 import {
   DEFAULT_TILE_SOURCE_PARAMS,

@@ -1,6 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { OSMSource, BingMapsSource, TileArcGISRestSource } from '../../src/index'
 import { OlSource } from '../../src/source/index'
+
+beforeAll(() => {
+  // BingMaps 构造时会异步拉取服务元数据；本文件只验证包装和参数，不依赖公网。
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => new Promise(() => undefined))
+  )
+})
+
+afterAll(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('OSMSource', () => {
   it('constructs with default OSM params and exposes the native OSM source', () => {

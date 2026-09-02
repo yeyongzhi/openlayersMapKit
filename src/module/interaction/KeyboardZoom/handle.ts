@@ -1,4 +1,4 @@
-import KeyboardZoom from './index'
+import type KeyboardZoom from './index'
 import { type OMapInteractionKeyboardZoomEventType } from './type'
 import { handleInteractionActiveChangeEvent, type InteractionPropertyChangeEvent } from '../handle'
 

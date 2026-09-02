@@ -1,23 +1,26 @@
 import {
   type OMapFillStyleOptionsType,
   type OMapStrokeStyleOptionsType,
-  OMapCircleStyleOptionsType,
-  OMapIconStyleOptionsType,
-  OMapRegularShapeStyleOptionsType,
-  OlStyleLike,
-  OMapStyleLike,
-  OMapTextStyleOptionsType,
-  OlStyleInstanceType,
-  isVaildStyle,
-  isVaildArrayStyle,
-  isVaildFunctionStyle,
-  OMapStyleOptionsGeometryType
+  type OMapCircleStyleOptionsType,
+  type OMapIconStyleOptionsType,
+  type OMapRegularShapeStyleOptionsType,
+  type OlStyleLike,
+  type OMapStyleLike,
+  type OMapTextStyleOptionsType,
+  type OlStyleInstanceType,
+  isValidStyle,
+  isValidArrayStyle,
+  isValidFunctionStyle,
+  type OMapStyleOptionsGeometryType
 } from './type'
-import { OlStyle, OlFeature, OlGeometry } from '../../../source/index'
+import { OlStyle, OlFeature, type OlGeometry } from '../../../source/index'
 import Color from '../Color/index'
 import Style from './index'
-import BaseFeature from '../../core/Feature/BasicFeature/index'
-import { OlFeatureLike, OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
+import type BaseFeature from '../../core/Feature/BasicFeature/index'
+import {
+  type OlFeatureLike,
+  type OlFeatureInstanceType
+} from '../../core/Feature/BasicFeature/type'
 import {
   createBaseFeatureByOlFeature,
   createBaseFeatureByOlRenderFeature
@@ -32,7 +35,7 @@ export function getOlGeometryStyle(geometry: OMapStyleOptionsGeometryType) {
   }
   if (isFunction(geometry)) {
     return (feature: OlFeatureLike) => {
-      let OMapFeature =
+      const OMapFeature =
         feature instanceof OlFeature
           ? createBaseFeatureByOlFeature(feature)
           : createBaseFeatureByOlRenderFeature(feature)
@@ -74,33 +77,33 @@ export function getOlCircleSingleStyle(options: OMapCircleStyleOptionsType | und
     return undefined
   }
   const { fill, stroke } = options as OMapCircleStyleOptionsType
-  let _style = new OlStyle.Circle({
+  const resolvedStyle = new OlStyle.Circle({
     ...options,
     fill: undefined,
     stroke: undefined
   })
   if (isDefined(fill)) {
-    _style.setFill(
+    resolvedStyle.setFill(
       new OlStyle.Fill({
         color: fill.color instanceof Color ? fill.color.getColor() : (fill.color as string)
       })
     )
   }
   if (isDefined(stroke)) {
-    _style.setStroke(
+    resolvedStyle.setStroke(
       new OlStyle.Stroke({
         color: stroke.color instanceof Color ? stroke.color.getColor() : (stroke.color as string)
       })
     )
   }
-  return _style
+  return resolvedStyle
 }
 
 export function getOlIconSingleStyle(options: OMapIconStyleOptionsType | undefined) {
   if (!isDefined(options)) {
     return undefined
   }
-  let _style = new OlStyle.Icon({
+  const resolvedStyle = new OlStyle.Icon({
     ...options,
     color: options.color
       ? options.color instanceof Color
@@ -110,7 +113,7 @@ export function getOlIconSingleStyle(options: OMapIconStyleOptionsType | undefin
     offset: isDefined(options.offset) ? options.offset.getPixel() : [0, 0],
     size: isDefined(options.size) ? options.size.getSize() : undefined
   })
-  return _style
+  return resolvedStyle
 }
 
 export function getOlRegularShapeSingleStyle(
@@ -119,27 +122,27 @@ export function getOlRegularShapeSingleStyle(
   if (!isDefined(options)) {
     return undefined
   }
-  let _style = new OlStyle.RegularShape({
+  const resolvedStyle = new OlStyle.RegularShape({
     ...options,
     fill: undefined,
     stroke: undefined
   })
   const { fill, stroke } = options
   if (isDefined(fill)) {
-    _style.setFill(
+    resolvedStyle.setFill(
       new OlStyle.Fill({
         color: fill.color instanceof Color ? fill.color.getColor() : (fill.color as string)
       })
     )
   }
   if (isDefined(stroke)) {
-    _style.setStroke(
+    resolvedStyle.setStroke(
       new OlStyle.Stroke({
         color: stroke.color instanceof Color ? stroke.color.getColor() : (stroke.color as string)
       })
     )
   }
-  return _style
+  return resolvedStyle
 }
 
 /**
@@ -190,21 +193,21 @@ export function handleGetStyleValue(
   if (!isDefined(style)) {
     return undefined
   }
-  if (isVaildStyle(style)) {
+  if (isValidStyle(style)) {
     return style.getStyle()
-  } else if (isVaildArrayStyle(style)) {
+  } else if (isValidArrayStyle(style)) {
     return style.map((item) => item.getStyle())
-  } else if (isVaildFunctionStyle(style)) {
+  } else if (isValidFunctionStyle(style)) {
     return (feature: OlFeatureLike, resolution: number) => {
-      const _feature = featureResolver
+      const featureValue = featureResolver
         ? featureResolver(feature)
         : createBaseFeatureByOlFeature(feature as OlFeatureInstanceType)
-      if (!isDefined(_feature)) return undefined
-      const _style = style(_feature, resolution)
-      if (isVaildArrayStyle(_style)) {
-        return _style.map((item) => item.getStyle())
-      } else if (isVaildStyle(_style)) {
-        return _style.getStyle()
+      if (!isDefined(featureValue)) return undefined
+      const resolvedStyle = style(featureValue, resolution)
+      if (isValidArrayStyle(resolvedStyle)) {
+        return resolvedStyle.map((item) => item.getStyle())
+      } else if (isValidStyle(resolvedStyle)) {
+        return resolvedStyle.getStyle()
       }
       return undefined
     }
@@ -215,6 +218,7 @@ export function handleGetStyleValue(
  * 将 OMap Style 数组转换为 OpenLayers Style 数组。
  * 用于只接受 `Style[]` 的 OpenLayers 选项（例如 KML 格式的 `defaultStyle`），
  * 避免复用 {@link handleGetStyleValue} 时返回值被放宽为 `OlStyleLike`。
+ *
  * @param {Array<Style>} style OMap 样式数组
  * @returns {Array<OlStyleInstanceType> | undefined} OpenLayers 样式数组
  */
@@ -231,7 +235,7 @@ export function getOlTextSingleStyle(options: OMapTextStyleOptionsType | undefin
   if (!isDefined(options)) {
     return undefined
   }
-  let _style = new OlStyle.Text({
+  const resolvedStyle = new OlStyle.Text({
     ...options,
     fill: undefined,
     stroke: undefined,
@@ -242,14 +246,14 @@ export function getOlTextSingleStyle(options: OMapTextStyleOptionsType | undefin
   const { fill, scale, stroke, backgroundFill, backgroundStroke } =
     options as OMapTextStyleOptionsType
   if (isDefined(fill)) {
-    _style.setFill(
+    resolvedStyle.setFill(
       new OlStyle.Fill({
         color: handleGetColorValue(fill.color)
       })
     )
   }
   if (isDefined(stroke)) {
-    _style.setStroke(
+    resolvedStyle.setStroke(
       new OlStyle.Stroke({
         ...stroke,
         color: handleGetColorValue(stroke.color)
@@ -257,14 +261,14 @@ export function getOlTextSingleStyle(options: OMapTextStyleOptionsType | undefin
     )
   }
   if (isDefined(backgroundFill)) {
-    _style.setBackgroundFill(
+    resolvedStyle.setBackgroundFill(
       new OlStyle.Fill({
         color: handleGetColorValue(backgroundFill.color)
       })
     )
   }
   if (isDefined(backgroundStroke)) {
-    _style.setBackgroundStroke(
+    resolvedStyle.setBackgroundStroke(
       new OlStyle.Stroke({
         ...backgroundStroke,
         color: handleGetColorValue(backgroundStroke.color)
@@ -272,7 +276,7 @@ export function getOlTextSingleStyle(options: OMapTextStyleOptionsType | undefin
     )
   }
   if (isDefined(scale)) {
-    _style.setScale(scale instanceof Size ? scale.getSize() : scale)
+    resolvedStyle.setScale(scale instanceof Size ? scale.getSize() : scale)
   }
-  return _style
+  return resolvedStyle
 }

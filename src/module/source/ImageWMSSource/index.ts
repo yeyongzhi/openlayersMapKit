@@ -9,12 +9,7 @@ import {
 
 /**
  * WMS 单图数据源
- * @class ImageWMSSource
- * @classdesc 基于 OpenLayers `ol/source/ImageWMS` 的 WMS 单张图片数据源，配合 `ImageLayer` 使用。
- * @author Aurora
- * @version 1.0.0
- * @createDate 2026/8/31
- * @updateDate 2026/8/31
+ *
  */
 export default class ImageWMSSource extends ImageSource {
   constructor(params: OMapImageWMSSourceParamsType = {}) {
@@ -29,7 +24,7 @@ export default class ImageWMSSource extends ImageSource {
   }
 
   /** 获取原生 OpenLayers WMS 单图数据源实例。 */
-  getSource(): OMapImageWMSSourceType {
+  override getSource(): OMapImageWMSSourceType {
     return this._source as OMapImageWMSSourceType
   }
 }

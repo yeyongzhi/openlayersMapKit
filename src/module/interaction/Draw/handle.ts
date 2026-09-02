@@ -7,10 +7,10 @@ import type {
   OlDrawEventPayloadType,
   OMapDrawEvent
 } from './type'
-import { OlGeometry } from '../../../source/index'
-import Draw from './index'
+import { type OlGeometry } from '../../../source/index'
+import type Draw from './index'
 import { isDefined } from '../../../utils/define'
-import BasicFeature from '../../core/Feature/BasicFeature/index'
+import type BasicFeature from '../../core/Feature/BasicFeature/index'
 
 export function getOlDrawType(mode: OMapDrawModeType): {
   type: OlDrawType

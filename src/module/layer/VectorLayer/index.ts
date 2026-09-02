@@ -18,10 +18,10 @@ import {
 } from './type'
 import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
 import type { OlStyleInstanceType, OMapStyleLike } from '../../basic/Style/type'
-import { OlLayer, OlFeature, OlGeometry } from '../../../source/index'
+import { OlLayer, OlFeature, type OlGeometry } from '../../../source/index'
 import BaseLayer from '../BaseLayer/index'
 import type { BaseLayerPropertiesType } from '../BaseLayer/type'
-import BaseFeature from '../../core/Feature/BasicFeature/index'
+import type BaseFeature from '../../core/Feature/BasicFeature/index'
 import VectorSource from '../../source/VectorSource/index'
 import Draw from '../../interaction/Draw/index'
 import { DrawEventType } from '../../interaction/Draw/type'
@@ -29,22 +29,17 @@ import { handleInteractionDrawEvent } from '../../interaction/Draw/handle'
 import Measure from '../../interaction/Measure/index'
 import Extent from '../../basic/Extent/index'
 import type { OMapExtentType } from '../../basic/Extent/type'
-import Lnglat from '../../basic/Lnglat/index'
-import type { OMapCoordinateType } from '../../basic/Lnglat/type'
+import LngLat from '../../basic/LngLat/index'
+import type { OMapCoordinateType } from '../../basic/LngLat/type'
 import Style from '../../basic/Style/index'
-import Projection from '../../core/Projection/index'
+import type Projection from '../../core/Projection/index'
 
-let PACKAGE_NAME = 'VectorLayer'
-let createMessage = getPackageMessage(PACKAGE_NAME)
+const PACKAGE_NAME = 'VectorLayer'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 矢量图层类
- * @class
- * @classdesc 基础的矢量地图服务
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/14
- * @updateDate 2026/1/29
+ *
  */
 
 export default class VectorLayer<
@@ -56,16 +51,17 @@ export default class VectorLayer<
 
   constructor(options: OMapVectorLayerOptionsFinalType<P> = {}) {
     super('Vector', options)
-    let _sourceOptions: OMapVectorSourceOptionsFinalType = isDefined(options.source)
+    const sourceOptions: OMapVectorSourceOptionsFinalType = isDefined(options.source)
       ? options.source
       : {}
-    this.vectorSource = new VectorSource(_sourceOptions)
+    this.vectorSource = new VectorSource(sourceOptions)
     this._sourceWrapper = this.vectorSource
+    this.ownsSourceWrapper = true
     this._layer = new OlLayer.Vector({
       source: this.vectorSource.getSource()
     })
     this.initStyle(options.style)
-    this._initLayerEvent()
+    this.initLayerEvent()
     this.initVectorLyaerEvent()
   }
 
@@ -102,10 +98,11 @@ export default class VectorLayer<
 
   /**
    * 初始化样式
+   *
    * @param {OMapStyleLike | undefined} style 样式
    */
   protected initStyle(style: OMapStyleLike | undefined): void {
-    let _style:
+    let resolvedStyle:
       | OlStyleInstanceType
       | Array<OlStyleInstanceType>
       | ((
@@ -115,11 +112,11 @@ export default class VectorLayer<
       | undefined = undefined
     if (isDefined(style)) {
       if (style instanceof Style) {
-        _style = style.getStyle()
+        resolvedStyle = style.getStyle()
       } else if (isArray(style) && (style as Style[]).every((s) => s instanceof Style)) {
-        _style = (style as Style[]).map((s) => s.getStyle() as OlStyleInstanceType)
+        resolvedStyle = (style as Style[]).map((s) => s.getStyle() as OlStyleInstanceType)
       } else if (isFunction(style)) {
-        _style = (feature: OlFeatureLike, resolution: number) => {
+        resolvedStyle = (feature: OlFeatureLike, resolution: number) => {
           const omapFeature =
             feature instanceof OlFeature
               ? this.syncFeatureFromOlFeature(feature as OlFeature<OlGeometry.Geometry>)
@@ -138,8 +135,8 @@ export default class VectorLayer<
         warn_(createMessage('initStyle', 'style格式有误'))
       }
     }
-    if (_style) {
-      this._layer.setStyle(_style)
+    if (resolvedStyle) {
+      this._layer.setStyle(resolvedStyle)
       this.style = style // 到这里才更新style属性
     }
   }
@@ -193,7 +190,7 @@ export default class VectorLayer<
       warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数不能为空'))
       return []
     }
-    if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
+    if (!(coordinates instanceof LngLat) && !isCoordinatesType(coordinates)) {
       warn_(createMessage('getFeaturesAtCoordinate', 'coordinates参数格式有误'))
       return []
     }
@@ -269,6 +266,7 @@ export default class VectorLayer<
 
   /**
    * 遍历指定范围的特征
+   *
    * @param {Extent} extent 范围
    * @param {Function} callback 回调函数
    * @returns {void}
@@ -289,6 +287,7 @@ export default class VectorLayer<
 
   /**
    * 遍历与指定范围相交的特征
+   *
    * @param {Extent} extent 范围
    * @param {Function} callback 回调函数
    * @returns {void}
@@ -315,7 +314,7 @@ export default class VectorLayer<
       warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数不能为空'))
       return
     }
-    if (!(coordinates instanceof Lnglat) && !isCoordinatesType(coordinates)) {
+    if (!(coordinates instanceof LngLat) && !isCoordinatesType(coordinates)) {
       warn_(createMessage('getClosestFeatureToCoordinate', 'coordinates参数格式有误'))
       return
     }
@@ -330,6 +329,7 @@ export default class VectorLayer<
   // 样式管理
   /**
    * 获取样式
+   *
    * @returns {OMapStyleLike | undefined} style 样式
    */
   getStyle(): OMapStyleLike | undefined {
@@ -338,6 +338,7 @@ export default class VectorLayer<
 
   /**
    * 设置图层样式
+   *
    * @param {OMapStyleLike} style 新样式
    */
   setStyle(style: OMapStyleLike): void {
@@ -350,6 +351,7 @@ export default class VectorLayer<
 
   /**
    * 设置去重叠功能
+   *
    * @param declutter
    * @returns
    */

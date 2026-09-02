@@ -10,17 +10,12 @@ import {
 import type { OMapTileLayerParamsType } from '../TileLayer/type'
 import { getGaodeLayerUrlsByType } from './handle'
 
-let PACKAGE_NAME = 'GaodeLayer'
-let createMessage = getPackageMessage(PACKAGE_NAME)
+const PACKAGE_NAME = 'GaodeLayer'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 高德地图类
- * @class
- * @classdesc 快捷使用高德地图相关的开发地图服务
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/10/3
- * @updateDate 2025/10/3
+ *
  */
 
 export default class GaodeLayer extends TileLayer {
@@ -31,7 +26,7 @@ export default class GaodeLayer extends TileLayer {
 
   constructor(type: GaodeLayerTypeEnum, options: OMapGaodeLayerParamsType) {
     if (!isValidGaodeLayerType(type)) {
-      error_(createMessage('constructor', commonMessage.paramsInvaildEnum('type')))
+      error_(createMessage('constructor', commonMessage.paramsInvalidEnum('type')))
     }
     const urls = getGaodeLayerUrlsByType(type)
     // options.source 承载用户提供的 XYZ 参数，此前被 Object.assign 整体摊平到顶层而静默失效，
@@ -45,6 +40,7 @@ export default class GaodeLayer extends TileLayer {
       source: xyzSource
     }
     super(gaodeParams)
+    this.ownsSourceWrapper = true
     this.gaodeType = type
   }
 }

@@ -1,4 +1,4 @@
-import { OlInteraction } from '../../../source/index'
+import { type OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
 import type { OMapStyleLike } from '../../basic/Style/type'

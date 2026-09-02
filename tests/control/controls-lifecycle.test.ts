@@ -193,6 +193,18 @@ describe('Control mounting lifecycle', () => {
 })
 
 describe('Control manager input validation', () => {
+  it('returns an isolated controls collection snapshot', () => {
+    const map = createMap()
+    const zoom = new Zoom()
+    map.addControl(zoom)
+
+    const snapshot = map.getControls()
+    snapshot.length = 0
+
+    expect(map.getControls()).toEqual([zoom])
+    map.dispose()
+  })
+
   it('rejects missing and invalid controls', () => {
     const map = createMap()
 

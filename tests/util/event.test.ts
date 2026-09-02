@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import Event from '../../src/module/util/Event/index'
+import { OMapError, OMapErrorCode } from '../../src/error'
 
 interface TestEvents extends Record<string, readonly unknown[]> {
   change: [value: number]
@@ -42,6 +43,15 @@ describe('Event', () => {
     expect(unlisten).toHaveBeenCalledOnce()
   })
 
+  it('returns an isolated listener list snapshot', () => {
+    const events = new Event<TestEvents>()
+    events.on('reset', vi.fn())
+    const snapshot = events.get('reset') as Array<unknown>
+    snapshot.length = 0
+
+    expect(events.listenerCount('reset')).toBe(1)
+  })
+
   it('implements an idempotent permanent disposal contract', () => {
     const events = new Event<TestEvents>()
     const unlisten = vi.fn()
@@ -52,6 +62,23 @@ describe('Event', () => {
 
     expect(events.isDisposed()).toBe(true)
     expect(unlisten).toHaveBeenCalledOnce()
-    expect(() => events.on('reset', vi.fn())).toThrow(/已释放/)
+    try {
+      events.on('reset', vi.fn())
+      expect.fail('disposed Event should reject subscriptions')
+    } catch (error) {
+      expect(error).toBeInstanceOf(OMapError)
+      expect((error as OMapError).code).toBe(OMapErrorCode.Disposed)
+      expect((error as Error).message).toContain('Event【on】')
+    }
+  })
+
+  it('does not emit or invoke callbacks after disposal', () => {
+    const events = new Event<TestEvents>()
+    const listener = vi.fn()
+    events.on('change', listener)
+    events.dispose()
+
+    expect(events.emit('change', 1)).toBe(events)
+    expect(listener).not.toHaveBeenCalled()
   })
 })

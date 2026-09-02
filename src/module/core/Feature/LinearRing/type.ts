@@ -1,5 +1,5 @@
-import { isValidCoordinate, type OMapCoordinateType } from '../../../basic/Lnglat/type'
-import { OlGeometry } from '../../../../source/index'
+import { isValidCoordinate, type OMapCoordinateType } from '../../../basic/LngLat/type'
+import { type OlGeometry } from '../../../../source/index'
 import { isArray } from '../../../../utils/dataType'
 
 export type OMapLinearRingGeometryCoordinatesType = Array<OMapCoordinateType>

@@ -1,13 +1,13 @@
 import { isDefined, isFunction } from '../../../utils/index'
 import { error_, getPackageMessage } from '../../../utils/index'
 import { commonMessage } from '../../../utils/message'
-import type { OlCoordinateType, OMapCoordinateType } from '../../basic/Lnglat/type'
+import type { OlCoordinateType, OMapCoordinateType } from '../../basic/LngLat/type'
 import type { OMapBasicFeatureCoordinatesType } from '../../core/Feature/BasicFeature/type'
 import { getCurrentDateTime } from '../../../utils/handle'
-import { OlInteraction, OlUtil, OlGeometry, OlFeature } from '../../../source/index'
+import { OlInteraction, OlUtil, type OlGeometry, type OlFeature } from '../../../source/index'
 import Interaction from '../Interaction/index'
 import VectorLayer from '../../layer/VectorLayer/index'
-import BasicFeature from '../../core/Feature/BasicFeature/index'
+import type BasicFeature from '../../core/Feature/BasicFeature/index'
 import type { EventIdType } from '../../util/Event/type'
 import { type OMapVectorSourceType } from '../../layer/VectorLayer/type'
 import {
@@ -23,19 +23,14 @@ import {
 } from './type'
 import Event from '../../util/Event/index'
 import { handleModifyEvent } from './handle'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
+import { handleGetLngLatValue } from '../../basic/LngLat/handle'
 
 const PACKAGE_NAME = 'Modify'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 修改类
- * @class Modify
- * @classdesc 修改类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/4
- * @updateDate 2026/1/7
+ *
  */
 
 const defaultModifyOptions = {
@@ -62,7 +57,7 @@ export default class Modify extends Interaction<OMapModifyType> {
     }
     const { id, active, layer, ...modifyOptions } = params
     super('Modify', { id })
-    let modify_source: OMapVectorSourceType | null = null
+    let modifySource: OMapVectorSourceType | null = null
     if (!isDefined(layer)) {
       error_(createMessage('init', 'layer参数不能为空'))
     }
@@ -70,19 +65,19 @@ export default class Modify extends Interaction<OMapModifyType> {
       error_(createMessage('init', 'layer参数不属于VectorLayer类型'))
     }
     this.layer = layer as VectorLayer
-    modify_source = (layer as VectorLayer).getSource() as OMapVectorSourceType
-    let _params = Object.assign({}, defaultModifyOptions, {
+    modifySource = (layer as VectorLayer).getSource() as OMapVectorSourceType
+    const resolvedParams = Object.assign({}, defaultModifyOptions, {
       ...modifyOptions,
-      source: modify_source
+      source: modifySource
     })
-    this._interaction = new OlInteraction.Modify(_params)
+    this._interaction = new OlInteraction.Modify(resolvedParams)
     this.initInteractionEvent(active)
     this.events = new Event<OMapModifyEventMap>(this)
     // 初始化Modify事件
-    this._initModifyEvent()
+    this.initModifyEvent()
   }
 
-  protected _initModifyEvent() {
+  protected initModifyEvent() {
     this.pushRecord((this.layer as VectorLayer).getFeatures())
     const key = this._interaction.on('modifyend', (e) => {
       const modifiedFeatures = e.features
@@ -150,26 +145,28 @@ export default class Modify extends Interaction<OMapModifyType> {
 
   /**
    * 插入一个点
+   *
    * @param {OMapCoordinateType} coordinates 点的坐标
    */
   insertPoint(coordinates: OMapCoordinateType): boolean {
     if (!isDefined(coordinates)) {
       error_(createMessage('insertPoint', commonMessage.paramsNotDefined('coordinates')))
     }
-    let _coordinates: OlCoordinateType = handleGetLnglatValue(coordinates)
-    return this._interaction.insertPoint(_coordinates)
+    const coordinateValues: OlCoordinateType = handleGetLngLatValue(coordinates)
+    return this._interaction.insertPoint(coordinateValues)
   }
 
   /**
    * 删除一个点
+   *
    * @param {OMapCoordinateType} coordinates 点的坐标
    */
   removePoint(coordinates: OMapCoordinateType): boolean {
     if (!isDefined(coordinates)) {
       error_(createMessage('removePoint', commonMessage.paramsNotDefined('coordinates')))
     }
-    let _coordinates: OlCoordinateType = handleGetLnglatValue(coordinates)
-    return this._interaction.removePoint(_coordinates)
+    const coordinateValues: OlCoordinateType = handleGetLngLatValue(coordinates)
+    return this._interaction.removePoint(coordinateValues)
   }
 
   /**
@@ -221,10 +218,10 @@ export default class Modify extends Interaction<OMapModifyType> {
       error_(createMessage(methodName, commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionModifyEventType(type)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage(methodName, commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage(methodName, commonMessage.paramsInvalidFormat('callback', 'function')))
     }
   }
 

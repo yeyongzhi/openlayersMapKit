@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import OMap from '../../src/module/core/Map/index'
 import { createDefaultMapInteractions } from '../../src/module/core/Map/type'
 import { handleMapOnCallBack } from '../../src/module/core/Map/handle'
+import { OMapError, OMapErrorCode } from '../../src/error'
 
 interface MapInternals {
   _map: {
@@ -52,6 +53,30 @@ describe('Map lifecycle', () => {
     expect(internals._map.setTarget).toHaveBeenCalledOnce()
     expect(internals._map.setTarget).toHaveBeenCalledWith(undefined)
     expect(internals._map.dispose).toHaveBeenCalledOnce()
+  })
+
+  it('rejects native access after disposal with a lifecycle error', () => {
+    const map = Object.create(OMap.prototype) as OMap
+    const internals = map as unknown as MapInternals
+    internals._map = { setTarget: vi.fn(), dispose: vi.fn() }
+    internals.eventAdapter = { dispose: vi.fn() }
+    internals.layers = []
+    internals.layerGroups = []
+    internals.interactions = []
+    internals.controls = []
+    internals.popups = []
+    internals.disposed = false
+
+    map.dispose()
+
+    try {
+      map.getMap()
+      expect.fail('disposed Map should reject native access')
+    } catch (error) {
+      expect(error).toBeInstanceOf(OMapError)
+      expect((error as OMapError).code).toBe(OMapErrorCode.Disposed)
+      expect((error as Error).message).toContain('Map【getMap】')
+    }
   })
 })
 

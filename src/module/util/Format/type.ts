@@ -1,7 +1,7 @@
 import { type OMapProjectionType } from '../../core/Projection/type'
 import { type OMapExtentType } from '../../basic/Extent/type'
-import { OlFeature, OlFormat } from '../../../source/index'
-import Style from '../../basic/Style/index'
+import { type OlFeature, type OlFormat } from '../../../source/index'
+import type Style from '../../basic/Style/index'
 
 export const OMapFormatType = {
   GeoJSON: 'GeoJSON',

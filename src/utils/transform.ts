@@ -53,6 +53,7 @@ export function extractRGBAValues(rgbString: string) {
 
 /**
  * 将透明度的十六进制值转换为数字格式。
+ *
  * @param opacityHex 透明度的十六进制值，例如："FF"
  * @returns {number} 透明度的数字值，范围在 0 到 1 之间。
  */

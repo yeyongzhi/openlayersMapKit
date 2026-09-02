@@ -1,4 +1,4 @@
-import { OlInteraction } from '../../../source/index'
+import { type OlInteraction } from '../../../source/index'
 import Interaction from './index'
 import type { OlDrawInstanceType, OMapDrawType } from '../Draw/type'
 import type { OlDragBoxInstanceType, OMapDragBoxType } from '../DragBox/type'
@@ -90,7 +90,7 @@ export const OMapInteractionCommonEventTypes = [
   'propertychange'
 ] as const
 
-export function isVaildInteraction<T extends OMapInteractionCommonType>(
+export function isValidInteraction<T extends OMapInteractionCommonType>(
   value: unknown
 ): value is Interaction<T> {
   return value instanceof Interaction

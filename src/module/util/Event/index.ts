@@ -4,16 +4,12 @@ import type { EventItem, EventIdType, OMapEventsKeyType } from './type'
 import { OlEvent } from '../../../source/index'
 import { getConstructorName } from './handle'
 import type { Disposable } from '../Disposable/type'
+import { assertNotDisposed } from '../Disposable/lifecycle'
 
 const PACKAGE_NAME = 'Event'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
- * @class Event事件处理类
- * @classdesc 全局通用的事件处理
- * @author yyz
- * @CreateDate 2025/7/11
- * @LastUpdateDate 2026/1/7
  */
 export default class Event<
   Events extends { [K in keyof Events]: readonly unknown[] } = Record<string, readonly unknown[]>
@@ -41,16 +37,16 @@ export default class Event<
     unlisten?: OMapEventsKeyType
   ): EventIdType {
     this.assertActive('on')
-    let _typeVals = this.events.get(type as string) || []
+    const typeValues = this.events.get(type as string) || []
     const id = this.generateId()
-    _typeVals.push({
+    typeValues.push({
       id,
       target: this.target,
       type: type as string,
       callback,
       unlisten
     })
-    this.events.set(type as string, _typeVals)
+    this.events.set(type as string, typeValues)
     return id
   }
 
@@ -75,6 +71,7 @@ export default class Event<
   }
 
   emit<K extends keyof Events>(type: K, ...args: Events[K]): this {
+    if (this.disposed) return this
     const list = this.events.get(type as string)
     if (!list || list.length === 0) return this
     // 拷贝一份，防止在回调里增删时遍历出错
@@ -142,7 +139,7 @@ export default class Event<
   }
 
   get<K extends keyof Events>(type: K): ReadonlyArray<EventItem<Events[K]>> {
-    return (this.events.get(type as string) || []) as Array<EventItem<Events[K]>>
+    return [...(this.events.get(type as string) || [])] as Array<EventItem<Events[K]>>
   }
 
   listenerCount<K extends keyof Events>(type: K): number {
@@ -160,7 +157,7 @@ export default class Event<
   }
 
   private assertActive(methodName: string): void {
-    if (this.disposed) error_(createMessage(methodName, '事件管理器已释放'))
+    assertNotDisposed(this.disposed, PACKAGE_NAME, methodName)
   }
 
   private disposeUnlisten(unlisten?: OMapEventsKeyType) {

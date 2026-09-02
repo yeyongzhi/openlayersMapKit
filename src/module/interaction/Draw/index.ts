@@ -1,15 +1,15 @@
 import { isDefined, isFunction } from '../../../utils/index'
 import { warn_, error_, getPackageMessage } from '../../../utils/index'
 import { commonMessage } from '../../../utils/message'
-import type { OMapCoordinateType } from '../../basic/Lnglat/type'
+import type { OMapCoordinateType } from '../../basic/LngLat/type'
 import Interaction from '../Interaction/index'
-import { OlInteraction, OlGeometry } from '../../../source/index'
+import { OlInteraction, type OlGeometry } from '../../../source/index'
 import VectorLayer from '../../layer/VectorLayer/index'
-import BasicFeature from '../../core/Feature/BasicFeature/index'
+import type BasicFeature from '../../core/Feature/BasicFeature/index'
 import { type EventIdType } from '../../util/Event/type'
 import {
   type OMapDrawModeType,
-  isVaildDrawMode,
+  isValidDrawMode,
   type OMapDrawParamsType,
   type OMapInteractionDrawEventType,
   isOMapInteractionDrawEventType,
@@ -23,19 +23,14 @@ import Event from '../../util/Event/index'
 import type { OlVectorSourceInstanceType, OMapVectorSourceType } from '../../layer/VectorLayer/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
 import { getOlDrawType, handleInteractionDrawEvent } from './handle'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
+import { handleGetLngLatValue } from '../../basic/LngLat/handle'
 
 const PACKAGE_NAME = 'Draw'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 绘制类
- * @class Draw
- * @classdesc 绘制类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/8/25
- * @updateDate 2026/2/4
+ *
  */
 
 export default class Draw extends Interaction<OMapDrawType> {
@@ -46,30 +41,30 @@ export default class Draw extends Interaction<OMapDrawType> {
     if (!isDefined(mode)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('mode')))
     }
-    if (!isVaildDrawMode(mode)) {
-      error_(createMessage('constructor', commonMessage.paramsInvaildFormat('mode')))
+    if (!isValidDrawMode(mode)) {
+      error_(createMessage('constructor', commonMessage.paramsInvalidFormat('mode')))
     }
-    const _params: OMapDrawParamsType = params ?? {}
-    const { id, active, layer, style, ...drawOptions } = _params
+    const resolvedParams: OMapDrawParamsType = params ?? {}
+    const { id, active, layer, style, ...drawOptions } = resolvedParams
     super('Draw', { id })
-    let draw_source: OMapVectorSourceType | null = null
+    let drawSource: OMapVectorSourceType | null = null
     if (isDefined<VectorLayer>(layer)) {
       if (layer instanceof VectorLayer) {
         this.layer = layer
-        draw_source = layer.getSource() as OMapVectorSourceType
+        drawSource = layer.getSource() as OMapVectorSourceType
       } else {
-        warn_(createMessage('init', commonMessage.paramsInvaildFormat('layer', 'VectorLayer')))
+        warn_(createMessage('init', commonMessage.paramsInvalidFormat('layer', 'VectorLayer')))
       }
     }
-    if (!isDefined(draw_source)) {
+    if (!isDefined(drawSource)) {
       this.layer = new VectorLayer({
         style: style || DEFAULT_STYLE
       })
-      draw_source = this.layer.getSource() as OlVectorSourceInstanceType
+      drawSource = this.layer.getSource() as OlVectorSourceInstanceType
     }
-    let drawParams = Object.assign({}, OMAP_DRAW_DEFAULT_PARAMS, {
+    const drawParams = Object.assign({}, OMAP_DRAW_DEFAULT_PARAMS, {
       ...drawOptions,
-      source: draw_source,
+      source: drawSource,
       features: undefined,
       style: undefined
     })
@@ -84,16 +79,17 @@ export default class Draw extends Interaction<OMapDrawType> {
 
   /**
    * 追加坐标
+   *
    * @param coordinates 坐标
    */
   appendCoordinates(coordinates: Array<OMapCoordinateType>) {
     if (!isDefined(coordinates)) {
       error_(createMessage('appendCoordinates', commonMessage.paramsNotDefined('coordinates')))
     }
-    let _coordinates = coordinates.map((c) => {
-      return handleGetLnglatValue(c)
+    const coordinateValues = coordinates.map((c) => {
+      return handleGetLngLatValue(c)
     })
-    this._interaction.appendCoordinates(_coordinates)
+    this._interaction.appendCoordinates(coordinateValues)
   }
 
   /**
@@ -127,19 +123,20 @@ export default class Draw extends Interaction<OMapDrawType> {
     this._interaction.finishDrawing()
   }
 
-  protected destroy(destroyLayer: boolean = true) {
+  protected override destroy(destroyLayer: boolean = true) {
     if (destroyLayer && isDefined(this.getLayer())) {
-      this._removeInteractionLayer()
+      this.removeInteractionLayer()
     }
     super.destroy()
   }
 
   /**
    * 获取当前绘制的所有特征
+   *
    * @returns 特征数组
    */
   getFeatures(): BasicFeature<OlGeometry.Geometry>[] {
-    let layer = this.getLayer()
+    const layer = this.getLayer()
     if (!isDefined<VectorLayer>(layer)) {
       return []
     }
@@ -172,10 +169,10 @@ export default class Draw extends Interaction<OMapDrawType> {
       error_(createMessage(methodName, commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionDrawEventType(type)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage(methodName, commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage(methodName, commonMessage.paramsInvalidFormat('callback', 'function')))
     }
   }
 

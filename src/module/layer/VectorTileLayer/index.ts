@@ -8,17 +8,12 @@ import VectorTileSource from '../../source/TileSource/subClass/VectorTileSource/
 import { type OMapVectorTileLayerParamsType } from './type'
 import { type BaseLayerPropertiesType, type OMapBaseLayerCommonType } from '../BaseLayer/type'
 
-let PACKAGE_NAME = 'VectorTileLayer'
-let createMessage = getPackageMessage(PACKAGE_NAME)
+const PACKAGE_NAME = 'VectorTileLayer'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 矢量瓦片图层类
- * @class VectorTileLayer
- * @classdesc 渲染 `VectorTileSource` 的矢量瓦片图层，修复此前矢量瓦片数据源无对应渲染图层的问题。
- * @author Aurora
- * @version 1.0.0
- * @createDate 2026/8/31
- * @updateDate 2026/8/31
+ *
  */
 export default class VectorTileLayer<
   P extends BaseLayerPropertiesType = BaseLayerPropertiesType
@@ -27,36 +22,36 @@ export default class VectorTileLayer<
   declare protected _sourceWrapper: VectorTileSource | null
 
   constructor(options?: OMapVectorTileLayerParamsType<P>) {
-    const _options: OMapVectorTileLayerParamsType<P> = options ?? {}
-    super('VectorTile', _options)
-    if (!isDefined(_options.source)) {
+    const resolvedOptions: OMapVectorTileLayerParamsType<P> = options ?? {}
+    super('VectorTile', resolvedOptions)
+    if (!isDefined(resolvedOptions.source)) {
       error_(createMessage('constructor', 'source参数是必须的'))
       return
     }
-    const _layerParams = Object.assign({}, _options, {
+    const layerParams = Object.assign({}, resolvedOptions, {
       source: undefined,
       map: undefined
     })
     const sourceWrapper =
-      _options.source instanceof VectorTileSource
-        ? _options.source
-        : new VectorTileSource(_options.source)
+      resolvedOptions.source instanceof VectorTileSource
+        ? resolvedOptions.source
+        : new VectorTileSource(resolvedOptions.source)
     this._sourceWrapper = sourceWrapper
+    this.ownsSourceWrapper = !(resolvedOptions.source instanceof VectorTileSource)
     this._layer = new OlLayer.VectorTile({
-      ..._layerParams,
-      extent: isDefined(_layerParams.extent)
-        ? handleGetExtentValue(_layerParams.extent)
-        : undefined,
-      background: isDefined(_layerParams.background)
-        ? handleGetColorValue(_layerParams.background)
+      ...layerParams,
+      extent: isDefined(layerParams.extent) ? handleGetExtentValue(layerParams.extent) : undefined,
+      background: isDefined(layerParams.background)
+        ? handleGetColorValue(layerParams.background)
         : undefined,
       source: sourceWrapper.getSource()
     })
-    this._initLayerEvent()
+    this.initLayerEvent()
   }
 
   /**
    * 获取图层关联的 OMap 矢量瓦片数据源包装。
+   *
    * @returns {VectorTileSource | null} OMap 矢量瓦片数据源包装
    */
   getVectorTileSource(): VectorTileSource | null {

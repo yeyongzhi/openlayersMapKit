@@ -12,7 +12,7 @@ import {
   OMapFormatType
 } from './type'
 
-export function isVaildFormatType(type: unknown): type is OMapFormatTypeEnum {
+export function isValidFormatType(type: unknown): type is OMapFormatTypeEnum {
   return Object.values(OMapFormatType).includes(type as OMapFormatTypeEnum)
 }
 
@@ -44,6 +44,7 @@ function getKMLOptionsDefaultOptions(): OMapFormatKMLOptions {
  * OMap 的 `dataProjection` / `featureProjection` / `extent` 承载的是 wrapper 实例，
  * 直接透传会导致 OpenLayers 调用不到 `getCode()` 等方法，因此必须逐字段转换。
  * 仅当用户显式提供时才写入目标字段，避免用 `undefined` 覆盖 OpenLayers 内部默认值。
+ *
  * @param {OMapFormatReadFeatureOptionsType} options OMap 读取选项
  * @returns {ReadOptions} OpenLayers 读取选项
  */
@@ -66,6 +67,7 @@ export function handleGetReadOptions(options?: OMapFormatReadFeatureOptionsType)
 
 /**
  * OMap 写入选项 → OpenLayers `WriteOptions`。转换规则同 {@link handleGetReadOptions}。
+ *
  * @param {OMapFormatWriteFeatureOptionsType} options OMap 写入选项
  * @returns {WriteOptions} OpenLayers 写入选项
  */
@@ -91,6 +93,7 @@ export function handleGetWriteOptions(options?: OMapFormatWriteFeatureOptionsTyp
 
 /**
  * 获取默认参数
+ *
  * @param type 格式类型
  * @returns 默认参数
  */

@@ -1,4 +1,4 @@
-import DragPan from './index'
+import type DragPan from './index'
 import { type OMapInteractionDragPanEventType } from './type'
 import { handleInteractionActiveChangeEvent, type InteractionPropertyChangeEvent } from '../handle'
 

@@ -1,10 +1,10 @@
 import Style from './index'
-import Color from '../Color/index'
-import Pixel from '../Pixel/index'
-import Size from '../Size/index'
-import BaseFeature from '../../core/Feature/BasicFeature/index'
+import type Color from '../Color/index'
+import type Pixel from '../Pixel/index'
+import type Size from '../Size/index'
+import type BaseFeature from '../../core/Feature/BasicFeature/index'
 import type { OlFeatureLike } from '../../core/Feature/BasicFeature/type'
-import { OlGeometry, OlStyle } from '../../../source/index'
+import { type OlGeometry, type OlStyle } from '../../../source/index'
 import { isFunction, type ManualOmit } from '../../../utils/index'
 import type { RenderFunction } from 'ol/style/Style'
 
@@ -13,26 +13,29 @@ export type OMapStyleOptionsGeometryType =
 
 /**
  * 判断是否为有效单个Style样式
+ *
  * @returns {boolean} 是否为有效样式
  */
 
-export function isVaildStyle(value: unknown): value is Style {
+export function isValidStyle(value: unknown): value is Style {
   return value instanceof Style
 }
 
 /**
  * 判断是否为有效Style数组样式
+ *
  * @returns {boolean} 是否为有效样式
  */
-export function isVaildArrayStyle(value: unknown): value is Array<Style> {
-  return Array.isArray(value) && value.every((item) => isVaildStyle(item))
+export function isValidArrayStyle(value: unknown): value is Array<Style> {
+  return Array.isArray(value) && value.every((item) => isValidStyle(item))
 }
 
 /**
  * 判断是否为有效Style数组样式
+ *
  * @returns {boolean} 是否为有效样式
  */
-export function isVaildFunctionStyle(value: unknown): value is OMapStyleFunction {
+export function isValidFunctionStyle(value: unknown): value is OMapStyleFunction {
   return isFunction(value)
 }
 

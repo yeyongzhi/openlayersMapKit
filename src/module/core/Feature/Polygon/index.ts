@@ -15,9 +15,9 @@ import {
 } from '../LinearRing/type'
 import Point from '../Point/index'
 import LinearRing from '../LinearRing/index'
-import Lnglat from '../../../basic/Lnglat/index'
-import { type OMapCoordinateType } from '../../../basic/Lnglat/type'
-import { handleGetLnglatValue, normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import LngLat from '../../../basic/LngLat/index'
+import { type OMapCoordinateType } from '../../../basic/LngLat/type'
+import { handleGetLngLatValue, normalizeCoordinates } from '../../../basic/LngLat/handle'
 import Extent from '../../../basic/Extent/index'
 import { handleGetExtentValue } from '../../../basic/Extent/handle'
 
@@ -26,12 +26,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * Polygon类
- * @class
- * @classdesc Polygon
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/14
- * @updateDate 2026/2/1
+ *
  */
 
 export default class Polygon<P extends PropertiesType = PropertiesType> extends BasicFeature<
@@ -53,7 +48,7 @@ export default class Polygon<P extends PropertiesType = PropertiesType> extends 
     } else {
       if (!isValidPolygonCoordinates(coordinatesOrFeature)) {
         error_(
-          createMessage('constructor', commonMessage.paramsInvaildFormat('coordinatesOrFeature'))
+          createMessage('constructor', commonMessage.paramsInvalidFormat('coordinatesOrFeature'))
         )
       }
       super('Polygon', coordinatesOrFeature)
@@ -63,28 +58,30 @@ export default class Polygon<P extends PropertiesType = PropertiesType> extends 
     }
   }
 
-  protected _init(coordinates: OMapPolygonGeometryCoordinatesType, _radius?: number) {
+  protected init(coordinates: OMapPolygonGeometryCoordinatesType, _radius?: number) {
     this._geometry = new OlGeometry.Polygon(normalizeCoordinates(coordinates))
-    this._feature = this._createFeature(this._geometry)
+    this._feature = this.createFeature(this._geometry)
   }
 
   /**
    * 获取多边形的坐标
+   *
    * @param {boolean} rightHanded 是否右手坐标系
-   * @returns {Array<Array<Lnglat>>} 多边形的坐标
+   * @returns {Array<Array<LngLat>>} 多边形的坐标
    */
-  getCoordinates(rightHanded?: boolean): Array<Array<Lnglat>> {
-    let coordinates = this._geometry.getCoordinates(rightHanded)
-    let _coordinates = coordinates.map((c) => {
+  getCoordinates(rightHanded?: boolean): Array<Array<LngLat>> {
+    const coordinates = this._geometry.getCoordinates(rightHanded)
+    const coordinateValues = coordinates.map((c) => {
       return c.map((c2) => {
-        return new Lnglat(c2)
+        return new LngLat(c2)
       })
     })
-    return _coordinates
+    return coordinateValues
   }
 
   /**
    * 设置多边形的坐标
+   *
    * @param {OMapPolygonGeometryCoordinatesType} coordinates 多边形的坐标
    */
   setCoordinates(coordinates: OMapPolygonGeometryCoordinatesType): void {
@@ -92,15 +89,16 @@ export default class Polygon<P extends PropertiesType = PropertiesType> extends 
       error_(createMessage('setCoordinates', commonMessage.paramsNotDefined('coordinates')))
     }
     if (!isValidPolygonCoordinates(coordinates)) {
-      error_(createMessage('setCoordinates', commonMessage.paramsInvaildFormat('coordinates')))
+      error_(createMessage('setCoordinates', commonMessage.paramsInvalidFormat('coordinates')))
     }
-    let _coordinates = normalizeCoordinates(coordinates)
-    this._geometry.setCoordinates(_coordinates)
+    const coordinateValues = normalizeCoordinates(coordinates)
+    this._geometry.setCoordinates(coordinateValues)
   }
 
   /**
    * 向Polygon中添加LinearRing（内环）
-   * @param {LinearRing | OMapLinearRingGeometryCoordinatesType} linearRing 内环
+   *
+   * @param {LinearRing | OMapLinearRingGeometryCoordinatesType} linearRingParams 内环
    */
   appendLinearRing(linearRingParams: LinearRing | OMapLinearRingGeometryCoordinatesType) {
     if (!isDefined(linearRingParams)) {
@@ -110,14 +108,14 @@ export default class Polygon<P extends PropertiesType = PropertiesType> extends 
       linearRingParams instanceof LinearRing && isValidLinearRingCoordinates(linearRingParams)
     )) {
       error_(
-        createMessage('appendLinearRing', commonMessage.paramsInvaildFormat('linearRingParams'))
+        createMessage('appendLinearRing', commonMessage.paramsInvalidFormat('linearRingParams'))
       )
     }
     if (linearRingParams instanceof LinearRing) {
       this._geometry.appendLinearRing(linearRingParams.getGeometry())
     } else {
       const coordinates = (linearRingParams as OMapLinearRingGeometryCoordinatesType).map((l) => {
-        return handleGetLnglatValue(l)
+        return handleGetLngLatValue(l)
       })
       this._geometry.appendLinearRing(new LinearRing(coordinates).getGeometry())
     }
@@ -125,24 +123,27 @@ export default class Polygon<P extends PropertiesType = PropertiesType> extends 
 
   /**
    * 获取多边形的第一个坐标（包含内环）
-   * @returns {Lnglat} 多边形的第一个坐标
+   *
+   * @returns {LngLat} 多边形的第一个坐标
    */
-  getFirstCoordinate(): Lnglat {
-    let coordinates = this._geometry.getFirstCoordinate()
-    return new Lnglat(coordinates)
+  getFirstCoordinate(): LngLat {
+    const coordinates = this._geometry.getFirstCoordinate()
+    return new LngLat(coordinates)
   }
 
   /**
    * 获取多边形的最后一个坐标（包含内环）
-   * @returns {Lnglat} 多边形的最后一个坐标
+   *
+   * @returns {LngLat} 多边形的最后一个坐标
    */
-  getLastCoordinate(): Lnglat {
-    let coordinates = this._geometry.getLastCoordinate()
-    return new Lnglat(coordinates)
+  getLastCoordinate(): LngLat {
+    const coordinates = this._geometry.getLastCoordinate()
+    return new LngLat(coordinates)
   }
 
   /**
    * 返回投影平面上多边形的面积
+   *
    * @returns {number} 投影平面上多边形的面积
    */
   getArea(): number {
@@ -151,29 +152,32 @@ export default class Polygon<P extends PropertiesType = PropertiesType> extends 
 
   /**
    * 将几何图形中距离传递点最近的点作为坐标返回
+   *
    * @param {OMapCoordinateType} point 传递点
-   * @param {OMapCoordinateType} closestPoint 最近点
-   * @returns {Lnglat} 最近点
+   * @param {OMapCoordinateType} _closestPoint 最近点
+   * @returns {LngLat} 最近点
    */
-  getClosestPoint(point: OMapCoordinateType, _closestPoint?: OMapCoordinateType): Lnglat {
-    let coordinates = handleGetLnglatValue(point)
-    let result = this._geometry.getClosestPoint(coordinates)
-    let _result = new Lnglat(result)
-    _closestPoint = _result
-    return _result
+  getClosestPoint(point: OMapCoordinateType, _closestPoint?: OMapCoordinateType): LngLat {
+    const coordinates = handleGetLngLatValue(point)
+    const result = this._geometry.getClosestPoint(coordinates)
+    const resultValue = new LngLat(result)
+    _closestPoint = resultValue
+    return resultValue
   }
 
   /**
    * 返回多边形的内点
+   *
    * @returns {Point} 多边形的内点
    */
   getInteriorPoint(): Point {
-    let result = this._geometry.getInteriorPoint().getCoordinates()
+    const result = this._geometry.getInteriorPoint().getCoordinates()
     return new Point(result as OMapCoordinateType)
   }
 
   /**
    * 如果该几何形状包含指定的坐标，则返回 true。如果坐标位于几何形状的边界上，则返回 false。
+   *
    * @param {OMapCoordinateType} coordinates
    * @returns {boolean}
    */
@@ -181,12 +185,13 @@ export default class Polygon<P extends PropertiesType = PropertiesType> extends 
     if (!isDefined(coordinates)) {
       error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
     }
-    let _coordinates = handleGetLnglatValue(coordinates)
-    return this._geometry.intersectsCoordinate(_coordinates)
+    const coordinateValues = handleGetLngLatValue(coordinates)
+    return this._geometry.intersectsCoordinate(coordinateValues)
   }
 
   /**
    * 线是否在extent范围内
+   *
    * @param {OMapExtentType} extent
    * @returns {boolean}
    */
@@ -195,10 +200,10 @@ export default class Polygon<P extends PropertiesType = PropertiesType> extends 
       error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
     }
     if (!(extent instanceof Extent) && !isExtentType(extent)) {
-      error_(createMessage('intersectsExtent', commonMessage.paramsInvaildFormat('extent')))
+      error_(createMessage('intersectsExtent', commonMessage.paramsInvalidFormat('extent')))
     }
-    let _extent = handleGetExtentValue(extent)
-    return this._geometry.intersectsExtent(_extent)
+    const extentValue = handleGetExtentValue(extent)
+    return this._geometry.intersectsExtent(extentValue)
   }
 
   simplify(tolerance: number = 0): Polygon<P> {

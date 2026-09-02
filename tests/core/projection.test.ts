@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { OMapError, OMapErrorCode, ProjUtil, Projection, LngLat } from '../../src/index'
 
 /** 已知常量：EPSG:3857 的 Web Mercator 半周长（米）。 */
@@ -84,15 +84,9 @@ describe('ProjUtil.fromLonLat', () => {
     expect(projected?.getLng()).toBeCloseTo(13358338.89519283, 6)
   })
 
-  it('returns undefined and warns for missing coordinates', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-    expect(ProjUtil.fromLonLat(undefined as unknown as number[])).toBeUndefined()
-
-    expect(warn).toHaveBeenCalledTimes(1)
-    expect(warn.mock.calls[0]?.[1]).toContain('coordinate')
-
-    warn.mockRestore()
+  it('throws OMapError for missing or invalid coordinates', () => {
+    expect(() => ProjUtil.fromLonLat(undefined as unknown as number[])).toThrow(OMapError)
+    expect(() => ProjUtil.fromLonLat([120] as number[])).toThrow(OMapError)
   })
 })
 
@@ -121,13 +115,8 @@ describe('ProjUtil.toLonLat', () => {
     expect(ProjUtil.toLonLat(projected, new Projection('EPSG:3857'))?.getLng()).toBeCloseTo(120, 6)
   })
 
-  it('returns undefined and warns for missing coordinates', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-    expect(ProjUtil.toLonLat(undefined as unknown as number[])).toBeUndefined()
-
-    expect(warn).toHaveBeenCalledTimes(1)
-
-    warn.mockRestore()
+  it('throws OMapError for missing or invalid coordinates', () => {
+    expect(() => ProjUtil.toLonLat(undefined as unknown as number[])).toThrow(OMapError)
+    expect(() => ProjUtil.toLonLat([120] as number[])).toThrow(OMapError)
   })
 })

@@ -18,11 +18,11 @@ import {
   isIdType,
   isNaN,
   isObject,
-  isVaildColorHex,
-  isVaildColorHexWithAlpha,
-  isVaildColorRGB,
-  isVaildColorRGBString,
-  isVaildOpacity
+  isValidColorHex,
+  isValidColorHexWithAlpha,
+  isValidColorRGB,
+  isValidColorRGBString,
+  isValidOpacity
 } from '../../src/utils/dataType'
 import { Color, Popup, Size } from '../../src/index'
 import { handleGetColorValue } from '../../src/module/basic/Color/handle'
@@ -62,13 +62,13 @@ describe('utility boundaries', () => {
     expect(isExtentType([1, 2, 3, 4])).toBe(true)
     expect(isExtentType([1, 2])).toBe(false)
     expect(isArrayLength2([1, 2])).toBe(true)
-    expect(isVaildColorRGB([0, 128, 255])).toBe(true)
-    expect(isVaildColorRGB([0, 256, 1])).toBe(false)
-    expect(isVaildColorRGBString('rgb(0, 128, 255)')).toBe(true)
-    expect(isVaildOpacity(1)).toBe(true)
-    expect(isVaildOpacity(2)).toBe(false)
-    expect(isVaildColorHex('#fff')).toBe(true)
-    expect(isVaildColorHexWithAlpha('#ffffffff')).toBe(true)
+    expect(isValidColorRGB([0, 128, 255])).toBe(true)
+    expect(isValidColorRGB([0, 256, 1])).toBe(false)
+    expect(isValidColorRGBString('rgb(0, 128, 255)')).toBe(true)
+    expect(isValidOpacity(1)).toBe(true)
+    expect(isValidOpacity(2)).toBe(false)
+    expect(isValidColorHex('#fff')).toBe(true)
+    expect(isValidColorHexWithAlpha('#ffffffff')).toBe(true)
   })
 
   it('normalizes value objects and Popup payload branches', () => {

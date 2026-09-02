@@ -26,12 +26,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 拖动地图类
- * @class InteractionExtent
- * @classdesc 拖动绘制选框范围，可自定义修改范围
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/2
- * @updateDate 2026/1/5
+ *
  */
 
 export default class InteractionExtent extends Interaction<OMapInteractionExtentType> {
@@ -43,7 +38,7 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
     super('InteractionExtent', { id })
     // OMap 样式（Style wrapper）必须先转换为 OpenLayers 原生样式，
     // 否则 OpenLayers 拿不到可渲染的样式实例。
-    const _params: OlExtentResolvedParamsType = Object.assign(
+    const resolvedParams: OlExtentResolvedParamsType = Object.assign(
       {},
       OMAP_EXTENT_DEFAULT_PARAMS,
       restParams,
@@ -52,7 +47,7 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
         pointerStyle: handleGetStyleValue(restParams.pointerStyle)
       }
     )
-    this._interaction = new OlInteraction.Extent(_params)
+    this._interaction = new OlInteraction.Extent(resolvedParams)
     // 注册事件
     this.initInteractionEvent(active)
     this.events = new Event<OMapExtentEventMap>(this)
@@ -60,15 +55,17 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
 
   /**
    * 获取当前选框范围
+   *
    * @returns {Extent} 当前选框范围
    */
   getExtent(): Extent {
-    let extent = this._interaction.getExtent()
+    const extent = this._interaction.getExtent()
     return new Extent(extent)
   }
 
   /**
    * 设置当前选框范围
+   *
    * @param {OMapExtentType} extent 选框范围
    */
   setExtent(extent: OMapExtentType) {
@@ -79,12 +76,12 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
       error_(
         createMessage(
           'setExtent',
-          commonMessage.paramsInvaildFormat('extent', 'OMap.Extent 或者 Extent数组')
+          commonMessage.paramsInvalidFormat('extent', 'OMap.Extent 或者 Extent数组')
         )
       )
     }
-    let _extent = handleGetExtentValue(extent)
-    this._interaction.setExtent(_extent)
+    const extentValue = handleGetExtentValue(extent)
+    this._interaction.setExtent(extentValue)
   }
 
   on(type: OMapInteractionExtentEventType, callback: (e: OMapExtentEvent) => void): EventIdType {
@@ -92,10 +89,10 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionExtentEventType(type)) {
-      error_(createMessage('on', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('on', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('on', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(type, callback, (e) =>
       handleInteractionExtentEvent(this, type, e as OlExtentEventPayloadType)
@@ -107,10 +104,10 @@ export default class InteractionExtent extends Interaction<OMapInteractionExtent
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionExtentEventType(type)) {
-      error_(createMessage('once', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('once', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('once', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(
       type,

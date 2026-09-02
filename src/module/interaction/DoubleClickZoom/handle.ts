@@ -1,4 +1,4 @@
-import DoubleClickZoom from './index'
+import type DoubleClickZoom from './index'
 import { type OMapInteractionDoubleClickZoomEventType } from './type'
 import { handleInteractionActiveChangeEvent, type InteractionPropertyChangeEvent } from '../handle'
 

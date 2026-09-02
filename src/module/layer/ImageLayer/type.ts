@@ -1,4 +1,4 @@
-import { OlSource } from '../../../source/index'
+import { type OlSource } from '../../../source/index'
 import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
 import { isDefined } from '../../../utils/index'
 import type { OMapImageStaticSourceParamsType } from '../../source/ImageStaticSource/type'
@@ -29,10 +29,11 @@ export type OlImageStaticSourceInstanceType = InstanceType<typeof OlSource.Image
  * `OMapImageLayerParamsType.source` 在类型上允许两种形态：静态图片（有 url 分支）与
  * 自定义 `loader` 分支。按 `url` 是否存在判别，避免把 loader 型参数静默降级成
  * url 为空的无效数据源。
+ *
  * @param source 数据源参数
  * @returns 是否为静态图片数据源参数
  */
-export function isVaildImageStaticSourceParams(
+export function isValidImageStaticSourceParams(
   source: OMapImageSourceParamsType | OMapImageStaticSourceParamsType
 ): source is OMapImageStaticSourceParamsType {
   return isDefined((source as OMapImageStaticSourceParamsType).url)
@@ -44,10 +45,11 @@ export function isVaildImageStaticSourceParams(
  * `OMapImageLayerParamsType.source` 在类型上允许三种形态：静态图片（url + imageExtent）、
  * 自定义 loader，以及 WMS 单图（url + params）。按 `url` 与 `params` 同时存在来判别，
  * 避免与静态图片分支（仅 url）冲突。判别顺序应早于静态图片分支。
+ *
  * @param source 数据源参数
  * @returns 是否为 WMS 单图数据源参数
  */
-export function isVaildImageWMSSourceParams(
+export function isValidImageWMSSourceParams(
   source: OMapImageSourceParamsType | OMapImageStaticSourceParamsType | OMapImageWMSSourceParamsType
 ): source is OMapImageWMSSourceParamsType {
   return (

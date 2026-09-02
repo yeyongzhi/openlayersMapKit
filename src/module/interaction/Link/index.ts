@@ -13,7 +13,7 @@ import {
   type OlResolvedAnimationOptions,
   isOMapInteractionLinkEventType
 } from './type'
-import Lnglat from '../../basic/Lnglat/index'
+import LngLat from '../../basic/LngLat/index'
 import { type EventIdType } from '../../util/Event/type'
 import { handleInteractionLinkEvent } from './handle'
 import type { InteractionPropertyChangeEvent } from '../handle'
@@ -23,12 +23,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 链接交互类
- * @class Link
- * @classdesc 一种将地图状态与 URL 同步的交互方式
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/20
- * @updateDate 2026/2/4
+ *
  */
 
 const defaultLinkOptions: OMapLinkParamsType = {
@@ -45,19 +40,21 @@ export default class Link extends Interaction<OMapLinkType> {
   constructor(params?: OMapLinkParamsType) {
     const { id, active, ...rest } = params ?? {}
     super('Link', { id })
-    // animate 中的 center 与 anchor 都接受 Lnglat，必须转换为 OpenLayers 原生坐标
+    // animate 中的 center 与 anchor 都接受 LngLat，必须转换为 OpenLayers 原生坐标
     const { animate, ...restParams } = rest
     const resolvedAnimate: boolean | OlResolvedAnimationOptions =
       isBoolean(animate) || !isDefined(animate)
         ? (animate ?? true)
         : Object.assign({}, animate, {
-            center: animate.center instanceof Lnglat ? animate.center.toArray() : animate.center,
-            anchor: animate.anchor instanceof Lnglat ? animate.anchor.toArray() : animate.anchor
+            center: animate.center instanceof LngLat ? animate.center.toArray() : animate.center,
+            anchor: animate.anchor instanceof LngLat ? animate.anchor.toArray() : animate.anchor
           })
-    const _params: OlLinkResolvedParamsType = Object.assign({}, restParams, {
+    const resolvedParams: OlLinkResolvedParamsType = Object.assign({}, restParams, {
       animate: resolvedAnimate
     })
-    this._interaction = new OlInteraction.Link(Object.assign({}, defaultLinkOptions, _params))
+    this._interaction = new OlInteraction.Link(
+      Object.assign({}, defaultLinkOptions, resolvedParams)
+    )
     this.initInteractionEvent(active)
     this.events = new Event<OMapLinkEventMap>(this)
   }
@@ -67,10 +64,10 @@ export default class Link extends Interaction<OMapLinkType> {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionLinkEventType(type)) {
-      error_(createMessage('on', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('on', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('on', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(type, callback, (e: InteractionPropertyChangeEvent) =>
       handleInteractionLinkEvent(this, type, e)
@@ -82,10 +79,10 @@ export default class Link extends Interaction<OMapLinkType> {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionLinkEventType(type)) {
-      error_(createMessage('once', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('once', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('once', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(
       type,
@@ -100,7 +97,7 @@ export default class Link extends Interaction<OMapLinkType> {
       error_(createMessage('un', commonMessage.paramsNotDefined(id)))
     }
     if (!isString(id)) {
-      error_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'EventIdType')))
+      error_(createMessage('un', commonMessage.paramsInvalidFormat(id, 'EventIdType')))
     }
     this.events.remove(id)
   }

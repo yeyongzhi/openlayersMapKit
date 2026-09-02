@@ -1,8 +1,8 @@
 import { isBoolean, isDefined, isNumber } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage, warn_ } from '../../../../utils/message'
-import Lnglat from '../../../basic/Lnglat/index'
-import { handleGetLnglatValue } from '../../../basic/Lnglat/handle'
-import type { OMapCoordinateType } from '../../../basic/Lnglat/type'
+import LngLat from '../../../basic/LngLat/index'
+import { handleGetLngLatValue } from '../../../basic/LngLat/handle'
+import type { OMapCoordinateType } from '../../../basic/LngLat/type'
 import Extent from '../../../basic/Extent/index'
 import { handleGetExtentValue } from '../../../basic/Extent/handle'
 import { isValidExtent, type OMapExtentType } from '../../../basic/Extent/type'
@@ -12,8 +12,8 @@ import { handleGetPixelValue } from '../../../basic/Pixel/handle'
 import type { OMapPixelType } from '../../../basic/Pixel/type'
 import BaseFeature from '../../Feature/BasicFeature/index'
 import type { OMapSimpleGeometryType } from '../../Feature/BasicFeature/type'
-import Projection from '../../Projection/index'
-import { OlGeometry } from '../../../../source/index'
+import type Projection from '../../Projection/index'
+import { type OlGeometry } from '../../../../source/index'
 import {
   OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS,
   OMAP_VIEW_FIT_DEFAULT_OPTIONS,
@@ -36,15 +36,15 @@ export default class ViewController {
     return this.view
   }
 
-  getCenter(): Lnglat | undefined {
+  getCenter(): LngLat | undefined {
     const center = this.view.getCenter()
-    return isDefined(center) ? new Lnglat(center) : undefined
+    return isDefined(center) ? new LngLat(center) : undefined
   }
 
   setCenter(center?: OMapCoordinateType): void {
     if (!isDefined(center))
       error_(createMessage('setCenter', commonMessage.paramsNotDefined('center')))
-    this.view.setCenter(handleGetLnglatValue(center as OMapCoordinateType))
+    this.view.setCenter(handleGetLngLatValue(center as OMapCoordinateType))
   }
 
   getZoom(): number | undefined {
@@ -84,27 +84,27 @@ export default class ViewController {
   }
 
   adjustCenter(delta: OMapCoordinateType): void {
-    if (isDefined(delta)) this.view.adjustCenter(handleGetLnglatValue(delta))
+    if (isDefined(delta)) this.view.adjustCenter(handleGetLngLatValue(delta))
   }
   adjustResolution(ratio: number, anchor?: OMapCoordinateType): void {
-    this.view.adjustResolution(ratio, anchor ? handleGetLnglatValue(anchor) : undefined)
+    this.view.adjustResolution(ratio, anchor ? handleGetLngLatValue(anchor) : undefined)
   }
   adjustRotation(delta: number, anchor?: OMapCoordinateType): void {
-    this.view.adjustRotation(delta, anchor ? handleGetLnglatValue(anchor) : undefined)
+    this.view.adjustRotation(delta, anchor ? handleGetLngLatValue(anchor) : undefined)
   }
   adjustZoom(delta: number, anchor?: OMapCoordinateType): void {
-    this.view.adjustZoom(delta, anchor ? handleGetLnglatValue(anchor) : undefined)
+    this.view.adjustZoom(delta, anchor ? handleGetLngLatValue(anchor) : undefined)
   }
 
   animate(options: OMapViewAnimateOptionsType): void {
     const input = options ?? {}
     this.view.animate({
       ...OMAP_VIEW_ANIMATE_DEFAULT_OPTIONS,
-      center: handleGetLnglatValue(input.center),
+      center: handleGetLngLatValue(input.center),
       resolution: input.resolution,
       rotation: input.rotation,
       zoom: input.zoom,
-      anchor: handleGetLnglatValue(input.anchor),
+      anchor: handleGetLngLatValue(input.anchor),
       duration: input.duration,
       easing: isDefined(input.easing) ? OMapEasing[input.easing] : undefined
     })
@@ -132,7 +132,7 @@ export default class ViewController {
       )
     }
     this.view.centerOn(
-      handleGetLnglatValue(coordinate),
+      handleGetLngLatValue(coordinate),
       handleGetSizeValue(size),
       handleGetPixelValue(position)
     )
@@ -145,7 +145,7 @@ export default class ViewController {
     this.view.endInteraction(
       duration,
       direction,
-      isDefined(anchor) ? handleGetLnglatValue(anchor) : undefined
+      isDefined(anchor) ? handleGetLngLatValue(anchor) : undefined
     )
   }
 
@@ -156,7 +156,7 @@ export default class ViewController {
     if (!isDefined(featureOrExtent))
       error_(createMessage('fit', commonMessage.paramsNotDefined('featureOrExtent')))
     if (!(featureOrExtent instanceof BaseFeature) && !isValidExtent(featureOrExtent)) {
-      error_(createMessage('fit', commonMessage.paramsInvaildFormat('featureOrExtent')))
+      error_(createMessage('fit', commonMessage.paramsInvalidFormat('featureOrExtent')))
     }
     const target =
       featureOrExtent instanceof BaseFeature
@@ -202,7 +202,7 @@ export default class ViewController {
   setConstrainResolution(enabled: boolean): void {
     if (!isBoolean(enabled)) {
       warn_(
-        createMessage('setProperties', commonMessage.paramsInvaildFormat('enabled', 'boolean类型'))
+        createMessage('setProperties', commonMessage.paramsInvalidFormat('enabled', 'boolean类型'))
       )
       return
     }
@@ -217,11 +217,11 @@ export default class ViewController {
 
   private validateOptionalNumber(value: number | undefined, method: string, name: string): void {
     if (!isDefined(value)) error_(createMessage(method, commonMessage.paramsNotDefined(name)))
-    if (!isNumber(value)) error_(createMessage(method, commonMessage.paramsInvaildFormat(name)))
+    if (!isNumber(value)) error_(createMessage(method, commonMessage.paramsInvalidFormat(name)))
   }
   private validateDelta(delta: number, method: string): void {
     if (isDefined(delta) && !isNumber(delta)) {
-      error_(createMessage(method, commonMessage.paramsInvaildFormat('delta', 'number')))
+      error_(createMessage(method, commonMessage.paramsInvalidFormat('delta', 'number')))
     }
   }
 }

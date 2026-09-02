@@ -1,4 +1,4 @@
-import { OlSource } from '../../../source/index'
+import { type OlSource } from '../../../source/index'
 import type { Options as OlClusterSourceOptions } from 'ol/source/Cluster'
 import VectorSource from '../VectorSource/index'
 import type { OMapVectorSourceType } from '../VectorSource/type'

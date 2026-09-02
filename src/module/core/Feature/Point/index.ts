@@ -4,10 +4,10 @@ import { OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { OMapPointGeometryCoordinatesType, OMapPointType } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import Lnglat from '../../../basic/Lnglat/index'
-import { handleGetLnglatValue, normalizeCoordinates } from '../../../basic/Lnglat/handle'
-import { isValidCoordinate } from '../../../basic/Lnglat/type'
-import Extent from '../../../basic/Extent/index'
+import LngLat from '../../../basic/LngLat/index'
+import { handleGetLngLatValue, normalizeCoordinates } from '../../../basic/LngLat/handle'
+import { isValidCoordinate } from '../../../basic/LngLat/type'
+import type Extent from '../../../basic/Extent/index'
 import { handleGetExtentValue } from '../../../basic/Extent/handle'
 import { isValidExtent } from '../../../basic/Extent/type'
 import type { PropertiesType } from '../../../../utils/type'
@@ -17,12 +17,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * Point类
- * @class
- * @classdesc Point
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/14
- * @updateDate 2026/1/30
+ *
  */
 
 export default class Point<P extends PropertiesType = PropertiesType> extends BasicFeature<
@@ -46,7 +41,7 @@ export default class Point<P extends PropertiesType = PropertiesType> extends Ba
         error_(
           createMessage(
             'constructor',
-            commonMessage.paramsInvaildFormat('coordinatesOrFeature', 'Lnglat or [x, y]')
+            commonMessage.paramsInvalidFormat('coordinatesOrFeature', 'LngLat or [x, y]')
           )
         )
       }
@@ -57,22 +52,24 @@ export default class Point<P extends PropertiesType = PropertiesType> extends Ba
     }
   }
 
-  protected _init(coordinates: OMapPointGeometryCoordinatesType) {
+  protected init(coordinates: OMapPointGeometryCoordinatesType) {
     this._geometry = new OlGeometry.Point(normalizeCoordinates(coordinates))
-    this._feature = this._createFeature(this._geometry)
+    this._feature = this.createFeature(this._geometry)
   }
 
   /**
    * 获取点的坐标
-   * @returns {Lnglat} 点的坐标
+   *
+   * @returns {LngLat} 点的坐标
    */
-  getCoordinates(): Lnglat {
-    let coordinates = this._geometry.getCoordinates()
-    return new Lnglat(coordinates)
+  getCoordinates(): LngLat {
+    const coordinates = this._geometry.getCoordinates()
+    return new LngLat(coordinates)
   }
 
   /**
    * 设置点的坐标
+   *
    * @param {OMapPointGeometryCoordinatesType} coordinates 点的坐标
    * @returns {void}
    */
@@ -84,32 +81,35 @@ export default class Point<P extends PropertiesType = PropertiesType> extends Ba
       error_(
         createMessage(
           'setCoordinates',
-          commonMessage.paramsInvaildFormat('coordinates', 'Lnglat or [x, y]')
+          commonMessage.paramsInvalidFormat('coordinates', 'LngLat or [x, y]')
         )
       )
     }
-    let _coordinates = handleGetLnglatValue(coordinates)
-    this._geometry.setCoordinates(_coordinates)
+    const coordinateValues = handleGetLngLatValue(coordinates)
+    this._geometry.setCoordinates(coordinateValues)
   }
 
   /**
    * 获取点的第一个坐标
-   * @returns {Lnglat} 点的第一个坐标
+   *
+   * @returns {LngLat} 点的第一个坐标
    */
-  getFirstCoordinate(): Lnglat {
+  getFirstCoordinate(): LngLat {
     return this.getCoordinates()
   }
 
   /**
    * 获取点的最后一个坐标
-   * @returns {Lnglat} 点的最后一个坐标
+   *
+   * @returns {LngLat} 点的最后一个坐标
    */
-  getLastCoordinate(): Lnglat {
+  getLastCoordinate(): LngLat {
     return this.getCoordinates()
   }
 
   /**
    * 点是否与给定坐标相交（即是否落在同一坐标）
+   *
    * @param {OMapPointGeometryCoordinatesType} coordinates 待判断的坐标
    * @returns {boolean} 是否相交
    */
@@ -117,11 +117,12 @@ export default class Point<P extends PropertiesType = PropertiesType> extends Ba
     if (!isDefined(coordinates)) {
       error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinates')))
     }
-    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+    return this._geometry.intersectsCoordinate(handleGetLngLatValue(coordinates))
   }
 
   /**
    * 点是否在extent范围内
+   *
    * @param {Extent | OlExtentType} extent
    * @returns {boolean | undefined}
    */
@@ -133,11 +134,11 @@ export default class Point<P extends PropertiesType = PropertiesType> extends Ba
       error_(
         createMessage(
           'intersectsExtent',
-          commonMessage.paramsInvaildFormat('extent', 'Extent or [xmin, ymin, xmax, ymax]')
+          commonMessage.paramsInvalidFormat('extent', 'Extent or [xmin, ymin, xmax, ymax]')
         )
       )
     }
-    let _extent = handleGetExtentValue(extent)
-    return this._geometry.intersectsExtent(_extent)
+    const extentValue = handleGetExtentValue(extent)
+    return this._geometry.intersectsExtent(extentValue)
   }
 }

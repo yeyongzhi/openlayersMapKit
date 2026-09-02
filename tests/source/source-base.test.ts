@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { OMapError, OMapErrorCode } from '../../src/error'
 import Source from '../../src/module/source/Source/index'
 import { OlSource } from '../../src/source/index'
 
@@ -40,6 +41,15 @@ describe('Source base class', () => {
     expect(source.get(123 as unknown as string)).toBeUndefined()
   })
 
+  it('returns an isolated properties snapshot', () => {
+    const source = new RawSource()
+    source.set('stable', 1)
+    const snapshot = source.getProperties()
+    snapshot.stable = 2
+
+    expect(source.get('stable')).toBe(1)
+  })
+
   it('dispose is idempotent and reflected by isDisposed', () => {
     const source = new RawSource()
     expect(source.isDisposed()).toBe(false)
@@ -47,5 +57,24 @@ describe('Source base class', () => {
     expect(source.isDisposed()).toBe(true)
     source.dispose()
     expect(source.isDisposed()).toBe(true)
+  })
+
+  it('rejects mutation and native access after dispose', () => {
+    const source = new RawSource()
+    source.dispose()
+
+    for (const action of [
+      () => source.refresh(),
+      () => source.set('x', 1),
+      () => source.getSource()
+    ]) {
+      try {
+        action()
+        expect.fail('disposed Source should reject active operations')
+      } catch (error) {
+        expect(error).toBeInstanceOf(OMapError)
+        expect((error as OMapError).code).toBe(OMapErrorCode.Disposed)
+      }
+    }
   })
 })

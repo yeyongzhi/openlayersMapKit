@@ -4,11 +4,11 @@ import { OlFeature, OlGeometry } from '../../../../source/index'
 import BasicFeature from '../BasicFeature'
 import type { PropertiesType } from '../../../../utils/type'
 import { type OMapCircleType } from './type'
-import { OMapPointGeometryCoordinatesType } from '../Point/type'
+import { type OMapPointGeometryCoordinatesType } from '../Point/type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import Lnglat from '../../../basic/Lnglat/index'
-import { type OMapCoordinateType, isValidCoordinate } from '../../../basic/Lnglat/type'
-import { handleGetLnglatValue, normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import LngLat from '../../../basic/LngLat/index'
+import { type OMapCoordinateType, isValidCoordinate } from '../../../basic/LngLat/type'
+import { handleGetLngLatValue, normalizeCoordinates } from '../../../basic/LngLat/handle'
 import { type OMapExtentType, isValidExtent } from '../../../basic/Extent/type'
 import { handleGetExtentValue } from '../../../basic/Extent/handle'
 
@@ -16,12 +16,6 @@ const PACKAGE_NAME = 'Circle'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
- * @class
- * @classdesc Circle
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/1
- * @updateDate 2026/2/1
  */
 
 export default class Circle<P extends PropertiesType = PropertiesType> extends BasicFeature<
@@ -40,10 +34,10 @@ export default class Circle<P extends PropertiesType = PropertiesType> extends B
       super('Circle', centerOrFeature as OlFeatureInstanceType)
     } else {
       if (!isValidCoordinate(centerOrFeature)) {
-        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('centerOrFeature')))
+        error_(createMessage('constructor', commonMessage.paramsInvalidFormat('centerOrFeature')))
       }
       if (!(isDefined(radius) && isNumber(radius))) {
-        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('radius')))
+        error_(createMessage('constructor', commonMessage.paramsInvalidFormat('radius')))
       }
       super('Circle', centerOrFeature as OMapPointGeometryCoordinatesType, radius)
       if (isDefined(properties)) {
@@ -52,14 +46,14 @@ export default class Circle<P extends PropertiesType = PropertiesType> extends B
     }
   }
 
-  protected _init(coordinates: OMapPointGeometryCoordinatesType, radius?: number) {
+  protected init(coordinates: OMapPointGeometryCoordinatesType, radius?: number) {
     this._geometry = new OlGeometry.Circle(normalizeCoordinates(coordinates), radius)
-    this._feature = this._createFeature(this._geometry)
+    this._feature = this.createFeature(this._geometry)
   }
 
-  getCenter(): Lnglat {
-    let center = this._geometry.getCenter()
-    return new Lnglat(center)
+  getCenter(): LngLat {
+    const center = this._geometry.getCenter()
+    return new LngLat(center)
   }
 
   setCenter(center: OMapCoordinateType) {
@@ -67,10 +61,10 @@ export default class Circle<P extends PropertiesType = PropertiesType> extends B
       error_(createMessage('setCenter', commonMessage.paramsNotDefined('center')))
     }
     if (!isValidCoordinate(center)) {
-      error_(createMessage('setCenter', commonMessage.paramsInvaildFormat('center', 'coordinates')))
+      error_(createMessage('setCenter', commonMessage.paramsInvalidFormat('center', 'coordinates')))
     }
-    let _center = handleGetLnglatValue(center)
-    this._geometry.setCenter(_center)
+    const normalizedCenter = handleGetLngLatValue(center)
+    this._geometry.setCenter(normalizedCenter)
   }
 
   getRadius(): number {
@@ -82,21 +76,23 @@ export default class Circle<P extends PropertiesType = PropertiesType> extends B
       error_(createMessage('setRadius', commonMessage.paramsNotDefined('radius')))
     }
     if (!isNumber(radius)) {
-      error_(createMessage('setRadius', commonMessage.paramsInvaildFormat('radius', 'number')))
+      error_(createMessage('setRadius', commonMessage.paramsInvalidFormat('radius', 'number')))
     }
     this._geometry.setRadius(radius)
   }
 
   /**
    * 获取圆的圆心坐标
-   * @returns {Lnglat} 圆心坐标
+   *
+   * @returns {LngLat} 圆心坐标
    */
-  getCoordinates(): Lnglat {
+  getCoordinates(): LngLat {
     return this.getCenter()
   }
 
   /**
    * 设置圆的圆心坐标
+   *
    * @param {OMapCoordinateType} center 圆心坐标
    */
   setCoordinates(center: OMapCoordinateType) {
@@ -113,19 +109,20 @@ export default class Circle<P extends PropertiesType = PropertiesType> extends B
       )
     }
     if (!isValidCoordinate(center)) {
-      error_(createMessage('setCenterAndRadius', commonMessage.paramsInvaildFormat('center')))
+      error_(createMessage('setCenterAndRadius', commonMessage.paramsInvalidFormat('center')))
     }
     if (!isNumber(radius)) {
       error_(
-        createMessage('setCenterAndRadius', commonMessage.paramsInvaildFormat('radius', 'number'))
+        createMessage('setCenterAndRadius', commonMessage.paramsInvalidFormat('radius', 'number'))
       )
     }
-    let _center = handleGetLnglatValue(center)
-    this._geometry.setCenterAndRadius(_center, radius)
+    const normalizedCenter = handleGetLngLatValue(center)
+    this._geometry.setCenterAndRadius(normalizedCenter, radius)
   }
 
   /**
    * 圆是否包含给定坐标
+   *
    * @param {OMapPointGeometryCoordinatesType} coordinates 待判断的坐标
    * @returns {boolean} 是否包含
    */
@@ -135,14 +132,15 @@ export default class Circle<P extends PropertiesType = PropertiesType> extends B
     }
     if (!isValidCoordinate(coordinates)) {
       error_(
-        createMessage('intersectsCoordinate', commonMessage.paramsInvaildFormat('coordinates'))
+        createMessage('intersectsCoordinate', commonMessage.paramsInvalidFormat('coordinates'))
       )
     }
-    return this._geometry.intersectsCoordinate(handleGetLnglatValue(coordinates))
+    return this._geometry.intersectsCoordinate(handleGetLngLatValue(coordinates))
   }
 
   /**
    * 圆是否与给定范围相交
+   *
    * @param {OMapExtentType} extent 范围
    * @returns {boolean} 是否相交
    */
@@ -151,7 +149,7 @@ export default class Circle<P extends PropertiesType = PropertiesType> extends B
       error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
     }
     if (!isValidExtent(extent)) {
-      error_(createMessage('intersectsExtent', commonMessage.paramsInvaildFormat('extent')))
+      error_(createMessage('intersectsExtent', commonMessage.paramsInvalidFormat('extent')))
     }
     return this._geometry.intersectsExtent(handleGetExtentValue(extent))
   }

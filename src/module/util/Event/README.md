@@ -21,11 +21,11 @@ on(type: OMapInteractionExtentEventType, callback: () => void): EventIdType | un
         return;
     }
     if (!isOMapInteractionExtentEventType(type)) {
-        warn_(createMessage('on', commonMessage.paramsInvaildEnum('type')));
+        warn_(createMessage('on', commonMessage.paramsInvalidEnum('type')));
         return;
     };
     if (!isFunction(callback)) {
-        warn_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')));
+        warn_(createMessage('on', commonMessage.paramsInvalidFormat('callback', 'function')));
         return;
     }
     const unlisten = OlEvent.listen((this._interaction as OlInteractionExtentInstanceType), type, (e: any) => {

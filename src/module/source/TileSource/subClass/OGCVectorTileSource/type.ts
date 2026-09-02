@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../source/index'
+import { type OlSource } from '../../../../../source/index'
 import type { FeatureLike } from 'ol/Feature'
 import type { Options as OlOGCVectorTileSourceOptions } from 'ol/source/OGCVectorTile'
 import { handleGetProjectionValue } from '../../../../core/Projection/handle'

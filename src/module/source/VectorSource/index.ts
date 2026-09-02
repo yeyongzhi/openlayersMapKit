@@ -6,8 +6,8 @@ import Projection from '../../core/Projection/index'
 import Extent from '../../basic/Extent/index'
 import type { OMapExtentType, OlExtentType } from '../../basic/Extent/type'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
-import type { OMapCoordinateType } from '../../basic/Lnglat/type'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
+import type { OMapCoordinateType } from '../../basic/LngLat/type'
+import { handleGetLngLatValue } from '../../basic/LngLat/handle'
 import { createBaseFeatureByOlFeature } from '../../core/Feature/BasicFeature/handle'
 import Source from '../Source/index'
 import {
@@ -29,13 +29,8 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * OMap VectorSource 类
- * @class
- * @classdesc 矢量数据源，提供 Feature 增删查、范围检索、远程加载与事件能力。
+ *
  * @description 参考：https://openlayers.org/en/latest/apidoc/module-ol_source_Vector-VectorSource.html
- * @author Aurora
- * @version 1.0.0
- * @createDate 2026/7/8
- * @updateDate 2026/7/8
  */
 
 export default class VectorSource extends Source<OMapVectorSourceType> {
@@ -307,7 +302,7 @@ export default class VectorSource extends Source<OMapVectorSourceType> {
   }
 
   protected getOlCoordinate(coordinate: OMapCoordinateType, methodName: string) {
-    const olCoordinate = handleGetLnglatValue(coordinate)
+    const olCoordinate = handleGetLngLatValue(coordinate)
     if (!isDefined(olCoordinate)) {
       error_(createMessage(methodName, 'coordinate参数格式有误'))
     }

@@ -1,10 +1,10 @@
 import { isDefined, isString, isObject } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import type { PropertiesType } from '../../../utils/type'
-import OlPackage, { OlSphere, OlGeometry } from '../../../source/index'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OMapCoordinateType, isValidCoordinate } from '../../basic/Lnglat/type'
-import { handleGetLnglatValue } from '../../basic/Lnglat/handle'
+import OlPackage, { OlSphere, type OlGeometry } from '../../../source/index'
+import LngLat from '../../basic/LngLat/index'
+import { type OMapCoordinateType, isValidCoordinate } from '../../basic/LngLat/type'
+import { handleGetLngLatValue } from '../../basic/LngLat/handle'
 import Extent from '../../basic/Extent/index'
 import { type OMapExtentType, isValidExtent } from '../../basic/Extent/type'
 import { handleGetExtentValue } from '../../basic/Extent/handle'
@@ -18,18 +18,18 @@ import Projection from '../Projection/index'
 import { type OlProjInstanceType } from '../Projection/type'
 import type BaseLayer from '../../layer/BaseLayer/index'
 import { type BaseLayerIdType, type OMapBaseLayerCommonType } from '../../layer/BaseLayer/type'
-import BaseFeature from '../Feature/BasicFeature/index'
-import Interaction from '../../interaction/Interaction/index'
+import type BaseFeature from '../Feature/BasicFeature/index'
+import type Interaction from '../../interaction/Interaction/index'
 import {
   type OMapInteractionIdType,
   type OMapInteractionCommonType
 } from '../../interaction/Interaction/type'
-import Control from '../../control/Control/index'
+import type Control from '../../control/Control/index'
 import { type OMapControlIdType } from '../../control/Control/type'
 import type { EventIdType } from '../../../module/util/Event/type'
-import Popup from '../../basic/Popup/index'
+import type Popup from '../../basic/Popup/index'
 import { type OMapPopupIdType } from '../../basic/Popup/type'
-import LayerGroup from '../../layer/LayerGroup/index'
+import type LayerGroup from '../../layer/LayerGroup/index'
 import { type LayerGroupIdType } from '../../layer/LayerGroup/type'
 import {
   type OMapMapType,
@@ -40,8 +40,8 @@ import {
   type OMapElementType,
   type OMapEventType,
   type OMapEventCallBack,
-  OMapForEachFeatureAtPixelOptionsType,
-  OMapViewAnimateOptionsType,
+  type OMapForEachFeatureAtPixelOptionsType,
+  type OMapViewAnimateOptionsType,
   type OMapViewFitOptionsType,
   createDefaultMapInteractions
 } from './type'
@@ -53,18 +53,14 @@ import ViewController from './controller/ViewController'
 import FeatureQuery from './query/FeatureQuery'
 import EventAdapter from './adapter/EventAdapter'
 import type { Disposable } from '../../util/Disposable/type'
+import { assertNotDisposed } from '../../util/Disposable/lifecycle'
 
 const PACKAGE_NAME = 'Map'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 地图类
- * @class
- * @classdesc 核心地图类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/5
- * @updateDate 2026/2/1
+ *
  */
 
 export default class Map implements Disposable {
@@ -92,37 +88,37 @@ export default class Map implements Disposable {
     if (!isDefined(element)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('element')))
     }
-    const _options: OMapResolvedOptionsType = { ...defaultMapOptions, ...options }
-    const view_options = _options.view
-    if (!isDefined(view_options)) {
+    const resolvedOptions: OMapResolvedOptionsType = { ...defaultMapOptions, ...options }
+    const viewOptions = resolvedOptions.view
+    if (!isDefined(viewOptions)) {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('view')))
     }
-    let proj: Projection | string = view_options.projection || new Projection('EPSG:3857') // 默认为3857
+    let proj: Projection | string = viewOptions.projection || new Projection('EPSG:3857') // 默认为3857
     if (isString(proj)) {
       proj = new Projection(proj as string)
     }
     this.projection = proj as Projection
-    const view_params = {
-      ...view_options,
+    const viewParams = {
+      ...viewOptions,
       center:
-        view_options.center instanceof Lnglat ? view_options.center._lnglat : view_options.center, // 中心点坐标
+        viewOptions.center instanceof LngLat ? viewOptions.center.toArray() : viewOptions.center, // 中心点坐标
       extent:
-        view_options.extent instanceof Extent ? view_options.extent._extent : view_options.extent,
-      projection: (proj as Projection)._projection as OlProjInstanceType
+        viewOptions.extent instanceof Extent ? viewOptions.extent.toArray() : viewOptions.extent,
+      projection: (proj as Projection).resolvedProjectionection as OlProjInstanceType
     }
-    const view = new OlPackage.View(view_params)
-    // 检查用户的原始配置。合并后的 _options.interactions 总是已定义（默认为空数组），
+    const view = new OlPackage.View(viewParams)
+    // 检查用户的原始配置。合并后的 resolvedOptions.interactions 总是已定义（默认为空数组），
     // 会把“未传 interactions”错误地当成用户显式禁用了默认交互。
-    let mapInteractions = isDefined(options?.interactions)
+    const mapInteractions = isDefined(options?.interactions)
       ? options.interactions
       : createDefaultMapInteractions()
-    let mapLayers = _options.layers
-    let mapControls = _options.controls
-    let mapPopups = _options.popups
+    const mapLayers = resolvedOptions.layers
+    const mapControls = resolvedOptions.controls
+    const mapPopups = resolvedOptions.popups
     // layers / controls / interactions / overlays 必须留空：
     // 这四个字段承载的是 OpenLayers 原生实例，而 options 中的同名集合是 OMap wrapper，
     // 需分别经 addLayer / addControl / addInteraction / addPopup 转换后再挂载。
-    let mapParams = Object.assign({}, _options, {
+    const mapParams = Object.assign({}, resolvedOptions, {
       layers: [],
       controls: [],
       interactions: [],
@@ -166,9 +162,10 @@ export default class Map implements Disposable {
     this.disposed = true
 
     this.eventAdapter?.dispose()
+    // Interaction（尤其 Measure）在释放时仍需访问其伴生 Popup/Layer，必须先处理。
+    this.interactionManager?.disposeAll()
     this.popupManager?.disposeAll()
     this.controlManager?.disposeAll()
-    this.interactionManager?.disposeAll()
     this.layerManager?.disposeAll()
 
     this._map.setTarget(undefined)
@@ -180,6 +177,7 @@ export default class Map implements Disposable {
   }
 
   getMap(): OMapMapType {
+    this.assertActive('getMap')
     return this._map
   }
 
@@ -188,24 +186,26 @@ export default class Map implements Disposable {
   }
 
   getSize(): Size | undefined {
-    let size = this._map.getSize()
+    const size = this._map.getSize()
     return isDefined(size) ? new Size(size as OlSizeType) : undefined
   }
 
   setSize(size?: OMapSizeType) {
+    this.assertActive('setSize')
     if (!isDefined(size)) {
       error_(createMessage('setSize', commonMessage.paramsNotDefined('size')))
     }
-    let _size = handleGetSizeValue(size as OMapSizeType)
-    this._map.setSize(_size)
+    const sizeValue = handleGetSizeValue(size as OMapSizeType)
+    this._map.setSize(sizeValue)
   }
 
   // 地图信息相关
-  getCenter(): Lnglat | undefined {
+  getCenter(): LngLat | undefined {
     return this.viewController.getCenter()
   }
 
   setCenter(center?: OMapCoordinateType) {
+    this.assertActive('setCenter')
     this.viewController.setCenter(center)
   }
 
@@ -214,6 +214,7 @@ export default class Map implements Disposable {
   }
 
   setZoom(zoom?: number) {
+    this.assertActive('setZoom')
     this.viewController.setZoom(zoom)
   }
 
@@ -222,6 +223,7 @@ export default class Map implements Disposable {
   }
 
   setResolution(resolution?: number) {
+    this.assertActive('setResolution')
     this.viewController.setResolution(resolution)
   }
 
@@ -230,6 +232,7 @@ export default class Map implements Disposable {
   }
 
   setRotation(rotation: number) {
+    this.assertActive('setRotation')
     this.viewController.setRotation(rotation)
   }
 
@@ -238,10 +241,12 @@ export default class Map implements Disposable {
   }
 
   zoomIn(delta: number = 1) {
+    this.assertActive('zoomIn')
     this.viewController.zoomIn(delta)
   }
 
   zoomOut(delta: number = -1) {
+    this.assertActive('zoomOut')
     this.viewController.zoomOut(delta)
   }
 
@@ -249,14 +254,17 @@ export default class Map implements Disposable {
 
   /**
    * 添加图层
+   *
    * @param {BaseLayer} layer 图层对象
    */
   addLayer(layer: BaseLayer<OMapBaseLayerCommonType>) {
+    this.assertActive('addLayer')
     this.layerManager.add(layer)
   }
 
   /**
    * 添加多个图层
+   *
    * @param {Array<BaseLayer>} layers 图层数组
    */
   addLayers(layers: Array<BaseLayer<OMapBaseLayerCommonType>>) {
@@ -265,6 +273,7 @@ export default class Map implements Disposable {
 
   /**
    * 根据id获取图层
+   *
    * @param {BaseLayerIdType} id 图层id
    * @returns {BaseLayer<OMapBaseLayerCommonType> | undefined} 图层对象
    */
@@ -274,6 +283,7 @@ export default class Map implements Disposable {
 
   /**
    * 移除图层
+   *
    * @param {BaseLayer<OMapBaseLayerCommonType>} layer 图层对象
    */
   removeLayer(layer: BaseLayer<OMapBaseLayerCommonType>) {
@@ -282,6 +292,7 @@ export default class Map implements Disposable {
 
   /**
    * 移除多个图层
+   *
    * @param {Array<BaseLayer>} layers 图层数组
    */
   removeLayers(layers: Array<BaseLayer<OMapBaseLayerCommonType>>) {
@@ -290,7 +301,8 @@ export default class Map implements Disposable {
 
   /**
    * 根据id移除图层
-   * @param {BaseLayerIdType} id 图层id
+   *
+   * @param {BaseLayerIdType} layerId 图层id
    */
   removeLayerById(layerId: BaseLayerIdType) {
     this.layerManager.removeById(layerId)
@@ -298,6 +310,7 @@ export default class Map implements Disposable {
 
   /**
    * 获取所有图层
+   *
    * @returns {Array<BaseLayer>} 图层数组
    */
   getAllLayers(): Array<BaseLayer<OMapBaseLayerCommonType>> {
@@ -308,6 +321,7 @@ export default class Map implements Disposable {
 
   /**
    * 添加图层组
+   *
    * @param {LayerGroup} group 图层组实例
    */
   addLayerGroup(group: LayerGroup) {
@@ -316,6 +330,7 @@ export default class Map implements Disposable {
 
   /**
    * 移除图层组
+   *
    * @param {LayerGroup} group 图层组实例
    */
   removeLayerGroup(group: LayerGroup) {
@@ -324,6 +339,7 @@ export default class Map implements Disposable {
 
   /**
    * 移除图层组
+   *
    * @param {LayerGroupIdType} groupId 图层组id
    */
   removeLayerGroupById(groupId: LayerGroupIdType) {
@@ -332,6 +348,7 @@ export default class Map implements Disposable {
 
   /**
    * 获取所有图层组
+   *
    * @returns {LayerGroup[]} 所有图层组
    */
   getAllLayerGroups(): LayerGroup[] {
@@ -344,15 +361,18 @@ export default class Map implements Disposable {
 
   /**
    * 事件管理
+   *
    * @param type
    * @param callback
    * @returns
    */
   on(type: OMapEventType, callback: OMapEventCallBack): EventIdType {
+    this.assertActive('on')
     return this.eventAdapter.on(type, callback)
   }
 
   once(type: OMapEventType, callback: OMapEventCallBack): EventIdType {
+    this.assertActive('once')
     return this.eventAdapter.once(type, callback)
   }
 
@@ -364,17 +384,20 @@ export default class Map implements Disposable {
 
   /**
    * 获取地图属性
+   *
    * @returns {PropertiesType} 地图属性
    */
   getProperties(): PropertiesType {
-    return this._map.getProperties()
+    return { ...this._map.getProperties() }
   }
 
   /**
    * 设置地图属性
+   *
    * @param {PropertiesType} properties 地图属性
    */
   setProperties(properties: PropertiesType): void {
+    this.assertActive('setProperties')
     if (!isDefined(properties)) {
       error_(createMessage('setProperties', commonMessage.paramsNotDefined('properties')))
     }
@@ -382,7 +405,7 @@ export default class Map implements Disposable {
       error_(
         createMessage(
           'setProperties',
-          commonMessage.paramsInvaildFormat('properties', 'object类型')
+          commonMessage.paramsInvalidFormat('properties', 'object类型')
         )
       )
     }
@@ -394,14 +417,17 @@ export default class Map implements Disposable {
 
   /**
    * 添加交互
+   *
    * @param {Interaction} interaction 交互对象
    */
   addInteraction(interaction: Interaction<OMapInteractionCommonType>) {
+    this.assertActive('addInteraction')
     this.interactionManager.add(interaction)
   }
 
   /**
    * 获取所有交互
+   *
    * @returns {Interaction<OMapInteractionCommonType>[]} 交互数组
    */
   getInteractions(): Interaction<OMapInteractionCommonType>[] {
@@ -414,6 +440,7 @@ export default class Map implements Disposable {
 
   /**
    * 移除交互
+   *
    * @param {Interaction<OMapInteractionCommonType>} interaction 交互对象
    */
   removeInteraction(interaction: Interaction<OMapInteractionCommonType>): void {
@@ -426,14 +453,17 @@ export default class Map implements Disposable {
 
   /**
    * 添加控件
+   *
    * @param {Control} control 控件对象
    */
   addControl(control: Control) {
+    this.assertActive('addControl')
     this.controlManager.add(control)
   }
 
   /**
    * 获取所有控件
+   *
    * @returns {Control[]} 控件数组
    */
   getControls(): Control[] {
@@ -442,6 +472,7 @@ export default class Map implements Disposable {
 
   /**
    * 根据ID获取控件
+   *
    * @param {OMapControlIdType} id 控件ID
    * @returns {Control | null} 控件对象
    */
@@ -451,6 +482,7 @@ export default class Map implements Disposable {
 
   /**
    * 移除控件
+   *
    * @param {Control} control 控件对象
    */
   removeControl(control: Control) {
@@ -463,14 +495,17 @@ export default class Map implements Disposable {
 
   /**
    * 添加弹窗
+   *
    * @param popup
    */
   addPopup(popup: Popup) {
+    this.assertActive('addPopup')
     this.popupManager.add(popup)
   }
 
   /**
    * 根据ID获取弹窗
+   *
    * @param {OMapPopupIdType} id 弹窗ID
    * @returns {Popup | null} 弹窗对象
    */
@@ -484,6 +519,7 @@ export default class Map implements Disposable {
 
   /**
    * 获取所有弹窗
+   *
    * @returns {Popup[]} 弹窗数组
    */
   getPopups(): Popup[] {
@@ -492,6 +528,7 @@ export default class Map implements Disposable {
 
   /**
    * 删除弹窗
+   *
    * @param {Popup} popup 弹窗对象
    */
   removePopup(popup: Popup) {
@@ -502,10 +539,11 @@ export default class Map implements Disposable {
 
   /**
    * 计算几何图形的长度
+   *
    * @returns {number} 长度
    */
   getLength(feature: BaseFeature<OlGeometry.Geometry>): number {
-    let length = OlSphere.getLength(feature.getGeometry(), {
+    const length = OlSphere.getLength(feature.getGeometry(), {
       projection: this._map.getView().getProjection()
     })
     return length
@@ -513,10 +551,11 @@ export default class Map implements Disposable {
 
   /**
    * 计算几何图形的面积
+   *
    * @returns {number} 面积
    */
   getArea(feature: BaseFeature<OlGeometry.Geometry>): number {
-    let area = OlSphere.getArea(feature.getGeometry(), {
+    const area = OlSphere.getArea(feature.getGeometry(), {
       projection: this._map.getView().getProjection()
     })
     return area
@@ -524,6 +563,7 @@ export default class Map implements Disposable {
 
   /**
    * 遍历地图上指定像素位置的所有特征
+   *
    * @param {OMapPixelType} pixel 像素位置
    * @param callback 回调函数
    */
@@ -540,10 +580,11 @@ export default class Map implements Disposable {
 
   /**
    * 获取地图上指定像素位置的坐标位置
+   *
    * @param {OMapPixelType} pixel 像素位置
-   * @returns {Lnglat} 坐标位置
+   * @returns {LngLat} 坐标位置
    */
-  getCoordinateFromPixel(pixel: OMapPixelType): Lnglat | undefined {
+  getCoordinateFromPixel(pixel: OMapPixelType): LngLat | undefined {
     if (!isDefined(pixel)) {
       error_(createMessage('getCoordinateFromPixel', commonMessage.paramsNotDefined('pixel')))
     }
@@ -551,16 +592,17 @@ export default class Map implements Disposable {
       error_(
         createMessage(
           'getCoordinateFromPixel',
-          commonMessage.paramsInvaildFormat('pixel', 'OMapPixelType类型')
+          commonMessage.paramsInvalidFormat('pixel', 'OMapPixelType类型')
         )
       )
     }
     const lnglat = this._map.getCoordinateFromPixel(handleGetPixelValue(pixel))
-    return new Lnglat(lnglat)
+    return new LngLat(lnglat)
   }
 
   /**
    * 获取地图上指定坐标位置的像素位置
+   *
    * @param {OMapCoordinateType} coordinate 坐标位置
    * @returns {Pixel} 像素位置
    */
@@ -572,16 +614,16 @@ export default class Map implements Disposable {
       error_(
         createMessage(
           'getPixelFromCoordinate',
-          commonMessage.paramsInvaildFormat('coordinate', 'OMapCoordinateType类型')
+          commonMessage.paramsInvalidFormat('coordinate', 'OMapCoordinateType类型')
         )
       )
     }
-    const pixel = this._map.getPixelFromCoordinate(handleGetLnglatValue(coordinate))
+    const pixel = this._map.getPixelFromCoordinate(handleGetLngLatValue(coordinate))
     return new Pixel(pixel as OlPixelType)
   }
 
-  getEventCoordinate(event: MouseEvent): Lnglat {
-    return new Lnglat(this._map.getEventCoordinate(event))
+  getEventCoordinate(event: MouseEvent): LngLat {
+    return new LngLat(this._map.getEventCoordinate(event))
   }
 
   getEventPixel(event: UIEvent): Pixel {
@@ -590,8 +632,9 @@ export default class Map implements Disposable {
 
   /**
    * 获取地图上指定像素位置的所有特征
+   *
    * @param {OMapPixelType} pixel 像素位置
-   * @param {OMapForEachFeatureAtPixelOptionsType} options? 遍历选项
+   * @param {OMapForEachFeatureAtPixelOptionsType} options 遍历选项
    * @returns {Array<BaseFeature<OlGeometry.Geometry>>} 特征数组
    */
   getFeaturesAtPixel(
@@ -603,8 +646,9 @@ export default class Map implements Disposable {
 
   /**
    * 判断地图上指定像素位置是否有特征
+   *
    * @param {OMapPixelType} pixel 像素位置
-   * @param {OMapForEachFeatureAtPixelOptionsType} options? 遍历选项
+   * @param {OMapForEachFeatureAtPixelOptionsType} options 遍历选项
    * @returns {boolean} 是否有特征
    */
   hasFeatureAtPixel(pixel: OMapPixelType, options?: OMapForEachFeatureAtPixelOptionsType): boolean {
@@ -612,14 +656,17 @@ export default class Map implements Disposable {
   }
 
   render() {
+    this.assertActive('render')
     this._map.render()
   }
 
   renderSync() {
+    this.assertActive('renderSync')
     this._map.renderSync()
   }
 
   updateSize() {
+    this.assertActive('updateSize')
     this._map.updateSize()
   }
 
@@ -711,7 +758,7 @@ export default class Map implements Disposable {
       error_(createMessage('getResolutionForExtent', commonMessage.paramsNotDefined('extent')))
     }
     if (!isValidExtent(extent)) {
-      error_(createMessage('getResolutionForExtent', commonMessage.paramsInvaildFormat('extent')))
+      error_(createMessage('getResolutionForExtent', commonMessage.paramsInvalidFormat('extent')))
     }
     return this.viewController
       .getView()
@@ -742,6 +789,11 @@ export default class Map implements Disposable {
   }
 
   setMinZoom(minZoom: number): void {
+    this.assertActive('setMinZoom')
     this.viewController.setMinZoom(minZoom)
+  }
+
+  private assertActive(operationName: string): void {
+    assertNotDisposed(this.disposed, PACKAGE_NAME, operationName)
   }
 }

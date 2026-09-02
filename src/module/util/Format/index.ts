@@ -12,9 +12,9 @@ import {
   type OMapFormatWriteFeatureOptionsType,
   type OMapFormatReadFeatureOptionsType
 } from './type'
-import { getDefaultOptionsByType, isVaildFormatType } from './handle'
+import { getDefaultOptionsByType, isValidFormatType } from './handle'
 import { handleGetProjectionValue } from '../../core/Projection/handle'
-import BasicFeature from '../../core/Feature/BasicFeature/index'
+import type BasicFeature from '../../core/Feature/BasicFeature/index'
 import type { OlGeometryType } from '../../core/Feature/BasicFeature/type'
 import { handleGetStyleArrayValue } from '../../basic/Style/handle'
 import {
@@ -31,11 +31,6 @@ const PACKAGE_NAME = 'Format'
 export const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
- * @class Format
- * @classdesc 格式化工具
- * @author yyz
- * @CreateDate 2025/10/8
- * @LastUpdateDate 2025/10/9
  */
 export default class Format {
   type?: OMapFormatTypeEnum
@@ -53,19 +48,19 @@ export default class Format {
       error_(createMessage('constructor', '初始化参数有误'))
       return
     }
-    if (!isVaildFormatType(type)) {
+    if (!isValidFormatType(type)) {
       error_(createMessage('constructor', '初始化参数有误'))
       return
     }
     this.type = type
     this.options = Object.assign({}, getDefaultOptionsByType(type), options)
-    this._initFormat()
+    this.initFormat()
   }
 
   /**
    * 初始化
    */
-  protected _initFormat() {
+  protected initFormat() {
     switch (this.type) {
       case OMapFormatType.GeoJSON:
         this._format = new OlFormat.GeoJSON({

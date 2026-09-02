@@ -5,24 +5,18 @@ import BasicFeature from '../BasicFeature'
 import type { PropertiesType } from '../../../../utils/type'
 import type { OMapMultiPointGeometryCoordinatesType, OMapMultiPointType } from './type'
 import type { OlFeatureInstanceType } from '../BasicFeature/type'
-import { OMapExtentType } from '../../../basic/Extent/type'
-import { isValidCoordinate, type OlCoordinateType } from '../../../basic/Lnglat/type'
-import Lnglat from '../../../basic/Lnglat/index'
+import { type OMapExtentType } from '../../../basic/Extent/type'
+import { isValidCoordinate, type OlCoordinateType } from '../../../basic/LngLat/type'
+import LngLat from '../../../basic/LngLat/index'
 import Point from '../Point/index'
 import { type OMapPointGeometryCoordinatesType } from '../Point/type'
-import { handleGetLnglatValue, normalizeCoordinates } from '../../../basic/Lnglat/handle'
+import { handleGetLngLatValue, normalizeCoordinates } from '../../../basic/LngLat/handle'
 import { handleGetExtentValue } from '../../../basic/Extent/handle'
 
 const PACKAGE_NAME = 'MultiPoint'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
- * @class MultiPoint
- * @classdesc MultiPoint
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/10/5
- * @updateDate 2026/1/30
  */
 
 export default class MultiPoint<P extends PropertiesType = PropertiesType> extends BasicFeature<
@@ -46,7 +40,7 @@ export default class MultiPoint<P extends PropertiesType = PropertiesType> exten
         error_(
           createMessage(
             'constructor',
-            commonMessage.paramsInvaildFormat('coordinatesOrFeature', 'Array<Lnglat or [x, y]>')
+            commonMessage.paramsInvalidFormat('coordinatesOrFeature', 'Array<LngLat or [x, y]>')
           )
         )
       }
@@ -57,25 +51,27 @@ export default class MultiPoint<P extends PropertiesType = PropertiesType> exten
     }
   }
 
-  protected _init(coordinates: OMapMultiPointGeometryCoordinatesType) {
+  protected init(coordinates: OMapMultiPointGeometryCoordinatesType) {
     this._geometry = new OlGeometry.MultiPoint(normalizeCoordinates(coordinates))
-    this._feature = this._createFeature(this._geometry)
+    this._feature = this.createFeature(this._geometry)
   }
 
   /**
    * 获取多个点的坐标
-   * @returns {Lnglat[]} 多个点的坐标
+   *
+   * @returns {LngLat[]} 多个点的坐标
    */
-  getCoordinates(): Lnglat[] {
-    let coordinates = this._geometry.getCoordinates()
-    let _coordinates = coordinates.map((c) => {
-      return new Lnglat(c)
+  getCoordinates(): LngLat[] {
+    const coordinates = this._geometry.getCoordinates()
+    const coordinateValues = coordinates.map((c) => {
+      return new LngLat(c)
     })
-    return _coordinates
+    return coordinateValues
   }
 
   /**
    * 设置多个点的坐标
+   *
    * @param {OMapMultiPointGeometryCoordinatesType} coordinates 多个点的坐标
    */
   setCoordinates(coordinates: OMapMultiPointGeometryCoordinatesType): void {
@@ -86,12 +82,12 @@ export default class MultiPoint<P extends PropertiesType = PropertiesType> exten
       error_(
         createMessage(
           'setCoordinates',
-          commonMessage.paramsInvaildFormat('coordinates', 'Array<Lnglat or [x, y]>')
+          commonMessage.paramsInvalidFormat('coordinates', 'Array<LngLat or [x, y]>')
         )
       )
     }
-    let _coordinates = normalizeCoordinates(coordinates)
-    this._geometry.setCoordinates(_coordinates)
+    const coordinateValues = normalizeCoordinates(coordinates)
+    this._geometry.setCoordinates(coordinateValues)
   }
 
   appendPoint(pointOrpointCoordinates: Point | OMapPointGeometryCoordinatesType) {
@@ -100,37 +96,37 @@ export default class MultiPoint<P extends PropertiesType = PropertiesType> exten
         createMessage('appendPoint', commonMessage.paramsNotDefined('pointOrpointCoordinates'))
       )
     }
-    let _point = null
+    let pointFeature = null
     if (pointOrpointCoordinates instanceof Point) {
-      _point = pointOrpointCoordinates.getGeometry()
+      pointFeature = pointOrpointCoordinates.getGeometry()
     } else {
-      _point = new OlGeometry.Point(handleGetLnglatValue(pointOrpointCoordinates))
+      pointFeature = new OlGeometry.Point(handleGetLngLatValue(pointOrpointCoordinates))
     }
-    this._geometry.appendPoint(_point)
+    this._geometry.appendPoint(pointFeature)
   }
 
-  getClosestPoint(pointOrpointCoordinates: Point | OMapPointGeometryCoordinatesType): Lnglat {
+  getClosestPoint(pointOrpointCoordinates: Point | OMapPointGeometryCoordinatesType): LngLat {
     if (!isDefined(pointOrpointCoordinates)) {
       error_(
         createMessage('getClosestPoint', commonMessage.paramsNotDefined('pointOrpointCoordinates'))
       )
     }
-    let _point = null
+    let pointFeature = null
     if (pointOrpointCoordinates instanceof Point) {
-      _point = pointOrpointCoordinates.getCoordinates().toArray()
+      pointFeature = pointOrpointCoordinates.getCoordinates().toArray()
     } else {
-      _point = handleGetLnglatValue(pointOrpointCoordinates)
+      pointFeature = handleGetLngLatValue(pointOrpointCoordinates)
     }
-    let _closestPoint = this._geometry.getClosestPoint(_point)
-    return new Lnglat(_closestPoint)
+    const closestPointValue = this._geometry.getClosestPoint(pointFeature)
+    return new LngLat(closestPointValue)
   }
 
-  getFirstCoordinate(): Lnglat {
-    return new Lnglat(this._geometry.getFirstCoordinate())
+  getFirstCoordinate(): LngLat {
+    return new LngLat(this._geometry.getFirstCoordinate())
   }
 
-  getLastCoordinate(): Lnglat {
-    return new Lnglat(this._geometry.getLastCoordinate())
+  getLastCoordinate(): LngLat {
+    return new LngLat(this._geometry.getLastCoordinate())
   }
 
   getPoint(index: number): Point {
@@ -138,9 +134,9 @@ export default class MultiPoint<P extends PropertiesType = PropertiesType> exten
       error_(createMessage('getPoint', commonMessage.paramsNotDefined('index')))
     }
     if (!isNumber(index)) {
-      error_(createMessage('getPoint', commonMessage.paramsInvaildFormat('index', 'number')))
+      error_(createMessage('getPoint', commonMessage.paramsInvalidFormat('index', 'number')))
     }
-    let point = this._geometry.getPoint(index)
+    const point = this._geometry.getPoint(index)
     return new Point(point.getCoordinates() as OlCoordinateType)
   }
 
@@ -148,15 +144,15 @@ export default class MultiPoint<P extends PropertiesType = PropertiesType> exten
     if (!isDefined(coordinate)) {
       error_(createMessage('intersectsCoordinate', commonMessage.paramsNotDefined('coordinate')))
     }
-    let _coordinate = handleGetLnglatValue(coordinate)
-    return this._geometry.intersectsCoordinate(_coordinate)
+    const coordinateValue = handleGetLngLatValue(coordinate)
+    return this._geometry.intersectsCoordinate(coordinateValue)
   }
 
   intersectsExtent(extent: OMapExtentType): boolean {
     if (!isDefined(extent)) {
       error_(createMessage('intersectsExtent', commonMessage.paramsNotDefined('extent')))
     }
-    let _extent = handleGetExtentValue(extent)
-    return this._geometry.intersectsExtent(_extent)
+    const extentValue = handleGetExtentValue(extent)
+    return this._geometry.intersectsExtent(extentValue)
   }
 }

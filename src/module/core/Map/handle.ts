@@ -6,11 +6,11 @@ import {
   type OlMapEventPayload,
   type OlMapEventPayloadFields
 } from './type'
-import Lnglat from '../../basic/Lnglat/index'
-import { type OlCoordinateType } from '../../basic/Lnglat/type'
+import LngLat from '../../basic/LngLat/index'
+import { type OlCoordinateType } from '../../basic/LngLat/type'
 import Pixel from '../../basic/Pixel/index'
-import Map from './index'
-import Interaction from '../../interaction/Interaction/index'
+import type Map from './index'
+import type Interaction from '../../interaction/Interaction/index'
 import { type OMapInteractionCommonType } from '../../interaction/Interaction/type'
 import Draw from '../../interaction/Draw/index'
 import Measure from '../../interaction/Measure/index'
@@ -20,7 +20,7 @@ export function MapEventTypeIsMap(type: OMapEventType): boolean {
 }
 
 export function handleMapOnCallBack(target: Map, type: OMapEventType, e: OlMapEventPayload) {
-  let result: OMapEventTarget | null = {
+  const result: OMapEventTarget | null = {
     target,
     type
   }
@@ -34,14 +34,14 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: OlMapEv
         result.pixel = new Pixel(payload.pixel as OlCoordinateType)
       }
       if (isDefined(payload.coordinate)) {
-        result.coordinate = new Lnglat(payload.coordinate as OlCoordinateType)
+        result.coordinate = new LngLat(payload.coordinate as OlCoordinateType)
       }
       break
     case 'map:propertychange':
       if (isDefined(payload.oldValue))
         result.oldValue =
           payload.key === 'center'
-            ? new Lnglat(payload.oldValue as OlCoordinateType)
+            ? new LngLat(payload.oldValue as OlCoordinateType)
             : payload.oldValue
       if (payload.key === 'size') {
         result.newValue = isDefined(payload.newValue) ? payload.newValue : target.getSize()
@@ -52,9 +52,9 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: OlMapEv
       break
     case 'map:moveend':
       if (isDefined(payload.oldCenter))
-        result.oldValue = new Lnglat(payload.oldCenter as OlCoordinateType)
+        result.oldValue = new LngLat(payload.oldCenter as OlCoordinateType)
       result.newValue = isDefined(payload.newCenter)
-        ? new Lnglat(payload.newCenter as OlCoordinateType)
+        ? new LngLat(payload.newCenter as OlCoordinateType)
         : target.getCenter()
       break
     case 'view:change:resolution':
@@ -63,9 +63,9 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: OlMapEv
       break
     case 'view:change:center':
       if (isDefined(payload.oldValue))
-        result.oldValue = new Lnglat(payload.oldValue as OlCoordinateType)
+        result.oldValue = new LngLat(payload.oldValue as OlCoordinateType)
       result.newValue = isDefined(payload.newValue)
-        ? new Lnglat(payload.newValue as OlCoordinateType)
+        ? new LngLat(payload.newValue as OlCoordinateType)
         : target.getCenter()
       break
     case 'view:change:rotation':
@@ -76,11 +76,11 @@ export function handleMapOnCallBack(target: Map, type: OMapEventType, e: OlMapEv
       if (isDefined(payload.oldValue))
         result.oldValue =
           payload.key === 'center'
-            ? new Lnglat(payload.oldValue as OlCoordinateType)
+            ? new LngLat(payload.oldValue as OlCoordinateType)
             : payload.oldValue
       if (payload.key === 'center') {
         result.newValue = isDefined(payload.newValue)
-          ? new Lnglat(payload.newValue as OlCoordinateType)
+          ? new LngLat(payload.newValue as OlCoordinateType)
           : target.getCenter()
       } else if (payload.key === 'rotation') {
         result.newValue = isDefined(payload.newValue) ? payload.newValue : target.getRotation()
@@ -103,6 +103,7 @@ export function isOMapMapEventType(type: unknown): type is OMapEventType {
 
 /**
  * 判断地图是否正在绘制
+ *
  * @param mapInteractions 地图交互事件
  * @returns {boolean} 是否正在绘制
  */
@@ -116,6 +117,7 @@ export function isMapDrawing(
 
 /**
  * 判断地图是否正在测量
+ *
  * @param mapInteractions 地图交互事件
  * @returns {boolean} 是否正在测量
  */

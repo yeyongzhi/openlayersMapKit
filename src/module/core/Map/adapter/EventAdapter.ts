@@ -86,10 +86,10 @@ export default class EventAdapter {
       error_(createMessage(methodName, commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapMapEventType(type)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildEnum('type')))
+      error_(createMessage(methodName, commonMessage.paramsInvalidEnum('type')))
     }
     if (!isFunction(callback)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage(methodName, commonMessage.paramsInvalidFormat('callback', 'function')))
     }
   }
 }

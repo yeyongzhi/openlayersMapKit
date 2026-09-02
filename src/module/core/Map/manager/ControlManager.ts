@@ -1,8 +1,8 @@
 import { isDefined, isNumber, isString } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage, warn_ } from '../../../../utils/message'
 import { OlUtil } from '../../../../source/index'
-import Control from '../../../control/Control/index'
-import { isVaildControl, type OMapControlIdType } from '../../../control/Control/type'
+import type Control from '../../../control/Control/index'
+import { isValidControl, type OMapControlIdType } from '../../../control/Control/type'
 import type { OMapMapType } from '../type'
 import type Map from '../index'
 
@@ -21,9 +21,9 @@ export default class ControlManager {
     if (!isDefined(control)) {
       error_(createMessage('addControl', commonMessage.paramsNotDefined('control')))
     }
-    if (!isVaildControl(control)) {
+    if (!isValidControl(control)) {
       error_(
-        createMessage('addControl', commonMessage.paramsInvaildFormat('control', 'Control类型'))
+        createMessage('addControl', commonMessage.paramsInvalidFormat('control', 'Control类型'))
       )
     }
     const exists = this.controls.some(
@@ -40,7 +40,7 @@ export default class ControlManager {
   }
 
   getAll(): Control[] {
-    return this.controls
+    return [...this.controls]
   }
 
   getById(id: OMapControlIdType): Control | null {
@@ -51,7 +51,7 @@ export default class ControlManager {
       error_(
         createMessage(
           'getControlById',
-          commonMessage.paramsInvaildFormat('id', 'OMapControlIdType类型')
+          commonMessage.paramsInvalidFormat('id', 'OMapControlIdType类型')
         )
       )
     }
@@ -62,9 +62,9 @@ export default class ControlManager {
     if (!isDefined(control)) {
       error_(createMessage('addControl', commonMessage.paramsNotDefined('control')))
     }
-    if (!isVaildControl(control)) {
+    if (!isValidControl(control)) {
       error_(
-        createMessage('addControl', commonMessage.paramsInvaildFormat('control', 'Control类型'))
+        createMessage('addControl', commonMessage.paramsInvalidFormat('control', 'Control类型'))
       )
     }
     const index = this.controls.findIndex(

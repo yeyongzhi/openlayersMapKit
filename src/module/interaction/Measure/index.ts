@@ -4,7 +4,7 @@ import { OlFeature, OlGeometry, OlInteraction, OlObservable } from '../../../sou
 import type { EventsKey } from 'ol/events'
 import Interaction from '../Interaction/index'
 import VectorLayer from '../../layer/VectorLayer/index'
-import Map from '../../core/Map/index'
+import type Map from '../../core/Map/index'
 import Popup from '../../basic/Popup/index'
 import Pixel from '../../basic/Pixel/index'
 import LineString from '../../core/Feature/LineString/index'
@@ -12,7 +12,7 @@ import Polygon from '../../core/Feature/Polygon/index'
 import type { OlFeatureInstanceType } from '../../core/Feature/BasicFeature/type'
 import type { EventIdType } from '../../util/Event/type'
 import type { OMapVectorSourceType } from '../../layer/VectorLayer/type'
-import type { OlCoordinateType } from '../../basic/Lnglat/type'
+import type { OlCoordinateType } from '../../basic/LngLat/type'
 import { DEFAULT_STYLE } from '../../basic/Style/handle'
 import {
   DRAW_DEFAULT_PARAMS,
@@ -27,7 +27,7 @@ import {
   isOMapInteractionMeasureEventType,
   isOMapMeasureMode
 } from './type'
-import Event from '../../util/Event/index'
+import type Event from '../../util/Event/index'
 import {
   createCloseElement,
   createMarkerElement,
@@ -63,7 +63,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
       error_(createMessage('constructor', commonMessage.paramsNotDefined('mode')))
     }
     if (!isOMapMeasureMode(mode)) {
-      error_(createMessage('constructor', commonMessage.paramsInvaildEnum(mode)))
+      error_(createMessage('constructor', commonMessage.paramsInvalidEnum(mode)))
     }
     const { id, active, style, ...drawParams } = params
     super('Measure', { id })
@@ -369,7 +369,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
     this._interaction.finishDrawing()
   }
 
-  setMap(map: Map | null) {
+  override setMap(map: Map | null) {
     if (!map) {
       this.unbindPointerMove()
       this.unbindGeometryChange()
@@ -417,14 +417,14 @@ export default class Measure extends Interaction<OMapMeasureType> {
       error_(createMessage(methodName, commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionMeasureEventType(type)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage(methodName, commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage(methodName, commonMessage.paramsInvalidFormat('callback', 'function')))
     }
   }
 
-  protected destroy() {
+  protected override destroy() {
     if (this.map) {
       super.destroy()
       return
@@ -434,7 +434,7 @@ export default class Measure extends Interaction<OMapMeasureType> {
     this.clearMeasurement(false)
   }
 
-  dispose(): void {
+  override dispose(): void {
     if (this.isDisposed()) {
       return
     }

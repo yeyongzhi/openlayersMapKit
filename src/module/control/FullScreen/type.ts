@@ -1,4 +1,4 @@
-import { OlControl } from '../../../source/index'
+import { type OlControl } from '../../../source/index'
 
 export type OMapControlFullScreenOptionsType = ConstructorParameters<typeof OlControl.FullScreen>[0]
 

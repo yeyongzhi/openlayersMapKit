@@ -3,10 +3,10 @@ import { commonMessage, error_, getPackageMessage, warn_ } from '../../../../uti
 import { OlUtil } from '../../../../source/index'
 import BaseLayer from '../../../layer/BaseLayer/index'
 import type { BaseLayerIdType, OMapBaseLayerCommonType } from '../../../layer/BaseLayer/type'
-import LayerGroup from '../../../layer/LayerGroup/index'
+import type LayerGroup from '../../../layer/LayerGroup/index'
 import {
-  isVaildGroupId,
-  isVaildLayerGroup,
+  isValidGroupId,
+  isValidLayerGroup,
   type LayerGroupIdType
 } from '../../../layer/LayerGroup/type'
 import type Map from '../index'
@@ -27,7 +27,7 @@ export default class LayerManager {
 
   add(layer: ManagedLayer): void {
     if (!(layer instanceof BaseLayer)) {
-      error_(createMessage('addLayer', commonMessage.paramsInvaildFormat('layer')))
+      error_(createMessage('addLayer', commonMessage.paramsInvalidFormat('layer')))
     }
     const layerId = layer.getId()
     const exists = isDefined(layerId)
@@ -51,7 +51,7 @@ export default class LayerManager {
     this.validateLayerArray(layers, 'addLayers')
     layers.forEach((layer) => {
       if (layer instanceof BaseLayer) this.add(layer)
-      else warn_(createMessage('addLayers', commonMessage.haveInvaildDataItem('layers')))
+      else warn_(createMessage('addLayers', commonMessage.haveInvalidDataItem('layers')))
     })
   }
 
@@ -60,7 +60,7 @@ export default class LayerManager {
   }
 
   getAll(): ManagedLayer[] {
-    return this.layers
+    return [...this.layers]
   }
 
   remove(layer: ManagedLayer): void {
@@ -69,7 +69,7 @@ export default class LayerManager {
     }
     if (!(layer instanceof BaseLayer)) {
       error_(
-        createMessage('removeLayer', commonMessage.paramsInvaildFormat('layer', 'BaseLayer实例'))
+        createMessage('removeLayer', commonMessage.paramsInvalidFormat('layer', 'BaseLayer实例'))
       )
     }
     const index = this.layers.indexOf(layer)
@@ -87,7 +87,7 @@ export default class LayerManager {
     this.validateLayerArray(layers, 'removeLayers')
     layers.forEach((layer) => {
       if (layer instanceof BaseLayer) this.remove(layer)
-      else warn_(createMessage('removeLayers', commonMessage.haveInvaildDataItem('layers')))
+      else warn_(createMessage('removeLayers', commonMessage.haveInvalidDataItem('layers')))
     })
   }
 
@@ -143,7 +143,7 @@ export default class LayerManager {
   }
 
   getGroups(): LayerGroup[] {
-    return this.layerGroups
+    return [...this.layerGroups]
   }
 
   getGroupById(id: LayerGroupIdType): LayerGroup | null {
@@ -171,7 +171,7 @@ export default class LayerManager {
       error_(createMessage(methodName, commonMessage.paramsNotDefined('layers')))
     }
     if (!isArray(layers)) {
-      error_(createMessage(methodName, commonMessage.paramsInvaildFormat('layers', '数组类型')))
+      error_(createMessage(methodName, commonMessage.paramsInvalidFormat('layers', '数组类型')))
     }
   }
 
@@ -179,9 +179,9 @@ export default class LayerManager {
     if (!isDefined(group)) {
       error_(createMessage(methodName, commonMessage.paramsNotDefined('layerGroup')))
     }
-    if (!isVaildLayerGroup(group)) {
+    if (!isValidLayerGroup(group)) {
       error_(
-        createMessage(methodName, commonMessage.paramsInvaildFormat('layerGroup', 'LayerGroup实例'))
+        createMessage(methodName, commonMessage.paramsInvalidFormat('layerGroup', 'LayerGroup实例'))
       )
     }
   }
@@ -190,11 +190,11 @@ export default class LayerManager {
     if (!isDefined(id)) {
       error_(createMessage('removeLayerGroupById', commonMessage.paramsNotDefined('groupId')))
     }
-    if (!isVaildGroupId(id)) {
+    if (!isValidGroupId(id)) {
       error_(
         createMessage(
           'removeLayerGroupById',
-          commonMessage.paramsInvaildFormat('groupId', 'number或string类型')
+          commonMessage.paramsInvalidFormat('groupId', 'number或string类型')
         )
       )
     }

@@ -1,8 +1,8 @@
 import { isDefined, isFunction } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage, warn_ } from '../../../../utils/message'
 import { OlUtil } from '../../../../source/index'
-import Popup from '../../../basic/Popup/index'
-import { isVaildPopup, isVaildPopupId, type OMapPopupIdType } from '../../../basic/Popup/type'
+import type Popup from '../../../basic/Popup/index'
+import { isValidPopup, isValidPopupId, type OMapPopupIdType } from '../../../basic/Popup/type'
 import type { PropertiesType } from '../../../../utils/type'
 import type Map from '../index'
 import type { OMapMapType } from '../type'
@@ -22,8 +22,8 @@ export default class PopupManager {
     if (!isDefined(popup)) {
       error_(createMessage('addPopup', commonMessage.paramsNotDefined('popup')))
     }
-    if (!isVaildPopup(popup)) {
-      error_(createMessage('addPopup', commonMessage.paramsInvaildFormat('popup', 'Popup类型')))
+    if (!isValidPopup(popup)) {
+      error_(createMessage('addPopup', commonMessage.paramsInvalidFormat('popup', 'Popup类型')))
     }
     const exists = this.popups.some(
       (item) => OlUtil.getUid(item.getPopup()) === OlUtil.getUid(popup.getPopup())
@@ -42,11 +42,11 @@ export default class PopupManager {
     if (!isDefined(id)) {
       error_(createMessage('getPopupById', commonMessage.paramsNotDefined('id')))
     }
-    if (!isVaildPopupId(id)) {
+    if (!isValidPopupId(id)) {
       error_(
         createMessage(
           'getPopupById',
-          commonMessage.paramsInvaildFormat('id', 'OMapPopupIdType类型')
+          commonMessage.paramsInvalidFormat('id', 'OMapPopupIdType类型')
         )
       )
     }
@@ -58,21 +58,21 @@ export default class PopupManager {
       error_(createMessage('getPopupById', commonMessage.paramsNotDefined('filter')))
     }
     if (!isFunction(filter)) {
-      error_(createMessage('getPopupById', commonMessage.paramsInvaildFormat('filter', '函数类型')))
+      error_(createMessage('getPopupById', commonMessage.paramsInvalidFormat('filter', '函数类型')))
     }
     return this.popups.filter((popup) => filter(popup.getProperties()))
   }
 
   getAll(): Popup[] {
-    return this.popups
+    return [...this.popups]
   }
 
   remove(popup: Popup): void {
     if (!isDefined(popup)) {
       error_(createMessage('addPopup', commonMessage.paramsNotDefined('popup')))
     }
-    if (!isVaildPopup(popup)) {
-      error_(createMessage('addPopup', commonMessage.paramsInvaildFormat('popup', 'Popup类型')))
+    if (!isValidPopup(popup)) {
+      error_(createMessage('addPopup', commonMessage.paramsInvalidFormat('popup', 'Popup类型')))
     }
     const index = this.popups.findIndex(
       (item) => OlUtil.getUid(item.getPopup()) === OlUtil.getUid(popup.getPopup())

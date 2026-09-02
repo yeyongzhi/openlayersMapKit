@@ -1,19 +1,14 @@
 import { isDefined, isNumber, isAllNumberArray } from '../../../utils/index'
 import { error_, getPackageMessage, commonMessage } from '../../../utils/message'
 import { handleGetPixelValue } from './handle'
-import { OlPixelType, OMapPixelType } from './type'
+import { type OlPixelType, type OMapPixelType } from './type'
 
 const PACKAGE_NAME = 'Pixel'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 像素类
- * @class
- * @classdesc 用于存储、使用像素坐标信息
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/06/30
- * @updateDate 2026/2/2
+ *
  */
 
 export default class Pixel {
@@ -26,7 +21,7 @@ export default class Pixel {
    * @example [100, 200]
    * @private
    */
-  _pixel: OlPixelType = [0, 0]
+  private _pixel: OlPixelType = [0, 0]
 
   constructor(x: number, y: number)
   constructor(pixel: number[])
@@ -39,7 +34,7 @@ export default class Pixel {
       if (isNumber(x) && isNumber(y)) {
         value = [x, y]
       } else {
-        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('pixel')))
+        error_(createMessage('constructor', commonMessage.paramsInvalidFormat('pixel')))
       }
     } else if (args.length === 1) {
       const [arr] = args
@@ -47,24 +42,26 @@ export default class Pixel {
         // 只取前两个
         value = [arr[0], arr[1]]
       } else {
-        error_(createMessage('constructor', commonMessage.paramsInvaildFormat('pixel')))
+        error_(createMessage('constructor', commonMessage.paramsInvalidFormat('pixel')))
       }
     } else {
-      error_(createMessage('constructor', commonMessage.paramsInvaildFormat('pixel')))
+      error_(createMessage('constructor', commonMessage.paramsInvalidFormat('pixel')))
     }
     this._pixel = value
   }
 
   /**
    * 获取像素坐标
+   *
    * @returns {OlPixelType} 像素坐标
    */
   getPixel(): OlPixelType {
-    return this._pixel
+    return [...this._pixel] as OlPixelType
   }
 
   /**
    * 设置像素坐标
+   *
    * @param {number[]} pixel 像素坐标
    */
   setPixel(pixel: OlPixelType) {
@@ -73,6 +70,7 @@ export default class Pixel {
 
   /**
    * 获取像素的 x 坐标
+   *
    * @returns {number} x 坐标
    */
   getX(): number {
@@ -81,6 +79,7 @@ export default class Pixel {
 
   /**
    * 获取像素的 y 坐标
+   *
    * @returns {number} y 坐标
    */
   getY(): number {
@@ -89,6 +88,7 @@ export default class Pixel {
 
   /**
    * 设置像素的 x 坐标
+   *
    * @param {number} x x 坐标
    */
   setX(x: number) {
@@ -97,6 +97,7 @@ export default class Pixel {
 
   /**
    * 设置像素的 y 坐标
+   *
    * @param {number} y y 坐标
    */
   setY(y: number) {
@@ -105,6 +106,7 @@ export default class Pixel {
 
   /**
    * 判断两个像素坐标是否相等
+   *
    * @param {Pixel} pixel 像素对象
    * @returns {boolean} 判断结果
    */
@@ -126,6 +128,7 @@ export default class Pixel {
 
   /**
    * 以字符串的形式输出像素坐标
+   *
    * @returns {string} 像素坐标字符串
    */
   toString(): string {

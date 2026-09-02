@@ -5,12 +5,6 @@ import Control from '../Control/index'
 import { type OMapControlIdType } from '../Control/type'
 
 /**
- * @class Zoom
- * @classdesc 缩放控件类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/10/9
- * @updateDate 2025/10/10
  */
 
 export default class Zoom extends Control<OlControl.Zoom> {

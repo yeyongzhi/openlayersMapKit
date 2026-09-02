@@ -1,6 +1,7 @@
 export const OMapErrorCode = {
   Runtime: 'OMAP_RUNTIME_ERROR',
-  InvalidParameter: 'OMAP_INVALID_PARAMETER'
+  InvalidParameter: 'OMAP_INVALID_PARAMETER',
+  Disposed: 'OMAP_DISPOSED'
 } as const
 
 export type OMapErrorCodeType = (typeof OMapErrorCode)[keyof typeof OMapErrorCode]

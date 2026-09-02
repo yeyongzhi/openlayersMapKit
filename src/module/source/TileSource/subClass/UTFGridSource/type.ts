@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../source/index'
+import { type OlSource } from '../../../../../source/index'
 import type { Options as OlUTFGridSourceOptions, UTFGridJSON } from 'ol/source/UTFGrid'
 import type { Config as TileJSONConfig } from 'ol/source/TileJSON'
 

@@ -2,13 +2,13 @@ import { isArray, isDefined, isEmptyString, isObject, isString } from '../../../
 import {
   error_,
   getPackageMessage,
-  isVaildColorRGB,
+  isValidColorRGB,
   ColorhexToRGB,
-  isVaildOpacity,
-  isVaildColorHex,
-  isVaildColorHexWithAlpha,
-  isVaildColorRGBString,
-  isVaildColorRGBAString,
+  isValidOpacity,
+  isValidColorHex,
+  isValidColorHexWithAlpha,
+  isValidColorRGBString,
+  isValidColorRGBAString,
   extractRGBValues,
   extractRGBAValues,
   opacityHexToNumber
@@ -33,12 +33,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 颜色类
- * @class
- * @classdesc 用于颜色的存储、使用
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/5
- * @updateDate 2025/7/5
+ *
  */
 
 export default class Color {
@@ -49,49 +44,51 @@ export default class Color {
   /**
    * 颜色值
    * 所有的颜色值均以string的格式输出
+   *
    * @type {string}
    */
-  _color: string = ''
+  private _color: string = ''
 
   constructor(color: ColorType) {
-    this._initColor(color)
+    this.initColor(color)
   }
 
   /**
    * 初始化颜色
+   *
    * @param {ColorType} color 颜色
    */
-  protected _initColor(color: ColorType) {
+  protected initColor(color: ColorType) {
     const errorHandler = () => {
       error_(createMessage('constructor', '初始化参数有误'))
     }
     // 【情况5,6,7】
     if (isArray(color)) {
-      let _colorArr = color as Array<number | string>
+      const colorArray = color as Array<number | string>
       // 情况5
-      if (_colorArr.length === 3) {
-        if (!isVaildColorRGB(color)) {
+      if (colorArray.length === 3) {
+        if (!isValidColorRGB(color)) {
           errorHandler()
           return
         }
-        this._color = `rgb(${_colorArr[0]}, ${_colorArr[1]}, ${_colorArr[2]})`
-      } else if (_colorArr.length === 4) {
-        if (!isVaildColorRGB(_colorArr.slice(0, 3)) || !isVaildOpacity(_colorArr[3])) {
+        this._color = `rgb(${colorArray[0]}, ${colorArray[1]}, ${colorArray[2]})`
+      } else if (colorArray.length === 4) {
+        if (!isValidColorRGB(colorArray.slice(0, 3)) || !isValidOpacity(colorArray[3])) {
           errorHandler()
           return
         }
-        this._color = `rgba(${_colorArr[0]}, ${_colorArr[1]}, ${_colorArr[2]}, ${_colorArr[3]})`
-      } else if (_colorArr.length === 2) {
-        if (!isVaildColorHex(_colorArr[0]) || !isVaildOpacity(_colorArr[1])) {
+        this._color = `rgba(${colorArray[0]}, ${colorArray[1]}, ${colorArray[2]}, ${colorArray[3]})`
+      } else if (colorArray.length === 2) {
+        if (!isValidColorHex(colorArray[0]) || !isValidOpacity(colorArray[1])) {
           errorHandler()
           return
         }
-        let colorRGB = ColorhexToRGB((color as Array<string>)[0])
+        const colorRGB = ColorhexToRGB((color as Array<string>)[0])
         if (!isDefined(colorRGB)) {
           errorHandler()
           return
         }
-        this._color = `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, ${_colorArr[1]})`
+        this._color = `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, ${colorArray[1]})`
       } else {
         errorHandler()
         return
@@ -99,46 +96,46 @@ export default class Color {
     }
     // 【情况8】Object
     if (isObject(color)) {
-      let _colorObj = color as ColorObjectType
+      const colorObject = color as ColorObjectType
       // 缺少color或者rgb属性
       if (
-        !isDefined(_colorObj.color) &&
-        !(isDefined(_colorObj.r) && isDefined(_colorObj.g) && isDefined(_colorObj.b))
+        !isDefined(colorObject.color) &&
+        !(isDefined(colorObject.r) && isDefined(colorObject.g) && isDefined(colorObject.b))
       ) {
         errorHandler()
         return
       }
       // color属性
-      if (isDefined(_colorObj.color)) {
+      if (isDefined(colorObject.color)) {
         // color为十六进制字符串
-        if (isVaildColorHex(_colorObj.color)) {
-          let colorRGB = ColorhexToRGB(_colorObj.color as string)
+        if (isValidColorHex(colorObject.color)) {
+          const colorRGB = ColorhexToRGB(colorObject.color as string)
           if (!isDefined(colorRGB)) {
             errorHandler()
             return
           }
           this._color =
-            isDefined(_colorObj.alpha) || isDefined(_colorObj.opacity)
-              ? `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, ${_colorObj.alpha || _colorObj.opacity})`
+            isDefined(colorObject.alpha) || isDefined(colorObject.opacity)
+              ? `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, ${colorObject.alpha || colorObject.opacity})`
               : `rgb(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]})`
         }
         // color为rgb字符串
-        if (isVaildColorRGBString(_colorObj.color)) {
-          let rgbValues = extractRGBValues(_colorObj.color as string).join(', ')
+        if (isValidColorRGBString(colorObject.color)) {
+          const rgbValues = extractRGBValues(colorObject.color as string).join(', ')
           this._color =
-            isDefined(_colorObj.alpha) || isDefined(_colorObj.opacity)
-              ? `rgba(${rgbValues}, ${_colorObj.alpha || _colorObj.opacity})`
+            isDefined(colorObject.alpha) || isDefined(colorObject.opacity)
+              ? `rgba(${rgbValues}, ${colorObject.alpha || colorObject.opacity})`
               : `rgb(${rgbValues})`
         }
-      } else if (isDefined(_colorObj.r) && isDefined(_colorObj.g) && isDefined(_colorObj.b)) {
-        if (!isVaildColorRGB([_colorObj.r, _colorObj.g, _colorObj.b])) {
+      } else if (isDefined(colorObject.r) && isDefined(colorObject.g) && isDefined(colorObject.b)) {
+        if (!isValidColorRGB([colorObject.r, colorObject.g, colorObject.b])) {
           errorHandler()
           return
         }
         this._color =
-          isDefined(_colorObj.alpha) || isDefined(_colorObj.opacity)
-            ? `rgba(${_colorObj.r}, ${_colorObj.g}, ${_colorObj.b}, ${_colorObj.alpha || _colorObj.opacity})`
-            : `rgb(${_colorObj.r}, ${_colorObj.g}, ${_colorObj.b})`
+          isDefined(colorObject.alpha) || isDefined(colorObject.opacity)
+            ? `rgba(${colorObject.r}, ${colorObject.g}, ${colorObject.b}, ${colorObject.alpha || colorObject.opacity})`
+            : `rgb(${colorObject.r}, ${colorObject.g}, ${colorObject.b})`
       } else {
         errorHandler()
         return
@@ -151,25 +148,25 @@ export default class Color {
         return
       }
       // 情况1
-      if (isVaildColorHex(color)) {
-        let colorRGB = ColorhexToRGB(color as string)
+      if (isValidColorHex(color)) {
+        const colorRGB = ColorhexToRGB(color as string)
         if (!isDefined(colorRGB)) {
           errorHandler()
           return
         }
         this._color = `rgb(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]})`
-      } else if (isVaildColorHexWithAlpha(color)) {
-        let colorRGB = ColorhexToRGB((color as string).slice(0, 7))
+      } else if (isValidColorHexWithAlpha(color)) {
+        const colorRGB = ColorhexToRGB((color as string).slice(0, 7))
         if (!isDefined(colorRGB)) {
           errorHandler()
           return
         }
-        let opacity = opacityHexToNumber((color as string).slice(6))
+        const opacity = opacityHexToNumber((color as string).slice(6))
         this._color = `rgba(${colorRGB[0]}, ${colorRGB[1]}, ${colorRGB[2]}, ${opacity})`
       } else {
         // 【情况3,4,9】rgb/rgba 字符串或预命名颜色
-        const _isNamedColor = isDefined(presetsColor[color as string])
-        if (!isVaildColorRGBString(color) && !isVaildColorRGBAString(color) && !_isNamedColor) {
+        const isNamedColor = isDefined(presetsColor[color as string])
+        if (!isValidColorRGBString(color) && !isValidColorRGBAString(color) && !isNamedColor) {
           errorHandler()
           return
         }
@@ -196,36 +193,38 @@ export default class Color {
 
   /**
    * 设置颜色
+   *
    * @param {ColorType} color 颜色值
    */
   setColor(color: ColorType) {
-    this._initColor(color)
+    this.initColor(color)
   }
 
   /**
    * 设置透明度
+   *
    * @param alpha {number} 透明度，范围0-1
    */
   withAlpha(alpha: number) {
-    if (!isVaildOpacity(alpha)) {
+    if (!isValidOpacity(alpha)) {
       error_(createMessage('withAlpha', '透明度参数有误'))
       return
     }
     if (this._color.startsWith('rgb') && !this._color.startsWith('rgba')) {
-      this._initColor([...extractRGBValues(this._color), alpha])
+      this.initColor([...extractRGBValues(this._color), alpha])
     } else if (this._color.startsWith('rgba')) {
-      this._initColor([...extractRGBAValues(this._color), alpha])
+      this.initColor([...extractRGBAValues(this._color), alpha])
     } else {
       if (!isDefined(presetsColor[this._color as string])) {
         error_(createMessage('withAlpha', '颜色值有误'))
         return
       }
-      let colorRGB = ColorhexToRGB(presetsColor[this._color as string])
+      const colorRGB = ColorhexToRGB(presetsColor[this._color as string])
       if (!isDefined(colorRGB)) {
         error_(createMessage('withAlpha', '颜色值有误'))
         return
       }
-      this._initColor([...colorRGB, alpha])
+      this.initColor([...colorRGB, alpha])
     }
   }
 }

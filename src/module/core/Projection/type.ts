@@ -1,5 +1,5 @@
-import { OlProj } from '../../../source/index'
-import Projection from './index'
+import { type OlProj } from '../../../source/index'
+import type Projection from './index'
 
 // export type OMapProjectionType = OlProj.Projection
 

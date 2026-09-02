@@ -11,22 +11,17 @@ import {
   DEFAULT_IMAGE_LAYER_PARAMS,
   type OMapImageSourceParamsType,
   DEFAULT_IMAGE_STATIC_SOURCE_PARAMS,
-  isVaildImageStaticSourceParams,
-  isVaildImageWMSSourceParams
+  isValidImageStaticSourceParams,
+  isValidImageWMSSourceParams
 } from './type'
 import { type BaseLayerPropertiesType, type OMapBaseLayerCommonType } from '../BaseLayer/type'
 
-let PACKAGE_NAME = 'ImageLayer'
-let createMessage = getPackageMessage(PACKAGE_NAME)
+const PACKAGE_NAME = 'ImageLayer'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 图片图层类
- * @class ImageLayer
- * @classdesc 基础的图片地图服务
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/10/31
- * @updateDate 2026/8/30
+ *
  */
 
 export default class ImageLayer<
@@ -36,14 +31,14 @@ export default class ImageLayer<
   declare protected _sourceWrapper: ImageStaticSource | ImageSource | ImageWMSSource | null
 
   constructor(options?: OMapImageLayerParamsType<P>) {
-    const _options: OMapImageLayerParamsType<P> = options ?? {}
-    super('Image', _options)
-    if (!isDefined(_options.source)) {
+    const resolvedOptions: OMapImageLayerParamsType<P> = options ?? {}
+    super('Image', resolvedOptions)
+    if (!isDefined(resolvedOptions.source)) {
       error_(createMessage('constructor', '缺少source参数'))
       return
     }
-    let _layerParams = Object.assign({}, DEFAULT_IMAGE_LAYER_PARAMS, {
-      ..._options,
+    const layerParams = Object.assign({}, DEFAULT_IMAGE_LAYER_PARAMS, {
+      ...resolvedOptions,
       source: undefined,
       map: undefined
     })
@@ -51,15 +46,15 @@ export default class ImageLayer<
     // ImageStaticSource，自定义 loader 走 ImageSource。WMS 分支需先于静态图片分支判别，
     // 因为两者都带 url；之后把包装登记到基类，可通过 getImageSource() / getSourceWrapper() 取回。
     let sourceWrapper: ImageStaticSource | ImageSource | ImageWMSSource
-    if (isVaildImageWMSSourceParams(_options.source)) {
-      sourceWrapper = new ImageWMSSource(_options.source)
-    } else if (isVaildImageStaticSourceParams(_options.source)) {
-      const _sourceParams = Object.assign({}, DEFAULT_IMAGE_STATIC_SOURCE_PARAMS, {
-        ..._options.source
+    if (isValidImageWMSSourceParams(resolvedOptions.source)) {
+      sourceWrapper = new ImageWMSSource(resolvedOptions.source)
+    } else if (isValidImageStaticSourceParams(resolvedOptions.source)) {
+      const sourceParams = Object.assign({}, DEFAULT_IMAGE_STATIC_SOURCE_PARAMS, {
+        ...resolvedOptions.source
       })
-      sourceWrapper = new ImageStaticSource(_sourceParams)
+      sourceWrapper = new ImageStaticSource(sourceParams)
     } else {
-      const loaderSource = _options.source as OMapImageSourceParamsType
+      const loaderSource = resolvedOptions.source as OMapImageSourceParamsType
       sourceWrapper = new ImageSource({
         attributions: loaderSource.attributions,
         interpolate: loaderSource.interpolate ?? true,
@@ -70,18 +65,18 @@ export default class ImageLayer<
       })
     }
     this._sourceWrapper = sourceWrapper
+    this.ownsSourceWrapper = true
     this._layer = new OlLayer.Image({
-      ..._layerParams,
-      extent: isDefined(_layerParams.extent)
-        ? handleGetExtentValue(_layerParams.extent)
-        : undefined,
+      ...layerParams,
+      extent: isDefined(layerParams.extent) ? handleGetExtentValue(layerParams.extent) : undefined,
       source: sourceWrapper.getSource()
     })
-    this._initLayerEvent()
+    this.initLayerEvent()
   }
 
   /**
    * 获取图层关联的 OMap 静态图片数据源包装（仅当数据源为静态图片时返回，否则为 null）。
+   *
    * @returns {ImageStaticSource | null} OMap 静态图片数据源包装
    */
   getImageStaticSource(): ImageStaticSource | null {
@@ -92,6 +87,7 @@ export default class ImageLayer<
    * 获取图层关联的 OMap 自定义 loader 数据源包装（仅当数据源为 loader 分支时返回，否则为 null）。
    *
    * 注意 `ImageStaticSource` 继承自 `ImageSource`，因此要先排除静态图片分支再判定。
+   *
    * @returns {ImageSource | null} OMap 图片数据源包装
    */
   getImageSource(): ImageSource | null {
@@ -100,6 +96,7 @@ export default class ImageLayer<
 
   /**
    * 获取图层关联的 OMap WMS 单图数据源包装（仅当数据源为 WMS 分支时返回，否则为 null）。
+   *
    * @returns {ImageWMSSource | null} OMap WMS 单图数据源包装
    */
   getImageWMSSource(): ImageWMSSource | null {

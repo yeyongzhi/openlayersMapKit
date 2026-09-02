@@ -1,4 +1,4 @@
-import { OlSource } from '../../../../../source/index'
+import { type OlSource } from '../../../../../source/index'
 import type { Options as OlTileDebugSourceOptions } from 'ol/source/TileDebug'
 import type TileSource from '../../index'
 import {

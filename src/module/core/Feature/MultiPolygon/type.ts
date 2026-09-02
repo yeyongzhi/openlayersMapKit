@@ -1,5 +1,5 @@
-import { OlGeometry } from '../../../../source/index'
-import type { OMapCoordinateType } from '../../../basic/Lnglat/type'
+import { type OlGeometry } from '../../../../source/index'
+import type { OMapCoordinateType } from '../../../basic/LngLat/type'
 import { isArray } from '../../../../utils/dataType'
 import { isValidPolygonCoordinates } from '../Polygon/type'
 

@@ -1,15 +1,15 @@
 import { isDefined } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage, warn_ } from '../../../../utils/message'
 import { OlUtil } from '../../../../source/index'
-import Interaction from '../../../interaction/Interaction/index'
+import type Interaction from '../../../interaction/Interaction/index'
 import {
-  isVaildInteraction,
+  isValidInteraction,
   type OMapInteractionCommonType,
   type OMapInteractionIdType
 } from '../../../interaction/Interaction/type'
 import Draw from '../../../interaction/Draw/index'
 import Measure from '../../../interaction/Measure/index'
-import VectorLayer from '../../../layer/VectorLayer/index'
+import type VectorLayer from '../../../layer/VectorLayer/index'
 import type Map from '../index'
 import type { OMapMapType } from '../type'
 
@@ -42,7 +42,7 @@ export default class InteractionManager {
   }
 
   getAll(): ManagedInteraction[] {
-    return this.interactions
+    return [...this.interactions]
   }
 
   getById(id: OMapInteractionIdType): ManagedInteraction | null {
@@ -71,11 +71,11 @@ export default class InteractionManager {
     if (!isDefined(interaction)) {
       error_(createMessage('addInteraction', commonMessage.paramsNotDefined('interaction')))
     }
-    if (!isVaildInteraction(interaction)) {
+    if (!isValidInteraction(interaction)) {
       error_(
         createMessage(
           'addInteraction',
-          commonMessage.paramsInvaildFormat('interaction', 'Interaction类型')
+          commonMessage.paramsInvalidFormat('interaction', 'Interaction类型')
         )
       )
     }

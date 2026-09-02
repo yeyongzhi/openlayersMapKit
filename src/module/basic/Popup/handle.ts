@@ -1,20 +1,21 @@
-import Popup from './index'
-import Lnglat from '../../basic/Lnglat/index'
+import type Popup from './index'
+import LngLat from '../../basic/LngLat/index'
 import Pixel from '../../basic/Pixel/index'
 import { type OMapPopupEventType } from './type'
 import type { PropertiesType } from '../../../utils/type'
-import type { OlCoordinateType } from '../Lnglat/type'
+import type { OlCoordinateType } from '../LngLat/type'
 import type { OlPixelType } from '../Pixel/type'
 import type BaseEvent from 'ol/events/Event'
 
 /**
  * 创建默认弹窗内容元素
+ *
  * @param content 弹窗内容
  * @returns {HTMLElement} 弹窗内容元素
  * @todo 可以考虑加一个小箭头的样式
  */
 export function createDefaultContentElement(content: string): HTMLElement {
-  let div = document.createElement('div')
+  const div = document.createElement('div')
   div.className = 'omap-popup-default-element'
   div.innerHTML = content
   return div
@@ -24,8 +25,8 @@ export interface OMapPopupEventTarget {
   target: Popup
   type: OMapPopupEventType
   key?: string
-  oldValue?: Lnglat | string | HTMLElement | Pixel | PropertiesType
-  newValue?: Lnglat | string | HTMLElement | Pixel | PropertiesType
+  oldValue?: LngLat | string | HTMLElement | Pixel | PropertiesType
+  newValue?: LngLat | string | HTMLElement | Pixel | PropertiesType
 }
 
 export type PopupEventChange =
@@ -39,7 +40,7 @@ export function handlePopupEvent(
   const key = 'key' in e && typeof e.key === 'string' ? e.key : undefined
   const oldValue = 'oldValue' in e ? e.oldValue : undefined
   const newValue = 'newValue' in e ? e.newValue : undefined
-  let result: OMapPopupEventTarget = {
+  const result: OMapPopupEventTarget = {
     target,
     type,
     key
@@ -47,7 +48,7 @@ export function handlePopupEvent(
   switch (type) {
     case 'change:position':
       result.oldValue =
-        oldValue === undefined ? undefined : new Lnglat(oldValue as OlCoordinateType)
+        oldValue === undefined ? undefined : new LngLat(oldValue as OlCoordinateType)
       result.newValue = target.getPosition()
       break
     case 'change:positioning':

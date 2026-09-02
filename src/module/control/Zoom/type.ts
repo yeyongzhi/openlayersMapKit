@@ -1,4 +1,4 @@
-import { OlControl } from '../../../source/index'
+import { type OlControl } from '../../../source/index'
 
 export type OMapControlZoomOptionsType = ConstructorParameters<typeof OlControl.Zoom>[0]
 export const DEFAULT_ZOOM_OPTIONS: OMapControlZoomOptionsType = {

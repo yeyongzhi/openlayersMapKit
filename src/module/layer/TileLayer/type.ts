@@ -1,5 +1,5 @@
 import type { BaseLayerOptionsType, BaseLayerPropertiesType } from '../BaseLayer/type'
-import { OlLayer } from '../../../source/index'
+import { type OlLayer } from '../../../source/index'
 import type TileSource from '../../source/TileSource/index'
 import type { OMapTileSourceType } from '../../source/TileSource/type'
 

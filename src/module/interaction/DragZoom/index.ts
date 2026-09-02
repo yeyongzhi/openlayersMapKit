@@ -21,12 +21,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 拖动缩放类
- * @class DragZoom
- * @classdesc 拖动缩放类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/8/25
- * @updateDate 2026/1/3
+ *
  */
 
 export default class DragZoom extends Interaction<OMapDragZoomType> {
@@ -51,10 +46,10 @@ export default class DragZoom extends Interaction<OMapDragZoomType> {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionDragZoomEventType(type)) {
-      error_(createMessage('on', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('on', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('on', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(type, callback, (e: InteractionPropertyChangeEvent) =>
       handleInteractionDragZoomEvent(this, type, e)
@@ -69,10 +64,10 @@ export default class DragZoom extends Interaction<OMapDragZoomType> {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionDragZoomEventType(type)) {
-      error_(createMessage('once', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('once', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('once', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(
       type,
@@ -87,7 +82,7 @@ export default class DragZoom extends Interaction<OMapDragZoomType> {
       error_(createMessage('un', commonMessage.paramsNotDefined(id)))
     }
     if (!isString(id)) {
-      error_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'EventIdType')))
+      error_(createMessage('un', commonMessage.paramsInvalidFormat(id, 'EventIdType')))
     }
     this.events.remove(id)
   }

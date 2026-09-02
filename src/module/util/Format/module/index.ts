@@ -3,13 +3,13 @@ import {
   type OMapFormatInstanceType,
   type OMapFormatTypeEnum,
   OMapFormatType,
-  OMapFormatWriteFeatureOptionsType,
+  type OMapFormatWriteFeatureOptionsType,
   type OMapFormatReadFeatureOptionsType
 } from '../type'
 import GeoJSON from './GeoJSON'
 import WKT from './WKT'
 import KML from './KML'
-import BasicFeature from '../../../core/Feature/BasicFeature/index'
+import type BasicFeature from '../../../core/Feature/BasicFeature/index'
 import type { OlGeometryType } from '../../../core/Feature/BasicFeature/type'
 import { createMessage } from '../index'
 

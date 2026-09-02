@@ -20,12 +20,7 @@ const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 双击缩放交互类
- * @class KeyboardZoom
- * @classdesc 允许用户通过双击地图来缩放地图
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/9/20
- * @updateDate 2025/9/20
+ *
  */
 
 const defaultKeyboardZoomOptions = {
@@ -55,10 +50,10 @@ export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
       error_(createMessage('on', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionKeyboardZoomEventType(type)) {
-      error_(createMessage('on', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('on', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('on', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('on', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(type, callback, (e: InteractionPropertyChangeEvent) =>
       handleInteractionKeyboardZoomEvent(this, type, e)
@@ -73,10 +68,10 @@ export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
       error_(createMessage('once', commonMessage.paramsNotDefined('type or callback')))
     }
     if (!isOMapInteractionKeyboardZoomEventType(type)) {
-      error_(createMessage('once', commonMessage.paramsInvaildEnum(type)))
+      error_(createMessage('once', commonMessage.paramsInvalidEnum(type)))
     }
     if (!isFunction(callback)) {
-      error_(createMessage('once', commonMessage.paramsInvaildFormat('callback', 'function')))
+      error_(createMessage('once', commonMessage.paramsInvalidFormat('callback', 'function')))
     }
     return this.subscribeEvent(
       type,
@@ -91,7 +86,7 @@ export default class KeyboardZoom extends Interaction<OMapKeyboardZoomType> {
       error_(createMessage('un', commonMessage.paramsNotDefined(id)))
     }
     if (!isString(id)) {
-      error_(createMessage('un', commonMessage.paramsInvaildFormat(id, 'EventIdType')))
+      error_(createMessage('un', commonMessage.paramsInvalidFormat(id, 'EventIdType')))
     }
     this.events.remove(id)
   }

@@ -6,9 +6,9 @@ import type {
   DragBoxEndEventFunctionType,
   DragBoxEndEvent
 } from './type'
-import DragBox from './index'
+import type DragBox from './index'
 import Pixel from '../../basic/Pixel/index'
-import Lnglat from '../../basic/Lnglat/index'
+import LngLat from '../../basic/LngLat/index'
 
 export function handleInteractionDragBoxEvent(
   target: DragBox,
@@ -18,12 +18,12 @@ export function handleInteractionDragBoxEvent(
   // 仅 DragBoxEvent（boxstart/boxdrag/boxend/boxcancel）携带 coordinate/mapBrowserEvent
   const mapBrowserEvent = 'mapBrowserEvent' in e ? e.mapBrowserEvent : undefined
   const coordinate = 'coordinate' in e ? e.coordinate : undefined
-  let result: OMapDragBoxEvent = {
+  const result: OMapDragBoxEvent = {
     target,
     type,
     // DragBoxEvent 本身不含 pixel，取其 mapBrowserEvent.pixel
     pixel: isDefined(mapBrowserEvent?.pixel) ? new Pixel(mapBrowserEvent.pixel) : undefined,
-    coordinate: isDefined(coordinate) ? new Lnglat(coordinate) : undefined
+    coordinate: isDefined(coordinate) ? new LngLat(coordinate) : undefined
   }
   return result
 }

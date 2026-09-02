@@ -1,15 +1,15 @@
 import { isDefined } from '../../../../utils/index'
 import { commonMessage, error_, getPackageMessage } from '../../../../utils/message'
-import { OlFeature, OlGeometry, OlLayer, OlUtil } from '../../../../source/index'
+import { OlFeature, type OlGeometry, type OlLayer, OlUtil } from '../../../../source/index'
 import { handleGetPixelValue } from '../../../basic/Pixel/handle'
 import type { OMapPixelType } from '../../../basic/Pixel/type'
-import BaseFeature from '../../Feature/BasicFeature/index'
+import type BaseFeature from '../../Feature/BasicFeature/index'
 import type { OlFeatureLike } from '../../Feature/BasicFeature/type'
 import {
   createBaseFeatureByOlFeature,
   createBaseFeatureByOlRenderFeature
 } from '../../Feature/BasicFeature/handle'
-import BaseLayer from '../../../layer/BaseLayer/index'
+import type BaseLayer from '../../../layer/BaseLayer/index'
 import type { OMapBaseLayerCommonType } from '../../../layer/BaseLayer/type'
 import VectorLayer from '../../../layer/VectorLayer/index'
 import {

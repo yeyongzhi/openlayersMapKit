@@ -1,21 +1,21 @@
-import { OlInteraction } from '../../../source/index'
+import { type OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
 import type { DragBoxEvent } from 'ol/interaction/DragBox'
 import type { ObjectEvent } from 'ol/Object'
 import type BaseEvent from 'ol/events/Event'
-import Lnglat from '../../basic/Lnglat/index'
-import Pixel from '../../basic/Pixel/index'
-import Extent from '../../basic/Extent/index'
-import DragBox from './index'
+import type LngLat from '../../basic/LngLat/index'
+import type Pixel from '../../basic/Pixel/index'
+import type Extent from '../../basic/Extent/index'
+import type DragBox from './index'
 import {
   OMapInteractionCommonEventTypes,
-  OMapInteractionCommonParamsType
+  type OMapInteractionCommonParamsType
 } from '../Interaction/type'
 
 export interface DragBoxEndEvent {
   /** 拖动框结束为止的坐标 */
-  coordinate?: Lnglat
+  coordinate?: LngLat
   /** 拖动框结束为止的像素坐标 */
   pixel?: Pixel
   /** 拖动框结束为止的范围 */
@@ -61,7 +61,7 @@ export interface OMapDragBoxEvent {
   /** 事件像素坐标（取自原生 mapBrowserEvent.pixel，change 系列事件为 undefined） */
   pixel?: Pixel
   /** 事件地理坐标（change 系列事件为 undefined） */
-  coordinate?: Lnglat
+  coordinate?: LngLat
 }
 
 /** 事件名 → 用户回调参数映射 */

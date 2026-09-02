@@ -1,5 +1,5 @@
 import { isString } from '../../../utils/dataType'
-import { OlInteraction } from '../../../source/index'
+import { type OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import {
   OMapInteractionCommonEventTypes,

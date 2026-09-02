@@ -13,65 +13,60 @@ import {
 import type { OMapWMTSSourceParamsType } from '../../source/TileSource/subClass/WMTSSource/type'
 import { type BaseLayerPropertiesType, type OMapBaseLayerCommonType } from '../BaseLayer/type'
 
-let PACKAGE_NAME = 'WMTSLayer'
-let createMessage = getPackageMessage(PACKAGE_NAME)
+const PACKAGE_NAME = 'WMTSLayer'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * WMTS图层类
- * @class WMTSLayer
- * @classdesc 基础的WMTS地图服务
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/10/2
- * @updateDate 2025/10/2
+ *
  */
 
 export default class WMTSLayer<
   P extends BaseLayerPropertiesType = BaseLayerPropertiesType
 > extends BaseLayer<OMapBaseLayerCommonType, P> {
   /** 收窄基类的包装类型：WMTS 图层的数据源一定是 WMTS 数据源。 */
-  declare protected _sourceWrapper: WMTSSource | null
+  declare protected nativeSourceWrapper: WMTSSource | null
 
   constructor(options?: OMapWMTSLayerParamsType<P>) {
-    const _options: OMapWMTSLayerParamsType<P> = Object.assign(
+    const resolvedOptions: OMapWMTSLayerParamsType<P> = Object.assign(
       {},
       DEFAULT_WMTS_LAYER_PARAMS,
       options
     )
-    super('WMTS', _options)
-    if (!isDefined(_options.source)) {
+    super('WMTS', resolvedOptions)
+    if (!isDefined(resolvedOptions.source)) {
       error_(createMessage('constructor', 'source参数是必须的'))
       return
     }
-    let _layerParams = Object.assign({}, _options, {
+    const layerParams = Object.assign({}, resolvedOptions, {
       source: undefined,
       map: undefined
     })
-    let _sourceParams = Object.assign({}, DEFAULT_WMTS_LAYER_SOURCE_PARAMS, {
-      ..._options.source
+    const sourceParams = Object.assign({}, DEFAULT_WMTS_LAYER_SOURCE_PARAMS, {
+      ...resolvedOptions.source
     })
-    let wmtsSource = new WMTSSource(_sourceParams as OMapWMTSSourceParamsType)
+    const wmtsSource = new WMTSSource(sourceParams as OMapWMTSSourceParamsType)
     // 登记 OMap 数据源包装，供 getWMTSSource() / getSourceWrapper() 取回。
     this._sourceWrapper = wmtsSource
-    let _source = wmtsSource.getSource()
+    this.ownsSourceWrapper = true
+    const nativeSource = wmtsSource.getSource()
     this._layer = new OlLayer.Tile({
-      ..._layerParams,
-      extent: isDefined(_layerParams.extent)
-        ? handleGetExtentValue(_layerParams.extent)
+      ...layerParams,
+      extent: isDefined(layerParams.extent) ? handleGetExtentValue(layerParams.extent) : undefined,
+      background: isDefined(layerParams.background)
+        ? handleGetColorValue(layerParams.background)
         : undefined,
-      background: isDefined(_layerParams.background)
-        ? handleGetColorValue(_layerParams.background)
-        : undefined,
-      source: _source
+      source: nativeSource
     })
-    this._initLayerEvent()
+    this.initLayerEvent()
   }
 
   /**
    * 获取图层关联的 OMap WMTS 数据源包装。
+   *
    * @returns {WMTSSource | null} OMap WMTS 数据源包装
    */
   getWMTSSource(): WMTSSource | null {
-    return this._sourceWrapper
+    return this._sourceWrapper as WMTSSource | null
   }
 }

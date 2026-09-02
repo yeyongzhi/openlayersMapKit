@@ -1,4 +1,4 @@
-import DragZoom from './index'
+import type DragZoom from './index'
 import { type OMapInteractionDragZoomEventType } from './type'
 import { handleInteractionActiveChangeEvent, type InteractionPropertyChangeEvent } from '../handle'
 

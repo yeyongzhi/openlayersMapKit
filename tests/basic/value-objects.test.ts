@@ -3,6 +3,7 @@ import { Color, Extent, LngLat, Lnglat, Pixel, Size } from '../../src/index'
 
 describe('basic value objects', () => {
   it('creates and compares coordinates', () => {
+    expect(Lnglat).toBe(LngLat)
     const coordinate = new Lnglat(120.12345, 30.54321)
 
     expect(coordinate.toArray()).toEqual([120.12345, 30.54321])

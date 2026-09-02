@@ -13,17 +13,12 @@ import {
 } from './type'
 import type { OMapTileLayerParamsType } from '../TileLayer/type'
 
-let PACKAGE_NAME = 'TdtLayer'
-let createMessage = getPackageMessage(PACKAGE_NAME)
+const PACKAGE_NAME = 'TdtLayer'
+const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
  * 天地图服务类
- * @class
- * @classdesc 快捷使用天地图相关的开发地图服务
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/7/8
- * @updateDate 2026/2/20
+ *
  */
 
 export default class TdtLayer extends TileLayer {
@@ -37,7 +32,7 @@ export default class TdtLayer extends TileLayer {
       error_(createMessage('constructor', '缺少天地图key，请提前申明'))
     }
     if (!isValidTdtLayerType(type)) {
-      error_(createMessage('constructor', commonMessage.paramsInvaildEnum('type')))
+      error_(createMessage('constructor', commonMessage.paramsInvalidEnum('type')))
     }
     const url = getTdtServiceUrl(type, proj) // 天地图只需要 单个url 即可
     // options.source 承载用户提供的 XYZ 参数，此前被 Object.assign 整体摊平到顶层而静默失效，
@@ -51,6 +46,7 @@ export default class TdtLayer extends TileLayer {
       source: xyzSource
     }
     super(tdtParams)
+    this.ownsSourceWrapper = true
     this.tdtType = type
   }
 }

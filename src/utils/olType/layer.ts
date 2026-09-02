@@ -1,7 +1,7 @@
-import { OlLayer } from '../../source/index'
-import Color from '../../module/basic/Color/index'
-import Extent from '../../module/basic/Extent/index'
-import Map from '../../module/core/Map/index'
+import { type OlLayer } from '../../source/index'
+import type Color from '../../module/basic/Color/index'
+import type Extent from '../../module/basic/Extent/index'
+import type Map from '../../module/core/Map/index'
 import type { XYZSourceOptionsFinalType } from './source'
 import type { PropertiesType } from '../type'
 

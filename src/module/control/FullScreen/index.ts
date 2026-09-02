@@ -9,12 +9,6 @@ import Control from '../Control/index'
 import { type OMapControlIdType } from '../Control/type'
 
 /**
- * @class FullScreen
- * @classdesc 全屏控件类
- * @author Aurora
- * @version 1.0.0
- * @createDate 2025/10/10
- * @updateDate 2025/10/10
  */
 
 export default class FullScreen extends Control<OMapControlFullScreenType> {

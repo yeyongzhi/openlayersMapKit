@@ -1,4 +1,4 @@
-import Color from './index'
+import type Color from './index'
 export type OlBackgroundColorType = string
 export type OlColorType = string
 

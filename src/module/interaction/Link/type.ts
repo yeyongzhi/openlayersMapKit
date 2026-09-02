@@ -1,9 +1,9 @@
-import { OlInteraction } from '../../../source/index'
+import { type OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import type { OlAnimationOptions } from '../../../utils/olType/view'
-import { type OlCoordinateType } from '../../basic/Lnglat/type'
+import { type OlCoordinateType } from '../../basic/LngLat/type'
 import {
-  OMapInteractionCommonParamsType,
+  type OMapInteractionCommonParamsType,
   OMapInteractionCommonEventTypes
 } from '../Interaction/type'
 
@@ -14,8 +14,8 @@ export type OMapLinkParamsType = CustOlLinkParamsType & {
 } & OMapInteractionCommonParamsType
 
 /**
- * 坐标字段已由 `Lnglat` 转换为 OpenLayers 原生坐标后的动画选项。
- * `center` 与 `anchor` 都接受 `Lnglat`，两者都必须转换后再交给 OpenLayers。
+ * 坐标字段已由 `LngLat` 转换为 OpenLayers 原生坐标后的动画选项。
+ * `center` 与 `anchor` 都接受 `LngLat`，两者都必须转换后再交给 OpenLayers。
  */
 export type OlResolvedAnimationOptions = ManualOmit<OlAnimationOptions, 'center' | 'anchor'> & {
   center?: OlCoordinateType

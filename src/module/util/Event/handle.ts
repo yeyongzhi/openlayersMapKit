@@ -7,6 +7,7 @@ export function isValidEventId(id: EventIdType): boolean {
 
 /**
  * 获取目标对象的构造函数名称
+ *
  * @param target 目标对象
  * @returns 构造函数名称或undefined
  */

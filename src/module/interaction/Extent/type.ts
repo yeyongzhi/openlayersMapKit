@@ -1,4 +1,4 @@
-import { OlInteraction } from '../../../source/index'
+import { type OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import type { ExtentEvent } from 'ol/interaction/Extent'
 import type { ObjectEvent } from 'ol/Object'

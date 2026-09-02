@@ -1,12 +1,12 @@
-import { OlGeometry, OlInteraction } from '../../../source/index'
+import { type OlGeometry, type OlInteraction } from '../../../source/index'
 import type { ManualOmit } from '../../../utils/type'
 import { isString } from '../../../utils/dataType'
 import type { SelectEvent } from 'ol/interaction/Select'
 import type { ObjectEvent } from 'ol/Object'
 import type BaseEvent from 'ol/events/Event'
 import type Select from './index'
-import VectorLayer from '../../layer/VectorLayer/index'
-import BaseFeature from '../../core/Feature/BasicFeature/index'
+import type VectorLayer from '../../layer/VectorLayer/index'
+import type BaseFeature from '../../core/Feature/BasicFeature/index'
 import { type OMapStyleLike } from '../../basic/Style/type'
 import {
   type OMapInteractionCommonParamsType,
