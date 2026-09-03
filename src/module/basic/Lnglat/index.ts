@@ -7,8 +7,8 @@ const PACKAGE_NAME = 'LngLat'
 const createMessage = getPackageMessage(PACKAGE_NAME)
 
 /**
- * @deprecated 请使用 {@link LngLat} 替代。`LngLat` 与 `LngLat` 指向同一类、完全等价，
- * 新代码统一使用 `LngLat`；内部引用将在后续批次统一迁移。
+ * @deprecated 请使用 {@link LngLat} 替代。`Lnglat` 与 `LngLat` 指向同一类、完全等价，
+ * 新代码统一使用 `LngLat`；`Lnglat` 仅作为兼容别名保留。
  */
 class LngLat {
   static from(value: OMapCoordinateType): LngLat {
@@ -140,8 +140,8 @@ class LngLat {
 
 /**
  * 经纬度（推荐名称）。
- * `LngLat` 与 `LngLat` 指向同一个类，二者完全等价；
- * 新代码请使用 `LngLat`，`LngLat` 仅作为兼容别名保留。
+ * `Lnglat` 与 `LngLat` 指向同一个类，二者完全等价；
+ * 新代码请使用 `LngLat`，`Lnglat` 仅作为兼容别名保留。
  */
 export default LngLat
 
