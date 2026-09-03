@@ -132,7 +132,7 @@
   {
     "name": "Lnglat",
     "kind": "class",
-    "filePath": "src/module/basic/Lnglat/index.ts"
+    "filePath": "src/module/basic/LngLat/index.ts"
   },
   {
     "name": "Map",
@@ -362,7 +362,7 @@
   {
     "name": "LngLat",
     "kind": "const",
-    "filePath": "src/module/basic/Lnglat/index.ts"
+    "filePath": "src/module/basic/LngLat/index.ts"
   },
   {
     "name": "MapToken",

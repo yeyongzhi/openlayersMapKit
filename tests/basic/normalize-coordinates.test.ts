@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Lnglat } from '../../src/index'
-import { normalizeCoordinates } from '../../src/module/basic/Lnglat/handle'
+import { normalizeCoordinates } from '../../src/module/basic/LngLat/handle'
 
 /**
  * 批次 B / 阶段 4：normalizeCoordinates 抽取后的回归保护。
