@@ -33,6 +33,7 @@
 
 ### Fixed
 
+- 修复 `BaseLayer` 销毁后仍允许修改标识、名称、缩放和分辨率等状态，以及 `TileLayer.getSource()` 仍可访问原生数据源的问题；这些操作现在统一抛出 `OMapError(Disposed)`。
 - 修复 `Map` 的视图选项将已有运行时默认值的 `projection` 和可选的 `extent` 错误声明为必填，最小 `{ center, zoom }` 配置现在可通过消费者类型检查。
 - 修复同类原生事件被多次订阅时重复派发、资源移除后监听器残留，以及 Feature wrapper 重复创建问题。
 - 修复 `Select` 构造选项 `features` 完全不生效：原先仅用于触发生成 filter，却未在 filter 内做候选判断，导致白名单外的要素同样可选；现在 `features` 作为候选白名单生效。

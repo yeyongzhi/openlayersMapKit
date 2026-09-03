@@ -97,6 +97,70 @@ describe('Map Popup manager', () => {
     expect(first.mock.calls[0][0].newValue.toArray()).toEqual([120, 30])
     map.dispose()
   })
+
+  it('manages popup presentation state and isolated properties', () => {
+    const popup = new Popup({
+      id: 'popup-state',
+      content: '<strong>Initial</strong>',
+      position: [120, 30],
+      offset: [4, 8],
+      positioning: 'bottom-center',
+      properties: { category: 'initial' }
+    })
+
+    expect(popup.getId()).toBe('popup-state')
+    expect(popup.getContent()).toBe('<strong>Initial</strong>')
+    expect(popup.getElement()?.classList.contains('omap-popup-selectable')).toBe(true)
+    expect(popup.getPosition()?.toArray()).toEqual([120, 30])
+    expect(popup.getOffset().toArray()).toEqual([4, 8])
+    expect(popup.getPositioning()).toBe('bottom-center')
+
+    popup.setId(2)
+    popup.setContent('Updated')
+    popup.setPositioning('top-left')
+    popup.setOffset([10, 12])
+    popup.setProperties({ category: 'updated' })
+    const properties = popup.getProperties()
+    properties.category = 'changed'
+
+    expect(popup.getId()).toBe(2)
+    expect(popup.getContent()).toBe('Updated')
+    expect(popup.getElement()?.textContent).toBe('Updated')
+    expect(popup.getPositioning()).toBe('top-left')
+    expect(popup.getOffset().toArray()).toEqual([10, 12])
+    expect(popup.getProperties()).toEqual({ category: 'updated' })
+    popup.dispose()
+  })
+
+  it('supports element replacement and explicit popup unsubscription', () => {
+    const popup = new Popup({ element: document.createElement('div') })
+    const element = document.createElement('section')
+    popup.setElement(element)
+    const listener = vi.fn()
+    const id = popup.on('change:position', listener)
+
+    popup.un(id)
+    popup.setPosition([1, 2])
+
+    expect(popup.getElement()).toBe(element)
+    expect(element.classList.contains('omap-popup-selectable')).toBe(true)
+    expect(listener).not.toHaveBeenCalled()
+    popup.dispose()
+  })
+
+  it('rejects invalid positioning and ignores a missing unsubscription id', () => {
+    const popup = new Popup({ element: document.createElement('div') })
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    expect(() => popup.setPositioning('invalid' as never)).toThrow(OMapError)
+    expect(() => popup.setElement(undefined as never)).toThrow(OMapError)
+    expect(() => popup.setProperties(undefined as never)).toThrow(OMapError)
+    popup.un(undefined as never)
+    expect(warn).toHaveBeenCalledOnce()
+
+    warn.mockRestore()
+    popup.dispose()
+  })
 })
 
 describe('Map Control manager', () => {

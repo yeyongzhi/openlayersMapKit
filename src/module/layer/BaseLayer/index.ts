@@ -40,6 +40,8 @@ const DEFAULT_LAYER_MAX_RESOLUTION: number = Infinity
  * @template T - 原生 OpenLayers 图层类型。
  * @template P - 图层属性字典。默认 {@link BaseLayerPropertiesType}；
  *   传入更具体的结构后，`getProperties()` 与 `setProperties()` 会按该结构推导。
+ * @remarks 调用 {@link dispose} 后，修改操作以及原生图层、数据源访问会抛出
+ *   `OMapError(Disposed)`；纯包装状态查询与重复释放仍然安全。
  */
 export default class BaseLayer<
   T extends OMapBaseLayerCommonType = OMapBaseLayerCommonType,
@@ -172,6 +174,7 @@ export default class BaseLayer<
    * @param {BaseLayerIdType} id 图层id
    */
   setId(id: BaseLayerIdType) {
+    this.assertActive('setId')
     this.id = id
   }
 
@@ -190,6 +193,7 @@ export default class BaseLayer<
    * @param {string} name 图层名称
    */
   setName(name: string) {
+    this.assertActive('setName')
     if (!isDefined(name)) {
       error_(this.createMessage('setName', commonMessage.paramsNotDefined('name')))
     }
@@ -214,6 +218,7 @@ export default class BaseLayer<
    * @param {string} className 样式类名
    */
   setClassName(className: string) {
+    this.assertActive('setClassName')
     if (!isDefined(className)) {
       error_(this.createMessage('setClassName', commonMessage.paramsNotDefined('className')))
     }
@@ -244,6 +249,7 @@ export default class BaseLayer<
    * @returns {OlSource.Source | null} 数据源实例；图层未挂载数据源时为 null
    */
   getSource(): OlSource.Source | null {
+    this.assertActive('getSource')
     return this._layer.getSource()
   }
 
@@ -345,6 +351,7 @@ export default class BaseLayer<
   }
 
   setMinZoom(minZoom: number) {
+    this.assertActive('setMinZoom')
     if (!isDefined(minZoom)) {
       error_(this.createMessage('setMinZoom', commonMessage.paramsNotDefined('minZoom')))
     }
@@ -361,6 +368,7 @@ export default class BaseLayer<
   }
 
   setMaxZoom(maxZoom: number) {
+    this.assertActive('setMaxZoom')
     if (!isDefined(maxZoom)) {
       error_(this.createMessage('setMaxZoom', commonMessage.paramsNotDefined('maxZoom')))
     }
@@ -377,6 +385,7 @@ export default class BaseLayer<
   }
 
   setMinResolution(minResolution: number) {
+    this.assertActive('setMinResolution')
     if (!isDefined(minResolution)) {
       error_(
         this.createMessage('setMinResolution', commonMessage.paramsNotDefined('minResolution'))
@@ -398,6 +407,7 @@ export default class BaseLayer<
   }
 
   setMaxResolution(maxResolution: number) {
+    this.assertActive('setMaxResolution')
     if (!isDefined(maxResolution)) {
       error_(
         this.createMessage('setMaxResolution', commonMessage.paramsNotDefined('maxResolution'))
@@ -419,6 +429,7 @@ export default class BaseLayer<
   }
 
   setZIndex(zIndex: number) {
+    this.assertActive('setZIndex')
     if (!isDefined(zIndex)) {
       error_(this.createMessage('setZIndex', commonMessage.paramsNotDefined('zIndex')))
     }

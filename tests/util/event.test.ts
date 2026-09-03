@@ -52,6 +52,23 @@ describe('Event', () => {
     expect(events.listenerCount('reset')).toBe(1)
   })
 
+  it('finds listeners by id and clears one event type at a time', () => {
+    const events = new Event<TestEvents>()
+    const resetUnlisten = vi.fn()
+    const changeUnlisten = vi.fn()
+    const resetId = events.on('reset', vi.fn(), resetUnlisten)
+    events.on('change', vi.fn(), changeUnlisten)
+
+    expect(events.getEventById(resetId)).toMatchObject({ id: resetId, type: 'reset' })
+    expect(events.getEventById('missing' as never)).toBeUndefined()
+
+    events.off('reset')
+    expect(events.listenerCount('reset')).toBe(0)
+    expect(events.listenerCount('change')).toBe(1)
+    expect(resetUnlisten).toHaveBeenCalledOnce()
+    expect(changeUnlisten).not.toHaveBeenCalled()
+  })
+
   it('implements an idempotent permanent disposal contract', () => {
     const events = new Event<TestEvents>()
     const unlisten = vi.fn()

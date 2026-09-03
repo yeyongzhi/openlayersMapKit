@@ -54,6 +54,7 @@ export default class TileLayer<
    * @returns {OMapTileSourceType | null} 原生数据源
    */
   override getSource(): OMapTileSourceType | null {
+    this.assertActive('getSource')
     return this._layer.getSource() as OMapTileSourceType | null
   }
 

@@ -22,35 +22,35 @@ export default defineConfig({
         'src/utils/index.ts'
       ],
       thresholds: {
-        lines: 60,
-        branches: 46,
+        lines: 67,
+        branches: 52,
         'src/module/basic/Popup/index.ts': {
-          lines: 74,
-          branches: 58
+          lines: 92,
+          branches: 80
         },
         'src/module/control/Control/index.ts': {
-          lines: 54,
-          branches: 22
+          lines: 100,
+          branches: 94
         },
         'src/module/core/Map/index.ts': {
-          lines: 55,
-          branches: 42
+          lines: 90,
+          branches: 85
         },
         'src/module/interaction/Interaction/index.ts': {
           lines: 87,
           branches: 78
         },
         'src/module/layer/BaseLayer/index.ts': {
-          lines: 47,
-          branches: 40
+          lines: 100,
+          branches: 95
         },
         'src/module/source/Source/index.ts': {
-          lines: 60,
-          branches: 62
+          lines: 100,
+          branches: 87
         },
         'src/module/util/Event/index.ts': {
-          lines: 84,
-          branches: 78
+          lines: 95,
+          branches: 88
         }
       }
     }

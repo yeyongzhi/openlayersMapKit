@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { OMapError, OMapErrorCode } from '../../src/error'
 import Source from '../../src/module/source/Source/index'
 import { OlSource } from '../../src/source/index'
@@ -7,6 +7,10 @@ import { OlSource } from '../../src/source/index'
 class RawSource extends Source<InstanceType<typeof OlSource.XYZ>> {
   constructor() {
     super(new OlSource.XYZ({ url: 'https://example.com/{z}/{x}/{y}.png' }))
+  }
+
+  replace(source: InstanceType<typeof OlSource.XYZ>) {
+    this.setSource(source)
   }
 }
 
@@ -41,6 +45,59 @@ describe('Source base class', () => {
     expect(source.get(123 as unknown as string)).toBeUndefined()
   })
 
+  it('delegates native source state, attribution and event operations', () => {
+    const source = new RawSource()
+    const native = source.getSource()
+    const changed = vi.spyOn(native, 'changed')
+    const callback = vi.fn()
+    native.on('custom', callback)
+
+    source.changed()
+    expect(changed).toHaveBeenCalledOnce()
+    expect(source.dispatchEvent('custom')).toBeUndefined()
+    expect(callback).toHaveBeenCalledOnce()
+
+    source.setAttributions('OMap')
+    expect(source.getAttributions()?.({} as never)).toEqual(['OMap'])
+    expect(source.getAttributionsCollapsible()).toBe(true)
+    expect(source.getRevision()).toBeGreaterThan(0)
+    expect(source.getWrapX()).toBe(true)
+    expect(source.getInterpolate()).toBe(true)
+    expect(source.getResolutions()).toBeInstanceOf(Array)
+    expect(source.getView()).toBeInstanceOf(Promise)
+
+    source.setState('error')
+    expect(source.getState()).toBe('error')
+  })
+
+  it('replaces the wrapped native source through the subclass hook', () => {
+    const source = new RawSource()
+    const replacement = new OlSource.XYZ({ url: 'https://replacement/{z}/{x}/{y}.png' })
+
+    source.replace(replacement)
+
+    expect(source.getSource()).toBe(replacement)
+  })
+
+  it('rejects missing native sources and warns for invalid unset keys', () => {
+    expect(
+      () =>
+        new (class extends Source<InstanceType<typeof OlSource.XYZ>> {
+          constructor() {
+            super(null as never)
+          }
+        })()
+    ).toThrow(OMapError)
+
+    const source = new RawSource()
+    expect(() => source.replace(null as never)).toThrow(OMapError)
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    source.unset(1 as unknown as string)
+    expect(warn).toHaveBeenCalledOnce()
+    warn.mockRestore()
+  })
+
   it('returns an isolated properties snapshot', () => {
     const source = new RawSource()
     source.set('stable', 1)
@@ -65,7 +122,14 @@ describe('Source base class', () => {
 
     for (const action of [
       () => source.refresh(),
+      () => source.changed(),
+      () => source.dispatchEvent('change'),
       () => source.set('x', 1),
+      () => source.unset('x'),
+      () => source.setAttributions('OMap'),
+      () => source.setState('error'),
+      () => source.setProperties({ x: 1 }),
+      () => source.replace(new OlSource.XYZ()),
       () => source.getSource()
     ]) {
       try {
