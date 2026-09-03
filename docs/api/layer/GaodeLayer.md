@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { GaodeLayer } from 'omap'
+import { GaodeLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/GaodeLayer/index.ts`

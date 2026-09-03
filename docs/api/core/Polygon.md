@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Polygon } from 'omap'
+import { Polygon } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Feature/Polygon/index.ts`
@@ -25,11 +25,11 @@ new Polygon(args: Feature<Geometry>)
 | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | `appendLinearRing(linearRingParams: OMapLinearRingGeometryCoordinatesType \| LinearRing<PropertiesType>): void` | 向Polygon中添加LinearRing（内环）                                                       |
 | `getArea(): number`                                                                                             | 返回投影平面上多边形的面积                                                              |
-| `getClosestPoint(point: OMapCoordinateType, _closestPoint?: OMapCoordinateType): Lnglat`                        | 将几何图形中距离传递点最近的点作为坐标返回                                              |
-| `getCoordinates(rightHanded?: boolean): Lnglat[][]`                                                             | 获取多边形的坐标                                                                        |
-| `getFirstCoordinate(): Lnglat`                                                                                  | 获取多边形的第一个坐标（包含内环）                                                      |
+| `getClosestPoint(point: OMapCoordinateType, _closestPoint?: OMapCoordinateType): LngLat`                        | 将几何图形中距离传递点最近的点作为坐标返回                                              |
+| `getCoordinates(rightHanded?: boolean): LngLat[][]`                                                             | 获取多边形的坐标                                                                        |
+| `getFirstCoordinate(): LngLat`                                                                                  | 获取多边形的第一个坐标（包含内环）                                                      |
 | `getInteriorPoint(): Point<PropertiesType>`                                                                     | 返回多边形的内点                                                                        |
-| `getLastCoordinate(): Lnglat`                                                                                   | 获取多边形的最后一个坐标（包含内环）                                                    |
+| `getLastCoordinate(): LngLat`                                                                                   | 获取多边形的最后一个坐标（包含内环）                                                    |
 | `intersectsCoordinate(coordinates: OMapCoordinateType): boolean`                                                | 如果该几何形状包含指定的坐标，则返回 true。如果坐标位于几何形状的边界上，则返回 false。 |
 | `intersectsExtent(extent: Extent): boolean`                                                                     | 线是否在extent范围内                                                                    |
 | `setCoordinates(coordinates: OMapPolygonGeometryCoordinatesType): void`                                         | 设置多边形的坐标                                                                        |

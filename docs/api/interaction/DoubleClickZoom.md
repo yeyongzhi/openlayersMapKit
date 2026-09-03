@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { DoubleClickZoom } from 'omap'
+import { DoubleClickZoom } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/DoubleClickZoom/index.ts`

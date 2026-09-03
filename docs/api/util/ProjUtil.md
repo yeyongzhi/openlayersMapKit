@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { ProjUtil } from 'omap'
+import { ProjUtil } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/util/ProjUtil/index.ts`
@@ -23,7 +23,7 @@ import { ProjUtil } from 'omap'
 
 - `fromLonLat` 把经纬度转为投影坐标，`toLonLat` 把投影坐标转回经纬度。
 - 第二个参数可指定目标投影，默认使用地图的常规投影（EPSG:3857）。
-- 传入坐标既可以是 `[lng, lat]` 数组，也可以是 [`LngLat`](../basic/LngLat.md) 实例；缺少坐标或坐标格式非法时抛出 `OMapError`。
+- 传入坐标既可以是 `[lng, lat]` 数组，也可以是 [`LngLat`](../basic/LngLat.md) 实例；转换失败时返回 `undefined`，调用方需判空。
 
 ## 示例
 

@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Zoom } from 'omap'
+import { Zoom } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/control/Zoom/index.ts`

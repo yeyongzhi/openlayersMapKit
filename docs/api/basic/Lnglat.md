@@ -1,18 +1,16 @@
 # LngLat
 
 > 稳定性：`stable-beta`
->
-> 本导出为实现类 `Lnglat` 的别名，两者 API 完全一致。
 
 经纬度值对象，描述 `[经度, 纬度]` 顺序的地理坐标，是全库坐标输入与输出的统一形态。
 
 ## 引入
 
 ```ts
-import { LngLat } from 'omap'
+import { LngLat } from 'openlayers-map-kit'
 ```
 
-源码：`src/module/basic/Lnglat/index.ts`
+源码：`src/module/basic/LngLat/index.ts`
 
 ## 构造
 
@@ -25,13 +23,13 @@ new LngLat(lnglat: number[])
 
 | 成员                                      | 说明 |
 | ----------------------------------------- | ---- |
-| `from(value: OMapCoordinateType): Lnglat` | —    |
+| `from(value: OMapCoordinateType): LngLat` | —    |
 
 ## 方法
 
 | 方法                                          | 说明                     |
 | --------------------------------------------- | ------------------------ |
-| `clone(): Lnglat`                             | —                        |
+| `clone(): LngLat`                             | —                        |
 | `equals(lnglat: OMapCoordinateType): boolean` | 判断两个经纬度是否相等   |
 | `getLat(): number`                            | 获取纬度                 |
 | `getLng(): number`                            | 获取经度                 |

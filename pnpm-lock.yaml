@@ -77,7 +77,7 @@ importers:
       ol:
         specifier: ^10.6.1
         version: 10.6.1
-      omap:
+      openlayers-map-kit:
         specifier: workspace:*
         version: link:../..
     devDependencies:

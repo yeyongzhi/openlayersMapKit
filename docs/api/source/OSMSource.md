@@ -7,7 +7,7 @@ OpenStreetMap 瓦片数据源
 ## 引入
 
 ```ts
-import { OSMSource } from 'omap'
+import { OSMSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/OSMSource/index.ts`

@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Control } from 'omap'
+import { Control } from 'openlayers-map-kit'
 ```
 
 ## 构造

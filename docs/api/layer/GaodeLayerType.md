@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { GaodeLayerType } from 'omap'
+import { GaodeLayerType } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/GaodeLayer/type.ts`

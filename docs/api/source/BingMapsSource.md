@@ -7,7 +7,7 @@ Bing Maps 瓦片数据源
 ## 引入
 
 ```ts
-import { BingMapsSource } from 'omap'
+import { BingMapsSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/BingMapsSource/index.ts`

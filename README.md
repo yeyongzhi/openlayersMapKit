@@ -21,7 +21,7 @@ OMap 是对 OpenLayers (v10.x) 的面向对象封装，将原生 OpenLayers 功�
 | **构建工具** | Vite 6.3.5 (Rollup 底层) |
 | **输出格式** | UMD + ES Module          |
 | **包管理器** | pnpm                     |
-| **npm 包名** | `omap`                   |
+| **npm 包名** | `openlayers-map-kit`     |
 
 ---
 
@@ -56,8 +56,8 @@ openlayersMapKit/
 │       └── util/                 # 🔧 工具模块
 ├── tests/                        # Vitest 与 ESM/CJS/类型消费测试
 ├── dist/                         # 构建产物
-│   ├── omap.es.mjs               # ES Module 格式
-│   ├── omap.umd.cjs              # CommonJS/UMD 格式（全局名: OMap）
+│   ├── openlayers-map-kit.es.mjs  # ES Module 格式
+│   ├── openlayers-map-kit.umd.cjs # CommonJS/UMD 格式（全局名: OMap）
 │   └── index.d.ts                # TypeScript 类型声明
 ├── global.d.ts                   # 项目级编译时全局声明
 ├── vitest.config.ts              # Vitest 与覆盖率配置
@@ -228,14 +228,14 @@ pnpm build:obf
 ### 使用方式
 
 ```bash
-pnpm add omap ol
+pnpm add openlayers-map-kit ol
 ```
 
 `ol` 是 OMap 的 peer dependency。ESM 项目会复用该实例，避免重复打包 OpenLayers。
 
 ```typescript
 // ES Module
-import { Map, GaodeLayer, GaodeLayerType } from 'omap'
+import { Map, GaodeLayer, GaodeLayerType } from 'openlayers-map-kit'
 
 // UMD (浏览器直接引入)
 // 全局变量: OMap.Map, OMap.GaodeLayer, OMap.GaodeLayerType
@@ -244,7 +244,7 @@ import { Map, GaodeLayer, GaodeLayerType } from 'omap'
 ### 基本示例
 
 ```typescript
-import { Map, GaodeLayer, GaodeLayerType, Draw, DrawMode } from 'omap'
+import { Map, GaodeLayer, GaodeLayerType, Draw, DrawMode } from 'openlayers-map-kit'
 
 // 1. 创建地图
 const map = new Map('map-container', {
@@ -274,13 +274,13 @@ map.addInteraction(draw)
 
 ```
 dist/
-├── omap.es.mjs       # ES Module
-├── omap.umd.cjs      # CommonJS/UMD
+├── openlayers-map-kit.es.mjs  # ES Module
+├── openlayers-map-kit.umd.cjs # CommonJS/UMD
 └── index.d.ts        # TypeScript 类型声明文件
 ```
 
 - ESM 产物将 OpenLayers (`ol`) 作为 peer dependency，由宿主项目复用，避免重复打包和多实例
-- UMD/CJS 产物内置 OpenLayers，确保 `require('omap')` 与独立脚本加载可以直接运行
+- UMD/CJS 产物内置 OpenLayers，确保 `require('openlayers-map-kit')` 与独立脚本加载可以直接运行
 - `pnpm check:consumers` 会验证 ESM、CommonJS 和 TypeScript 声明入口
 - 支持代码混淆：`pnpm build:obf` 同时生成混淆后的 ESM 与 UMD/CJS 产物
 

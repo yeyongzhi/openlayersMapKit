@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Extent } from 'omap'
+import { Extent } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/basic/Extent/index.ts`
@@ -41,14 +41,14 @@ new Extent(lnglat: number[])
 | ----------------------------------------- | ------------------------------ |
 | `clone(): Extent`                         | —                              |
 | `equals(extent: OMapExtentType): boolean` | —                              |
-| `getBottomLeft(): Lnglat`                 | 获取边界范围Extent的左下角位置 |
-| `getBottomRight(): Lnglat`                | 获取边界范围Extent的右下角位置 |
-| `getCenter(): Lnglat`                     | 获取边界范围Extent的中心点位置 |
+| `getBottomLeft(): LngLat`                 | 获取边界范围Extent的左下角位置 |
+| `getBottomRight(): LngLat`                | 获取边界范围Extent的右下角位置 |
+| `getCenter(): LngLat`                     | 获取边界范围Extent的中心点位置 |
 | `getExtent(): OlExtentType`               | —                              |
 | `getHeight(): number`                     | 获取高度信息                   |
 | `getSize(): Size`                         | —                              |
-| `getTopLeft(): Lnglat`                    | 获取边界范围Extent的左上方位置 |
-| `getTopRight(): Lnglat`                   | 获取边界范围Extent的右上方位置 |
+| `getTopLeft(): LngLat`                    | 获取边界范围Extent的左上方位置 |
+| `getTopRight(): LngLat`                   | 获取边界范围Extent的右上方位置 |
 | `getWidth(): number`                      | 获取宽度信息                   |
 | `toArray(): OlExtentType`                 | —                              |
 | `toString(place?: number): string`        | 以字符串的形式输出边界范围     |

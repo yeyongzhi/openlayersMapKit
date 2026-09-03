@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Link } from 'omap'
+import { Link } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/Link/index.ts`

@@ -7,7 +7,7 @@ XYZ 瓦片数据源，按 `{z}/{x}/{y}` 模板请求瓦片。
 ## 引入
 
 ```ts
-import { XYZSource } from 'omap'
+import { XYZSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/XYZ/index.ts`

@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict')
-const { LngLat, Point, VectorSource } = require('omap')
+const { LngLat, Point, VectorSource } = require('openlayers-map-kit')
 
 const coordinate = new LngLat(121, 31)
 const point = new Point(coordinate)

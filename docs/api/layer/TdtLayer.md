@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { TdtLayer } from 'omap'
+import { TdtLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/TdtLayer/index.ts`

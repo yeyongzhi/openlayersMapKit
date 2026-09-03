@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Draw } from 'omap'
+import { Draw } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/Draw/index.ts`

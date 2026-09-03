@@ -484,7 +484,7 @@ function renderConst(cls, all, note) {
   if (desc) out.push(desc, '')
   out.push('## 引入', '')
   out.push('```ts')
-  out.push('import { ' + cls.exportName + " } from 'omap'")
+  out.push('import { ' + cls.exportName + " } from 'openlayers-map-kit'")
   out.push('```', '')
   out.push('源码：`' + cls.file + '`', '')
   out.push('## 成员', '')
@@ -536,7 +536,7 @@ function render(cls, all) {
   if (desc) out.push(desc, '')
   out.push('## 引入', '')
   out.push('```ts')
-  out.push(`import { ${cls.exportName} } from 'omap'`)
+  out.push(`import { ${cls.exportName} } from 'openlayers-map-kit'`)
   out.push('```', '')
   if (!cls.internal) {
     out.push(`源码：\`${cls.file}\``, '')

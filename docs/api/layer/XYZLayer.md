@@ -7,7 +7,7 @@ XYZ 瓦片图层，按 `{z}/{x}/{y}` 模板加载栅格瓦片。
 ## 引入
 
 ```ts
-import { XYZLayer } from 'omap'
+import { XYZLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/XYZLayer/index.ts`

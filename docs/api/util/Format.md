@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Format } from 'omap'
+import { Format } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/util/Format/index.ts`

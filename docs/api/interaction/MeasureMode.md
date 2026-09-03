@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { MeasureMode } from 'omap'
+import { MeasureMode } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/Measure/type.ts`

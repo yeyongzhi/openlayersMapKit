@@ -4,10 +4,10 @@
 
 ### 使用稳定根入口
 
-所有公开 API 均从 `omap` 导入，不要依赖 `src/module/**` 或构建产物内部路径：
+所有公开 API 均从 `openlayers-map-kit` 导入，不要依赖 `src/module/**` 或构建产物内部路径：
 
 ```ts
-import { LngLat, Map, VectorLayer, VectorSource } from 'omap'
+import { LngLat, Map, VectorLayer, VectorSource } from 'openlayers-map-kit'
 ```
 
 ### `Lnglat` 更名
@@ -33,4 +33,4 @@ map.dispose()
 
 ### 模块系统
 
-包同时支持 ESM 和 CommonJS。新项目优先使用 ESM；CommonJS 可使用 `require('omap')`。不要直接引用 `dist` 文件名。
+包同时支持 ESM 和 CommonJS。新项目优先使用 ESM；CommonJS 可使用 `require('openlayers-map-kit')`。不要直接引用 `dist` 文件名。

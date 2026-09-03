@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { UrlTileSource } from 'omap'
+import { UrlTileSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/legacy/UrlTileSource/index.ts`

@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { ImageSource } from 'omap'
+import { ImageSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/ImageSource/index.ts`

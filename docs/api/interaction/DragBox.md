@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { DragBox } from 'omap'
+import { DragBox } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/DragBox/index.ts`

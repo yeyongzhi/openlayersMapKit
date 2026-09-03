@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { DragPan } from 'omap'
+import { DragPan } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/DragPan/index.ts`

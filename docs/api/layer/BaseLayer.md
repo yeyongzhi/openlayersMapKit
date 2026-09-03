@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { BaseLayer } from 'omap'
+import { BaseLayer } from 'openlayers-map-kit'
 ```
 
 ## 构造

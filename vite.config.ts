@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
         entry: path.resolve(__dirname, 'src/index.ts'),
         name: 'OMap',
         formats: [isEsmBuild ? 'es' : 'umd'],
-        fileName: () => (isEsmBuild ? 'omap.es.mjs' : 'omap.umd.cjs')
+        fileName: () => (isEsmBuild ? 'openlayers-map-kit.es.mjs' : 'openlayers-map-kit.umd.cjs')
       },
       rollupOptions: {
         // ESM 复用宿主项目的 OpenLayers；UMD/CJS 内置 OpenLayers，保持 require 与独立加载兼容。

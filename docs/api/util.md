@@ -3,7 +3,15 @@
 Util 模块提供 SDK 内部与公开可用的通用基础设施：事件管理、格式转换、投影换算、token 管理与统一错误类型。
 
 ```ts
-import { Event, Format, OMapFormatType, ProjUtil, MapToken, OMapError, OMapErrorCode } from 'omap'
+import {
+  Event,
+  Format,
+  OMapFormatType,
+  ProjUtil,
+  MapToken,
+  OMapError,
+  OMapErrorCode
+} from 'openlayers-map-kit'
 ```
 
 > **稳定性**：`Event`、`Format`、`ProjUtil`、`MapToken`、`OMapError`/`OMapErrorCode` 为 `stable-beta`；`LnglatUtil` 为辅助工具；`Disposable`/`Removable` 为接口约定（不单独验收）。
@@ -88,7 +96,7 @@ new Format(type: typeof OMapFormatType.KML, options?: OMapFormatKMLOptions)
 地图服务 token 管理（当前支持天地图 `tdt`）。写入时同步持久化到 `window.OMapToken`，便于多实例共享。
 
 ```ts
-import { MapToken } from 'omap'
+import { MapToken } from 'openlayers-map-kit'
 MapToken.tdt = '你的天地图密钥'
 ```
 
@@ -117,7 +125,7 @@ MapToken.tdt = '你的天地图密钥'
 SDK 统一错误类型与稳定错误码，便于调用方按 `code` 区分处理。
 
 ```ts
-import { OMapError, OMapErrorCode } from 'omap'
+import { OMapError, OMapErrorCode } from 'openlayers-map-kit'
 
 throw new OMapError('参数非法', OMapErrorCode.InvalidParameter)
 ```

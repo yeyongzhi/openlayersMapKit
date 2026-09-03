@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { HeatmapLayer } from 'omap'
+import { HeatmapLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/HeatmapLayer/index.ts`

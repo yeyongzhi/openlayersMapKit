@@ -7,7 +7,7 @@ WMS 单图数据源
 ## 引入
 
 ```ts
-import { ImageWMSSource } from 'omap'
+import { ImageWMSSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/ImageWMSSource/index.ts`

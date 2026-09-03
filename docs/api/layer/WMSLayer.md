@@ -7,7 +7,7 @@ WMS 图层，加载 OGC Web Map Service 提供的地图图片。
 ## 引入
 
 ```ts
-import { WMSLayer } from 'omap'
+import { WMSLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/WMSLayer/index.ts`

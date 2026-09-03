@@ -14,7 +14,7 @@ OpenLayers 与 OMap 类实例不适合深层响应式代理。使用 `shallowRef
 
 ## ESM 或 CommonJS 加载失败
 
-只从包根入口 `omap` 导入。确认 Node.js 版本不低于 20，并重新安装与 lockfile 一致的依赖。可运行 `pnpm build && pnpm check:consumers` 复现仓库的消费验证。
+只从包根入口 `openlayers-map-kit` 导入。确认 Node.js 版本不低于 20，并重新安装与 lockfile 一致的依赖。可运行 `pnpm build && pnpm check:consumers` 复现仓库的消费验证。
 
 ## 类型与运行时不一致
 

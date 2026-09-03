@@ -4,7 +4,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, shallowRef, useTemplateRef } from 'vue'
 import 'ol/ol.css'
-import { GaodeLayer, GaodeLayerType, Map as OMap } from 'omap'
+import { GaodeLayer, GaodeLayerType, Map as OMap } from 'openlayers-map-kit'
 
 const mapElement = useTemplateRef<HTMLDivElement>('mapElement')
 const map = shallowRef<OMap>()

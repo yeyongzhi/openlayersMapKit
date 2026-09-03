@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { DataTileSource } from 'omap'
+import { DataTileSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/DataTileSource/index.ts`

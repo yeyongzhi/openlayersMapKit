@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Size } from 'omap'
+import { Size } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/basic/Size/index.ts`

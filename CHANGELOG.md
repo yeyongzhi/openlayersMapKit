@@ -18,6 +18,7 @@
 
 ### Changed
 
+- npm 包名由已被占用的 `omap` 调整为 `openlayers-map-kit`，安装、导入、构建产物、示例、消费者测试与 API 文档入口同步更新。
 - **交互事件桥接改为按事件类型复用**：`Interaction` 基类的原生监听现在每个事件类型只注册一份，所有订阅者共享它；最后一个订阅者退订或交互 `dispose()` 时自动注销。此前每调用一次 `on()`/`once()` 都会新建一份原生监听，N 个订阅会让一次原生事件触发 N 次派发、每个回调被执行 N 次（共 N² 次）。
 - **交互构造选项 `active` 全量生效**：此前仅 `Draw`、`Modify`、`Select` 应用该选项，其余 9 个交互（`DragBox`、`DragPan`、`DragZoom`、`DoubleClickZoom`、`InteractionExtent`、`KeyboardZoom`、`Link`、`Measure`、`MouseWheelZoom`）会忽略它。
 - 交互构造选项 `id`、`active` 不再透传给 OpenLayers，避免污染原生交互属性字典。

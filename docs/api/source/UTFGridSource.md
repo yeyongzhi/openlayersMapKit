@@ -7,7 +7,7 @@ UTFGrid 数据源，加载交互网格数据以实现像素级的要素信息查
 ## 引入
 
 ```ts
-import { UTFGridSource } from 'omap'
+import { UTFGridSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/UTFGridSource/index.ts`

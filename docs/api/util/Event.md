@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Event } from 'omap'
+import { Event } from 'openlayers-map-kit'
 ```
 
 ## 构造

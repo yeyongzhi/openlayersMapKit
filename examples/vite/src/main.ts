@@ -11,7 +11,7 @@ import {
   Style,
   VectorLayer,
   Zoom
-} from 'omap'
+} from 'openlayers-map-kit'
 import '../../shared/example.css'
 
 const BEIJING_CENTER: [number, number] = [116.397428, 39.90923]

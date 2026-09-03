@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Color } from 'omap'
+import { Color } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/basic/Color/index.ts`

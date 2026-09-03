@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { VectorImageLayer } from 'omap'
+import { VectorImageLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/VectorImageLayer/index.ts`

@@ -7,7 +7,7 @@ WMTS 图层，加载 OGC Web Map Tile Service 提供的瓦片。
 ## 引入
 
 ```ts
-import { WMTSLayer } from 'omap'
+import { WMTSLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/WMTSLayer/index.ts`

@@ -17,7 +17,7 @@ import {
   Popup,
   Select,
   VectorLayer
-} from 'omap'
+} from 'openlayers-map-kit'
 
 const mapElement = useTemplateRef<HTMLDivElement>('mapElement')
 const popupElement = useTemplateRef<HTMLDivElement>('popupElement')

@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { VectorTileLayer } from 'omap'
+import { VectorTileLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/VectorTileLayer/index.ts`

@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { MultiPoint } from 'omap'
+import { MultiPoint } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Feature/MultiPoint/index.ts`
@@ -24,10 +24,10 @@ new MultiPoint(args: Feature<Geometry>)
 | 方法                                                                                            | 说明             |
 | ----------------------------------------------------------------------------------------------- | ---------------- |
 | `appendPoint(pointOrpointCoordinates: OMapCoordinateType \| Point<PropertiesType>): void`       | —                |
-| `getClosestPoint(pointOrpointCoordinates: OMapCoordinateType \| Point<PropertiesType>): Lnglat` | —                |
-| `getCoordinates(): Lnglat[]`                                                                    | 获取多个点的坐标 |
-| `getFirstCoordinate(): Lnglat`                                                                  | —                |
-| `getLastCoordinate(): Lnglat`                                                                   | —                |
+| `getClosestPoint(pointOrpointCoordinates: OMapCoordinateType \| Point<PropertiesType>): LngLat` | —                |
+| `getCoordinates(): LngLat[]`                                                                    | 获取多个点的坐标 |
+| `getFirstCoordinate(): LngLat`                                                                  | —                |
+| `getLastCoordinate(): LngLat`                                                                   | —                |
 | `getPoint(index: number): Point<PropertiesType>`                                                | —                |
 | `intersectsCoordinate(coordinate: OMapCoordinateType): boolean`                                 | —                |
 | `intersectsExtent(extent: OMapExtentType): boolean`                                             | —                |

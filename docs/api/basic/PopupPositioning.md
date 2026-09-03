@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { PopupPositioning } from 'omap'
+import { PopupPositioning } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/basic/Popup/type.ts`

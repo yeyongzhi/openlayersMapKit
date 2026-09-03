@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Select } from 'omap'
+import { Select } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/Select/index.ts`

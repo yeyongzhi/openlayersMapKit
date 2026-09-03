@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { InteractionExtent } from 'omap'
+import { InteractionExtent } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/Extent/index.ts`

@@ -7,7 +7,7 @@ TileJSON 瓦片数据源
 ## 引入
 
 ```ts
-import { TileJSONSource } from 'omap'
+import { TileJSONSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/TileJSONSource/index.ts`

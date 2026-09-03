@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { ImageStaticSource } from 'omap'
+import { ImageStaticSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/ImageStaticSource/index.ts`

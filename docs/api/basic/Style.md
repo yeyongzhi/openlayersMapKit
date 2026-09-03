@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Style } from 'omap'
+import { Style } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/basic/Style/index.ts`

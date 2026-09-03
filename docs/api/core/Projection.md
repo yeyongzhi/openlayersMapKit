@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Projection } from 'omap'
+import { Projection } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Projection/index.ts`
@@ -17,6 +17,12 @@ import { Projection } from 'omap'
 ```ts
 new Projection(proj: string | Options)
 ```
+
+## 属性
+
+| 属性                                   | 说明 |
+| -------------------------------------- | ---- |
+| `resolvedProjectionection: Projection` | —    |
 
 ## 方法
 

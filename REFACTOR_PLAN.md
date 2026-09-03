@@ -1,6 +1,6 @@
 # OMap 产品化改造与发布实施计划
 
-> 项目：`openlayersMapKit` / npm 包：`omap`  
+> 项目：`openlayersMapKit` / npm 包：`openlayers-map-kit`  
 > 基线版本：`1.0.0-beta1`（历史未发布版本）  
 > 当前开发版本：`0.1.0-beta.1`（内部预发布版本，公开发布前仍需满足下述门禁）  
 > 计划建立：2026-08-20  

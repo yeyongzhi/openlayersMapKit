@@ -17,7 +17,7 @@ import {
   Polygon,
   Style,
   VectorLayer
-} from 'omap'
+} from 'openlayers-map-kit'
 
 const mapElement = useTemplateRef<HTMLDivElement>('mapElement')
 const map = shallowRef<OMap>()

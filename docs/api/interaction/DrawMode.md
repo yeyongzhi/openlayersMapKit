@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { DrawMode } from 'omap'
+import { DrawMode } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/Draw/type.ts`

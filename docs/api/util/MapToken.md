@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { MapToken } from 'omap'
+import { MapToken } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/util/MapToken/index.ts`
@@ -21,7 +21,7 @@ import { MapToken } from 'omap'
 ## 示例
 
 ```ts
-import { MapToken, TdtLayer, TdtLayerType } from 'omap'
+import { MapToken, TdtLayer, TdtLayerType } from 'openlayers-map-kit'
 
 // 使用天地图图层前先配置 token
 MapToken.tdt = '你的天地图 token'

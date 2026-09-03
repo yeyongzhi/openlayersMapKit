@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { ImageTileSource } from 'omap'
+import { ImageTileSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/ImageTileSource/index.ts`

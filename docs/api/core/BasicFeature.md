@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { BasicFeature } from 'omap'
+import { BasicFeature } from 'openlayers-map-kit'
 ```
 
 ## 构造

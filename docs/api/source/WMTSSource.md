@@ -7,7 +7,7 @@ WMTS 瓦片数据源，按矩阵集请求 OGC WMTS 瓦片。
 ## 引入
 
 ```ts
-import { WMTSSource } from 'omap'
+import { WMTSSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/WMTSSource/index.ts`

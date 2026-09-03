@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { KeyboardZoom } from 'omap'
+import { KeyboardZoom } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/KeyboardZoom/index.ts`

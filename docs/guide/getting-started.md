@@ -3,7 +3,7 @@
 ## 安装
 
 ```bash
-pnpm add omap ol
+pnpm add openlayers-map-kit ol
 ```
 
 `ol` 是 OMap 的运行时依赖和底层地图引擎。
@@ -12,7 +12,7 @@ pnpm add omap ol
 
 ```ts
 import 'ol/ol.css'
-import { GaodeLayer, GaodeLayerType, Map } from 'omap'
+import { GaodeLayer, GaodeLayerType, Map } from 'openlayers-map-kit'
 
 const map = new Map('map', {
   view: {

@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { LayerGroup } from 'omap'
+import { LayerGroup } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/LayerGroup/index.ts`
@@ -24,7 +24,6 @@ new LayerGroup(id: LayerGroupIdType | null, layers: LayerGroupLayer[])
 | 属性                           | 说明     |
 | ------------------------------ | -------- |
 | `id: LayerGroupIdType \| null` | 图层组id |
-| `layers: LayerGroupLayer[]`    | —        |
 | `map: Map \| null`             | —        |
 
 ## 方法

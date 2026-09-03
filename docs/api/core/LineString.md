@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { LineString } from 'omap'
+import { LineString } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Feature/LineString/index.ts`
@@ -24,11 +24,11 @@ new LineString(args: Feature<Geometry>)
 | 方法                                                                          | 说明                     |
 | ----------------------------------------------------------------------------- | ------------------------ |
 | `appendCoordinate(coordinates: OMapCoordinateType): void`                     | 追加坐标                 |
-| `getCoordinateAt(fraction: number, dest: OlCoordinateType \| Lnglat): Lnglat` | 获取线段指定位置的坐标点 |
-| `getCoordinateAtM(m: number, extrapolate?: boolean): Lnglat \| null`          | —                        |
-| `getCoordinates(): Lnglat[]`                                                  | 获取线的坐标             |
-| `getFirstCoordinate(): Lnglat`                                                | 获取线的第一个坐标       |
-| `getLastCoordinate(): Lnglat`                                                 | 获取线的最后一个坐标     |
+| `getCoordinateAt(fraction: number, dest: OlCoordinateType \| LngLat): LngLat` | 获取线段指定位置的坐标点 |
+| `getCoordinateAtM(m: number, extrapolate?: boolean): LngLat \| null`          | —                        |
+| `getCoordinates(): LngLat[]`                                                  | 获取线的坐标             |
+| `getFirstCoordinate(): LngLat`                                                | 获取线的第一个坐标       |
+| `getLastCoordinate(): LngLat`                                                 | 获取线的最后一个坐标     |
 | `getLength(): number`                                                         | —                        |
 | `intersectsCoordinate(coordinates: OMapCoordinateType): boolean`              | —                        |
 | `intersectsExtent(extent: OMapExtentType): boolean`                           | 线是否在extent范围内     |

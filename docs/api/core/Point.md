@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Point } from 'omap'
+import { Point } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Feature/Point/index.ts`
@@ -23,9 +23,9 @@ new Point(args: Feature<Geometry>)
 
 | 方法                                                             | 说明                                       |
 | ---------------------------------------------------------------- | ------------------------------------------ |
-| `getCoordinates(): Lnglat`                                       | 获取点的坐标                               |
-| `getFirstCoordinate(): Lnglat`                                   | 获取点的第一个坐标                         |
-| `getLastCoordinate(): Lnglat`                                    | 获取点的最后一个坐标                       |
+| `getCoordinates(): LngLat`                                       | 获取点的坐标                               |
+| `getFirstCoordinate(): LngLat`                                   | 获取点的第一个坐标                         |
+| `getLastCoordinate(): LngLat`                                    | 获取点的最后一个坐标                       |
 | `intersectsCoordinate(coordinates: OMapCoordinateType): boolean` | 点是否与给定坐标相交（即是否落在同一坐标） |
 | `intersectsExtent(extent: Extent): boolean`                      | 点是否在extent范围内                       |
 | `setCoordinates(coordinates: OMapCoordinateType): void`          | 设置点的坐标                               |

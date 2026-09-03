@@ -5,7 +5,7 @@ import path from 'node:path'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const vendor = path.join(root, 'examples/html/public/vendor')
 const files = [
-  ['dist/omap.umd.cjs', 'omap.umd.js'],
+  ['dist/openlayers-map-kit.umd.cjs', 'openlayers-map-kit.umd.js'],
   ['node_modules/ol/ol.css', 'ol.css'],
   ['examples/shared/example.css', 'example.css']
 ]

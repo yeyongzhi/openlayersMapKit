@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { DragZoom } from 'omap'
+import { DragZoom } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/DragZoom/index.ts`

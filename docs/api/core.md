@@ -3,7 +3,7 @@
 Core 包含地图门面、投影和几何 Feature 体系。`Map` 是对外唯一门面，复杂职责下沉到 manager / controller / query / adapter；Feature 是 OpenLayers 几何的强类型包装。
 
 ```ts
-import { Map, Point, Polygon, Projection, LngLat } from 'omap'
+import { Map, Point, Polygon, Projection, LngLat } from 'openlayers-map-kit'
 ```
 
 > **稳定性**：Core 模块当前为 `stable-beta`。公开 API 在 `0.x` 阶段可能仍有调整，但 major 版本前会保持兼容。
@@ -129,7 +129,7 @@ import {
   MultiPolygon,
   LinearRing,
   Circle
-} from 'omap'
+} from 'openlayers-map-kit'
 
 const p = new Point([116.39, 39.9], { name: '北京' })
 p.getId() // string | number | null

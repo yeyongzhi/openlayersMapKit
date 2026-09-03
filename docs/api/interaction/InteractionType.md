@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { InteractionType } from 'omap'
+import { InteractionType } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/constant.ts`

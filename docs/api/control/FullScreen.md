@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { FullScreen } from 'omap'
+import { FullScreen } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/control/FullScreen/index.ts`

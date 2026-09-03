@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { MouseWheelZoom } from 'omap'
+import { MouseWheelZoom } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/MouseWheelZoom/index.ts`

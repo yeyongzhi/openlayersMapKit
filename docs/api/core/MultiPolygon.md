@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { MultiPolygon } from 'omap'
+import { MultiPolygon } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Feature/MultiPolygon/index.ts`
@@ -25,8 +25,8 @@ new MultiPolygon(args: Feature<Geometry>)
 | ---------------------------------------------------------------------------- | -------------------------------- |
 | `getArea(): number`                                                          | 返回多个多边形的投影平面面积之和 |
 | `getCoordinates(): OMapMultiPolygonGeometryCoordinatesType`                  | 获取多个多边形的坐标             |
-| `getFirstCoordinate(): Lnglat`                                               | 获取多个多边形的第一个坐标       |
-| `getLastCoordinate(): Lnglat`                                                | 获取多个多边形的最后一个坐标     |
+| `getFirstCoordinate(): LngLat`                                               | 获取多个多边形的第一个坐标       |
+| `getLastCoordinate(): LngLat`                                                | 获取多个多边形的最后一个坐标     |
 | `intersectsCoordinate(coordinates: OMapCoordinateType): boolean`             | 多多边形是否包含给定坐标         |
 | `intersectsExtent(extent: OMapExtentType): boolean`                          | 多多边形是否与给定范围相交       |
 | `setCoordinates(coordinates: OMapMultiPolygonGeometryCoordinatesType): void` | 设置多个多边形的坐标             |

@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { VectorSource } from 'omap'
+import { VectorSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/VectorSource/index.ts`

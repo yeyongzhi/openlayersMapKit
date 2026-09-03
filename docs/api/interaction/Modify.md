@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Modify } from 'omap'
+import { Modify } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/interaction/Modify/index.ts`

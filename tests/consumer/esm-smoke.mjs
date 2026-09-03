@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { LngLat, Point, VectorSource } from 'omap'
+import { LngLat, Point, VectorSource } from 'openlayers-map-kit'
 
 const coordinate = new LngLat(120, 30)
 const point = new Point(coordinate)

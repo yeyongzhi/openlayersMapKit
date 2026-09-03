@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { MultiLineString } from 'omap'
+import { MultiLineString } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Feature/MultiLineString/index.ts`
@@ -23,9 +23,9 @@ new MultiLineString(args: Feature<Geometry>)
 
 | 方法                                                                            | 说明                           |
 | ------------------------------------------------------------------------------- | ------------------------------ |
-| `getCoordinates(): Lnglat[][]`                                                  | 获取多个线串的坐标             |
-| `getFirstCoordinate(): Lnglat`                                                  | 获取多个线串的第一个坐标       |
-| `getLastCoordinate(): Lnglat`                                                   | 获取多个线串的最后一个坐标     |
+| `getCoordinates(): LngLat[][]`                                                  | 获取多个线串的坐标             |
+| `getFirstCoordinate(): LngLat`                                                  | 获取多个线串的第一个坐标       |
+| `getLastCoordinate(): LngLat`                                                   | 获取多个线串的最后一个坐标     |
 | `getLength(): number`                                                           | 返回多个线串的投影平面长度之和 |
 | `intersectsCoordinate(coordinates: OMapCoordinateType): boolean`                | 多线串是否包含给定坐标         |
 | `intersectsExtent(extent: OMapExtentType): boolean`                             | 多线串是否与给定范围相交       |

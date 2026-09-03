@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Pixel } from 'omap'
+import { Pixel } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/basic/Pixel/index.ts`

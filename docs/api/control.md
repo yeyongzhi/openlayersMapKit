@@ -8,7 +8,7 @@ Control 模块提供 OpenLayers 控件的强类型包装，并遵循统一的生
 > **稳定性**：`Control` 为内部基类（文档辅助，不单独验收）；`Zoom`、`FullScreen` 当前为 `stable-beta`。
 
 ```ts
-import { FullScreen, Map, Zoom } from 'omap'
+import { FullScreen, Map, Zoom } from 'openlayers-map-kit'
 
 const map = new Map(target, { controls: [] })
 const zoom = new Zoom()

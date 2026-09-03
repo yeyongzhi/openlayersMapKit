@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Circle } from 'omap'
+import { Circle } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Feature/Circle/index.ts`
@@ -22,8 +22,8 @@ new Circle(centerOrFeature: OMapCoordinateType | Feature<Geometry>, radius?: num
 
 | 方法                                                                   | 说明                 |
 | ---------------------------------------------------------------------- | -------------------- |
-| `getCenter(): Lnglat`                                                  | —                    |
-| `getCoordinates(): Lnglat`                                             | 获取圆的圆心坐标     |
+| `getCenter(): LngLat`                                                  | —                    |
+| `getCoordinates(): LngLat`                                             | 获取圆的圆心坐标     |
 | `getRadius(): number`                                                  | —                    |
 | `intersectsCoordinate(coordinates: OMapCoordinateType): boolean`       | 圆是否包含给定坐标   |
 | `intersectsExtent(extent: OMapExtentType): boolean`                    | 圆是否与给定范围相交 |

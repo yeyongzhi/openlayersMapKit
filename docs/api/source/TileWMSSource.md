@@ -7,7 +7,7 @@ WMS 瓦片数据源，以瓦片方式请求 OGC WMS 服务。
 ## 引入
 
 ```ts
-import { TileWMSSource } from 'omap'
+import { TileWMSSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/TileWMSSource/index.ts`

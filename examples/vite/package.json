@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "ol": "^10.6.1",
-    "omap": "workspace:*"
+    "openlayers-map-kit": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

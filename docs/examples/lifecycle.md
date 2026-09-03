@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { onActivated, onMounted, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
 import 'ol/ol.css'
-import { GaodeLayer, GaodeLayerType, Map as OMap } from 'omap'
+import { GaodeLayer, GaodeLayerType, Map as OMap } from 'openlayers-map-kit'
 
 const props = defineProps<{ sceneId: string }>()
 

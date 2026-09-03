@@ -2,12 +2,12 @@
 
 > 稳定性：`stable-beta`
 
-聚合数据源
+聚合数据源 内部源可为 omap `VectorSource` 或原生 `ol/source/Vector` 实例。
 
 ## 引入
 
 ```ts
-import { ClusterSource } from 'omap'
+import { ClusterSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/ClusterSource/index.ts`

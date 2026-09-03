@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { LinearRing } from 'omap'
+import { LinearRing } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/core/Feature/LinearRing/index.ts`
@@ -22,9 +22,9 @@ new LinearRing(coordinatesOrFeature: Feature<Geometry> | OMapLinearRingGeometryC
 
 | 方法                                                                       | 说明                         |
 | -------------------------------------------------------------------------- | ---------------------------- |
-| `getCoordinates(): Lnglat[]`                                               | 获取LinearRing的坐标         |
-| `getFirstCoordinate(): Lnglat`                                             | 获取LinearRing的第一个坐标   |
-| `getLastCoordinate(): Lnglat`                                              | 获取LinearRing的最后一个坐标 |
+| `getCoordinates(): LngLat[]`                                               | 获取LinearRing的坐标         |
+| `getFirstCoordinate(): LngLat`                                             | 获取LinearRing的第一个坐标   |
+| `getLastCoordinate(): LngLat`                                              | 获取LinearRing的最后一个坐标 |
 | `intersectsCoordinate(coordinates: OMapCoordinateType): boolean`           | LinearRing是否包含给定坐标   |
 | `intersectsExtent(extent: OMapExtentType): boolean`                        | LinearRing是否与给定范围相交 |
 | `setCoordinates(coordinates: OMapLinearRingGeometryCoordinatesType): void` | 设置LinearRing的坐标         |

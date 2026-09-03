@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { ImageLayer } from 'omap'
+import { ImageLayer } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/layer/ImageLayer/index.ts`

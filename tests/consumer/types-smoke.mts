@@ -5,7 +5,7 @@ import {
   VectorSource,
   type Disposable,
   type PropertiesType
-} from 'omap'
+} from 'openlayers-map-kit'
 
 const properties: PropertiesType = { category: 'station' }
 const point = new Point(new LngLat(120, 30), properties)

@@ -7,7 +7,7 @@ OGC 矢量瓦片数据源，按 OGC 矢量瓦片规范请求数据。
 ## 引入
 
 ```ts
-import { OGCVectorTileSource } from 'omap'
+import { OGCVectorTileSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/OGCVectorTileSource/index.ts`

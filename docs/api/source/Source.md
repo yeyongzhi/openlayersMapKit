@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { Source } from 'omap'
+import { Source } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/Source/index.ts`

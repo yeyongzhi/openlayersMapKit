@@ -7,7 +7,7 @@
 ## 引入
 
 ```ts
-import { TileDebugSource } from 'omap'
+import { TileDebugSource } from 'openlayers-map-kit'
 ```
 
 源码：`src/module/source/TileSource/subClass/TileDebugSource/index.ts`
