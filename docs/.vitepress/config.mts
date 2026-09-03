@@ -27,6 +27,7 @@ export default defineConfig({
             { text: '故障排查', link: '/guide/troubleshooting' },
             { text: '版本与发布', link: '/guide/versioning' },
             { text: '发布状态', link: '/guide/release-status' },
+            { text: '0.1.0-beta.1 发布说明', link: '/guide/release-notes-0.1.0-beta.1' },
             { text: '历史模块审计', link: '/guide/module-audit' }
           ]
         }

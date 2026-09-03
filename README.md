@@ -2,7 +2,7 @@
 
 > 基于 OpenLayers 封装的地图引擎开发包，提供一系列面向对象的地图开发类，用于快速开发地图应用。
 
-[![Version](https://img.shields.io/badge/version-1.0.0--beta1-blue)](package.json)
+[![Version](https://img.shields.io/badge/version-0.1.0--beta.1-blue)](package.json)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![OpenLayers](https://img.shields.io/badge/OpenLayers-10.6.1-orange)](https://openlayers.org/)
 

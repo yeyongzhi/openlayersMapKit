@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.1.0-beta.1] - 2026-09-03
+
 ### Added
 
 - 增加公开 `OMapError`/`OMapErrorCode`，并为 Measure 提供精确事件 payload 与结束结果快照。
@@ -55,6 +57,5 @@
   - 这些符号从未进入公开 API 契约，且 SDK 内部各模块仍直接从各自的 `type.ts` 引入，故本次改动不影响 `src` 内部实现；但若有外部消费方曾直接 `import` 上述符号，升级后将无法再作为值使用（需改为引用其所属 `type.ts` 或对应公开选项类型）。
 - 移除 `DragBox/handle.ts` 的模块级单例 `DragBoxParamsBoxEndHandle`，改为工厂函数 `createDragBoxParamsBoxEndHandle()`。该符号从未由包根导出，仅内部使用；若外部曾直接从源码路径引入，请改为 `DragBox` 构造选项 `onBoxEnd`。
 
-## [0.1.0-beta.1] - Unreleased
-
-内部联调版本。完成公开 Beta 门禁前不会发布至 npm。
+[Unreleased]: https://github.com/yeyongzhi/openlayersMapKit/compare/v0.1.0-beta.1...HEAD
+[0.1.0-beta.1]: https://github.com/yeyongzhi/openlayersMapKit/releases/tag/v0.1.0-beta.1
