@@ -62,3 +62,24 @@ describe('Draw lifecycle', () => {
     expect(draw.getFeatures()).toEqual([])
   })
 })
+
+// OpenLayers emits drawend before it inserts the completed feature into the source.
+describe('Draw completion contract', () => {
+  it('emits once with a complete snapshot and does not synthesize events for source additions', () => {
+    const draw = new Draw(DrawMode.LineString)
+    const layer = draw.getLayer()!
+    layer.setTarget(draw)
+    const point = new Point([120, 30])
+    const callback = vi.fn()
+    draw.on('drawend', callback)
+    draw.getInteraction().dispatchEvent({ type: 'drawend', feature: point.getFeature() })
+    layer.getSource()!.addFeature(point.getFeature())
+
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback.mock.calls[0][0].feature).toBe(point)
+    expect(callback.mock.calls[0][0].features).toEqual([point])
+    layer.addFeature(new Point([121, 31]))
+    expect(callback).toHaveBeenCalledTimes(1)
+    draw.dispose()
+  })
+})

@@ -13,6 +13,10 @@ dist-ssr
 coverage
 .pnpm-store
 .tmp-api-audit
+.tmp-package-consumer
+artifacts
+playwright-report
+test-results
 docs/.vitepress/cache
 docs/.vitepress/dist
 docs/.vitepress/.temp

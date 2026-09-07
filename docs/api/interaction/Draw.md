@@ -71,15 +71,15 @@ new Draw(mode: OMapDrawModeType, params?: OMapDrawParamsType)
 - 绘制类型见 [`DrawMode`](./DrawMode.md)。
 - 交互需通过 `Map.addInteraction()` 挂载；不再使用时先 `remove()`，彻底释放用 `dispose()`。
 - 绘制完成的要素通常通过事件回调获取。
+- `drawend` 每次完成只派发一次；事件的 `features` 快照包含新完成的 Feature。事件沿用 OpenLayers 时序，在 source 写入前触发；此时请读事件快照，回调结束后再读取图层集合。程序化添加 Feature 不会触发 `drawend`。
 
 ## 示例
 
 ```ts
-const draw = new Draw({ mode: DrawMode.Polygon })
-
+const draw = new Draw(DrawMode.Polygon)
 map.addInteraction(draw)
-draw.on('drawend', (feature) => {
-  vectorLayer.addFeature(feature)
+draw.on('drawend', (event) => {
+  console.log(event.feature, event.features)
 })
 ```
 

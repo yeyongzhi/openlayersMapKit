@@ -24,8 +24,6 @@ import type { BaseLayerPropertiesType } from '../BaseLayer/type'
 import type BaseFeature from '../../core/Feature/BasicFeature/index'
 import VectorSource from '../../source/VectorSource/index'
 import Draw from '../../interaction/Draw/index'
-import { DrawEventType } from '../../interaction/Draw/type'
-import { handleInteractionDrawEvent } from '../../interaction/Draw/handle'
 import Measure from '../../interaction/Measure/index'
 import Extent from '../../basic/Extent/index'
 import type { OMapExtentType } from '../../basic/Extent/type'
@@ -83,13 +81,6 @@ export default class VectorLayer<
           )
           if (!basicFeature) {
             warn_(createMessage('syncFeatureFromOlFeature', '根据olFeature同步BasicFeature出错'))
-          }
-          // 绘制结束事件 需要在 addfeature 事件之后 触发，才能获取到完整的 feature
-          if (this.target instanceof Draw && this.target.getActive()) {
-            this.target.events.emit(
-              DrawEventType.drawEnd,
-              handleInteractionDrawEvent(this.target, DrawEventType.drawEnd, { feature })
-            )
           }
         }
       }

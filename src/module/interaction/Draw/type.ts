@@ -90,7 +90,7 @@ export type OlDrawEventPayloadType =
   | ObjectEvent
   | BaseEvent
   /**
-   * VectorLayer 在 addfeature 之后合成 drawEnd 事件时构造的最小 payload（仅含 feature）
+   * 最小 Feature 事件载荷，保留给适配器调用者使用
    */
   | { feature: OlFeature<OlGeometry.Geometry> }
 
@@ -102,7 +102,7 @@ export interface OMapDrawEvent {
   type: OMapInteractionDrawEventType
   /** 触发事件的 Draw 实例 */
   target: Draw
-  /** 绘制图层当前的全部 Feature */
+  /** 绘制图层的 Feature 快照；drawend 时包含刚完成的要素（此时 OL 尚未写入 source） */
   features: BasicFeature<OlGeometry.Geometry>[]
   /** 本事件关联的 Feature（drawend 时为新完成的 Feature，其余事件可能为 null） */
   feature: BasicFeature<OlGeometry.Geometry> | null

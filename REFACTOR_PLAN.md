@@ -1,5 +1,7 @@
 # OMap 产品化改造与发布实施计划
 
+> 2026-09-07 校准：后文保留历史阶段记录，旧测试数量、覆盖率和勾选不代表当前状态。当前验收与未完成事项以 [发布状态](docs/guide/release-status.md) 和 [仓库准备清单](REPOSITORY_SETUP.md) 为准。
+
 > 项目：`openlayersMapKit` / npm 包：`openlayers-map-kit`  
 > 基线版本：`1.0.0-beta1`（历史未发布版本）  
 > 当前开发版本：`0.1.0-beta.1`（内部预发布版本，公开发布前仍需满足下述门禁）  

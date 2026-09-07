@@ -74,7 +74,6 @@
       "通过弹窗选项的 `positioning` 字段传入。"
     ]
   },
-
   "Control": {
     "stability": "internal",
     "desc": "控件基类，封装 id、类型、属性字典、事件订阅与生命周期管理。",
@@ -103,7 +102,6 @@
     ],
     "related": ["示例：[控件用法](/examples/controls)"]
   },
-
   "Map": {
     "desc": "地图门面类，聚合视图、图层、交互、控件与弹窗，是整个 SDK 的主入口。",
     "notes": [
@@ -186,15 +184,15 @@
     ],
     "example": "// 半径 1000（投影单位，3857 下近似 1000 米）\nconst circle = new Circle([116.397, 39.909], 1000)"
   },
-
   "Draw": {
     "desc": "绘制交互，在地图上交互式创建点、线、面等要素。",
     "notes": [
       "绘制类型见 [`DrawMode`](./DrawMode.md)。",
       "交互需通过 `Map.addInteraction()` 挂载；不再使用时先 `remove()`，彻底释放用 `dispose()`。",
-      "绘制完成的要素通常通过事件回调获取。"
+      "绘制完成的要素通常通过事件回调获取。",
+      "`drawend` 每次完成只派发一次；事件的 `features` 快照包含新完成的 Feature。事件沿用 OpenLayers 时序，在 source 写入前触发；此时请读事件快照，回调结束后再读取图层集合。程序化添加 Feature 不会触发 `drawend`。"
     ],
-    "example": "const draw = new Draw({ mode: DrawMode.Polygon })\n\nmap.addInteraction(draw)\ndraw.on('drawend', (feature) => {\n  vectorLayer.addFeature(feature)\n})",
+    "example": "const draw = new Draw(DrawMode.Polygon)\nmap.addInteraction(draw)\ndraw.on('drawend', (event) => {\n  console.log(event.feature, event.features)\n})",
     "related": ["承载要素：[VectorLayer](../layer/VectorLayer.md)"]
   },
   "DrawMode": {
@@ -265,7 +263,6 @@
     "desc": "交互类型标识常量，用于区分不同交互实例的类型。",
     "notes": ["主要供内部与调试使用；业务代码一般直接判断实例类型即可。"]
   },
-
   "BaseLayer": {
     "stability": "internal",
     "desc": "图层基类，封装 id、可见性、透明度、层级、属性字典与生命周期管理。",
@@ -358,7 +355,6 @@
       "图层组需通过 `Map.addLayerGroup()` 挂载。"
     ]
   },
-
   "Source": {
     "desc": "数据源基类，封装数据源的通用属性、事件与生命周期管理。",
     "notes": [
@@ -454,7 +450,6 @@
       "保留仅为兼容既有实现，不建议在新项目中使用。"
     ]
   },
-
   "Event": {
     "stability": "internal",
     "desc": "事件基类，提供类型化的 `on` / `once` / `un` 订阅接口。",
