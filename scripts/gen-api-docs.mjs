@@ -780,7 +780,10 @@ function buildSidebar() {
     if (!byGroup.has(group)) byGroup.set(group, [])
     const list = byGroup.get(group)
     if (list.some((i) => i.text === name)) return
-    list.push({ text: name, link: '/api/' + group + '/' + name })
+    // Windows cannot hold separate LngLat.md/Lnglat.md files. The deprecated
+    // compatibility alias therefore points at the canonical LngLat page.
+    const pageName = name === 'Lnglat' ? 'LngLat' : name
+    list.push({ text: name, link: '/api/' + group + '/' + pageName })
   }
   for (const c of extracted) add(c.group, c.exportName)
   for (const [name, meta] of Object.entries(MANUAL_PAGES)) add(meta.group, name)

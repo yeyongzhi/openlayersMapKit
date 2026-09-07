@@ -30,7 +30,7 @@
 
 ## 分支与发布边界
 
-功能分支 PR 到 `dev`，验收后 `dev` PR 到 `main`；紧急修复合入 `main` 后同步回 `dev`。详见 [仓库管理与发布准备](REPOSITORY_SETUP.md)。
+日常工作直接提交并推送到 `dev`；准备稳定版本时，由 `dev` 向受保护的 `main` 发起 PR。紧急修复也优先在 `dev` 完成；若直接修复 `main`，随后必须同步回 `dev`。详见 [仓库管理与发布准备](REPOSITORY_SETUP.md)。
 
 首次运行完整检查前执行 `pnpm exec playwright install chromium`。`pnpm check:all` 还包括公开 API 基线、文档链接、浏览器与独立 tarball 消费者检查。
 

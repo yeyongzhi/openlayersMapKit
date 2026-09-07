@@ -14,7 +14,7 @@
 
 ## 仍需完成
 
-- 在 GitHub 应用分支保护规则、同步远端分支并验收 Linux CI。
+- 将当前一次性 PR 合入 `dev` 后，后续直接在 `dev` 开发；在 GitHub 仅保护 `main`。
 - npm Trusted Publishing、GitHub environments 和仓库变量的实际配置。
 - 在真实业务项目中完成试用；本地消费者不代表业务验收完成。
 - 在单独授权后切换 Pages 发布源并部署 VitePress。当前远端站点仍是 Jekyll。

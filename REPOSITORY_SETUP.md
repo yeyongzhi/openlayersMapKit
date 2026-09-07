@@ -4,12 +4,13 @@
 
 ## 分支
 
-- `main`：已验收代码。功能在短期分支开发，PR 到 `dev`，通过验收后由 `dev` PR 到 `main`。
-- 修复直接进入 `main` 时，随后同步回 `dev`。`dev` → `main` 使用 merge commit，避免 squash 后两个长期分支持续出现重复提交。
-- 本轮本地 `dev` 已快进到 `0fab42d`；远端 `dev` 未改动。工作分支为 `codex/release-readiness`。
-- `.github/rulesets/main-dev.json` 是待导入的 GitHub ruleset：要求 PR、GitHub Actions 的 `quality` 检查及解决审查会话，禁止强推和删除；单人维护不强制第二人批准。
+- `dev`：日常开发分支，允许直接提交和推送；每次推送都会运行 CI。
+- `main`：稳定主分支，只通过 `dev → main` PR 更新。合并使用 merge commit，避免两个长期分支持续出现重复提交。
+- 紧急修复也优先在 `dev` 完成；确需直接修复 `main` 时，完成后立即将 `main` 同步回 `dev`。
+- 本轮 PR 合入 `dev` 并删除一次性工作分支后，后续直接在 `dev` 开发。
+- `.github/rulesets/main-dev.json` 是待导入的 GitHub ruleset：仅保护 `main`，要求 PR、GitHub Actions 的 `quality` 检查及解决审查会话，禁止强推和删除；单人维护不强制第二人批准。
 - 在 Settings → Rules → Rulesets 导入 JSON；保留已有规则，先检查是否已有等价规则，避免重复添加。GitHub Actions integration id 为 15368。此 JSON 文件本身不会自动修改远端设置。
-- 短期分支合并后删除，保留 `main` 与 `dev`。可以开启仓库的自动删除已合并分支选项，受保护的长期分支继续保留。
+- 长期只保留 `main` 与 `dev`；当前 `codex/release-readiness` 是切换策略前的一次性分支，合并后删除。
 
 ## 统一检查
 
