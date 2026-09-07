@@ -44,7 +44,7 @@
     "build": "node scripts/build.mjs",
     "build:obf": "node scripts/build.mjs --obfuscate",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src tests vite.config.ts vitest.config.ts --max-warnings 0",
+    "lint": "eslint src tests vite.config.ts vitest.config.ts playwright.config.ts --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -64,8 +64,15 @@
     "check:consumers": "node scripts/check-build-outputs.mjs && node tests/consumer/esm-smoke.mjs && node tests/consumer/cjs-smoke.cjs && tsc -p tsconfig.consumer.json",
     "check:package": "publint && attw --pack . --ignore-rules false-cjs",
     "audit:api": "tsc -p tsconfig.json --declaration --emitDeclarationOnly --noEmit false --outDir .tmp-api-audit && node scripts/audit-public-api.mjs --out .tmp-api-audit/public-api.txt",
-    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test:coverage && pnpm build && pnpm example:build && pnpm check:consumers && pnpm docs:build && pnpm check:package",
-    "prepack": "pnpm typecheck && pnpm test && pnpm build"
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm audit:api && pnpm docs:check && pnpm test:coverage && pnpm test:release && pnpm build && pnpm typecheck:browser && pnpm example:build && pnpm check:consumers && pnpm docs:build && pnpm check:package",
+    "prepack": "pnpm typecheck && pnpm test && pnpm build",
+    "typecheck:browser": "tsc -p tsconfig.browser.json",
+    "test:browser": "playwright test",
+    "test:release": "node --test tests/release/*.test.mjs",
+    "check:all": "pnpm check && pnpm test:browser && pnpm check:tarball",
+    "check:tarball": "node scripts/check-tarball.mjs",
+    "release:check": "node scripts/check-release.mjs",
+    "release:dry-run": "pnpm release:check && pnpm check:all"
   },
   "keywords": [
     "openlayers",
@@ -83,6 +90,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "@rollup/pluginutils": "^5.3.0",
     "@types/node": "^24.0.7",
     "@vitest/coverage-v8": "^4.1.11",

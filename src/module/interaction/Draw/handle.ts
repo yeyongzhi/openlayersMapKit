@@ -51,6 +51,10 @@ export function handleInteractionDrawEvent(
   if (isDefined(feature)) {
     targetFeature = layer?.getFeatureByOlFeature(feature) || null
   }
+  // OL 在写入 source 前派发 drawend；事件快照应包含刚完成的要素。
+  if (type === 'drawend' && targetFeature && !layerFeatures.includes(targetFeature)) {
+    layerFeatures = [...layerFeatures, targetFeature]
+  }
   return {
     type,
     target,

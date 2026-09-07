@@ -5,5 +5,9 @@ node_modules
 .pnpm-store
 pnpm-lock.yaml
 .tmp-api-audit
+.tmp-package-consumer
+artifacts
+playwright-report
+test-results
 .agents
 %SystemDrive%
