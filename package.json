@@ -2,7 +2,7 @@
   "name": "openlayers-map-kit",
   "version": "0.1.0-beta.1",
   "description": "基于 OpenLayers 的类型安全地图应用开发 SDK。",
-  "homepage": "https://github.com/yeyongzhi/openlayersMapKit#readme",
+  "homepage": "https://yeyongzhi.github.io/openlayersMapKit/",
   "bugs": {
     "url": "https://github.com/yeyongzhi/openlayersMapKit/issues"
   },

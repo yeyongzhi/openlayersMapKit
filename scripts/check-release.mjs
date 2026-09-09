@@ -42,8 +42,9 @@ async function main() {
     )
   }
   if (process.argv.includes('--check-registry')) await assertVersionAvailable(pkg.name, pkg.version)
-  if (process.env.GITHUB_OUTPUT)
-    appendFileSync(process.env.GITHUB_OUTPUT, `dist_tag=${plan.distTag}\n`)
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, `version=${plan.version}\ndist_tag=${plan.distTag}\n`)
+  }
   console.log(
     JSON.stringify({ name: pkg.name, ...plan, mode: 'validation only; no publication' }, null, 2)
   )

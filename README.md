@@ -2,9 +2,10 @@
 
 > 基于 OpenLayers 封装的地图引擎开发包，提供一系列面向对象的地图开发类，用于快速开发地图应用。
 
-[![Version](https://img.shields.io/badge/version-0.1.0--beta.1-blue)](package.json)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0--beta.1-blue)](https://www.npmjs.com/package/openlayers-map-kit)
+[![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/yeyongzhi/openlayersMapKit/blob/main/LICENSE)
 [![OpenLayers](https://img.shields.io/badge/OpenLayers-10.6.1-orange)](https://openlayers.org/)
+[![Documentation](https://img.shields.io/badge/docs-VitePress-646cff)](https://yeyongzhi.github.io/openlayersMapKit/)
 
 ---
 
@@ -112,7 +113,7 @@ Map (core)
 
 ### 1. Map（地图核心）
 
-[src/module/core/Map/index.ts](src/module/core/Map/index.ts) — 一切操作的中心。
+[src/module/core/Map/index.ts](https://github.com/yeyongzhi/openlayersMapKit/blob/main/src/module/core/Map/index.ts) — 一切操作的中心。
 
 ```
 Map(element, options) → 创建地图实例
@@ -129,7 +130,7 @@ Map(element, options) → 创建地图实例
 
 ### 2. Feature（要素体系）
 
-[src/module/core/Feature/](src/module/core/Feature/) — 所有几何要素的抽象。
+[src/module/core/Feature/](https://github.com/yeyongzhi/openlayersMapKit/tree/main/src/module/core/Feature) — 所有几何要素的抽象。
 
 ```
 BasicFeature (抽象基类)
@@ -147,7 +148,7 @@ BasicFeature (抽象基类)
 
 ### 3. Layer（图层体系）
 
-[src/module/layer/](src/module/layer/) — 图层继承链。
+[src/module/layer/](https://github.com/yeyongzhi/openlayersMapKit/tree/main/src/module/layer) — 图层继承链。
 
 ```
 BaseLayer<T> (基类：透明度、可见性、范围、缩放等通用属性)
@@ -164,7 +165,7 @@ BaseLayer<T> (基类：透明度、可见性、范围、缩放等通用属性)
 
 ### 4. Interaction（交互体系）
 
-[src/module/interaction/](src/module/interaction/) — 交互继承链。
+[src/module/interaction/](https://github.com/yeyongzhi/openlayersMapKit/tree/main/src/module/interaction) — 交互继承链。
 
 ```
 Interaction<T> (基类：active、事件、图层绑定)
@@ -184,7 +185,7 @@ Interaction<T> (基类：active、事件、图层绑定)
 
 ### 5. Basic（基础类型体系）
 
-[src/module/basic/](src/module/basic/) — 几何相关的值对象。
+[src/module/basic/](https://github.com/yeyongzhi/openlayersMapKit/tree/main/src/module/basic) — 几何相关的值对象。
 
 | 类       | 说明                                   |
 | -------- | -------------------------------------- |
@@ -244,18 +245,21 @@ import { Map, GaodeLayer, GaodeLayerType } from 'openlayers-map-kit'
 ### 基本示例
 
 ```typescript
-import { Map, GaodeLayer, GaodeLayerType, Draw, DrawMode } from 'openlayers-map-kit'
+import { Map, GaodeLayer, GaodeLayerType, Draw, DrawMode, ProjUtil } from 'openlayers-map-kit'
+
+const center = ProjUtil.fromLonLat([116.397428, 39.90923])
+if (!center) throw new Error('地图中心坐标转换失败')
 
 // 1. 创建地图
 const map = new Map('map-container', {
   view: {
-    center: [116.397428, 39.90923], // 北京
+    center, // 北京，EPSG:3857
     zoom: 10
   }
 })
 
 // 2. 添加高德底图
-const gaodeLayer = new GaodeLayer(GaodeLayerType.VEC, {
+const gaodeLayer = new GaodeLayer(GaodeLayerType.Vec, {
   name: '高德矢量地图'
 })
 map.addLayer(gaodeLayer)
@@ -317,5 +321,6 @@ dist/
 - **Author**: Aurora
 - **License**: MIT
 - **当前版本**: 0.1.0-beta.1（内部预发布）
-- **参与贡献**: 见 [CONTRIBUTING.md](./CONTRIBUTING.md)
-- **版本变化**: 见 [CHANGELOG.md](./CHANGELOG.md)
+- **在线文档**: [VitePress 文档站](https://yeyongzhi.github.io/openlayersMapKit/)
+- **参与贡献**: 见 [CONTRIBUTING.md](https://github.com/yeyongzhi/openlayersMapKit/blob/main/CONTRIBUTING.md)
+- **版本变化**: 见 [CHANGELOG.md](https://github.com/yeyongzhi/openlayersMapKit/blob/main/CHANGELOG.md)

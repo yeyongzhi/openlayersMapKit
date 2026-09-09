@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     outputs:
+      version: ${{ steps.release.outputs.version }}
       dist_tag: ${{ steps.release.outputs.dist_tag }}
     steps:
       - uses: actions/checkout@v5
@@ -59,6 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: npm
     permissions:
+      contents: read
       id-token: write
     steps:
       - uses: actions/setup-node@v5
@@ -73,4 +75,5 @@ jobs:
       - name: Publish the exact validated tarball
         env:
           DIST_TAG: ${{ needs.validate.outputs.dist_tag }}
-        run: npm publish artifacts/*.tgz --ignore-scripts --access public --tag "$DIST_TAG"
+          PACKAGE_VERSION: ${{ needs.validate.outputs.version }}
+        run: npm publish "artifacts/openlayers-map-kit-${PACKAGE_VERSION}.tgz" --ignore-scripts --access public --tag "$DIST_TAG"

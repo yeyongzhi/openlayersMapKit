@@ -1,6 +1,6 @@
 # Vector 与常用 Geometry
 
-`VectorLayer` 承载矢量要素，几何要素由 `Point` / `LineString` / `Polygon` / `MultiPoint` / `MultiLineString` / `MultiPolygon` / `LinearRing` / `Circle` 表示。所有坐标使用经纬度数组（默认按 `EPSG:3857` 内部投影）。
+`VectorLayer` 承载矢量要素，几何要素由 `Point` / `LineString` / `Polygon` / `MultiPoint` / `MultiLineString` / `MultiPolygon` / `LinearRing` / `Circle` 表示。Geometry 使用视图投影坐标；以下示例通过 `ProjUtil.fromLonLat()` 将经纬度显式转换为默认的 `EPSG:3857`。
 
 ```vue
 <script setup lang="ts">
@@ -15,6 +15,7 @@ import {
   MultiPolygon,
   Point,
   Polygon,
+  ProjUtil,
   Style,
   VectorLayer
 } from 'openlayers-map-kit'
@@ -22,6 +23,12 @@ import {
 const mapElement = useTemplateRef<HTMLDivElement>('mapElement')
 const map = shallowRef<OMap>()
 const layer = shallowRef<VectorLayer>()
+
+function project(coordinate: [number, number]) {
+  const result = ProjUtil.fromLonLat(coordinate)
+  if (!result) throw new Error(`坐标转换失败：${coordinate.join(', ')}`)
+  return result
+}
 
 onMounted(() => {
   if (!mapElement.value) return
@@ -37,17 +44,13 @@ onMounted(() => {
     stroke: { color: '#1677ff', width: 2 }
   })
 
-  // Point：单个 [lng, lat]
-  const point = new Point([116.397, 39.909], { name: '单点' })
+  // Point：单个投影坐标
+  const point = new Point(project([116.397, 39.909]), { name: '单点' })
   point.setStyle(pointStyle)
 
   // LineString：一串坐标点
   const line = new LineString(
-    [
-      [116.35, 39.88],
-      [116.42, 39.92],
-      [116.5, 39.9]
-    ],
+    [project([116.35, 39.88]), project([116.42, 39.92]), project([116.5, 39.9])],
     { name: '折线' }
   )
   line.setStyle(lineStyle)
@@ -56,11 +59,11 @@ onMounted(() => {
   const polygon = new Polygon(
     [
       [
-        [116.3, 39.85],
-        [116.55, 39.85],
-        [116.55, 39.98],
-        [116.3, 39.98],
-        [116.3, 39.85]
+        project([116.3, 39.85]),
+        project([116.55, 39.85]),
+        project([116.55, 39.98]),
+        project([116.3, 39.98]),
+        project([116.3, 39.85])
       ]
     ],
     { name: '多边形' }
@@ -68,29 +71,19 @@ onMounted(() => {
   polygon.setStyle(areaStyle)
 
   // Circle：中心点 + 半径，半径为投影单位（EPSG:3857 下近似米）
-  const circle = new Circle([116.5, 39.95], 2000, { name: '圆' })
+  const circle = new Circle(project([116.5, 39.95]), 2000, { name: '圆' })
   circle.setStyle(areaStyle)
 
   // Multi*：对应单层结构的数组
-  const multiPoint = new MultiPoint(
-    [
-      [116.32, 39.82],
-      [116.34, 39.84]
-    ],
-    { name: '多点' }
-  )
+  const multiPoint = new MultiPoint([project([116.32, 39.82]), project([116.34, 39.84])], {
+    name: '多点'
+  })
   multiPoint.setStyle(pointStyle)
 
   const multiLine = new MultiLineString(
     [
-      [
-        [116.2, 39.8],
-        [116.28, 39.86]
-      ],
-      [
-        [116.28, 39.86],
-        [116.36, 39.8]
-      ]
+      [project([116.2, 39.8]), project([116.28, 39.86])],
+      [project([116.28, 39.86]), project([116.36, 39.8])]
     ],
     { name: '多线' }
   )
@@ -100,11 +93,11 @@ onMounted(() => {
     [
       [
         [
-          [116.1, 39.9],
-          [116.18, 39.9],
-          [116.18, 39.95],
-          [116.1, 39.95],
-          [116.1, 39.9]
+          project([116.1, 39.9]),
+          project([116.18, 39.9]),
+          project([116.18, 39.95]),
+          project([116.1, 39.95]),
+          project([116.1, 39.9])
         ]
       ]
     ],
@@ -115,7 +108,7 @@ onMounted(() => {
   layer.value.addFeatures([point, line, polygon, circle, multiPoint, multiLine, multiPolygon])
 
   map.value = new OMap(mapElement.value, {
-    view: { center: [116.4, 39.9], zoom: 10 },
+    view: { center: project([116.4, 39.9]), zoom: 10 },
     layers: [layer.value]
   })
 
@@ -144,7 +137,7 @@ onUnmounted(() => {
 
 要点：
 
-- 坐标统一写经纬度数组，内部按视图投影换算；`Circle` 的半径是**投影单位**（`EPSG:3857` 下近似米，不是经纬度度数）。
+- Geometry 坐标不会自动改变坐标参考系。经纬度应先通过 `ProjUtil.fromLonLat()` 转为视图投影；`Circle` 的半径是**投影单位**（`EPSG:3857` 下近似米）。
 - `Polygon` 是「环的数组」：第一个环为外环，后续为内环（洞）；`MultiPolygon` 再套一层。
 - 要素通过 `setStyle()` 单独设置样式，或用 `layer.setStyle()` 统一设置。
 - 同一个原生 OpenLayers Feature 经 resolver 始终解析为同一 OMap wrapper，因此可以对 `addFeature` 传入的要素继续调用 `setCoordinates()` 更新。
