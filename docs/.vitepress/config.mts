@@ -7,13 +7,37 @@ export default defineConfig({
   title: 'OMap',
   description: '基于 OpenLayers 的类型安全地图应用开发 SDK',
   base: process.env.DOCS_BASE ?? '/openlayersMapKit/',
+  head: [
+    ['meta', { name: 'theme-color', content: '#2563eb' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:title', content: 'OMap — OpenLayers 类型安全业务封装' }],
+    [
+      'meta',
+      {
+        property: 'og:description',
+        content: '使用统一的 Map、Layer、Source、Feature 和 Interaction API 构建地图应用。'
+      }
+    ]
+  ],
   lastUpdated: true,
   cleanUrls: true,
+  sitemap: {
+    hostname: 'https://yeyongzhi.github.io/openlayersMapKit/'
+  },
   themeConfig: {
     nav: [
       { text: '指南', link: '/guide/getting-started' },
       { text: 'API', link: '/api/' },
-      { text: '示例', link: '/examples/basic-map' }
+      { text: '示例', link: '/examples/basic-map' },
+      {
+        text: '项目',
+        items: [
+          { text: '发布状态', link: '/guide/release-status' },
+          { text: '版本策略', link: '/guide/versioning' },
+          { text: 'GitHub', link: 'https://github.com/yeyongzhi/openlayersMapKit' },
+          { text: 'npm', link: 'https://www.npmjs.com/package/openlayers-map-kit' }
+        ]
+      }
     ],
     sidebar: {
       '/guide/': [
@@ -21,6 +45,7 @@ export default defineConfig({
           text: '开发指南',
           items: [
             { text: '快速开始', link: '/guide/getting-started' },
+            { text: '环境与兼容性', link: '/guide/compatibility' },
             { text: '核心概念', link: '/guide/core-concepts' },
             { text: '架构与模块', link: '/guide/architecture' },
             { text: '迁移指南', link: '/guide/migration' },
@@ -64,6 +89,23 @@ export default defineConfig({
         }
       ]
     },
-    socialLinks: []
+    outline: { level: [2, 3], label: '本页内容' },
+    search: { provider: 'local' },
+    editLink: {
+      pattern: 'https://github.com/yeyongzhi/openlayersMapKit/edit/dev/docs/:path',
+      text: '在 GitHub 上编辑此页'
+    },
+    docFooter: {
+      prev: '上一页',
+      next: '下一页'
+    },
+    lastUpdated: {
+      text: '最后更新于'
+    },
+    footer: {
+      message: '基于 MIT 许可证发布',
+      copyright: 'Copyright © 2026 Aurora'
+    },
+    socialLinks: [{ icon: 'github', link: 'https://github.com/yeyongzhi/openlayersMapKit' }]
   }
 })

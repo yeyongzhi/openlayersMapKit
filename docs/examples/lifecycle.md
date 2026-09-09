@@ -6,7 +6,7 @@
 <script setup lang="ts">
 import { onActivated, onMounted, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
 import 'ol/ol.css'
-import { GaodeLayer, GaodeLayerType, Map as OMap } from 'openlayers-map-kit'
+import { GaodeLayer, GaodeLayerType, Map as OMap, ProjUtil } from 'openlayers-map-kit'
 
 const props = defineProps<{ sceneId: string }>()
 
@@ -15,10 +15,12 @@ const map = shallowRef<OMap>()
 
 function createMap() {
   if (!mapElement.value) return
+  const center = ProjUtil.fromLonLat([116.397, 39.909])
+  if (!center) throw new Error('地图中心坐标转换失败')
   map.value = new OMap(mapElement.value, {
-    view: { center: [116.397, 39.909], zoom: 10 }
+    view: { center, zoom: 10 }
   })
-  map.value.addLayer(new GaodeLayer(GaodeLayerType.VEC))
+  map.value.addLayer(new GaodeLayer(GaodeLayerType.Vec))
 }
 
 function destroyMap() {

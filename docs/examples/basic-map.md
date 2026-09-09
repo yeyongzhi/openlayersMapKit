@@ -4,7 +4,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, shallowRef, useTemplateRef } from 'vue'
 import 'ol/ol.css'
-import { GaodeLayer, GaodeLayerType, Map as OMap } from 'openlayers-map-kit'
+import { GaodeLayer, GaodeLayerType, Map as OMap, ProjUtil } from 'openlayers-map-kit'
 
 const mapElement = useTemplateRef<HTMLDivElement>('mapElement')
 const map = shallowRef<OMap>()
@@ -12,10 +12,13 @@ const map = shallowRef<OMap>()
 onMounted(() => {
   if (!mapElement.value) return
 
+  const center = ProjUtil.fromLonLat([116.397428, 39.90923])
+  if (!center) throw new Error('地图中心坐标转换失败')
+
   map.value = new OMap(mapElement.value, {
-    view: { center: [116.397428, 39.90923], zoom: 10 }
+    view: { center, zoom: 10 }
   })
-  map.value.addLayer(new GaodeLayer(GaodeLayerType.VEC))
+  map.value.addLayer(new GaodeLayer(GaodeLayerType.Vec))
 })
 
 onUnmounted(() => {

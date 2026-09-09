@@ -27,7 +27,7 @@ const map = new OMap(element, {
 - 边界：`getMinZoom()` / `setMinZoom()`、`getMaxZoom()` / `setMaxZoom()`。
 - 投影：默认 `EPSG:3857`，通过 `Projection` 或 `ProjUtil.fromLonLat` / `toLonLat` 换算。
 
-`center` 写经纬度数组即可，内部按视图投影换算。
+`center` 使用视图投影坐标。经纬度需要先通过 `ProjUtil.fromLonLat()` 转换；反向转换使用 `ProjUtil.toLonLat()`。
 
 ## Layer 与 Source
 
@@ -56,7 +56,7 @@ layer.addFeature(point)
 
 要点：
 
-- 坐标统一写**经纬度数组**。`Circle` 的半径是投影单位（`EPSG:3857` 下近似米）。
+- Geometry 坐标使用**视图投影坐标**。经纬度需要先转换；`Circle` 的半径同样是投影单位（`EPSG:3857` 下近似米）。
 - 业务属性通过构造第二个参数 `properties` 传入，之后用 `getProperties()` / `setProperties()` 读写（`setProperties` 为合并语义）。
 - **同一原生 OpenLayers Feature 始终解析为同一个 OMap wrapper**（内部 resolver + WeakMap）。因此拿到要素后可以持续调用 `setCoordinates()`、`setStyle()` 更新，UI 会同步刷新。
 - 反过来，**不要用原生 Feature 直接构造几何 wrapper**；请走 Format、VectorSource 等受控入口。
@@ -97,9 +97,9 @@ popup.setContent('<strong>标注</strong>')
 
 ## 坐标与投影
 
-- 公开 API 统一使用**经纬度**（`[lng, lat]`）。
-- 内部默认投影 `EPSG:3857`；需要换算时用 `ProjUtil.fromLonLat()` / `toLonLat()`，或 `new Projection('EPSG:4326')` 显式声明。
-- `LngLat`（推荐）与 `Lnglat`（历史兼容别名，已废弃）都表示经纬度值对象。
+- View 与 Geometry 默认使用当前视图的**投影坐标**，默认投影为 `EPSG:3857`。
+- 外部经纬度 `[lng, lat]` 进入地图前使用 `ProjUtil.fromLonLat()`，从地图坐标回到经纬度使用 `ProjUtil.toLonLat()`。
+- `LngLat`（推荐）与 `Lnglat`（历史兼容别名，已废弃）是坐标值对象，不会隐式改变坐标参考系。
 
 ## 生命周期
 

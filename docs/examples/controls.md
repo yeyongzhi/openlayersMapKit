@@ -6,7 +6,14 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, shallowRef, useTemplateRef } from 'vue'
 import 'ol/ol.css'
-import { FullScreen, GaodeLayer, GaodeLayerType, Map as OMap, Zoom } from 'openlayers-map-kit'
+import {
+  FullScreen,
+  GaodeLayer,
+  GaodeLayerType,
+  Map as OMap,
+  ProjUtil,
+  Zoom
+} from 'openlayers-map-kit'
 
 const mapElement = useTemplateRef<HTMLDivElement>('mapElement')
 const map = shallowRef<OMap>()
@@ -17,12 +24,15 @@ const zoomVisible = ref(true)
 onMounted(() => {
   if (!mapElement.value) return
 
+  const center = ProjUtil.fromLonLat([116.397, 39.909])
+  if (!center) throw new Error('地图中心坐标转换失败')
+
   // 传入 controls: [] 可清空默认控件集，随后完全自行管理。
   map.value = new OMap(mapElement.value, {
-    view: { center: [116.397, 39.909], zoom: 10 },
+    view: { center, zoom: 10 },
     controls: []
   })
-  map.value.addLayer(new GaodeLayer(GaodeLayerType.VEC))
+  map.value.addLayer(new GaodeLayer(GaodeLayerType.Vec))
 
   // 仅传 options：使用默认按钮文案与动画
   zoom.value = new Zoom({ duration: 200, delta: 1 })
