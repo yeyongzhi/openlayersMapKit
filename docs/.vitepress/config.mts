@@ -2,12 +2,15 @@ import { defineConfig } from 'vitepress'
 // 逐类 API 侧边栏由 scripts/gen-api-docs.mjs 生成，新增公开类后重跑该脚本即可同步
 import apiClassSidebar from './api-sidebar.json'
 
+const docsBase = process.env.DOCS_BASE ?? '/openlayersMapKit/'
+
 export default defineConfig({
   lang: 'zh-CN',
   title: 'OMap',
   description: '基于 OpenLayers 的类型安全地图应用开发 SDK',
-  base: process.env.DOCS_BASE ?? '/openlayersMapKit/',
+  base: docsBase,
   head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${docsBase}omap.svg` }],
     ['meta', { name: 'theme-color', content: '#2563eb' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'OMap — OpenLayers 类型安全业务封装' }],
@@ -25,6 +28,7 @@ export default defineConfig({
     hostname: 'https://yeyongzhi.github.io/openlayersMapKit/'
   },
   themeConfig: {
+    logo: { src: '/omap.svg', alt: 'OMap' },
     nav: [
       { text: '指南', link: '/guide/getting-started' },
       { text: 'API', link: '/api/' },
