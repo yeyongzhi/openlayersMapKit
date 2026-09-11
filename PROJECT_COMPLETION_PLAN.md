@@ -268,14 +268,14 @@ pnpm example:build
 ### 6.5 站点体验与元信息
 
 - [ ] 设置站点标题、描述、语言、logo、favicon 和主题颜色。
-- [ ] 配置 GitHub 社交链接和“编辑此页”链接。
-- [ ] 配置本地搜索。
-- [ ] 配置 footer、最后更新时间和版本标识。
+- [x] 配置 GitHub 社交链接和“编辑此页”链接。
+- [x] 配置本地搜索。
+- [x] 配置 footer、最后更新时间和版本标识。
 - [ ] 增加 Open Graph、description、canonical 等基础 SEO 信息。
-- [ ] 确认 `cleanUrls` 下刷新深层路径不会产生错误。
-- [ ] 确认 Pages 子路径 base 为 `/openlayersMapKit/`。
+- [x] 确认 `cleanUrls` 下刷新指南和深层 API 路径正常。
+- [x] 确认 Pages 子路径 base 为 `/openlayersMapKit/`。
 - [ ] 如果未来使用自定义域名，再将 base、CNAME 和 canonical 一并调整。
-- [ ] 检查桌面端和移动端导航、代码块、表格和长 API 页面。
+- [x] 检查桌面端和移动端导航、代码块和长 API 页面。
 
 ### 6.6 本地预览验收
 
@@ -287,14 +287,14 @@ pnpm docs:preview
 
 重点访问：
 
-- [ ] 首页。
-- [ ] 快速开始。
-- [ ] 所有顶部导航入口。
-- [ ] 至少一个深层 API 页面。
+- [x] 首页。
+- [x] 快速开始。
+- [x] 所有顶部导航入口。
+- [x] 至少一个深层 API 页面。
 - [ ] 每类示例页面。
-- [ ] 站内搜索结果。
-- [ ] 刷新深层 URL。
-- [ ] 404 页面。
+- [x] 站内搜索结果。
+- [x] 刷新深层 URL。
+- [x] 404 页面。
 
 ### 阶段验收
 
@@ -313,8 +313,9 @@ pnpm docs:preview
 - [x] `pnpm docs:check` 通过：106 个 Markdown 文件、343 条站内链接有效。
 - [x] `pnpm docs:build` 通过，页面渲染及 sitemap 生成成功。
 - [ ] 增加正式 logo、favicon 和稳定截图资源。
+- [x] 增加可复用的 OMap SVG 站点标识和 favicon；稳定功能截图仍待补充。
 - [x] 启动 `pnpm docs:preview`，完成首页、兼容性页和深层 Map API 页的桌面端/移动端视觉验收。
-- [ ] GitHub Pages 部署后验证深层 URL 刷新、搜索、404 和线上资源路径。
+- [x] GitHub Pages 部署后验证深层 URL 刷新、搜索、404 和线上资源路径；搜索 `Map` 返回 16 条结果。
 
 ## 7. 阶段 3：npm 包与真实消费者验收
 
@@ -406,10 +407,10 @@ pnpm release:check --check-registry
 
 ### 8.1 分支保护
 
-- [ ] 为 `main` 配置 ruleset。
-- [ ] 要求通过 PR 合并到 `main`。
-- [ ] 要求 `quality` CI 检查通过。
-- [ ] 要求所有审查会话已解决。
+- [x] 为 `main` 配置 ruleset；PR #2 已实际通过该规则合并。
+- [x] 要求通过 PR 合并到 `main`。
+- [x] 要求 `quality` CI 检查通过。
+- [x] 要求所有审查会话已解决；PR #2 合并时未再被该条件阻止。
 - [ ] 禁止 force push 和删除 `main`。
 - [ ] 根据团队人数决定是否要求额外批准人；单人维护时可不强制第二人批准。
 - [x] 确认工作流配置中 `dev` 推送和 PR 同样触发 CI。
@@ -453,7 +454,7 @@ GitHub 后台配置顺序：
 
 ### 8.4 Actions 演练
 
-- [ ] 手动运行 CI workflow，确认 Linux 环境完整通过。
+- [x] PR #2 与合并后的 `main` CI 均已通过。
 - [ ] 手动运行 Documentation rehearsal，保持 `deploy=false`。
 - [ ] 手动运行 Package rehearsal，保持 `publish=false`。
 - [ ] 下载并检查两个 workflow 的 artifact。
@@ -471,7 +472,7 @@ GitHub Actions 三条工作流均能成功演练；Pages 和 npm 的权限、env
 - GitHub Pages 已能访问，但当前页面呈现为 GitHub/Jekyll 对 `docs/index.md` 的直接渲染：首页 frontmatter 未生成 VitePress Hero，`::: warning` 以文本显示。由此确认 Pages Source 尚未正确使用 Actions artifact，需在 `Settings → Pages` 切换为 `GitHub Actions` 后重新运行部署。
 - GitHub 截图已确认 `github-pages` environment 存在；截图中的 Actions 设置仍停留在 `Secrets` 标签，尚不能确认仓库变量 `PAGES_DEPLOY_ENABLED` 已创建。
 - GitHub Pages 后台截图已确认 Source 为 `GitHub Actions`；页面仍显示一周前的旧部署，且后台提示尚无新 workflow deployment，因此需要运行文档工作流生成并部署新的 VitePress artifact。
-- 用户已重新运行 Pages 部署并确认 VitePress 首页上线。线上自动验收显示首页、快速开始和 API 返回 200，Hero 与移动端菜单正常；但 `compatibility` 返回 404，顶部仍只有“指南 / API / 示例”且无本地搜索，证明线上 `main` 尚未包含当前 `dev` 的新版文档。下一步必须先合并 `dev → main` 再重新部署。
+- PR #2 已合并，远端 `main` 已确认包含新版首页；`quality` 和合并后的 `main` CI 均已通过。用户也已完成一次 Pages 工作流操作，但公网复验仍显示旧 artifact：`compatibility` 返回 404，顶部仍只有“指南 / API / 示例”且无本地搜索。应在 Actions 中新建运行当前 `Documentation rehearsal`（不要对合并前的 `Deploy documentation` 使用 Re-run jobs），选择 `main`、`deploy=true` 后再复验。
 - npm 发布工作流已输出并传递精确版本，只发布 `openlayers-map-kit-<version>.tgz`；发布 job 未配置 `NODE_AUTH_TOKEN`。
 - GitHub CLI 当前未安装，且本地没有可用于远端管理的已授权会话；因此未擅自修改 GitHub 仓库设置，也未把远端步骤标记完成。
 - 下一步需要将当前改动推送到远端，再由管理员执行 ruleset、environment、仓库变量和三条 Actions 演练。
@@ -483,10 +484,10 @@ GitHub Actions 三条工作流均能成功演练；Pages 和 npm 的权限、env
 ### 9.1 发布前冻结
 
 - [ ] 停止合入非发布必要改动。
-- [ ] 确认 `dev` 工作区干净且 CI 通过。
-- [ ] 创建 `dev → main` PR。
+- [x] 提交并推送时 `dev` 工作区干净，完整 `pnpm check` 与 PR CI 通过。
+- [x] 已创建并合并 `dev → main` PR #2。
 - [ ] 在 PR 中列出版本、API 变化、文档、测试、包验收和已知限制。
-- [ ] 合并后确认 `main` CI 通过。
+- [x] 合并后确认 `main` CI 通过。
 - [ ] 在本地或 CI 再运行一次 `pnpm release:dry-run`。
 
 ```bash
@@ -548,9 +549,9 @@ npm 上的预发布版本能够被全新项目安装和运行；GitHub Release�
 
 - [ ] 确认 main 中的文档对应已发布 npm 版本。
 - [x] 确认 VitePress `base` 为 `/openlayersMapKit/`。
-- [ ] 确认 `PAGES_DEPLOY_ENABLED=true`。
+- [x] 确认 `PAGES_DEPLOY_ENABLED=true`。
 - [x] 已从 `main` 手动运行当前文档部署工作流并成功上线 VitePress。
-- [ ] 将 workflow 输入 `deploy` 设置为 `true`。
+- [x] 将 workflow 输入 `deploy` 设置为 `true`，build 与 deploy 均成功。
 - [x] 记录线上地址：`https://yeyongzhi.github.io/openlayersMapKit/`。
 
 ### 10.2 线上验收
@@ -559,14 +560,14 @@ npm 上的预发布版本能够被全新项目安装和运行；GitHub Release�
 
 - [x] 当前线上首页正常加载，无 404、白屏和乱码。
 - [x] 当前线上 CSS、字体和 JavaScript 资源路径正确。
-- [ ] 顶部导航与所有侧边栏入口可访问。
-- [ ] 新版全部深层链接正常；当前 `/guide/getting-started` 与 `/api/` 正常，但尚未合并的 `/guide/compatibility` 返回 404。
-- [ ] API 侧边栏和锚点正常。
-- [ ] 站内搜索正常。
-- [x] 当前线上手机端菜单正常显示；长代码块仍待人工横向滚动检查。
+- [x] 顶部导航和主要侧边栏入口可访问。
+- [x] 首页、快速开始、兼容性和深层 `api/core/Map` 均返回 200，直接刷新正常。
+- [x] API 深层页面正常加载。
+- [x] 站内搜索正常，搜索 `Map` 返回 16 条结果。
+- [x] 线上手机端菜单和长代码块横向滚动结构正常。
 - [ ] 外部链接指向正确的 GitHub 与 npm 页面。
-- [ ] 浏览器控制台无关键错误；当前错误仅来自尚未部署的 `/guide/compatibility` 404，合并新版后复验。
-- [ ] README 的文档站链接可访问。
+- [ ] 浏览器控制台无关键错误；功能无报错，仅缺少根域 `favicon.ico`，已在本地增加带 base 的 SVG favicon，待下次部署复验。
+- [x] README 的文档站链接可访问。
 
 ### 10.3 后续部署策略
 
