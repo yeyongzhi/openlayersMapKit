@@ -424,8 +424,8 @@ pnpm release:check --check-registry
 - [x] 确认 `github-pages` environment 存在（GitHub 后台截图已核实，当前显示 1 条 protection rule）。
 - [ ] 将 environment 部署分支限制为 `main`。
 - [ ] 新建仓库变量 `PAGES_DEPLOY_ENABLED=true`。
-- [ ] 首次上线前仍使用 `deploy=false` 运行一次 Documentation rehearsal。
-- [ ] 检查构建 artifact 内容正确后再允许真实部署。
+- [x] 首次上线前已使用 `deploy=false` 运行 Documentation rehearsal，仅构建 artifact。
+- [x] 构建 artifact 检查通过后再以 `deploy=true` 完成真实部署。
 
 GitHub 后台配置顺序：
 
@@ -455,9 +455,9 @@ GitHub 后台配置顺序：
 ### 8.4 Actions 演练
 
 - [x] PR #2 与合并后的 `main` CI 均已通过。
-- [ ] 手动运行 Documentation rehearsal，保持 `deploy=false`。
-- [ ] 手动运行 Package rehearsal，保持 `publish=false`。
-- [ ] 下载并检查两个 workflow 的 artifact。
+- [x] 手动运行 Documentation rehearsal，保持 `deploy=false`，build 成功且 deploy 按预期跳过。
+- [x] 手动运行 Package rehearsal，保持 `publish=false`；`validate` 用时 2 分 43 秒并成功，`publish` 按预期跳过。
+- [ ] 下载并检查两个 workflow 的 artifact；Package rehearsal 已确认生成 1 个 artifact，尚待下载核对文件名与校验值。
 - [ ] 对失败日志进行修复，不以跳过步骤或降低门槛作为默认解决方式。
 
 ### 阶段验收
@@ -473,6 +473,8 @@ GitHub Actions 三条工作流均能成功演练；Pages 和 npm 的权限、env
 - GitHub 截图已确认 `github-pages` environment 存在；截图中的 Actions 设置仍停留在 `Secrets` 标签，尚不能确认仓库变量 `PAGES_DEPLOY_ENABLED` 已创建。
 - GitHub Pages 后台截图已确认 Source 为 `GitHub Actions`；页面仍显示一周前的旧部署，且后台提示尚无新 workflow deployment，因此需要运行文档工作流生成并部署新的 VitePress artifact。
 - PR #2 已合并，远端 `main` 已确认包含新版首页；`quality` 和合并后的 `main` CI 均已通过。用户也已完成一次 Pages 工作流操作，但公网复验仍显示旧 artifact：`compatibility` 返回 404，顶部仍只有“指南 / API / 示例”且无本地搜索。应在 Actions 中新建运行当前 `Documentation rehearsal`（不要对合并前的 `Deploy documentation` 使用 Re-run jobs），选择 `main`、`deploy=true` 后再复验。
+- 后续 favicon 修复 PR 已合并并重新部署。最终公网复验确认首页、搜索、兼容性页面与 `/openlayersMapKit/omap.svg` 均返回 200，首页正确引用 SVG favicon。
+- 首次 Package rehearsal 已在 `main` 的提交 `3d45b5c` 上运行成功：`validate` 通过并生成 1 个 artifact，`publish=false` 使发布 job 按预期跳过，npm 未发生变更。
 - npm 发布工作流已输出并传递精确版本，只发布 `openlayers-map-kit-<version>.tgz`；发布 job 未配置 `NODE_AUTH_TOKEN`。
 - GitHub CLI 当前未安装，且本地没有可用于远端管理的已授权会话；因此未擅自修改 GitHub 仓库设置，也未把远端步骤标记完成。
 - 下一步需要将当前改动推送到远端，再由管理员执行 ruleset、environment、仓库变量和三条 Actions 演练。
@@ -566,7 +568,7 @@ npm 上的预发布版本能够被全新项目安装和运行；GitHub Release�
 - [x] 站内搜索正常，搜索 `Map` 返回 16 条结果。
 - [x] 线上手机端菜单和长代码块横向滚动结构正常。
 - [ ] 外部链接指向正确的 GitHub 与 npm 页面。
-- [ ] 浏览器控制台无关键错误；功能无报错，仅缺少根域 `favicon.ico`，已在本地增加带 base 的 SVG favicon，待下次部署复验。
+- [x] 浏览器控制台无关键功能错误；原 favicon 404 已通过带 Pages base 的 `/openlayersMapKit/omap.svg` 修复并完成线上复验。
 - [x] README 的文档站链接可访问。
 
 ### 10.3 后续部署策略
