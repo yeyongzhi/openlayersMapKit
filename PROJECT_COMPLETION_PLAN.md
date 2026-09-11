@@ -498,10 +498,10 @@ pnpm release:dry-run
 
 ### 9.2 创建发布标签
 
-- [ ] 标签必须为 `v` 加 package.json 完整版本，例如 `v0.1.0-beta.2`。
-- [ ] 标签提交必须位于 `origin/main` 历史中。
-- [ ] 推送标签前确认目标 npm 版本不存在。
-- [ ] 创建 annotated tag，并推送精确标签。
+- [x] 已使用 package.json 完整版本创建标签：`v0.1.0-beta.1`。
+- [x] 标签提交位于 `origin/main` 历史中。
+- [x] 推送标签前已确认 npm 不存在 `0.1.0-beta.1`。
+- [x] 已创建 annotated tag，并推送精确标签 `v0.1.0-beta.1`。
 
 示例命令，仅在版本确定且全部验收通过后执行：
 
@@ -512,12 +512,13 @@ git push origin v0.1.0-beta.2
 
 ### 9.3 发布 npm
 
-- [ ] 从匹配版本的 Git tag 手动运行 Package rehearsal。
+- [x] 已从匹配版本的 Git tag 手动运行 Package rehearsal，validate 全部通过并生成同版本 tarball。
+- [x] 首次发布已使用 rehearsal 生成并核验过的 `openlayers-map-kit-0.1.0-beta.1.tgz` 人工完成。
 - [ ] 将 workflow 输入 `publish` 设置为 `true`。
 - [ ] 确认 `NPM_PUBLISH_ENABLED=true`。
 - [ ] 等待 validate job 完整通过。
 - [ ] 确认 publish job 发布的是 validate job 上传的同一 tarball。
-- [ ] beta 使用 `beta` dist-tag，rc 使用 `rc`，stable 使用 `latest`。
+- [ ] beta 仅使用 `beta` dist-tag，rc 使用 `rc`，stable 使用 `latest`。首次发布后 `beta` 与 `latest` 均指向 `0.1.0-beta.1`；2026-09-11 已通过浏览器 2FA 尝试删除 `latest`，但 npm Registry 返回 `E400` 拒绝操作。后续发布稳定版时必须将 `latest` 迁移到稳定版本。
 
 ### 9.4 npm 发布后验证
 
@@ -526,12 +527,19 @@ npm view openlayers-map-kit version dist-tags peerDependencies
 pnpm add openlayers-map-kit@beta ol
 ```
 
-- [ ] npm 页面展示 README、License、仓库和主页链接。
-- [ ] `npm view` 的版本和 dist-tag 正确。
+- [x] npm 元数据已展示 MIT License、GitHub 仓库和文档站主页链接。
+- [ ] `npm view` 的版本和 dist-tag 正确。版本与 `beta` 正确；当前 Registry 仍保留指向首个 Beta 的 `latest`，需在稳定版发布时迁移。
 - [ ] 全新目录可以安装，无异常 peer dependency 警告。
 - [ ] ESM、CJS 和 TypeScript 项目均能使用。
 - [ ] Vite 生产构建成功并可显示地图。
-- [ ] 记录 npm 包地址，并加入 README 与文档站。
+- [x] 已发布 npm 包：`https://www.npmjs.com/package/openlayers-map-kit/v/0.1.0-beta.1`；README 与文档站已包含安装命令。
+
+发布核验记录（2026-09-11）：
+
+- `npm view openlayers-map-kit version`：`0.1.0-beta.1`。
+- `beta` dist-tag：`0.1.0-beta.1`。
+- `ol` peer dependency：`^10.6.1`。
+- npm registry integrity：`sha512-L3SYnSMiC23aOxqRUf4MCa0sme3m9x3SuLh0gIR3CvJUaIkRZsD5HUWVs4KV9PwzyVOijKmEpBHd7wdbNqfYRg==`。
 
 ### 9.5 GitHub Release
 
